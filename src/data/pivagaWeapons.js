@@ -1,0 +1,867 @@
+/**
+ * BGMI weapon catalog used by the Weapons & Attachments Guide.
+ * Stats are community-known approximations — they're for player reference
+ * inside the trainer, not for live match math.
+ *
+ * Card-level stats:    damage, dps, magazine, rateOfFire
+ * Modal stats:         range, bulletSpeed, firingMode, hitsToKill, tips,
+ *                      recommendedAttachments
+ */
+export const pivagaWeapons = [
+  /* ============== ASSAULT RIFLES ============== */
+  {
+    id: 'm416', name: 'M416', category: 'AR', ammo: '5.56mm',
+    damage: 41, dps: 470, magazine: 30, rateOfFire: 0.086,
+    firingMode: 'Single / Burst / Auto', range: 'Mid',
+    bulletSpeed: 880,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Best AR for new players — low recoil, easy spray.',
+      pro: 'Pair with Tactical Stock for the cleanest sub-3x spray in the game.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '3x Scope', '6x Scope', 'Compensator AR', 'Vertical Foregrip', 'Extended Quickdraw Magazine AR', 'Tactical Stock'],
+  },
+  {
+    id: 'm16a4', name: 'M16A4', category: 'AR', ammo: '5.56mm',
+    damage: 43, dps: 487, magazine: 30, rateOfFire: 0.075,
+    firingMode: 'Single / Burst', range: 'Mid-Long',
+    bulletSpeed: 900,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'No auto mode — use burst for spray.',
+      pro: 'Tap fire with 4x for surprisingly accurate long range.',
+    },
+    recommendedAttachments: ['3x Scope', '4x Scope', 'Compensator AR', 'Extended Quickdraw Magazine AR'],
+  },
+  {
+    id: 'scar-l', name: 'SCAR-L', category: 'AR', ammo: '5.56mm',
+    damage: 41, dps: 444, magazine: 30, rateOfFire: 0.096,
+    firingMode: 'Single / Auto', range: 'Mid',
+    bulletSpeed: 870,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Lowest recoil 5.56 AR — almost no kick.',
+      pro: 'Holds steady at 3x without a comp.',
+    },
+    recommendedAttachments: ['3x Scope', 'Compensator AR', 'Halfgrip', 'Vertical Foregrip', 'Extended Quickdraw Magazine AR'],
+  },
+  {
+    id: 'g36c', name: 'G36C', category: 'AR', ammo: '5.56mm',
+    damage: 43, dps: 487, magazine: 30, rateOfFire: 0.086,
+    firingMode: 'Single / Auto', range: 'Mid',
+    bulletSpeed: 870,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Karakin / Vikendi exclusive — controllable like SCAR-L.',
+      pro: 'Slightly higher damage than M416 but no stock slot.',
+    },
+    recommendedAttachments: ['3x Scope', 'Compensator AR', 'Vertical Foregrip', 'Extended Quickdraw Magazine AR'],
+  },
+  {
+    id: 'qbz', name: 'QBZ', category: 'AR', ammo: '5.56mm',
+    damage: 43, dps: 487, magazine: 30, rateOfFire: 0.086,
+    firingMode: 'Single / Auto', range: 'Mid',
+    bulletSpeed: 870,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Sanhok-only AR. Feels like a slightly punchier M416.',
+      pro: 'Use Halfgrip for the cleanest 3x spray on this rifle.',
+    },
+    recommendedAttachments: ['3x Scope', 'Compensator AR', 'Halfgrip', 'Extended Quickdraw Magazine AR'],
+  },
+  {
+    id: 'k2', name: 'K2', category: 'AR', ammo: '5.56mm',
+    damage: 43, dps: 487, magazine: 30, rateOfFire: 0.086,
+    firingMode: 'Single / Burst / Auto', range: 'Mid',
+    bulletSpeed: 870,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'High damage 5.56 AR with manageable recoil.',
+      pro: 'Strong alternative when M416 is unavailable.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '3x Scope', 'Compensator AR', 'Vertical Foregrip', 'Extended Quickdraw Magazine AR'],
+  },
+  {
+    id: 'aug', name: 'AUG', category: 'AR', ammo: '5.56mm',
+    damage: 43, dps: 506, magazine: 30, rateOfFire: 0.085,
+    firingMode: 'Single / Auto', range: 'Mid',
+    bulletSpeed: 940,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Crate weapon — very stable 5.56.',
+      pro: 'Higher DPS than M416 with similar recoil. Crate priority.',
+    },
+    recommendedAttachments: ['3x Scope', '6x Scope', 'Compensator AR', 'Vertical Foregrip', 'Extended Quickdraw Magazine AR'],
+  },
+  {
+    id: 'famas', name: 'FAMAS', category: 'AR', ammo: '5.56mm',
+    damage: 41, dps: 540, magazine: 25, rateOfFire: 0.075,
+    firingMode: 'Burst / Auto', range: 'Mid',
+    bulletSpeed: 870,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Fastest fire rate 5.56 — burns through ammo.',
+      pro: 'Devastating close-mid but needs Extended mag for long fights.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '3x Scope', 'Compensator AR', 'Vertical Foregrip', 'Extended Quickdraw Magazine AR'],
+  },
+  {
+    id: 'akm', name: 'AKM', category: 'AR', ammo: '7.62mm',
+    damage: 49, dps: 491, magazine: 30, rateOfFire: 0.1,
+    firingMode: 'Single / Auto', range: 'Mid',
+    bulletSpeed: 715,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'High damage but heavy recoil. Learn 2-tap and 3-tap first.',
+      pro: 'No stock slot — use compensator and vertical grip every time.',
+    },
+    recommendedAttachments: ['Red Dot Sight', 'Holographic Sight', '2x Scope', 'Compensator AR', 'Vertical Foregrip', 'Extended Quickdraw Magazine AR'],
+  },
+  {
+    id: 'beryl-m762', name: 'Beryl M762', category: 'AR', ammo: '7.62mm',
+    damage: 47, dps: 580, magazine: 30, rateOfFire: 0.086,
+    firingMode: 'Single / Burst / Auto', range: 'Mid',
+    bulletSpeed: 715,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'Highest DPS AR — but recoil is brutal. Skip if you cannot control spray.',
+      pro: 'Tap with 3x, full spray only inside 25m with a comp.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '2x Scope', 'Compensator AR', 'Vertical Foregrip', 'Extended Quickdraw Magazine AR'],
+  },
+  {
+    id: 'mk47-mutant', name: 'Mk47 Mutant', category: 'AR', ammo: '7.62mm',
+    damage: 49, dps: 467, magazine: 20, rateOfFire: 0.105,
+    firingMode: 'Single / Burst', range: 'Mid',
+    bulletSpeed: 780,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'No full auto mode — use burst.',
+      pro: 'Best burst weapon mid-range with a 3x.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '3x Scope', 'Compensator AR', 'Vertical Foregrip', 'Extended Quickdraw Magazine AR'],
+  },
+  {
+    id: 'groza', name: 'Groza', category: 'AR', ammo: '7.62mm',
+    damage: 49, dps: 612, magazine: 30, rateOfFire: 0.08,
+    firingMode: 'Single / Auto', range: 'Mid',
+    bulletSpeed: 715,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'Crate-only. Devastating close-range AR.',
+      pro: 'Drops squads in two seconds. Always rush the crate.',
+    },
+    recommendedAttachments: ['Red Dot Sight', 'Holographic Sight', 'Compensator AR', 'Vertical Foregrip', 'Extended Quickdraw Magazine AR'],
+  },
+  {
+    id: 'ace32', name: 'ACE32', category: 'AR', ammo: '7.62mm',
+    damage: 43, dps: 506, magazine: 40, rateOfFire: 0.086,
+    firingMode: 'Single / Auto', range: 'Mid',
+    bulletSpeed: 870,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: '40-round magazine standard — great for long fights.',
+      pro: 'Lower per-bullet damage but huge mag means longer spray windows.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '3x Scope', 'Compensator AR', 'Vertical Foregrip', 'Tactical Stock'],
+  },
+
+  /* ============== DMRs ============== */
+  {
+    id: 'mini14', name: 'Mini14', category: 'DMR', ammo: '5.56mm',
+    damage: 46, dps: 460, magazine: 20, rateOfFire: 0.1,
+    firingMode: 'Single', range: 'Long',
+    bulletSpeed: 990,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'Easiest DMR — almost no recoil for fast taps.',
+      pro: 'Pair with 6x or 8x for cross-map damage spam.',
+    },
+    recommendedAttachments: ['6x Scope', '8x Scope', 'Compensator Sniper', 'Extended Quickdraw Magazine Sniper'],
+  },
+  {
+    id: 'qbu', name: 'QBU', category: 'DMR', ammo: '5.56mm',
+    damage: 48, dps: 320, magazine: 10, rateOfFire: 0.15,
+    firingMode: 'Single', range: 'Long',
+    bulletSpeed: 970,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'Sanhok-only DMR. Bipod-stable when prone.',
+      pro: 'Lay prone and you hit like a scoped sniper.',
+    },
+    recommendedAttachments: ['6x Scope', '8x Scope', 'Compensator Sniper', 'Cheek Pad (DMR, SR)'],
+  },
+  {
+    id: 'mk12', name: 'Mk12', category: 'DMR', ammo: '5.56mm',
+    damage: 47, dps: 410, magazine: 10, rateOfFire: 0.1,
+    firingMode: 'Single', range: 'Long',
+    bulletSpeed: 935,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'Fastest 5.56 DMR for tap spam.',
+      pro: 'Crate weapon — great pickup if no SLR around.',
+    },
+    recommendedAttachments: ['6x Scope', 'Compensator Sniper', 'Extended Quickdraw Magazine Sniper'],
+  },
+  {
+    id: 'sks', name: 'SKS', category: 'DMR', ammo: '7.62mm',
+    damage: 53, dps: 354, magazine: 10, rateOfFire: 0.15,
+    firingMode: 'Single', range: 'Long',
+    bulletSpeed: 800,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Strong damage but heavy single-shot recoil.',
+      pro: 'Use Lightweight Grip + Cheek Pad to chain taps.',
+    },
+    recommendedAttachments: ['4x Scope', '6x Scope', 'Compensator Sniper', 'Lightweight Grip', 'Cheek Pad (DMR, SR)', 'Extended Quickdraw Magazine Sniper'],
+  },
+  {
+    id: 'slr', name: 'SLR', category: 'DMR', ammo: '7.62mm',
+    damage: 58, dps: 332, magazine: 10, rateOfFire: 0.18,
+    firingMode: 'Single', range: 'Long',
+    bulletSpeed: 840,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Highest damage DMR. Recoil is real — slow your taps.',
+      pro: 'Best DMR in the game for vehicle and long-range knocks.',
+    },
+    recommendedAttachments: ['6x Scope', '8x Scope', 'Compensator Sniper', 'Cheek Pad (DMR, SR)', 'Extended Quickdraw Magazine Sniper'],
+  },
+  {
+    id: 'mk14', name: 'Mk14', category: 'DMR', ammo: '7.62mm',
+    damage: 58, dps: 580, magazine: 10, rateOfFire: 0.09,
+    firingMode: 'Single / Auto', range: 'Long',
+    bulletSpeed: 853,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Crate-only. Highest single-fire damage DMR.',
+      pro: 'Full-auto is a panic button — uncontrollable past 1 second.',
+    },
+    recommendedAttachments: ['6x Scope', '8x Scope', 'Compensator Sniper', 'Cheek Pad (DMR, SR)'],
+  },
+  {
+    id: 'vss', name: 'VSS', category: 'DMR', ammo: '9mm',
+    damage: 41, dps: 410, magazine: 10, rateOfFire: 0.086,
+    firingMode: 'Single / Auto', range: 'Mid',
+    bulletSpeed: 330,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'Built-in suppressor and scope. Quiet pick.',
+      pro: 'Useless past 100m — bullet drop is severe.',
+    },
+    recommendedAttachments: ['Extended Magazine SMG', 'Cheek Pad (DMR, SR)'],
+  },
+  {
+    id: 'dragunov', name: 'Dragunov', category: 'DMR', ammo: '7.62mm',
+    damage: 56, dps: 280, magazine: 10, rateOfFire: 0.2,
+    firingMode: 'Single', range: 'Long',
+    bulletSpeed: 830,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Classic Soviet DMR. High damage, slow fire.',
+      pro: 'Treat shots like Kar98k — patience between taps.',
+    },
+    recommendedAttachments: ['8x Scope', 'Compensator Sniper', 'Cheek Pad (DMR, SR)'],
+  },
+
+  /* ============== SMGs ============== */
+  {
+    id: 'tommy-gun', name: 'Tommy Gun', category: 'SMG', ammo: '.45 ACP',
+    damage: 40, dps: 444, magazine: 30, rateOfFire: 0.086,
+    firingMode: 'Auto', range: 'Close',
+    bulletSpeed: 280,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'No scope mount — built-in iron sight only.',
+      pro: 'High close-range DPS but useless past 30m.',
+    },
+    recommendedAttachments: ['Compensator SMG', 'Vertical Foregrip', 'Extended Quickdraw Magazine SMG'],
+  },
+  {
+    id: 'ump45', name: 'UMP45', category: 'SMG', ammo: '.45 ACP',
+    damage: 41, dps: 410, magazine: 25, rateOfFire: 0.1,
+    firingMode: 'Single / Burst / Auto', range: 'Close-Mid',
+    bulletSpeed: 400,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Most controllable SMG. Friendly for new players.',
+      pro: 'Holds steady at 2x — your safest aggressive pick.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '2x Scope', 'Compensator SMG', 'Vertical Foregrip', 'Halfgrip', 'Extended Quickdraw Magazine SMG'],
+  },
+  {
+    id: 'micro-uzi', name: 'Micro UZI', category: 'SMG', ammo: '9mm',
+    damage: 26, dps: 487, magazine: 25, rateOfFire: 0.048,
+    firingMode: 'Auto', range: 'Close',
+    bulletSpeed: 350,
+    hitsToKill: { body: 6, head: 3 },
+    tips: {
+      beginner: 'Fastest fire rate SMG — empties in 1 second.',
+      pro: 'Hipfire monster. Strap a stock and pre-fire corners.',
+    },
+    recommendedAttachments: ['Compensator SMG', 'Extended Quickdraw Magazine SMG', 'Stock'],
+  },
+  {
+    id: 'vector', name: 'Vector', category: 'SMG', ammo: '9mm',
+    damage: 31, dps: 590, magazine: 13, rateOfFire: 0.055,
+    firingMode: 'Single / Burst / Auto', range: 'Close-Mid',
+    bulletSpeed: 380,
+    hitsToKill: { body: 5, head: 3 },
+    tips: {
+      beginner: 'Tiny 13-round mag without Extended — useless out of the box.',
+      pro: 'With Extended mag this is the best SMG in the game.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '2x Scope', 'Compensator SMG', 'Thumbgrip', 'Extended Quickdraw Magazine SMG', 'Tactical Stock'],
+  },
+  {
+    id: 'pp19-bizon', name: 'PP-19 Bizon', category: 'SMG', ammo: '9mm',
+    damage: 35, dps: 412, magazine: 53, rateOfFire: 0.086,
+    firingMode: 'Single / Auto', range: 'Close-Mid',
+    bulletSpeed: 408,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'No magazine slot — already holds 53 rounds stock.',
+      pro: 'Great early game without attachments. Burst at mid range.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '2x Scope', 'Compensator SMG', 'Vertical Foregrip'],
+  },
+  {
+    id: 'mp5k', name: 'MP5K', category: 'SMG', ammo: '9mm',
+    damage: 33, dps: 412, magazine: 30, rateOfFire: 0.08,
+    firingMode: 'Single / Burst / Auto', range: 'Close-Mid',
+    bulletSpeed: 400,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Vikendi exclusive. Easiest 9mm SMG.',
+      pro: 'Direct UMP45 replacement when 9mm is your only ammo.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '2x Scope', 'Compensator SMG', 'Vertical Foregrip', 'Extended Quickdraw Magazine SMG'],
+  },
+  {
+    id: 'mp9', name: 'MP9', category: 'SMG', ammo: '9mm',
+    damage: 23, dps: 460, magazine: 30, rateOfFire: 0.05,
+    firingMode: 'Single / Burst / Auto', range: 'Close',
+    bulletSpeed: 380,
+    hitsToKill: { body: 5, head: 3 },
+    tips: {
+      beginner: 'Karakin exclusive. Very fast TTK in tight spaces.',
+      pro: 'Hipfire-heavy — pre-aim doorways.',
+    },
+    recommendedAttachments: ['Red Dot Sight', 'Compensator SMG', 'Vertical Foregrip'],
+  },
+  {
+    id: 'p90', name: 'P90', category: 'SMG', ammo: '5.7mm',
+    damage: 30, dps: 540, magazine: 50, rateOfFire: 0.055,
+    firingMode: 'Auto', range: 'Close-Mid',
+    bulletSpeed: 380,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Crate weapon — uses unique 5.7mm ammo.',
+      pro: 'Largest SMG mag at 50 rounds, no swap needed in fights.',
+    },
+    recommendedAttachments: ['Red Dot Sight', 'Holographic Sight'],
+  },
+  {
+    id: 'js9', name: 'JS9', category: 'SMG', ammo: '9mm',
+    damage: 35, dps: 432, magazine: 30, rateOfFire: 0.081,
+    firingMode: 'Single / Auto', range: 'Close-Mid',
+    bulletSpeed: 408,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Stable damage close-mid. Solid SMG pick.',
+      pro: 'Pair with Tactical Stock for ADS jiggle fights.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '2x Scope', 'Compensator SMG', 'Vertical Foregrip', 'Extended Quickdraw Magazine SMG'],
+  },
+
+  /* ============== SNIPER RIFLES ============== */
+  {
+    id: 'kar98k', name: 'Kar98k', category: 'SR', ammo: '7.62mm',
+    damage: 75, dps: 50, magazine: 5, rateOfFire: 1.9,
+    firingMode: 'Bolt', range: 'Long',
+    bulletSpeed: 760,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Level 2 helmet headshot = kill. Aim for the head.',
+      pro: 'Always carry Bullet Loops for chain shots.',
+    },
+    recommendedAttachments: ['8x Scope', '6x Scope', 'Suppressor Sniper', 'Flash Hider Sniper', 'Cheek Pad (DMR, SR)', 'Bullet Loops Sniper'],
+  },
+  {
+    id: 'mosin-nagant', name: 'Mosin Nagant', category: 'SR', ammo: '7.62mm',
+    damage: 75, dps: 50, magazine: 5, rateOfFire: 1.9,
+    firingMode: 'Bolt', range: 'Long',
+    bulletSpeed: 760,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Identical to Kar98k. Use whichever you find first.',
+      pro: 'World-loot only, no airdrop variant.',
+    },
+    recommendedAttachments: ['8x Scope', '6x Scope', 'Suppressor Sniper', 'Cheek Pad (DMR, SR)', 'Bullet Loops Sniper'],
+  },
+  {
+    id: 'm24', name: 'M24', category: 'SR', ammo: '7.62mm',
+    damage: 79, dps: 47, magazine: 5, rateOfFire: 1.8,
+    firingMode: 'Bolt', range: 'Long',
+    bulletSpeed: 790,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Slightly stronger than Kar98 with a mag slot.',
+      pro: 'Best world-loot sniper — drops level 2 helmets cleanly.',
+    },
+    recommendedAttachments: ['8x Scope', 'Suppressor Sniper', 'Cheek Pad (DMR, SR)', 'Extended Quickdraw Magazine Sniper'],
+  },
+  {
+    id: 'awm', name: 'AWM', category: 'SR', ammo: '.300',
+    damage: 105, dps: 60, magazine: 5, rateOfFire: 1.85,
+    firingMode: 'Bolt', range: 'Long',
+    bulletSpeed: 945,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Crate-only. Kills level 3 helmets in one shot.',
+      pro: 'Ammo is scarce — make every shot count.',
+    },
+    recommendedAttachments: ['8x Scope', 'Suppressor Sniper', 'Cheek Pad (DMR, SR)', 'Extended Quickdraw Magazine Sniper'],
+  },
+  {
+    id: 'win94', name: 'Win94', category: 'SR', ammo: '.45 ACP',
+    damage: 66, dps: 45, magazine: 8, rateOfFire: 0.6,
+    firingMode: 'Lever', range: 'Mid-Long',
+    bulletSpeed: 760,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Iron sight only. Skip unless desperate.',
+      pro: 'Surprising damage but no scope mount kills its value.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'lynx-amr', name: 'Lynx AMR', category: 'SR', ammo: '7.62mm',
+    damage: 79, dps: 50, magazine: 5, rateOfFire: 1.8,
+    firingMode: 'Bolt', range: 'Long',
+    bulletSpeed: 800,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Premium variant of the M24 with built-in 8x.',
+      pro: 'Use just like an M24 — same stats, fancier model.',
+    },
+    recommendedAttachments: ['8x Scope', 'Suppressor Sniper', 'Cheek Pad (DMR, SR)'],
+  },
+
+  /* ============== SHOTGUNS ============== */
+  {
+    id: 's12k', name: 'S12K', category: 'Shotgun', ammo: '12 Gauge',
+    damage: 24, dps: 240, magazine: 5, rateOfFire: 0.25,
+    firingMode: 'Semi-Auto', range: 'Close',
+    bulletSpeed: 360,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Fastest shotgun. Can use AR magazines.',
+      pro: 'Run Duck Bill for tighter pellet spread.',
+    },
+    recommendedAttachments: ['Red Dot Sight', 'Duck Bill', 'Extended Quickdraw Magazine SMG'],
+  },
+  {
+    id: 's1897', name: 'S1897', category: 'Shotgun', ammo: '12 Gauge',
+    damage: 26, dps: 31, magazine: 5, rateOfFire: 0.7,
+    firingMode: 'Pump', range: 'Close',
+    bulletSpeed: 360,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Pump action — practice the timing.',
+      pro: 'Choke + Bullet Loops turns this into a one-tap apartment cleaner.',
+    },
+    recommendedAttachments: ['Choke', 'Bullet Loops Shotgun'],
+  },
+  {
+    id: 's686', name: 'S686', category: 'Shotgun', ammo: '12 Gauge',
+    damage: 26, dps: 24, magazine: 2, rateOfFire: 0.2,
+    firingMode: 'Double-Barrel', range: 'Close',
+    bulletSpeed: 360,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Fire both barrels fast — but reload is brutal.',
+      pro: 'Best one-tap potential at point blank. Use Choke.',
+    },
+    recommendedAttachments: ['Choke', 'Bullet Loops Shotgun'],
+  },
+  {
+    id: 'dbs', name: 'DBS', category: 'Shotgun', ammo: '12 Gauge',
+    damage: 26, dps: 73, magazine: 14, rateOfFire: 0.36,
+    firingMode: 'Pump (Bullpup)', range: 'Close',
+    bulletSpeed: 360,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Crate-only. 14-round mag with shotgun damage.',
+      pro: 'Indoor king. Pair with Duck Bill for tight pellet groups.',
+    },
+    recommendedAttachments: ['Holographic Sight', 'Red Dot Sight', 'Duck Bill'],
+  },
+  {
+    id: 'sawed-off', name: 'Sawed-off', category: 'Shotgun', ammo: '12 Gauge',
+    damage: 22, dps: 12, magazine: 2, rateOfFire: 0.2,
+    firingMode: 'Double-Barrel', range: 'Close',
+    bulletSpeed: 360,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Pistol slot only — extreme close-range.',
+      pro: 'Switch to it instead of reloading at point blank.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'o12', name: 'O12', category: 'Shotgun', ammo: '12 Gauge',
+    damage: 24, dps: 240, magazine: 5, rateOfFire: 0.2,
+    firingMode: 'Semi-Auto', range: 'Close',
+    bulletSpeed: 360,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Modern S12K replacement on newer maps.',
+      pro: 'Faster between shots than S12K — track moving rushers.',
+    },
+    recommendedAttachments: ['Red Dot Sight', 'Duck Bill'],
+  },
+
+  /* ============== PISTOLS ============== */
+  {
+    id: 'p18c', name: 'P18C', category: 'Pistol', ammo: '9mm',
+    damage: 23, dps: 460, magazine: 17, rateOfFire: 0.05,
+    firingMode: 'Single / Auto', range: 'Close',
+    bulletSpeed: 375,
+    hitsToKill: { body: 7, head: 3 },
+    tips: {
+      beginner: 'Only full-auto pistol. Strong early game.',
+      pro: 'Sub-15m it competes with SMGs.',
+    },
+    recommendedAttachments: ['Suppressor Handgun', 'Extended Quickdraw Magazine Handgun'],
+  },
+  {
+    id: 'p92', name: 'P92', category: 'Pistol', ammo: '9mm',
+    damage: 35, dps: 175, magazine: 15, rateOfFire: 0.2,
+    firingMode: 'Single', range: 'Close',
+    bulletSpeed: 380,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Default airdrop pistol. Reliable single-shot.',
+      pro: 'Pop a Sup + Extended mag for low-noise pistol-only runs.',
+    },
+    recommendedAttachments: ['Suppressor Handgun', 'Extended Quickdraw Magazine Handgun'],
+  },
+  {
+    id: 'skorpion', name: 'Skorpion', category: 'Pistol', ammo: '9mm',
+    damage: 22, dps: 290, magazine: 20, rateOfFire: 0.075,
+    firingMode: 'Single / Auto', range: 'Close',
+    bulletSpeed: 375,
+    hitsToKill: { body: 6, head: 3 },
+    tips: {
+      beginner: 'Pistol-slot SMG. Higher mag than P18C.',
+      pro: 'Hipfire-heavy. Add stock and grip when possible.',
+    },
+    recommendedAttachments: ['Suppressor Handgun', 'Extended Magazine Handgun', 'Stock'],
+  },
+  {
+    id: 'p1911', name: 'P1911', category: 'Pistol', ammo: '.45 ACP',
+    damage: 41, dps: 117, magazine: 7, rateOfFire: 0.2,
+    firingMode: 'Single', range: 'Close',
+    bulletSpeed: 250,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Heavy hitter but small magazine.',
+      pro: 'High-damage pistol fight winner — aim center mass.',
+    },
+    recommendedAttachments: ['Suppressor Handgun', 'Extended Quickdraw Magazine Handgun'],
+  },
+  {
+    id: 'r45', name: 'R45', category: 'Pistol', ammo: '.45 ACP',
+    damage: 55, dps: 130, magazine: 6, rateOfFire: 0.25,
+    firingMode: 'Revolver', range: 'Close',
+    bulletSpeed: 330,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Miramar exclusive. Headshots one-tap helmet level 2.',
+      pro: 'Best world-loot pistol — keep it as a sniper sidearm.',
+    },
+    recommendedAttachments: ['Red Dot Sight'],
+  },
+  {
+    id: 'deagle', name: 'Deagle', category: 'Pistol', ammo: '.45 ACP',
+    damage: 62, dps: 200, magazine: 7, rateOfFire: 0.18,
+    firingMode: 'Single', range: 'Close-Mid',
+    bulletSpeed: 360,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Strongest pistol in the game. Heavy recoil.',
+      pro: 'Use as a finisher when your primary runs dry.',
+    },
+    recommendedAttachments: ['Red Dot Sight', 'Suppressor Handgun', 'Extended Quickdraw Magazine Handgun'],
+  },
+  {
+    id: 'r1895', name: 'R1895', category: 'Pistol', ammo: '7.62mm',
+    damage: 55, dps: 132, magazine: 7, rateOfFire: 0.4,
+    firingMode: 'Revolver', range: 'Close',
+    bulletSpeed: 330,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Single-action — slow fire. Built-in suppressor sound profile.',
+      pro: 'Quiet 7.62 pistol — discreet starter.',
+    },
+    recommendedAttachments: [],
+  },
+
+  /* ============== MELEE ============== */
+  {
+    id: 'crowbar', name: 'Crowbar', category: 'Melee', ammo: 'Melee',
+    damage: 60, dps: 75, magazine: 0, rateOfFire: 0.8,
+    firingMode: 'Melee', range: 'Point-blank',
+    bulletSpeed: 0,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'Slow swing, big damage.',
+      pro: 'Always carry a melee for silent finisher kills.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'machete', name: 'Machete', category: 'Melee', ammo: 'Melee',
+    damage: 60, dps: 75, magazine: 0, rateOfFire: 0.8,
+    firingMode: 'Melee', range: 'Point-blank',
+    bulletSpeed: 0,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'Identical swing to crowbar.',
+      pro: 'Cosmetic skin choice mostly.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'pan', name: 'Pan', category: 'Melee', ammo: 'Melee',
+    damage: 80, dps: 100, magazine: 0, rateOfFire: 0.8,
+    firingMode: 'Melee', range: 'Point-blank',
+    bulletSpeed: 0,
+    hitsToKill: { body: 2, head: 1 },
+    tips: {
+      beginner: 'Blocks bullets on your back. Always pick up.',
+      pro: 'One-tap headshot melee. Best melee in the game.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'sickle', name: 'Sickle', category: 'Melee', ammo: 'Melee',
+    damage: 60, dps: 75, magazine: 0, rateOfFire: 0.8,
+    firingMode: 'Melee', range: 'Point-blank',
+    bulletSpeed: 0,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'Cosmetic variant of the crowbar.',
+      pro: 'Same swing arc — use whichever you find first.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'pickaxe', name: 'Pickaxe', category: 'Melee', ammo: 'Melee',
+    damage: 60, dps: 75, magazine: 0, rateOfFire: 0.8,
+    firingMode: 'Melee', range: 'Point-blank',
+    bulletSpeed: 0,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'Karakin-only melee variant.',
+      pro: 'Same numbers as crowbar.',
+    },
+    recommendedAttachments: [],
+  },
+
+  /* ============== THROWABLES ============== */
+  {
+    id: 'frag-grenade', name: 'Frag Grenade', category: 'Throwable', ammo: 'Throwable',
+    damage: 100, dps: 0, magazine: 0, rateOfFire: 0,
+    firingMode: 'Throw', range: 'Close-Mid',
+    bulletSpeed: 0,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Cook 3 seconds before throwing into cover.',
+      pro: 'Bounce off walls to deny rotates and reset fights.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'smoke-grenade', name: 'Smoke Grenade', category: 'Throwable', ammo: 'Throwable',
+    damage: 0, dps: 0, magazine: 0, rateOfFire: 0,
+    firingMode: 'Throw', range: 'Close-Mid',
+    bulletSpeed: 0,
+    hitsToKill: { body: 0, head: 0 },
+    tips: {
+      beginner: 'Most important utility — blocks line of sight.',
+      pro: 'Front-smoke + flank smoke wins late zones.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'stun-grenade', name: 'Stun Grenade', category: 'Throwable', ammo: 'Throwable',
+    damage: 0, dps: 0, magazine: 0, rateOfFire: 0,
+    firingMode: 'Throw', range: 'Close',
+    bulletSpeed: 0,
+    hitsToKill: { body: 0, head: 0 },
+    tips: {
+      beginner: 'Blinds and deafens enemies for 5 seconds.',
+      pro: 'Use before pushing through doorways and apartments.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'molotov-cocktail', name: 'Molotov Cocktail', category: 'Throwable', ammo: 'Throwable',
+    damage: 60, dps: 30, magazine: 0, rateOfFire: 0,
+    firingMode: 'Throw', range: 'Close',
+    bulletSpeed: 0,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Creates ground fire that drains health on contact.',
+      pro: 'Deny knocked enemies and lock pathways in endgame.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'sticky-bomb', name: 'Sticky Bomb', category: 'Throwable', ammo: 'Throwable',
+    damage: 130, dps: 0, magazine: 0, rateOfFire: 0,
+    firingMode: 'Throw', range: 'Close',
+    bulletSpeed: 0,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Sticks to surfaces and vehicles.',
+      pro: 'Karakin / Nusa — stick to walls and bait enemies into the blast.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'c4', name: 'C4', category: 'Throwable', ammo: 'Throwable',
+    damage: 250, dps: 0, magazine: 0, rateOfFire: 0,
+    firingMode: 'Throw', range: 'Close',
+    bulletSpeed: 0,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Massive damage but 16 second fuse.',
+      pro: 'Lob over rocks in final zone for area denial.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'bz-grenade', name: 'BZ Grenade', category: 'Throwable', ammo: 'Throwable',
+    damage: 0, dps: 0, magazine: 0, rateOfFire: 0,
+    firingMode: 'Throw', range: 'Close',
+    bulletSpeed: 0,
+    hitsToKill: { body: 0, head: 0 },
+    tips: {
+      beginner: 'Creates hallucination effect for enemies.',
+      pro: 'Stack BZ + smoke to fully disorient rushes.',
+    },
+    recommendedAttachments: [],
+  },
+
+  /* ============== ETC ============== */
+  {
+    id: 'm249', name: 'M249', category: 'ETC', ammo: '5.56mm',
+    damage: 45, dps: 562, magazine: 100, rateOfFire: 0.075,
+    firingMode: 'Auto', range: 'Mid',
+    bulletSpeed: 915,
+    hitsToKill: { body: 4, head: 2 },
+    tips: {
+      beginner: 'Crate-only LMG. Massive 100-round magazine.',
+      pro: 'Use prone with bipod — stable like a turret.',
+    },
+    recommendedAttachments: ['Red Dot Sight', 'Holographic Sight', '6x Scope'],
+  },
+  {
+    id: 'dp28', name: 'DP-28', category: 'ETC', ammo: '7.62mm',
+    damage: 51, dps: 425, magazine: 47, rateOfFire: 0.109,
+    firingMode: 'Auto', range: 'Mid',
+    bulletSpeed: 715,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'World-loot LMG. Long reload.',
+      pro: 'Brutal at mid range from prone — use buildings as cover.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '4x Scope', '6x Scope'],
+  },
+  {
+    id: 'mg3', name: 'MG3', category: 'ETC', ammo: '7.62mm',
+    damage: 50, dps: 750, magazine: 75, rateOfFire: 0.06,
+    firingMode: 'Auto', range: 'Mid',
+    bulletSpeed: 820,
+    hitsToKill: { body: 3, head: 2 },
+    tips: {
+      beginner: 'Crate-only. Highest fire rate LMG.',
+      pro: 'Switch fire mode for sustained suppression.',
+    },
+    recommendedAttachments: ['Red Dot Sight', 'Holographic Sight', '6x Scope'],
+  },
+  {
+    id: 'm79', name: 'M79', category: 'ETC', ammo: '40mm',
+    damage: 100, dps: 0, magazine: 1, rateOfFire: 0,
+    firingMode: 'Single', range: 'Mid',
+    bulletSpeed: 250,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Single-shot grenade launcher.',
+      pro: 'Karakin / Nusa terrain — arc shells behind cover.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'crossbow', name: 'Crossbow', category: 'ETC', ammo: 'Bolt',
+    damage: 105, dps: 21, magazine: 1, rateOfFire: 5,
+    firingMode: 'Bolt', range: 'Mid',
+    bulletSpeed: 100,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Silent kill weapon. One-shot headshot.',
+      pro: 'Practice arc shots — bolt has heavy drop.',
+    },
+    recommendedAttachments: ['Red Dot Sight', '2x Scope'],
+  },
+  {
+    id: 'mortar', name: 'Mortar', category: 'ETC', ammo: '40mm',
+    damage: 250, dps: 0, magazine: 0, rateOfFire: 0,
+    firingMode: 'Indirect', range: 'Long',
+    bulletSpeed: 200,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Place on the ground and fire arcing shells.',
+      pro: 'Adjust the angle for ranged area denial in late zones.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'panzerfaust', name: 'Panzerfaust', category: 'ETC', ammo: 'Rocket',
+    damage: 300, dps: 0, magazine: 1, rateOfFire: 0,
+    firingMode: 'Single', range: 'Mid',
+    bulletSpeed: 200,
+    hitsToKill: { body: 1, head: 1 },
+    tips: {
+      beginner: 'Rocket launcher. One-shot vehicles.',
+      pro: 'Use as a vehicle deterrent — splash damage punishes squads inside.',
+    },
+    recommendedAttachments: [],
+  },
+  {
+    id: 'stun-gun', name: 'Stun Gun', category: 'ETC', ammo: 'Stun',
+    damage: 25, dps: 0, magazine: 1, rateOfFire: 1,
+    firingMode: 'Single', range: 'Close',
+    bulletSpeed: 200,
+    hitsToKill: { body: 0, head: 0 },
+    tips: {
+      beginner: 'Temporarily stuns the enemy.',
+      pro: 'Niche utility — use to interrupt reviving.',
+    },
+    recommendedAttachments: [],
+  },
+]
+
+export const WEAPON_CATEGORIES_ALL = ['All', 'AR', 'DMR', 'SMG', 'SR', 'Shotgun', 'Pistol', 'Melee', 'Throwable', 'ETC']
+export const WEAPON_AMMO_ALL = ['All', '5.56mm', '7.62mm', '9mm', '.45 ACP', '12 Gauge', 'Bolt', 'Throwable']
+export const WEAPON_SORTS = [
+  { id: 'damage', label: 'Damage' },
+  { id: 'dps', label: 'DPS' },
+  { id: 'bulletSpeed', label: 'Bullet Speed' },
+  { id: 'magazine', label: 'Magazine Capacity' },
+]
+
+export default pivagaWeapons
