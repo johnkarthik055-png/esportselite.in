@@ -268,7 +268,15 @@ export default function Dashboard() {
       >
         <div>
           <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-subtle)' }}>{greeting()},</div>
-          <h1 className="heading" style={{ fontSize: 38, letterSpacing: '0.04em', marginTop: 2 }}>{displayName}</h1>
+          <h1 style={{
+            fontFamily: 'Oxanium, Bebas Neue, sans-serif',
+            fontWeight: 700,
+            fontSize: 32,
+            letterSpacing: '0.02em',
+            color: 'var(--text-primary)',
+            margin: 0,
+            marginTop: 2,
+          }}>{displayName}</h1>
           <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
             Level {levelNum} — <span style={{ color: 'var(--gold)' }}>{levelName}</span>
           </div>

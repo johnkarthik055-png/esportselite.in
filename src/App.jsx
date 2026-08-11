@@ -143,7 +143,11 @@ export default function App() {
     return <MaintenancePage message={maintenance.message || ''} />
   }
 
-  return <AppRoutes />
+  return (
+    <div style={{ minHeight: '100%', background: 'var(--bg-base)' }}>
+      <AppRoutes />
+    </div>
+  )
 }
 
 /* ============================================================
