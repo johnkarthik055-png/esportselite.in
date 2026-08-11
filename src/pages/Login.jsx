@@ -1,10 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import Reveal from '../components/motion/Reveal.jsx'
-import { StaggerGroup, StaggerItem } from '../components/motion/Stagger.jsx'
-import PageTransition from '../components/motion/PageTransition.jsx'
+import { Eye, EyeOff, ArrowLeft, ArrowRight } from 'lucide-react'
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -85,7 +81,7 @@ async function setupUserProfile(fbUser) {
         username: fbUser.displayName || 'Player',
         email: fbUser.email || '',
         phone: '', ign: '', igId: '',
-        xp: 0, level: 1,
+        xp: 0, level: 0,
         streak: { count: 0, lastActiveDate: null },
         createdAt: new Date().toISOString(),
       })
@@ -170,9 +166,7 @@ export default function Login() {
       if (fbUser) await setupUserProfile(fbUser)
       /* Hard redirect instead of navigate(): forces a full page
          reload so AuthContext re-initialises with the fresh
-         Firebase user before the dashboard mounts. Prevents the
-         race where /dashboard sees a stale user=null on the tick
-         after successful sign-in. */
+         Firebase user before the dashboard mounts. */
       window.location.href = '/dashboard'
     } catch (err) {
       const mapped = mapSignInError(err); setFieldError(mapped.field, mapped.message)
@@ -201,11 +195,6 @@ export default function Login() {
       upsertLocalUser(localUser); setLocalSession(localUser)
       writeLS(STORAGE_KEYS.USER, { username: u, email: em, phone: ph, ign: '', igId: '' })
       if (fbUser) await setupUserProfile(fbUser)
-      /* Hard redirect instead of navigate(): forces a full page
-         reload so AuthContext re-initialises with the fresh
-         Firebase user before the dashboard mounts. Prevents the
-         race where /dashboard sees a stale user=null on the tick
-         after successful sign-in. */
       window.location.href = '/dashboard'
     } catch (err) {
       const mapped = mapSignUpError(err); setFieldError(mapped.field, mapped.message)
@@ -228,11 +217,6 @@ export default function Login() {
         writeLS(STORAGE_KEYS.USER, { username: localUser.username, email: localUser.email, phone: localUser.phone, ign: '', igId: '' })
         await setupUserProfile(fbUser)
       }
-      /* Hard redirect instead of navigate(): forces a full page
-         reload so AuthContext re-initialises with the fresh
-         Firebase user before the dashboard mounts. Prevents the
-         race where /dashboard sees a stale user=null on the tick
-         after successful sign-in. */
       window.location.href = '/dashboard'
     } catch (error) {
       if (error?.code !== 'auth/popup-closed-by-user') setFieldError('form', 'Google sign in failed. Try again.')
@@ -240,118 +224,406 @@ export default function Login() {
   }
 
   return (
-    <PageTransition>
-      <div
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--obsidian)',
+        display: 'flex',
+        color: 'var(--ivory)',
+      }}
+    >
+      {/* Left panel — 55% video background on desktop, hidden on mobile */}
+      <aside
+        className="login-hero"
         style={{
-          minHeight: '100vh',
-          background: 'var(--bg-base)',
           position: 'relative',
+          width: '55%',
           overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 20,
+          background: 'var(--graphite)',
         }}
       >
+        {/* Video falls back gracefully to the poster / flat bg if
+            /assets/login-bg.mp4 isn't present. */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/assets/logo.png"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 1,
+            opacity: 0.55,
+          }}
+          onError={(e) => { e.currentTarget.style.display = 'none' }}
+        >
+          <source src="/assets/login-bg.mp4" type="video/mp4" />
+        </video>
+
+        {/* Dark overlay */}
         <div
           style={{
-            position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
-            background: 'linear-gradient(135deg, rgba(10,10,15,0.96) 0%, rgba(10,10,15,0.75) 100%)',
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.85) 100%)',
+            zIndex: 2,
           }}
         />
 
-        <Reveal direction="up" duration={0.7} style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: 380 }}>
-          <StaggerGroup
-            staggerChildren={0.08}
-            delayChildren={0.05}
+        {/* Content */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 3,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 48,
+            textAlign: 'center',
+          }}
+        >
+          {!logoFailed && (
+            <img
+              src="/assets/logo.png"
+              alt="Esports Elite"
+              style={{ width: 72, height: 72, objectFit: 'contain', marginBottom: 28 }}
+              onError={(e) => { e.currentTarget.style.display = 'none'; setLogoFailed(true) }}
+            />
+          )}
+          <h1
             style={{
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-xl)',
-              padding: '36px 32px',
-              boxShadow: 'var(--shadow-modal)',
+              fontFamily: "'Oxanium', sans-serif",
+              fontWeight: 800,
+              fontSize: 'clamp(28px, 3vw, 42px)',
+              color: '#ffffff',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              margin: 0,
+              maxWidth: 560,
+              lineHeight: 1.1,
             }}
           >
-            {/* Logo block */}
-            <StaggerItem>
-              <div style={{ textAlign: 'center', marginBottom: 26 }}>
-                {!logoFailed && (
-                  <img
-                    src="/assets/logo.png" alt=""
-                    style={{ width: 44, height: 44, objectFit: 'contain', margin: '0 auto 14px', display: 'block' }}
-                    onError={(e) => { e.currentTarget.style.display = 'none'; setLogoFailed(true) }}
-                  />
-                )}
-                <div
-                  style={{
-                    fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400,
-                    fontSize: 26, color: 'var(--text-primary)',
-                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                  }}
-                >
-                  Esports Elite
-                </div>
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-subtle)', marginTop: 4 }}>
-                  Pro training for BGMI players
-                </div>
-              </div>
-            </StaggerItem>
+            Where grind becomes greatness
+          </h1>
+          <div
+            style={{
+              marginTop: 16,
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 12,
+              color: 'var(--gold)',
+              letterSpacing: '0.28em',
+              textTransform: 'uppercase',
+              fontWeight: 600,
+            }}
+          >
+            Train · Analyze · Dominate
+          </div>
+        </div>
+      </aside>
 
-            <StaggerItem>
-              <AnimatePresence mode="wait">
-                {mode === 'signin' ? (
-                  <motion.div
-                    key="signin"
-                    initial={{ opacity: 0, height: 'auto' }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    <SignInView
-                      username={username} setUsername={setUsername}
-                      password={password} setPassword={setPassword}
-                      showPass={showPass} setShowPass={setShowPass}
-                      remember={remember} setRemember={setRemember}
-                      errors={errors} clearFieldError={clearFieldError}
-                      submitting={submitting}
-                      forgotLoading={forgotLoading} forgotSuccess={forgotSuccess}
-                      emailInputRef={emailInputRef}
-                      onSubmit={handleSignIn}
-                      onForgot={handleForgotPassword}
-                      onGetStarted={switchToSignUp}
-                      onGoogleSignIn={handleGoogleSignIn}
-                    />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="signup"
-                    initial={{ opacity: 0, height: 'auto' }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    <SignUpView
-                      suUsername={suUsername} setSuUsername={setSuUsername}
-                      suEmail={suEmail} setSuEmail={setSuEmail}
-                      suPhone={suPhone} setSuPhone={setSuPhone}
-                      suPassword={suPassword} setSuPassword={setSuPassword}
-                      suConfirm={suConfirm} setSuConfirm={setSuConfirm}
-                      showSuPass={showSuPass} setShowSuPass={setShowSuPass}
-                      showSuConfirm={showSuConfirm} setShowSuConfirm={setShowSuConfirm}
-                      errors={errors} clearFieldError={clearFieldError}
-                      submitting={submitting}
-                      onSubmit={handleSignUp}
-                      onBackToSignIn={switchToSignIn}
-                      onGoogleSignIn={handleGoogleSignIn}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </StaggerItem>
-          </StaggerGroup>
-        </Reveal>
+      {/* Right panel — 45% form */}
+      <main
+        className="login-form-panel"
+        style={{
+          width: '45%',
+          background: 'var(--graphite)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 32,
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: 380 }}>
+          {mode === 'signin' ? (
+            <SignInView
+              username={username} setUsername={setUsername}
+              password={password} setPassword={setPassword}
+              showPass={showPass} setShowPass={setShowPass}
+              remember={remember} setRemember={setRemember}
+              errors={errors} clearFieldError={clearFieldError}
+              submitting={submitting}
+              forgotLoading={forgotLoading} forgotSuccess={forgotSuccess}
+              emailInputRef={emailInputRef}
+              onSubmit={handleSignIn}
+              onForgot={handleForgotPassword}
+              onGetStarted={switchToSignUp}
+              onGoogleSignIn={handleGoogleSignIn}
+            />
+          ) : (
+            <SignUpView
+              suUsername={suUsername} setSuUsername={setSuUsername}
+              suEmail={suEmail} setSuEmail={setSuEmail}
+              suPhone={suPhone} setSuPhone={setSuPhone}
+              suPassword={suPassword} setSuPassword={setSuPassword}
+              suConfirm={suConfirm} setSuConfirm={setSuConfirm}
+              showSuPass={showSuPass} setShowSuPass={setShowSuPass}
+              showSuConfirm={showSuConfirm} setShowSuConfirm={setShowSuConfirm}
+              errors={errors} clearFieldError={clearFieldError}
+              submitting={submitting}
+              onSubmit={handleSignUp}
+              onBackToSignIn={switchToSignIn}
+              onGoogleSignIn={handleGoogleSignIn}
+            />
+          )}
+        </div>
+      </main>
+
+      <style>{`
+        @media (max-width: 899px) {
+          .login-hero { display: none; }
+          .login-form-panel { width: 100% !important; background: var(--obsidian) !important; }
+        }
+      `}</style>
+    </div>
+  )
+}
+
+/* ============================================================
+   SIGN IN
+   ============================================================ */
+function SignInView({
+  username, setUsername, password, setPassword,
+  showPass, setShowPass, remember, setRemember,
+  errors, clearFieldError, submitting,
+  forgotLoading, forgotSuccess, emailInputRef,
+  onSubmit, onForgot, onGetStarted, onGoogleSignIn,
+}) {
+  return (
+    <>
+      <div style={{ marginBottom: 26 }}>
+        <h2 style={h2Style}>Welcome Back</h2>
+        <p style={subStyle}>Sign in to your account</p>
       </div>
-    </PageTransition>
+
+      <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <FieldWrap label="Email">
+          <input
+            ref={emailInputRef} type="text"
+            value={username}
+            onChange={e => { setUsername(e.target.value); clearFieldError('email') }}
+            style={inputStyle}
+            placeholder="you@example.com"
+            autoComplete="username"
+          />
+          {errors.email && !forgotSuccess && <ErrorLine>{errors.email}</ErrorLine>}
+          {forgotSuccess && (
+            <div style={{ color: 'var(--success)', fontSize: 12, marginTop: 4, fontFamily: "'Inter', sans-serif" }}>
+              Reset link sent. Check your inbox.
+            </div>
+          )}
+        </FieldWrap>
+
+        <FieldWrap label="Password">
+          <div style={{ position: 'relative' }}>
+            <input
+              type={showPass ? 'text' : 'password'}
+              value={password}
+              onChange={e => { setPassword(e.target.value); clearFieldError('password') }}
+              style={{ ...inputStyle, paddingRight: 40 }}
+              placeholder="Enter your password"
+              autoComplete="current-password"
+            />
+            <button type="button" onClick={() => setShowPass(v => !v)} style={eyeBtnStyle} tabIndex={-1}>
+              {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+          {errors.password && <ErrorLine>{errors.password}</ErrorLine>}
+        </FieldWrap>
+
+        <ErrorBox>{errors.form}</ErrorBox>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, fontFamily: "'Inter', sans-serif" }}>
+          <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'var(--muted)', cursor: 'pointer' }}>
+            <input
+              type="checkbox" checked={remember}
+              onChange={e => setRemember(e.target.checked)}
+              style={{ accentColor: 'var(--gold)' }}
+            />
+            Remember me
+          </label>
+          <button
+            type="button" onClick={onForgot} disabled={forgotLoading}
+            style={{
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              color: 'var(--gold)', fontSize: 12, padding: 0,
+              fontFamily: "'Inter', sans-serif", fontWeight: 500,
+            }}
+          >
+            {forgotLoading ? 'Sending…' : 'Forgot password?'}
+          </button>
+        </div>
+
+        <button type="submit" disabled={submitting} style={primaryBtnStyle}>
+          {submitting ? 'Signing in…' : 'Sign In'}
+        </button>
+
+        <Divider />
+
+        <GoogleButton onClick={onGoogleSignIn} disabled={submitting} />
+
+        <button
+          type="button" onClick={onGetStarted} disabled={submitting}
+          style={outlinedGoldBtnStyle}
+        >
+          Get Started <ArrowRight size={14} />
+        </button>
+      </form>
+    </>
+  )
+}
+
+/* ============================================================
+   SIGN UP
+   ============================================================ */
+function SignUpView({
+  suUsername, setSuUsername, suEmail, setSuEmail, suPhone, setSuPhone,
+  suPassword, setSuPassword, suConfirm, setSuConfirm,
+  showSuPass, setShowSuPass, showSuConfirm, setShowSuConfirm,
+  errors, clearFieldError, submitting, onSubmit, onBackToSignIn, onGoogleSignIn,
+}) {
+  return (
+    <>
+      <div style={{ marginBottom: 22 }}>
+        <button
+          type="button" onClick={onBackToSignIn}
+          style={{
+            padding: '4px 0', background: 'transparent', border: 'none', cursor: 'pointer',
+            fontSize: 12, color: 'var(--muted)', display: 'inline-flex', alignItems: 'center', gap: 6,
+            fontFamily: "'Inter', sans-serif",
+          }}
+        >
+          <ArrowLeft size={14} /> Back
+        </button>
+        <h2 style={{ ...h2Style, marginTop: 12 }}>Create Account</h2>
+        <p style={subStyle}>Set up your training account</p>
+      </div>
+
+      <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <FieldWrap label="Username">
+          <input
+            type="text" value={suUsername}
+            onChange={e => { setSuUsername(e.target.value); clearFieldError('username') }}
+            style={inputStyle}
+            placeholder="Choose a display name"
+            autoComplete="username"
+          />
+          {errors.username && <ErrorLine>{errors.username}</ErrorLine>}
+        </FieldWrap>
+
+        <FieldWrap label="Email">
+          <input
+            type="email" value={suEmail}
+            onChange={e => { setSuEmail(e.target.value); clearFieldError('email') }}
+            style={inputStyle}
+            placeholder="you@example.com"
+            autoComplete="email"
+          />
+          {errors.email && <ErrorLine>{errors.email}</ErrorLine>}
+        </FieldWrap>
+
+        <FieldWrap label="Phone">
+          <input
+            type="tel" value={suPhone}
+            onChange={e => { setSuPhone(e.target.value); clearFieldError('phone') }}
+            style={inputStyle}
+            placeholder="+91 98765 43210"
+            autoComplete="tel"
+          />
+          {errors.phone && <ErrorLine>{errors.phone}</ErrorLine>}
+        </FieldWrap>
+
+        <FieldWrap label="Password">
+          <div style={{ position: 'relative' }}>
+            <input
+              type={showSuPass ? 'text' : 'password'}
+              value={suPassword}
+              onChange={e => { setSuPassword(e.target.value); clearFieldError('password') }}
+              style={{ ...inputStyle, paddingRight: 40 }}
+              placeholder="At least 6 characters"
+              autoComplete="new-password"
+            />
+            <button type="button" onClick={() => setShowSuPass(v => !v)} style={eyeBtnStyle} tabIndex={-1}>
+              {showSuPass ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+          {errors.password && <ErrorLine>{errors.password}</ErrorLine>}
+        </FieldWrap>
+
+        <FieldWrap label="Confirm password">
+          <div style={{ position: 'relative' }}>
+            <input
+              type={showSuConfirm ? 'text' : 'password'}
+              value={suConfirm}
+              onChange={e => { setSuConfirm(e.target.value); clearFieldError('confirmPassword') }}
+              style={{ ...inputStyle, paddingRight: 40 }}
+              placeholder="Re-enter your password"
+              autoComplete="new-password"
+            />
+            <button type="button" onClick={() => setShowSuConfirm(v => !v)} style={eyeBtnStyle} tabIndex={-1}>
+              {showSuConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+          {errors.confirmPassword && <ErrorLine>{errors.confirmPassword}</ErrorLine>}
+        </FieldWrap>
+
+        <ErrorBox>{errors.form}</ErrorBox>
+
+        <button type="submit" disabled={submitting} style={primaryBtnStyle}>
+          {submitting ? 'Creating…' : 'Create Account'}
+        </button>
+
+        <Divider />
+
+        <GoogleButton onClick={onGoogleSignIn} disabled={submitting} />
+
+        <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--muted)', marginTop: 4, fontFamily: "'Inter', sans-serif" }}>
+          Already have an account?{' '}
+          <a
+            href="#" onClick={e => { e.preventDefault(); onBackToSignIn() }}
+            style={{ color: 'var(--gold)', fontWeight: 600 }}
+          >
+            Sign in
+          </a>
+        </p>
+      </form>
+    </>
+  )
+}
+
+/* ============================================================
+   PRIMITIVES
+   ============================================================ */
+function FieldWrap({ label, children }) {
+  return (
+    <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <span
+        style={{
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 11,
+          fontWeight: 600,
+          letterSpacing: '0.10em',
+          textTransform: 'uppercase',
+          color: 'var(--ivory)',
+        }}
+      >
+        {label}
+      </span>
+      {children}
+    </label>
+  )
+}
+
+function ErrorLine({ children }) {
+  return (
+    <span style={{ color: 'var(--danger)', fontSize: 12, marginTop: 4, fontFamily: "'Inter', sans-serif" }}>
+      {children}
+    </span>
   )
 }
 
@@ -360,15 +632,28 @@ function ErrorBox({ children }) {
   return (
     <div
       style={{
-        background: 'var(--red-ghost)',
-        border: '1px solid rgba(232,0,28,0.2)',
-        color: 'var(--red)',
+        background: 'rgba(239, 68, 68, 0.08)',
+        border: '1px solid var(--danger)',
+        color: 'var(--danger)',
         padding: '10px 12px',
-        borderRadius: 'var(--radius-sm)',
+        borderRadius: 6,
         fontSize: 13,
+        fontFamily: "'Inter', sans-serif",
       }}
     >
       {children}
+    </div>
+  )
+}
+
+function Divider() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '2px 0' }}>
+      <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+      <span style={{ fontSize: 11, color: 'var(--muted)', fontFamily: "'Inter', sans-serif", letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+        Or
+      </span>
+      <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
     </div>
   )
 }
@@ -377,8 +662,25 @@ function GoogleButton({ onClick, disabled }) {
   return (
     <button
       type="button" onClick={onClick} disabled={disabled}
-      className="btn btn-secondary"
-      style={{ width: '100%', minHeight: 44 }}
+      style={{
+        width: '100%',
+        minHeight: 44,
+        background: 'transparent',
+        border: '1px solid var(--border)',
+        borderRadius: 6,
+        color: 'var(--ivory)',
+        fontFamily: "'Inter', sans-serif",
+        fontSize: 13,
+        fontWeight: 600,
+        cursor: 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        transition: 'border-color 0.15s ease, color 0.15s ease',
+      }}
+      onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--ivory)' }}
+      onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border)' }}
     >
       <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
         <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
@@ -391,237 +693,80 @@ function GoogleButton({ onClick, disabled }) {
   )
 }
 
-function SignInView({
-  username, setUsername, password, setPassword,
-  showPass, setShowPass, remember, setRemember,
-  errors, clearFieldError, submitting,
-  forgotLoading, forgotSuccess, emailInputRef,
-  onSubmit, onForgot, onGetStarted, onGoogleSignIn,
-}) {
-  return (
-    <>
-      <div style={{ marginBottom: 22, textAlign: 'center' }}>
-        <h2 className="heading" style={{ fontSize: 28, letterSpacing: '0.04em', marginBottom: 4 }}>Welcome back</h2>
-        <p style={{ fontFamily: 'DM Sans, sans-serif', color: 'var(--text-muted)', fontSize: 13 }}>Sign in to your account</p>
-      </div>
-
-      <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <div>
-          <label className="label" style={{ display: 'block', marginBottom: 6 }}>Username / Email</label>
-          <input
-            ref={emailInputRef} type="text"
-            value={username}
-            onChange={e => { setUsername(e.target.value); clearFieldError('email') }}
-            className="input" placeholder="Enter your email" autoComplete="username"
-          />
-          {errors.email && !forgotSuccess && (
-            <div style={{ color: 'var(--red)', fontSize: 12, marginTop: 4 }}>{errors.email}</div>
-          )}
-          {forgotSuccess && (
-            <div style={{ color: 'var(--green)', fontSize: 12, marginTop: 4 }}>
-              Reset link sent. Check your inbox.
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label className="label" style={{ display: 'block', marginBottom: 6 }}>Password</label>
-          <div style={{ position: 'relative' }}>
-            <input
-              type={showPass ? 'text' : 'password'}
-              value={password}
-              onChange={e => { setPassword(e.target.value); clearFieldError('password') }}
-              className="input" style={{ paddingRight: 40 }}
-              placeholder="Enter your password" autoComplete="current-password"
-            />
-            <button
-              type="button" onClick={() => setShowPass(v => !v)}
-              style={{
-                position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
-                background: 'transparent', border: 'none', cursor: 'pointer',
-                color: 'var(--text-muted)', padding: 6, display: 'flex',
-              }}
-              tabIndex={-1}
-            >
-              {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
-          {errors.password && (
-            <div style={{ color: 'var(--red)', fontSize: 12, marginTop: 4 }}>{errors.password}</div>
-          )}
-        </div>
-
-        <ErrorBox>{errors.form}</ErrorBox>
-
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12 }}>
-          <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)', cursor: 'pointer' }}>
-            <input
-              type="checkbox" checked={remember}
-              onChange={e => setRemember(e.target.checked)}
-              style={{ accentColor: 'var(--red)' }}
-            />
-            Remember me
-          </label>
-          <button
-            type="button" onClick={onForgot} disabled={forgotLoading}
-            style={{
-              background: 'transparent', border: 'none', cursor: 'pointer',
-              color: 'var(--text-muted)', fontSize: 12, padding: 0,
-            }}
-          >
-            {forgotLoading ? 'Sending…' : 'Forgot password?'}
-          </button>
-        </div>
-
-        <button type="submit" disabled={submitting} className="btn btn-primary btn-lg" style={{ width: '100%' }}>
-          {submitting ? 'Signing in…' : 'Sign in'}
-        </button>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '4px 0' }}>
-          <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-          <span style={{ fontSize: 12, color: 'var(--text-subtle)' }}>or</span>
-          <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-        </div>
-
-        <GoogleButton onClick={onGoogleSignIn} disabled={submitting} />
-
-        <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-          New here?{' '}
-          <a
-            href="#" onClick={e => { e.preventDefault(); onGetStarted() }}
-            style={{ color: 'var(--text-primary)', fontWeight: 600 }}
-          >
-            Create an account
-          </a>
-        </p>
-      </form>
-    </>
-  )
+/* ============================================================
+   STYLE CONSTANTS
+   ============================================================ */
+const h2Style = {
+  fontFamily: "'Oxanium', sans-serif",
+  fontWeight: 700,
+  fontSize: 28,
+  color: 'var(--ivory)',
+  letterSpacing: '0.02em',
+  margin: 0,
 }
-
-function SignUpView({
-  suUsername, setSuUsername, suEmail, setSuEmail, suPhone, setSuPhone,
-  suPassword, setSuPassword, suConfirm, setSuConfirm,
-  showSuPass, setShowSuPass, showSuConfirm, setShowSuConfirm,
-  errors, clearFieldError, submitting, onSubmit, onBackToSignIn, onGoogleSignIn,
-}) {
-  return (
-    <>
-      <div style={{ marginBottom: 18 }}>
-        <button
-          type="button" onClick={onBackToSignIn}
-          style={{
-            padding: '4px 8px', background: 'transparent', border: 'none', cursor: 'pointer',
-            fontSize: 12, color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: 6,
-          }}
-        >
-          <ArrowLeft size={14} /> Back
-        </button>
-        <h2 className="heading" style={{ fontSize: 28, letterSpacing: '0.04em', marginTop: 8, marginBottom: 4 }}>Create account</h2>
-        <p style={{ fontFamily: 'DM Sans, sans-serif', color: 'var(--text-muted)', fontSize: 13 }}>Set up your training account</p>
-      </div>
-
-      <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <Field
-          label="Username" placeholder="Choose a display name" autoComplete="username"
-          value={suUsername} onChange={(v) => { setSuUsername(v); clearFieldError('username') }}
-          error={errors.username}
-        />
-        <Field
-          label="Email" type="email" placeholder="you@example.com" autoComplete="email"
-          value={suEmail} onChange={(v) => { setSuEmail(v); clearFieldError('email') }}
-          error={errors.email}
-        />
-        <Field
-          label="Phone number" type="tel" placeholder="+91 98765 43210" autoComplete="tel"
-          value={suPhone} onChange={(v) => { setSuPhone(v); clearFieldError('phone') }}
-          error={errors.phone}
-        />
-        <PasswordField
-          label="Password" placeholder="At least 6 characters" autoComplete="new-password"
-          value={suPassword} onChange={(v) => { setSuPassword(v); clearFieldError('password') }}
-          show={showSuPass} setShow={setShowSuPass}
-          error={errors.password}
-        />
-        <PasswordField
-          label="Confirm password" placeholder="Re-enter your password" autoComplete="new-password"
-          value={suConfirm} onChange={(v) => { setSuConfirm(v); clearFieldError('confirmPassword') }}
-          show={showSuConfirm} setShow={setShowSuConfirm}
-          error={errors.confirmPassword}
-        />
-
-        <ErrorBox>{errors.form}</ErrorBox>
-
-        <button type="submit" disabled={submitting} className="btn btn-primary btn-lg" style={{ width: '100%' }}>
-          {submitting ? 'Creating…' : 'Create account'}
-        </button>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '4px 0' }}>
-          <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-          <span style={{ fontSize: 12, color: 'var(--text-subtle)' }}>or</span>
-          <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-        </div>
-
-        <GoogleButton onClick={onGoogleSignIn} disabled={submitting} />
-
-        <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-          Already have an account?{' '}
-          <a
-            href="#" onClick={e => { e.preventDefault(); onBackToSignIn() }}
-            style={{ color: 'var(--text-primary)', fontWeight: 600 }}
-          >
-            Sign in
-          </a>
-        </p>
-      </form>
-    </>
-  )
+const subStyle = {
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 13,
+  color: 'var(--muted)',
+  marginTop: 6,
+  margin: 0,
 }
-
-function Field({ label, value, onChange, placeholder, type, autoComplete, error }) {
-  return (
-    <div>
-      <label className="label" style={{ display: 'block', marginBottom: 6 }}>{label}</label>
-      <input
-        type={type || 'text'}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="input"
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-      />
-      {error && <div style={{ color: 'var(--red)', fontSize: 12, marginTop: 4 }}>{error}</div>}
-    </div>
-  )
+const inputStyle = {
+  width: '100%',
+  height: 44,
+  padding: '0 12px',
+  background: 'var(--card)',
+  border: '1px solid var(--border)',
+  borderRadius: 6,
+  color: 'var(--ivory)',
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 14,
+  outline: 'none',
+  transition: 'border-color 0.15s ease',
+  boxSizing: 'border-box',
 }
-
-function PasswordField({ label, value, onChange, show, setShow, placeholder, autoComplete, error }) {
-  return (
-    <div>
-      <label className="label" style={{ display: 'block', marginBottom: 6 }}>{label}</label>
-      <div style={{ position: 'relative' }}>
-        <input
-          type={show ? 'text' : 'password'}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="input"
-          style={{ paddingRight: 40 }}
-          placeholder={placeholder}
-          autoComplete={autoComplete}
-        />
-        <button
-          type="button" onClick={() => setShow(v => !v)}
-          style={{
-            position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
-            background: 'transparent', border: 'none', cursor: 'pointer',
-            color: 'var(--text-muted)', padding: 6, display: 'flex',
-          }}
-          tabIndex={-1}
-        >
-          {show ? <EyeOff size={16} /> : <Eye size={16} />}
-        </button>
-      </div>
-      {error && <div style={{ color: 'var(--red)', fontSize: 12, marginTop: 4 }}>{error}</div>}
-    </div>
-  )
+const eyeBtnStyle = {
+  position: 'absolute',
+  right: 8,
+  top: '50%',
+  transform: 'translateY(-50%)',
+  background: 'transparent',
+  border: 'none',
+  cursor: 'pointer',
+  color: 'var(--muted)',
+  padding: 6,
+  display: 'flex',
+}
+const primaryBtnStyle = {
+  width: '100%',
+  minHeight: 46,
+  background: 'var(--gold)',
+  color: 'var(--obsidian)',
+  border: 'none',
+  borderRadius: 6,
+  fontFamily: "'Oxanium', sans-serif",
+  fontWeight: 700,
+  fontSize: 14,
+  letterSpacing: '0.12em',
+  textTransform: 'uppercase',
+  cursor: 'pointer',
+  transition: 'background 0.15s ease',
+}
+const outlinedGoldBtnStyle = {
+  width: '100%',
+  minHeight: 44,
+  background: 'transparent',
+  border: '1px solid var(--gold)',
+  borderRadius: 6,
+  color: 'var(--gold)',
+  fontFamily: "'Oxanium', sans-serif",
+  fontWeight: 700,
+  fontSize: 13,
+  letterSpacing: '0.12em',
+  textTransform: 'uppercase',
+  cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
 }

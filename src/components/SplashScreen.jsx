@@ -1,33 +1,110 @@
 import { Shield } from 'lucide-react'
 
 /**
- * Brand-styled loading screen shown while the auth session is being
- * restored on app boot.
+ * v2 splash — flat obsidian background, no glows, gold progress bar.
+ * Rendered by AuthContext while the auth session restores on boot.
  */
 export default function SplashScreen() {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-bg-primary relative overflow-hidden">
-      <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
-      <div className="absolute inset-0 bg-radial-red pointer-events-none" />
-      <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-accent-primary opacity-[0.08] blur-[120px] pointer-events-none" />
-
-      <div className="relative z-10 flex flex-col items-center gap-6 animate-fade-in">
-        <div className="w-20 h-20 rounded-md bg-red-gradient flex items-center justify-center shadow-red-glow-lg logo-anim">
-          <Shield size={42} className="text-white" strokeWidth={2.5} />
+    <div
+      style={{
+        minHeight: '100vh',
+        width: '100%',
+        background: 'var(--obsidian)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 20,
+          animation: 'ee-splash-in 0.4s ease-out',
+        }}
+      >
+        <div
+          style={{
+            width: 72,
+            height: 72,
+            borderRadius: 12,
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--gold)',
+          }}
+        >
+          <Shield size={38} strokeWidth={2.2} />
         </div>
 
-        <div className="flex flex-col items-center">
-          <span className="brand text-3xl text-white tracking-wider">ESPORTS ELITE</span>
-          <span className="text-xs text-text-secondary uppercase tracking-[0.25em] mt-2">
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <span
+            style={{
+              fontFamily: "'Oxanium', sans-serif",
+              fontWeight: 700,
+              fontSize: 22,
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+              color: 'var(--ivory)',
+            }}
+          >
+            Esports Elite
+          </span>
+          <span
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 10,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: 'var(--muted)',
+              marginTop: 8,
+            }}
+          >
             Pro Training Platform
           </span>
         </div>
 
-        <div className="mt-4 flex items-center gap-2 text-xs uppercase tracking-[0.18em] heading text-text-secondary">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-secondary animate-pulse-red" />
-          Loading
+        <div
+          style={{
+            marginTop: 12,
+            width: 180,
+            height: 3,
+            background: 'var(--border)',
+            borderRadius: 999,
+            overflow: 'hidden',
+            position: 'relative',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: '-40%',
+              height: '100%',
+              width: '40%',
+              background: 'var(--gold)',
+              animation: 'ee-splash-bar 1.6s linear infinite',
+            }}
+          />
         </div>
       </div>
+
+      <style>{`
+        @keyframes ee-splash-in {
+          from { opacity: 0; transform: translateY(4px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes ee-splash-bar {
+          0%   { left: -40%; }
+          100% { left: 100%; }
+        }
+      `}</style>
     </div>
   )
 }

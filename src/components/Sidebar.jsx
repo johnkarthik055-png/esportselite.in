@@ -3,17 +3,16 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   Home, Target, User, ChevronLeft, ChevronRight,
   LogOut, Crosshair, X, ClipboardList, BarChart3, TrendingUp, Bell, Shield,
-  Users, Map, Trophy, CalendarClock,
+  Users, Map, Trophy, CalendarClock, Brain, Gamepad2,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
-import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { useAvatar } from '../hooks/useAvatar.js'
 import { useNotifications } from '../hooks/useNotifications.js'
-import { STORAGE_KEYS } from '../utils/constants.js'
 import { getInitials } from '../utils/helpers.js'
 import { getDisplayName, clearAllUserData, setActiveUID } from '../utils/storage.js'
 import { getLevelName, XP_PER_LEVEL } from '../utils/db.js'
 import { useUserData } from '../hooks/useUserData.js'
+import { getTrialStatus } from '../utils/trial.js'
 import NotificationPanel from './NotificationPanel.jsx'
 
 const ADMIN_EMAILS = [
@@ -21,33 +20,45 @@ const ADMIN_EMAILS = [
   'johnkarthik055@gmail.com',
 ]
 
+/* Section groups match the v2 spec's MAIN / ANALYTICS / TOOLS split
+   while preserving every route that already exists in App.jsx. */
 const NAV_SECTIONS = [
-  { title: 'Overview', items: [{ to: '/dashboard', label: 'Dashboard', icon: Home }] },
   {
-    title: 'Training',
+    title: 'Main',
     items: [
-      { to: '/training', label: 'Training Center', icon: Target },
-      { to: '/scheduler', label: 'Scheduler', icon: CalendarClock },
-      { to: '/analytics', label: 'Analytics', icon: BarChart3 },
-      { to: '/progress', label: 'Progress', icon: TrendingUp },
-      { to: '/training-plan', label: 'Training Plan', icon: ClipboardList },
+      { to: '/dashboard',    label: 'Dashboard',        icon: Home },
+      { to: '/training',     label: 'Training Center',  icon: Target },
+      { to: '/scheduler',    label: 'Scheduler',        icon: CalendarClock },
     ],
   },
-  { title: 'Team',    items: [{ to: '/team', label: 'My Team', icon: Users }] },
   {
-    title: 'Esports',
+    title: 'Analytics',
     items: [
+      { to: '/analytics', label: 'Analytics', icon: BarChart3 },
+      { to: '/progress',  label: 'Progress',  icon: TrendingUp },
+    ],
+  },
+  {
+    title: 'Compete',
+    items: [
+      { to: '/team',        label: 'My Team',     icon: Users },
       { to: '/tournaments', label: 'Tournaments', icon: Trophy },
     ],
   },
   {
-    title: 'Game Knowledge',
+    title: 'Tools',
     items: [
-      { to: '/map-knowledge', label: 'Map Knowledge',  icon: Map },
-      { to: '/weapons',       label: 'Weapons Guide',  icon: Crosshair },
+      { to: '/map-knowledge', label: 'Map Knowledge', icon: Map },
+      { to: '/weapons',       label: 'Weapons Guide', icon: Crosshair },
+      { to: '/training-plan', label: 'Training Plan', icon: ClipboardList },
     ],
   },
-  { title: 'Profile', items: [{ to: '/profile', label: 'My Profile', icon: User }] },
+  {
+    title: 'Profile',
+    items: [
+      { to: '/profile', label: 'My Profile', icon: User },
+    ],
+  },
 ]
 
 function clearLocalAppData() {
@@ -88,12 +99,24 @@ export default function Sidebar({ collapsed, onToggle }) {
   const displayName = getDisplayName()
   const { xp, level: levelNum } = useUserData()
   const levelName = getLevelName(levelNum)
-  /* Levels are 0-indexed here — see utils/db.js. XP_PER_LEVEL[N] is
-     the threshold for level N, so the current-level floor is
-     [levelNum] and the next-level ceiling is [levelNum + 1]. */
   const floor = XP_PER_LEVEL[levelNum] ?? 0
   const ceil = XP_PER_LEVEL[levelNum + 1] ?? floor
   const xpPct = ceil > floor ? Math.round(Math.min(1, (xp - floor) / (ceil - floor)) * 100) : 100
+
+  /* Trial badge at bottom — matches v2 spec's "Trial badge (days left)". */
+  const [trial, setTrial] = useState(null)
+  useEffect(() => {
+    let cancelled = false
+    async function loadTrial() {
+      if (!authUser?.uid) { if (!cancelled) setTrial(null); return }
+      try {
+        const status = await getTrialStatus(authUser.uid)
+        if (!cancelled) setTrial(status)
+      } catch { if (!cancelled) setTrial(null) }
+    }
+    loadTrial()
+    return () => { cancelled = true }
+  }, [authUser?.uid])
 
   useEffect(() => {
     function check() { setViewport(getViewport()) }
@@ -135,7 +158,9 @@ export default function Sidebar({ collapsed, onToggle }) {
 
   const isMobile = viewport === 'mobile'
   const isTablet = viewport === 'tablet'
-  const width = isMobile ? 280 : isTablet ? 60 : (collapsed ? 60 : 220)
+  /* v2 spec: 240px sidebar on desktop. Kept the 60px icon-rail
+     collapsed / tablet mode so power users still get the reclaim. */
+  const width = isMobile ? 280 : isTablet ? 60 : (collapsed ? 60 : 240)
   const labelsHidden = isTablet || (!isMobile && collapsed)
 
   return (
@@ -145,7 +170,7 @@ export default function Sidebar({ collapsed, onToggle }) {
           onClick={() => setMobileOpen(false)}
           style={{
             position: 'fixed', inset: 0, zIndex: 40,
-            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+            background: 'rgba(0, 0, 0, 0.7)',
           }}
         />
       )}
@@ -157,7 +182,7 @@ export default function Sidebar({ collapsed, onToggle }) {
           left: 0, top: 0,
           height: '100vh',
           width,
-          background: 'var(--bg-surface)',
+          background: 'var(--graphite)',
           borderRight: '1px solid var(--border)',
           zIndex: 50,
           display: 'flex',
@@ -166,11 +191,10 @@ export default function Sidebar({ collapsed, onToggle }) {
           transform: isMobile && !mobileOpen ? 'translateX(-100%)' : 'translateX(0)',
         }}
       >
-        {/* Logo row */}
+        {/* Brand block — logo + wordmark + tagline. */}
         <div
           style={{
-            height: 60,
-            padding: '0 16px',
+            padding: labelsHidden ? '18px 0' : '18px 16px',
             borderBottom: '1px solid var(--border)',
             display: 'flex',
             alignItems: 'center',
@@ -182,25 +206,43 @@ export default function Sidebar({ collapsed, onToggle }) {
             <img
               src="/assets/logo.png"
               alt=""
-              style={{ width: 26, height: 26, objectFit: 'contain', flexShrink: 0 }}
+              style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }}
               onError={(e) => { e.currentTarget.style.display = 'none'; setLogoFailed(true) }}
             />
           )}
           {!labelsHidden && (
-            <span
-              style={{
-                fontFamily: 'Bebas Neue, sans-serif',
-                fontWeight: 400,
-                fontSize: 16,
-                color: 'var(--text-primary)',
-                letterSpacing: '0.10em',
-                textTransform: 'uppercase',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-              }}
-            >
-              Esports Elite
-            </span>
+            <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+              <span
+                style={{
+                  fontFamily: "'Oxanium', sans-serif",
+                  fontWeight: 700,
+                  fontSize: 15,
+                  color: 'var(--ivory)',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                Esports Elite
+              </span>
+              <span
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 9,
+                  color: 'var(--muted)',
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  marginTop: 2,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                Train · Analyze · Dominate
+              </span>
+            </div>
           )}
           {isMobile && (
             <button
@@ -208,7 +250,7 @@ export default function Sidebar({ collapsed, onToggle }) {
               style={{
                 marginLeft: 'auto', padding: 6,
                 background: 'transparent', border: 'none', cursor: 'pointer',
-                color: 'var(--text-muted)', display: 'flex',
+                color: 'var(--muted)', display: 'flex',
               }}
               aria-label="Close menu"
             >
@@ -217,20 +259,20 @@ export default function Sidebar({ collapsed, onToggle }) {
           )}
         </div>
 
-        {/* Nav */}
-        <nav style={{ flex: 1, padding: '14px 10px', overflowY: 'auto' }}>
+        {/* Nav sections */}
+        <nav style={{ flex: 1, padding: '16px 10px', overflowY: 'auto' }}>
           {NAV_SECTIONS.map(section => (
             <div key={section.title} style={{ marginBottom: 18 }}>
               {!labelsHidden && (
                 <div
                   style={{
-                    fontFamily: 'DM Sans, sans-serif',
+                    fontFamily: "'Inter', sans-serif",
                     fontWeight: 600,
                     fontSize: 10,
                     textTransform: 'uppercase',
-                    letterSpacing: '0.12em',
-                    color: 'var(--text-subtle)',
-                    padding: '0 12px 5px',
+                    letterSpacing: '0.14em',
+                    color: 'var(--muted)',
+                    padding: '0 10px 8px',
                   }}
                 >
                   {section.title}
@@ -244,33 +286,13 @@ export default function Sidebar({ collapsed, onToggle }) {
                       <NavLink
                         to={item.to}
                         title={labelsHidden ? item.label : undefined}
-                        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                        style={labelsHidden ? { justifyContent: 'center', padding: '9px 0' } : undefined}
+                        className={({ isActive }) => `v2-nav-item ${isActive ? 'active' : ''}`}
+                        style={labelsHidden
+                          ? { justifyContent: 'center', padding: '10px 0' }
+                          : undefined}
                       >
                         <Icon size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
-                        {!labelsHidden && (
-                          <>
-                            <span style={{ flex: 1 }}>{item.label}</span>
-                            {item.soon && (
-                              <span
-                                style={{
-                                  fontSize: 9,
-                                  fontWeight: 600,
-                                  color: 'var(--text-subtle)',
-                                  background: 'var(--bg-elevated)',
-                                  border: '1px solid var(--border)',
-                                  padding: '1px 6px',
-                                  borderRadius: 4,
-                                  marginLeft: 'auto',
-                                  textTransform: 'uppercase',
-                                  letterSpacing: '0.06em',
-                                }}
-                              >
-                                SOON
-                              </span>
-                            )}
-                          </>
-                        )}
+                        {!labelsHidden && <span style={{ flex: 1 }}>{item.label}</span>}
                       </NavLink>
                     </li>
                   )
@@ -279,6 +301,33 @@ export default function Sidebar({ collapsed, onToggle }) {
             </div>
           ))}
         </nav>
+
+        {/* Trial badge — bottom of sidebar per spec. */}
+        {!labelsHidden && trial && !trial.expired && (
+          <div style={{ padding: '0 14px 10px' }}>
+            <div
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                color: trial.daysLeft <= 7 ? 'var(--warning)' : 'var(--gold)',
+                background: trial.daysLeft <= 7
+                  ? 'rgba(245, 158, 11, 0.08)'
+                  : 'rgba(201, 162, 39, 0.08)',
+                border: `1px solid ${trial.daysLeft <= 7 ? 'var(--warning)' : 'var(--gold)'}`,
+                borderRadius: 4,
+                padding: '6px 10px',
+                textAlign: 'center',
+              }}
+            >
+              {trial.daysLeft <= 7
+                ? `${trial.daysLeft} day${trial.daysLeft === 1 ? '' : 's'} left`
+                : `Trial · ${trial.daysLeft} days`}
+            </div>
+          </div>
+        )}
 
         {/* XP block */}
         {!labelsHidden && (
@@ -293,21 +342,44 @@ export default function Sidebar({ collapsed, onToggle }) {
             >
               <span
                 style={{
-                  fontFamily: 'Bebas Neue, sans-serif',
-                  fontWeight: 400,
-                  fontSize: 14,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '0.06em',
+                  fontFamily: "'Oxanium', sans-serif",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  color: 'var(--gold)',
+                  letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                 }}
               >
                 {levelName}
               </span>
-              <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: 'var(--text-subtle)' }}>
+              <span
+                style={{
+                  fontFamily: "'Oxanium', sans-serif",
+                  fontWeight: 600,
+                  fontSize: 11,
+                  color: 'var(--muted)',
+                }}
+              >
                 {xp.toLocaleString()} / {(ceil || xp).toLocaleString()}
               </span>
             </div>
-            <div className="xp-bar-track"><div className="xp-bar-fill" style={{ width: `${xpPct}%` }} /></div>
+            <div
+              style={{
+                height: 4,
+                background: 'var(--border)',
+                borderRadius: 999,
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  height: '100%',
+                  width: `${xpPct}%`,
+                  background: 'var(--gold)',
+                  transition: 'width 0.4s ease',
+                }}
+              />
+            </div>
           </div>
         )}
 
@@ -319,7 +391,7 @@ export default function Sidebar({ collapsed, onToggle }) {
                 src={avatar}
                 alt=""
                 style={{
-                  width: 28, height: 28, borderRadius: '50%',
+                  width: 32, height: 32, borderRadius: '50%',
                   objectFit: 'cover', border: '1px solid var(--border)',
                   flexShrink: 0,
                 }}
@@ -327,10 +399,10 @@ export default function Sidebar({ collapsed, onToggle }) {
             ) : (
               <div
                 style={{
-                  width: 28, height: 28, borderRadius: '50%',
-                  background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                  color: 'var(--text-primary)',
-                  fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 11,
+                  width: 32, height: 32, borderRadius: '50%',
+                  background: 'var(--card)', border: '1px solid var(--border)',
+                  color: 'var(--ivory)',
+                  fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 12,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0,
                 }}
@@ -338,18 +410,31 @@ export default function Sidebar({ collapsed, onToggle }) {
                 {getInitials(displayName)}
               </div>
             )}
-            <div
-              style={{
-                fontSize: 12,
-                fontFamily: 'DM Sans, sans-serif',
-                fontWeight: 500,
-                color: 'var(--text-primary)',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              {displayName}
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  fontFamily: "'Inter', sans-serif",
+                  fontWeight: 600,
+                  color: 'var(--ivory)',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {displayName}
+              </div>
+              <div
+                style={{
+                  fontSize: 10,
+                  fontFamily: "'Inter', sans-serif",
+                  color: 'var(--muted)',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Pro Player
+              </div>
             </div>
           </div>
         )}
@@ -360,7 +445,7 @@ export default function Sidebar({ collapsed, onToggle }) {
             <NavLink
               to="/admin"
               title={labelsHidden ? 'Admin' : undefined}
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+              className={({ isActive }) => `v2-nav-item ${isActive ? 'active' : ''}`}
               style={labelsHidden ? { justifyContent: 'center', padding: '9px 0' } : undefined}
             >
               <Shield size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
@@ -370,7 +455,7 @@ export default function Sidebar({ collapsed, onToggle }) {
           <button
             onClick={() => setPanelOpen(true)}
             title={labelsHidden ? 'Notifications' : undefined}
-            className="nav-item"
+            className="v2-nav-item"
             style={labelsHidden ? { justifyContent: 'center', padding: '9px 0' } : undefined}
           >
             <Bell size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
@@ -378,8 +463,8 @@ export default function Sidebar({ collapsed, onToggle }) {
             {unreadCount > 0 && (
               <span
                 style={{
-                  background: 'var(--red)',
-                  color: '#fff',
+                  background: 'var(--gold)',
+                  color: 'var(--obsidian)',
                   fontSize: 10,
                   fontWeight: 700,
                   padding: '1px 6px',
@@ -397,7 +482,7 @@ export default function Sidebar({ collapsed, onToggle }) {
           <button
             onClick={logout}
             title={labelsHidden ? 'Logout' : undefined}
-            className="nav-item"
+            className="v2-nav-item"
             style={labelsHidden ? { justifyContent: 'center', padding: '9px 0' } : undefined}
           >
             <LogOut size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
@@ -412,13 +497,13 @@ export default function Sidebar({ collapsed, onToggle }) {
             title={collapsed ? 'Expand' : 'Collapse'}
             style={{
               position: 'absolute',
-              top: 18,
+              top: 22,
               right: -12,
               width: 24, height: 24,
               borderRadius: '50%',
-              background: 'var(--bg-elevated)',
+              background: 'var(--card)',
               border: '1px solid var(--border)',
-              color: 'var(--text-muted)',
+              color: 'var(--muted)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer',
               zIndex: 51,
@@ -427,6 +512,39 @@ export default function Sidebar({ collapsed, onToggle }) {
             {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
           </button>
         )}
+
+        {/* v2 nav-item hover / active styles — scoped so we don't
+            override the legacy .nav-item class other pages may use. */}
+        <style>{`
+          .v2-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px 9px 12px;
+            border-radius: 0 6px 6px 0;
+            background: transparent;
+            border: none;
+            border-left: 2px solid transparent;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+            width: 100%;
+            text-align: left;
+          }
+          .v2-nav-item:hover {
+            color: var(--ivory);
+            background: rgba(255, 255, 255, 0.04);
+          }
+          .v2-nav-item.active {
+            color: var(--gold);
+            background: rgba(201, 162, 39, 0.08);
+            border-left-color: var(--gold);
+          }
+        `}</style>
       </aside>
 
       <NotificationPanel open={panelOpen} onClose={() => setPanelOpen(false)} />

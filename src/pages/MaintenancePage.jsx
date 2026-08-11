@@ -1,5 +1,5 @@
 /**
- * MaintenancePage.jsx
+ * MaintenancePage.jsx — v2 luxury gold theme.
  *
  * Full-screen lockout shown when Firestore's
  *   app_config/maintenance { isActive: true }
@@ -17,7 +17,7 @@ export default function MaintenancePage({ message = '' }) {
       style={{
         position: 'fixed',
         inset: 0,
-        background: '#0C0C12',
+        background: '#0A0A0A',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -25,11 +25,12 @@ export default function MaintenancePage({ message = '' }) {
         padding: '24px',
         zIndex: 9999,
         overflow: 'hidden',
-        fontFamily: "'Bebas Neue', sans-serif",
+        fontFamily: "'Inter', sans-serif",
         textAlign: 'center',
       }}
     >
-      {/* Keyframes for the looping red bottom bar */}
+      {/* Gold sliding bar at the bottom — replaces the old red bar,
+          zero glow per v2 rules. */}
       <style>{`
         @keyframes maintenance-bar {
           0%   { left: -40%; }
@@ -41,19 +42,15 @@ export default function MaintenancePage({ message = '' }) {
           left: 0;
           height: 3px;
           width: 40%;
-          background: #E8001C;
-          box-shadow: 0 0 12px rgba(232, 0, 28, 0.6);
+          background: #C9A227;
           animation: maintenance-bar 2.4s linear infinite;
         }
         .maintenance-logo {
           width: 120px;
           height: auto;
-          filter: drop-shadow(0 0 18px rgba(232, 0, 28, 0.55))
-                  drop-shadow(0 0 36px rgba(232, 0, 28, 0.35));
         }
       `}</style>
 
-      {/* Brand logo with red glow */}
       <img
         src="/assets/logo.png"
         alt="Esports Elite"
@@ -61,83 +58,78 @@ export default function MaintenancePage({ message = '' }) {
         onError={(e) => { e.currentTarget.style.display = 'none' }}
       />
 
-      {/* Maintenance icon */}
       <div
         style={{
           fontSize: '48px',
           lineHeight: 1,
           marginTop: '28px',
+          color: '#C9A227',
         }}
         aria-hidden="true"
       >
         🔧
       </div>
 
-      {/* Heading */}
       <h1
         style={{
           marginTop: '20px',
           marginBottom: 0,
-          fontFamily: "'Bebas Neue', sans-serif",
-          fontWeight: 800,
-          color: '#E8001C',
+          fontFamily: "'Oxanium', sans-serif",
+          fontWeight: 700,
+          color: '#C9A227',
           fontSize: '28px',
-          letterSpacing: '0.1em',
+          letterSpacing: '0.14em',
           textTransform: 'uppercase',
         }}
       >
         Under Maintenance
       </h1>
 
-      {/* Subtext */}
       <p
         style={{
           marginTop: '14px',
           marginBottom: 0,
-          fontFamily: "'Bebas Neue', sans-serif",
+          fontFamily: "'Inter', sans-serif",
           fontWeight: 400,
-          color: '#E8E8F0',
+          color: '#FAFAF9',
           fontSize: '15px',
           maxWidth: '520px',
-          lineHeight: 1.5,
+          lineHeight: 1.55,
         }}
       >
         We are upgrading Esports Elite to serve you better.
       </p>
 
-      {/* Optional custom message from Firestore */}
       {message ? (
         <p
           style={{
             marginTop: '12px',
             marginBottom: 0,
-            fontFamily: "'Bebas Neue', sans-serif",
+            fontFamily: "'Inter', sans-serif",
             fontWeight: 400,
-            color: '#7777AA',
+            color: '#A1A1AA',
             fontSize: '13px',
             maxWidth: '520px',
-            lineHeight: 1.5,
+            lineHeight: 1.55,
           }}
         >
           {message}
         </p>
       ) : null}
 
-      {/* Reassurance line */}
       <p
         style={{
           marginTop: '20px',
           marginBottom: 0,
-          fontFamily: "'Bebas Neue', sans-serif",
+          fontFamily: "'Inter', sans-serif",
           fontWeight: 600,
-          color: '#E8E8F0',
+          color: '#FAFAF9',
           fontSize: '14px',
         }}
       >
-        We will be back soon. Keep grinding! ⚡
+        We will be back soon. Keep grinding.
       </p>
 
-      {/* Footer */}
       <div
         style={{
           position: 'absolute',
@@ -145,17 +137,17 @@ export default function MaintenancePage({ message = '' }) {
           left: 0,
           right: 0,
           textAlign: 'center',
-          fontFamily: "'Bebas Neue', sans-serif",
+          fontFamily: "'Inter', sans-serif",
           fontWeight: 400,
-          color: '#3E3E55',
-          fontSize: '12px',
-          letterSpacing: '0.05em',
+          color: '#71717A',
+          fontSize: '11px',
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
         }}
       >
-        © 2025 Esports Elite
+        © 2026 Esports Elite
       </div>
 
-      {/* Animated red sliding bar at the bottom */}
       <div className="maintenance-bar" aria-hidden="true" />
     </div>
   )

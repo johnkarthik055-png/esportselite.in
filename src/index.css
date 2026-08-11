@@ -1,52 +1,76 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+/* v2 loads Oxanium (headings) + Inter (body) as the primary faces.
+   Bebas Neue + DM Sans stay on the import so any legacy component
+   with an inline `fontFamily: 'Bebas Neue, …'` reference keeps
+   resolving to a real face until the individual page is migrated. */
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ============================================================
-   ESPORTS ELITE — DESIGN TOKENS
-   Bebas Neue for headings / stats / brand.
-   DM Sans for everything else.
+   ESPORTS ELITE — V2 LUXURY PERFORMANCE SYSTEM
+   Every legacy token below is remapped onto the v2 palette so
+   existing components (Dashboard, Training, Profile, …) pick up
+   the gold theme without touching each className. New pages
+   should prefer the v2 tokens (--gold, --ivory, --card, etc.).
    ============================================================ */
 
 :root {
-  --font-heading: 'Bebas Neue', sans-serif;
-  --font-body:    'DM Sans', sans-serif;
+  /* ---- v2 primary tokens ---------------------------------- */
+  --obsidian:   #0A0A0A;
+  --graphite:   #121212;
+  --card:       #18181B;
+  --gold:       #C9A227;
+  --gold-soft:  #E5C76B;
+  --gold-tint:  rgba(201, 162, 39, 0.10);
+  --ivory:      #FAFAF9;
+  --muted:      #A1A1AA;
+  --success:    #10B981;
+  --warning:    #F59E0B;
+  --danger:     #EF4444;
+
+  /* ---- Typography ----------------------------------------- */
+  --font-heading: 'Oxanium', 'Bebas Neue', sans-serif;
+  --font-body:    'Inter', 'DM Sans', system-ui, sans-serif;
   --font-mono:    'SF Mono', 'Fira Code', monospace;
 
-  --bg-base:      #0A0A0F;
-  --bg-surface:   #13131A;
-  --bg-elevated:  #1C1C26;
-  --bg-hover:     #222230;
+  /* ---- Legacy structural tokens → v2 palette -------------- */
+  --bg-base:      #0A0A0A;
+  --bg-surface:   #121212;
+  --bg-elevated:  #18181B;
+  --bg-hover:     #222226;
 
-  --border:       #2E2E42;
-  --border-light: #1E1E2E;
+  --border:       #27272A;
+  --border-light: #1E1E1E;
 
-  --text-primary: #F0F0F8;
-  --text-muted:   #8888A8;
-  --text-subtle:  #666688;
+  --text-primary: #FAFAF9;
+  --text-muted:   #A1A1AA;
+  --text-subtle:  #71717A;
 
-  --red:          #E8001C;
-  --red-hover:    #FF1F35;
-  --red-tint:     #1A0508;
-  --red-ghost:    rgba(232, 0, 28, 0.10);
+  /* Old primary brand red → gold. Every `var(--red)` reference
+     in existing components now renders as gold. True error red
+     lives on --danger. */
+  --red:          #C9A227;
+  --red-hover:    #E5C76B;
+  --red-tint:     #1F1808;
+  --red-ghost:    rgba(201, 162, 39, 0.12);
 
-  --green:        #00C96E;
-  --green-tint:   rgba(0, 201, 110, 0.10);
+  --green:        #10B981;
+  --green-tint:   rgba(16, 185, 129, 0.10);
   --amber:        #F59E0B;
   --amber-tint:   rgba(245, 158, 11, 0.10);
-  --blue:         #4A9EFF;
-  --blue-tint:    rgba(74, 158, 255, 0.10);
-  --gold:         #FFD700;
-  --gold-tint:    rgba(255, 215, 0, 0.10);
+  --blue:         #3B82F6;
+  --blue-tint:    rgba(59, 130, 246, 0.10);
 
+  /* ---- Shape / motion ------------------------------------- */
   --radius-sm: 6px;
-  --radius:    10px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius:    8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
 
-  --shadow-modal: 0 32px 64px rgba(0, 0, 0, 0.6);
+  /* v2: zero glows anywhere. Modal drop remains for depth only. */
+  --shadow-modal: 0 24px 48px rgba(0, 0, 0, 0.6);
 }
 
 /* ============================================================
@@ -54,7 +78,18 @@
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; }
 
-html, body, #root { height: 100%; margin: 0; padding: 0; }
+/* Force the v2 obsidian background at the root so no ancestor
+   (including any leftover Tailwind bg-* utility from v1) can
+   override it. !important is intentional here — this is the
+   final backstop, not a per-component override. */
+html, body, #root {
+  height: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: #0A0A0A !important;
+  color: #FAFAF9;
+}
 
 html { scroll-behavior: smooth; }
 
