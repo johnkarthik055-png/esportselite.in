@@ -3,7 +3,8 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   Home, Target, User, ChevronLeft, ChevronRight,
   LogOut, Crosshair, X, ClipboardList, BarChart2, TrendingUp, Bell, Shield,
-  Users, Map, Trophy, CalendarClock, BookOpen, ChevronDown,
+  Users, Map, Trophy, CalendarClock, BookOpen, ChevronDown, Settings,
+  Award,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useAvatar } from '../hooks/useAvatar.js'
@@ -21,7 +22,7 @@ const ADMIN_EMAILS = [
 
 const NAV_SECTIONS = [
   {
-    title: 'Overview',
+    title: 'Main',
     items: [
       { to: '/dashboard', label: 'Dashboard', icon: Home },
     ],
@@ -45,7 +46,8 @@ const NAV_SECTIONS = [
   {
     title: 'Esports',
     items: [
-      { to: '/tournaments', label: 'Tournaments', icon: Trophy },
+      { to: '/tournaments',  label: 'Tournaments',  icon: Trophy },
+      { to: '/leaderboards', label: 'Leaderboards', icon: Award },
     ],
   },
   {
@@ -330,7 +332,7 @@ export default function Sidebar({ collapsed, onToggle }) {
             borderTop: '1px solid var(--border)',
             flexShrink: 0,
           }}>
-            {/* Avatar + name row */}
+            {/* Avatar + name + level row */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               {avatar ? (
                 <img
@@ -359,19 +361,23 @@ export default function Sidebar({ collapsed, onToggle }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
                   fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
-                  color: 'var(--text-primary)',
+                  color: '#F8FAFC',
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                  marginBottom: 4,
                 }}>
                   {displayName}
                 </div>
-                <div style={{
-                  fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
-                  color: 'var(--text-subtle)', marginTop: 1,
+                {/* Level badge pill */}
+                <span style={{
+                  display: 'inline-block',
+                  background: '#101A30', border: '1px solid #1B2A45',
+                  borderRadius: 999, padding: '2px 8px',
+                  fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
+                  color: '#3B82F6',
                 }}>
-                  {levelName}
-                </div>
+                  Level {levelNum + 1}
+                </span>
               </div>
-              <ChevronDown size={14} style={{ color: 'var(--text-subtle)', flexShrink: 0 }} />
             </div>
 
             {/* XP bar */}
@@ -384,7 +390,7 @@ export default function Sidebar({ collapsed, onToggle }) {
               }}>
                 <div style={{
                   height: '100%', width: `${xpPct}%`,
-                  background: 'var(--blue)',
+                  background: '#3B82F6',
                   borderRadius: 2,
                   boxShadow: '0 0 6px rgba(59,130,246,0.5)',
                   transition: 'width 0.4s ease',
@@ -393,13 +399,31 @@ export default function Sidebar({ collapsed, onToggle }) {
             </div>
             <div style={{
               fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 10,
-              color: 'var(--text-subtle)',
+              color: '#94A3B8', marginBottom: 10,
             }}>
               {xp.toLocaleString()} / {(ceil || xp).toLocaleString()} XP
             </div>
 
-            {/* Icons row */}
-            <div style={{ display: 'flex', gap: 4, marginTop: 10 }}>
+            {/* Icons row: settings + notifications + logout */}
+            <div style={{ display: 'flex', gap: 4 }}>
+              <button
+                onClick={() => navigate('/profile')}
+                title="Settings"
+                style={{
+                  flex: 1, padding: '7px 0',
+                  background: 'transparent',
+                  border: '1px solid var(--border)',
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'var(--text-subtle)',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--divider)' }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-subtle)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+              >
+                <Settings size={15} />
+              </button>
               <button
                 onClick={() => setPanelOpen(true)}
                 title="Notifications"
@@ -456,6 +480,17 @@ export default function Sidebar({ collapsed, onToggle }) {
             borderTop: '1px solid var(--border)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
           }}>
+            <button
+              onClick={() => navigate('/profile')}
+              title="Settings"
+              style={{
+                padding: '9px', background: 'transparent',
+                border: 'none', cursor: 'pointer',
+                color: 'var(--text-subtle)', display: 'flex',
+              }}
+            >
+              <Settings size={16} />
+            </button>
             <button
               onClick={() => setPanelOpen(true)}
               title="Notifications"

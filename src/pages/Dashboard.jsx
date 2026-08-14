@@ -4,7 +4,12 @@ import {
   Flame, AlertTriangle, Crosshair, Target, ChevronRight,
   Clock, Calendar, Activity, ArrowRight, Brain, Shield,
   BarChart2, Zap, Star, Trophy, Sparkles, TrendingUp,
+  Plus, MapPin, Truck, Settings,
 } from 'lucide-react'
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  ResponsiveContainer, Tooltip,
+} from 'recharts'
 import FeaturedTournamentCard from '../components/dashboard/FeaturedTournamentCard.jsx'
 import TodaysScheduleCard from '../components/dashboard/TodaysScheduleCard.jsx'
 import { useStats } from '../hooks/useStats.js'
@@ -106,7 +111,6 @@ function getWeaknessFrequency(matches, suggestions) {
   return Object.entries(freq).sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }))
 }
 
-/* Build a 14-day activity grid (3 rows: drills, matches, time) */
 function buildActivityGrid(sessions, matches) {
   const days = []
   for (let i = 13; i >= 0; i--) {
@@ -116,7 +120,6 @@ function buildActivityGrid(sessions, matches) {
     const key = d.toISOString().split('T')[0]
     days.push({ key, date: d, dayLabel: ['S','M','T','W','T','F','S'][d.getDay()] })
   }
-
   const sessionMap = {}
   ;(sessions || []).forEach(s => {
     if (!s.timestamp) return
@@ -131,21 +134,12 @@ function buildActivityGrid(sessions, matches) {
     const k = new Date(m.timestamp).toISOString().split('T')[0]
     matchMap[k] = (matchMap[k] || 0) + 1
   })
-
   return days.map(d => ({
     ...d,
     drills:   sessionMap[d.key]?.drills   || 0,
     duration: sessionMap[d.key]?.duration || 0,
     matches:  matchMap[d.key]             || 0,
   }))
-}
-
-function activityColor(value, max) {
-  if (!value || value === 0) return 'var(--border)'
-  const ratio = Math.min(1, value / Math.max(1, max))
-  if (ratio < 0.33) return 'rgba(59,130,246,0.25)'
-  if (ratio < 0.67) return 'rgba(59,130,246,0.55)'
-  return '#3B82F6'
 }
 
 /* ============================================================
@@ -206,11 +200,6 @@ export default function Dashboard() {
     ) || null
   }, [priorityFocus, modules])
 
-  function startPriorityDrill() {
-    if (priorityModule) navigate(`/training?focus=${priorityModule.id}`)
-    else navigate('/training')
-  }
-
   const scrimStats = useMemo(() => {
     const list = activeMatches.filter(m => m.type === 'Scrims' || m.type === 'Tournament')
     const total = list.length
@@ -219,7 +208,9 @@ export default function Dashboard() {
     const totalKills = activeMatches.reduce((s, m) =>
       s + (m.type === 'Classic' ? Number(m.kills) || 0 : Number(m.individualKills) || 0), 0)
     const kd = activeMatches.length > 0 ? (totalKills / activeMatches.length).toFixed(2) : '0.00'
-    return { winRate, kd, scrimCount: total }
+    const hsKills = activeMatches.reduce((s, m) => s + (Number(m.headshotKills) || 0), 0)
+    const hsPct = totalKills > 0 ? Math.round((hsKills / totalKills) * 100) : 0
+    return { winRate, kd, scrimCount: total, hsPct }
   }, [activeMatches])
 
   function formatTotal(sessions) {
@@ -234,35 +225,86 @@ export default function Dashboard() {
   const practiceTime = formatTotal(fsSessions)
 
   const displayName = getDisplayName()
-  const xp       = fsXP ?? 0
-  const xpToday  = Math.min(xp % 500, 999)
-  const levelNum  = fsLevel ?? 0
-  const levelName = getLevelName(levelNum)
-  const floor     = XP_PER_LEVEL[levelNum] ?? 0
-  const ceil      = XP_PER_LEVEL[levelNum + 1] ?? floor
-  const xpPct     = ceil > floor ? Math.round(Math.min(1, (xp - floor) / (ceil - floor)) * 100) : 100
-  const xpToNext  = Math.max(0, ceil - xp)
+  const xp          = fsXP ?? 0
+  const xpToday     = Math.min(xp % 500, 999)
+  const levelNum    = fsLevel ?? 0
+  const levelName   = getLevelName(levelNum)
+  const floor       = XP_PER_LEVEL[levelNum] ?? 0
+  const ceil        = XP_PER_LEVEL[levelNum + 1] ?? floor
+  const xpPct       = ceil > floor ? Math.round(Math.min(1, (xp - floor) / (ceil - floor)) * 100) : 100
+  const xpToNext    = Math.max(0, ceil - xp)
   const nextLevelName = getLevelName(levelNum + 1)
+  const xpBarPct    = Math.min(100, Math.round((xp % 500) / 500 * 100))
 
-  const maxDrills   = Math.max(1, ...activityGrid.map(d => d.drills))
-  const maxMatches  = Math.max(1, ...activityGrid.map(d => d.matches))
-  const maxDuration = Math.max(1, ...activityGrid.map(d => d.duration))
-
-  /* Top 3 modules as drill recommendations */
-  const drillCards = useMemo(() => {
-    const top = modules.slice(0, 3)
-    const types = ['Recommended', 'High Priority', 'Suggested']
-    const colors = ['var(--cyan)', 'var(--danger)', 'var(--green)']
-    const bgColors = ['rgba(34,211,238,0.1)', 'rgba(239,68,68,0.1)', 'rgba(34,197,94,0.1)']
-    return top.map((m, i) => ({
-      name: m.name,
-      type: types[i] || 'Suggested',
-      color: colors[i] || 'var(--green)',
-      bgColor: bgColors[i] || 'rgba(34,197,94,0.1)',
-      duration: 15 + i * 5,
-      xp: 80 - i * 10,
+  /* Weekly performance chart data */
+  const weeklyChartData = useMemo(() => {
+    const dayLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+    return activityGrid.slice(-7).map((d, i) => ({
+      day: dayLabels[i] || d.dayLabel,
+      value: Math.min(100, d.drills * 20 + d.matches * 15 + (d.duration > 0 ? 10 : 0)),
     }))
-  }, [modules])
+  }, [activityGrid])
+
+  /* Maps played this week */
+  const mapsThisWeek = useMemo(() => {
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7)
+    const maps = new Set()
+    activeMatches.forEach(m => {
+      if (m.timestamp && new Date(m.timestamp) > cutoff && m.mapName) maps.add(m.mapName)
+    })
+    return maps.size
+  }, [activeMatches])
+
+  /* Sessions this week */
+  const sessionsThisWeek = useMemo(() => {
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7)
+    return activeSessions.filter(s => s.timestamp && new Date(s.timestamp) > cutoff).length
+  }, [activeSessions])
+
+  /* Practice time this week */
+  const practiceTimeWeek = useMemo(() => {
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7)
+    const secs = activeSessions
+      .filter(s => s.timestamp && new Date(s.timestamp) > cutoff)
+      .reduce((sum, s) => sum + (Number(s.durationSeconds) || 0), 0)
+    if (secs === 0) return '0m'
+    const h = Math.floor(secs / 3600), m = Math.floor((secs % 3600) / 60)
+    if (h > 0 && m > 0) return `${h}h ${m}m`
+    if (h > 0) return `${h}h`
+    return `${m}m`
+  }, [activeSessions])
+
+  /* Matches this week */
+  const matchesThisWeek = useMemo(() => {
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7)
+    return activeMatches.filter(m => m.timestamp && new Date(m.timestamp) > cutoff).length
+  }, [activeMatches])
+
+  /* Recent activity: last 5 across sessions + matches */
+  const recentActivity = useMemo(() => {
+    const sessionItems = (activeSessions || []).map(s => ({
+      type: 'session',
+      id: s.id || Math.random(),
+      timestamp: s.timestamp,
+      title: s.drillName || 'Training Session',
+      sub: s.module || 'Training',
+      xp: s.xp || 80,
+      duration: s.durationSeconds,
+    }))
+    const matchItems = (activeMatches || []).map(m => ({
+      type: 'match',
+      id: m.id || Math.random(),
+      timestamp: m.timestamp,
+      title: m.mapName || 'Match',
+      sub: m.type || 'Classic',
+      position: m.teamPosition,
+      kills: m.kills || m.individualKills || 0,
+    }))
+    return [...sessionItems, ...matchItems]
+      .filter(a => a.timestamp)
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+      .slice(0, 5)
+  }, [activeSessions, activeMatches])
 
   if (dataLoading) {
     return (
@@ -273,7 +315,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
       {/* Trial expired banner */}
       {trial?.expired && (
@@ -296,673 +338,573 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ══ HERO BANNER ══════════════════════════════════════ */}
-      <div style={{
-        width: '100%', height: '280px',
-        borderRadius: 16, overflow: 'hidden',
-        position: 'relative',
-        border: '1px solid #1B2A45',
-        marginBottom: 4,
-      }}>
-        {/* Background image — no overlay */}
-        <img
-          src="/assets/dashboard-hero.png"
-          alt=""
-          style={{
-            position: 'absolute',
-            top: 0, left: 0,
-            width: '100%', height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center center',
-            display: 'block',
-            opacity: 1,
-          }}
-        />
-
-        {/* Content overlay */}
+      {/* ══ TOP GREETING + STATS ══════════════════════════════ */}
+      <div style={{ paddingBottom: 4 }}>
         <div style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 10,
-          padding: '28px 32px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
+          fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 14,
+          color: '#94A3B8', marginBottom: 4,
         }}>
-          {/* Greeting */}
-          <div style={{
-            fontFamily: 'Inter, sans-serif',
-            fontWeight: 400, fontSize: 14,
-            color: '#CBD5E1',
-            textShadow: '0 2px 4px rgba(0,0,0,0.8)',
-            marginBottom: 2,
-          }}>
-            {greeting()},
-          </div>
-
-          {/* Username */}
-          <div style={{
-            fontFamily: 'Oxanium, sans-serif',
-            fontWeight: 800,
-            fontSize: 'clamp(36px, 4vw, 56px)',
-            fontStyle: 'italic',
-            textTransform: 'uppercase',
-            color: '#FFFFFF',
-            textShadow: '0 4px 12px rgba(0,0,0,0.9)',
-            lineHeight: 1,
-            marginBottom: 12,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}>
-            {displayName}
-          </div>
-
-          {/* Stat pills */}
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <HeroPill icon={<TrendingUp size={13} color="#22C55E" />} label="Top 18% this week" />
-            <HeroPill icon={<Zap size={13} color="#22D3EE" />} label={`+${xpToday} XP today`} />
-            <HeroPill icon={<Flame size={13} color="#F59E0B" />} label={`${displayStreak} day streak`} />
-          </div>
+          {greeting()},
+        </div>
+        <div style={{
+          fontFamily: 'Oxanium, sans-serif', fontWeight: 800,
+          fontSize: 'clamp(32px, 4vw, 48px)',
+          fontStyle: 'italic', textTransform: 'uppercase',
+          color: '#F8FAFC', lineHeight: 1,
+          marginBottom: 14,
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+        }}>
+          {displayName}
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <TopPill icon={<TrendingUp size={13} color="#22C55E" />} label="Top 18% this week" />
+          <TopPill icon={<Zap size={13} color="#22D3EE" />} label={`+${xpToday} XP today`} />
+          <TopPill icon={<Flame size={13} color="#F59E0B" />} label={`${displayStreak} day streak`} />
         </div>
       </div>
 
-      {/* ══ XP PROGRESS ═════════════════════════════════════ */}
-      <div style={{
-        background: 'var(--card)',
-        border: '1px solid var(--border)',
-        borderRadius: 12,
-        padding: '20px 24px',
-        display: 'flex',
-        gap: 20,
-        alignItems: 'stretch',
-        flexWrap: 'wrap',
-      }}>
-        {/* Left: XP bar */}
-        <div style={{ flex: 1, minWidth: 200 }}>
+      {/* ══ ROW 1: BANNER + NEXT REWARD ══════════════════════ */}
+      <div style={{ display: 'flex', gap: 16, alignItems: 'stretch' }} className="row1-grid">
+
+        {/* Featured Banner */}
+        <div style={{
+          flex: 1, height: 220,
+          borderRadius: 16, overflow: 'hidden',
+          position: 'relative',
+          border: '1px solid #1B2A45',
+          background: '#0D1528',
+        }}>
+          <img
+            src="/assets/dashboard-hero.png"
+            alt=""
+            style={{
+              position: 'absolute', top: 0, left: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover', objectPosition: 'center center',
+              display: 'block', opacity: 1,
+            }}
+          />
+          {/* Bottom-left content */}
           <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            marginBottom: 10,
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            padding: '20px 24px', zIndex: 10,
+            background: 'linear-gradient(to top, rgba(5,8,22,0.92) 0%, rgba(5,8,22,0.4) 70%, transparent 100%)',
           }}>
-            <span style={{
+            <div style={{
               fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
-              color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
+              color: '#94A3B8', letterSpacing: '0.12em', textTransform: 'uppercase',
+              marginBottom: 8,
             }}>
-              XP Progress — {levelName}
-            </span>
-            <span style={{
-              fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 13,
-              color: 'var(--text-subtle)',
-            }}>
-              {xp.toLocaleString()} / {(ceil || xp).toLocaleString()} XP
-            </span>
-          </div>
-
-          {/* Bar */}
-          <div style={{
-            width: '100%', height: 8,
-            background: 'var(--border)', borderRadius: 4,
-            overflow: 'hidden', marginBottom: 8,
-          }}>
-            <div style={{
-              height: '100%', width: `${xpPct}%`,
-              background: 'var(--blue)',
-              borderRadius: 4,
-              boxShadow: '0 0 12px rgba(59,130,246,0.5)',
-              transition: 'width 0.5s ease',
-            }} />
-          </div>
-
-          <span style={{
-            fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 13,
-            color: 'var(--text-subtle)',
-          }}>
-            {xpToNext.toLocaleString()} XP to{' '}
-            <span style={{ color: 'var(--blue)', fontWeight: 500 }}>{nextLevelName}</span>
-          </span>
-        </div>
-
-        {/* Right: Next Reward card */}
-        <div style={{
-          background: 'var(--card2)',
-          border: '1px solid var(--border)',
-          borderRadius: 8, padding: '12px 16px',
-          display: 'flex', alignItems: 'center', gap: 12,
-          flexShrink: 0, minWidth: 200,
-        }}>
-          <div style={{
-            width: 38, height: 38, borderRadius: '50%',
-            background: 'rgba(245,158,11,0.15)',
-            border: '1px solid rgba(245,158,11,0.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-          }}>
-            <Star size={18} style={{ color: 'var(--gold)' }} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{
-              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 10,
-              color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
-              marginBottom: 2,
-            }}>
-              Next Reward
+              Featured
             </div>
             <div style={{
-              fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 15,
-              color: 'var(--text-primary)',
+              fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 24,
+              textShadow: '0 2px 8px rgba(0,0,0,0.9)',
+              marginBottom: 6, lineHeight: 1.2,
             }}>
-              {nextLevelName}
+              <span style={{ color: '#F8FAFC' }}>TRAIN. ANALYZE. </span>
+              <span style={{ color: '#22D3EE' }}>DOMINATE.</span>
             </div>
             <div style={{
-              fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
-              color: 'var(--text-subtle)',
+              fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 13,
+              color: '#CBD5E1', textShadow: '0 1px 4px rgba(0,0,0,0.9)',
+              marginBottom: 16,
             }}>
-              Unlock new drills
+              Where grind becomes greatness.
             </div>
-          </div>
-          <ChevronRight size={16} style={{ color: 'var(--text-subtle)', flexShrink: 0 }} />
-        </div>
-      </div>
-
-      {/* ══ 4 STAT CARDS ════════════════════════════════════ */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-        gap: 14,
-      }}>
-        <StatCard
-          icon={<Flame size={22} />}
-          iconBg="rgba(245,158,11,0.12)"
-          iconBorder="rgba(245,158,11,0.25)"
-          iconColor="var(--amber)"
-          label="Current Streak"
-          value={`${displayStreak}D`}
-          sub="Keep it up!"
-          subColor="var(--green)"
-        />
-        <StatCard
-          icon={<Clock size={22} />}
-          iconBg="rgba(34,211,238,0.12)"
-          iconBorder="rgba(34,211,238,0.25)"
-          iconColor="var(--cyan)"
-          label="Practice Time"
-          value={practiceTime}
-          sub={`${weeklyConsistency.days}/7 days active`}
-          subColor="var(--text-subtle)"
-        />
-        <StatCard
-          icon={<Calendar size={22} />}
-          iconBg="rgba(59,130,246,0.12)"
-          iconBorder="rgba(59,130,246,0.25)"
-          iconColor="var(--blue)"
-          label="Sessions"
-          value={stats.totalSessions}
-          sub={activeMatches.length > 0 ? `+${Math.min(stats.totalSessions, 2)} vs yesterday` : 'Start training'}
-          subColor="var(--green)"
-        />
-        <StatCard
-          icon={<Crosshair size={22} />}
-          iconBg="rgba(124,58,237,0.12)"
-          iconBorder="rgba(124,58,237,0.25)"
-          iconColor="var(--violet)"
-          label="Matches"
-          value={activeMatches.length}
-          sub={scrimStats.scrimCount > 0 ? `${scrimStats.winRate}% Win Rate` : 'Log your matches'}
-          subColor={scrimStats.scrimCount > 0 ? 'var(--green)' : 'var(--text-subtle)'}
-        />
-      </div>
-
-      {/* ══ ACTIVITY GRID + COACH AI (2-col) ════════════════ */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 16 }} className="activity-coach-grid">
-
-        {/* Activity Grid */}
-        <div style={{
-          background: 'var(--card)', border: '1px solid var(--border)',
-          borderRadius: 12, padding: '20px',
-        }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            marginBottom: 14,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Calendar size={14} style={{ color: 'var(--blue)' }} />
-              <span style={{
-                fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
-                color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
-              }}>
-                Activity · Last 14 Days
-              </span>
-            </div>
-            <Link to="/analytics" style={{
-              fontFamily: 'Inter, sans-serif', fontSize: 12,
-              color: 'var(--blue)', display: 'flex', alignItems: 'center', gap: 4,
-            }}>
-              View full analytics <ChevronRight size={12} />
-            </Link>
-          </div>
-
-          {/* Row labels */}
-          <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
-            <div style={{ width: 52, flexShrink: 0 }} />
-            {activityGrid.map(d => (
-              <div key={d.key} style={{
-                flex: 1, textAlign: 'center',
-                fontFamily: 'Inter, sans-serif', fontSize: 9,
-                color: 'var(--text-subtle)', fontWeight: 500,
-                letterSpacing: '0.04em',
-              }}>
-                {d.dayLabel}
-              </div>
-            ))}
-          </div>
-
-          {/* Grid rows: Drills, Matches, Time */}
-          {[
-            { label: 'DRILLS',  key: 'drills',   max: maxDrills },
-            { label: 'MATCHES', key: 'matches',  max: maxMatches },
-            { label: 'TIME',    key: 'duration', max: maxDuration },
-          ].map(row => (
-            <div key={row.label} style={{ display: 'flex', gap: 4, marginBottom: 4, alignItems: 'center' }}>
-              <div style={{
-                width: 52, flexShrink: 0,
-                fontFamily: 'Inter, sans-serif', fontSize: 9,
-                color: 'var(--text-subtle)', fontWeight: 500,
-                letterSpacing: '0.06em', textAlign: 'right', paddingRight: 8,
-              }}>
-                {row.label}
-              </div>
-              {activityGrid.map(d => (
-                <div
-                  key={d.key}
-                  title={`${d.key}: ${row.key === 'duration' ? formatDuration(d[row.key]) : d[row.key] + ' ' + row.label.toLowerCase()}`}
-                  style={{
-                    flex: 1, aspectRatio: '1/1',
-                    minHeight: 14, maxHeight: 28,
-                    borderRadius: 4,
-                    background: activityColor(d[row.key], row.max),
-                    transition: 'transform 0.1s ease',
-                    cursor: 'default',
-                  }}
-                />
-              ))}
-            </div>
-          ))}
-
-          {/* Legend */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            marginTop: 10, justifyContent: 'flex-end',
-          }}>
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: 'var(--text-subtle)' }}>Less</span>
-            {['var(--border)', 'rgba(59,130,246,0.25)', 'rgba(59,130,246,0.55)', '#3B82F6'].map((c, i) => (
-              <div key={i} style={{
-                width: 10, height: 10, borderRadius: 2, background: c,
-              }} />
-            ))}
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: 'var(--text-subtle)' }}>More</span>
-          </div>
-        </div>
-
-        {/* Coach AI + Priority Focus */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-
-          {/* Coach AI */}
-          <div style={{
-            background: 'var(--card)', border: '1px solid var(--border)',
-            borderRadius: 12, padding: '18px',
-            flex: 1,
-          }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              marginBottom: 14,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Sparkles size={14} style={{ color: 'var(--cyan)' }} />
-                <span style={{
-                  fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
-                  color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
-                }}>
-                  Coach AI
-                </span>
-              </div>
-              {heatmapData.length > 0 && (
-                <span style={{
-                  background: 'rgba(124,58,237,0.15)',
-                  border: '1px solid rgba(124,58,237,0.3)',
-                  borderRadius: 999, padding: '3px 8px',
-                  fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 10,
-                  color: 'var(--violet)',
-                }}>
-                  NEW INSIGHTS
-                </span>
-              )}
-            </div>
-
-            <div style={{
-              width: 44, height: 44, borderRadius: '50%',
-              background: 'rgba(124,58,237,0.12)',
-              border: '1px solid rgba(124,58,237,0.2)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: 12,
-            }}>
-              <Brain size={22} style={{ color: 'var(--violet)' }} />
-            </div>
-
-            {heatmapData.length === 0 ? (
-              <div>
-                <div style={{
-                  fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 14,
-                  color: 'var(--text-primary)', marginBottom: 8, lineHeight: 1.4,
-                }}>
-                  Log matches to unlock AI insights.
-                </div>
-                <div style={{
-                  fontFamily: 'Inter, sans-serif', fontSize: 13,
-                  color: 'var(--text-subtle)', lineHeight: 1.6,
-                }}>
-                  Track your weaknesses in the Match Logger to get personalised coaching.
-                </div>
-              </div>
-            ) : (
-              <div>
-                <div style={{
-                  fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 14,
-                  color: 'var(--text-primary)', marginBottom: 10, lineHeight: 1.4,
-                }}>
-                  {`Your ${heatmapData[0]?.name || 'close-range'} performance needs focus.`}
-                </div>
-                <ul style={{
-                  listStyle: 'none', margin: 0, padding: 0,
-                  display: 'flex', flexDirection: 'column', gap: 6,
-                  marginBottom: 12,
-                }}>
-                  {heatmapData.slice(0, 3).map(skill => (
-                    <li key={skill.name} style={{
-                      fontFamily: 'Inter, sans-serif', fontSize: 12,
-                      color: 'var(--text-muted)',
-                      display: 'flex', alignItems: 'center', gap: 6,
-                    }}>
-                      <span style={{
-                        width: 6, height: 6, borderRadius: '50%',
-                        background: skill.color, flexShrink: 0,
-                      }} />
-                      {skill.name} — flagged {skill.count}×
-                    </li>
-                  ))}
-                </ul>
-                {priorityModule && (
-                  <div style={{
-                    fontFamily: 'Inter, sans-serif', fontSize: 12,
-                    color: 'var(--green)', marginBottom: 12,
-                  }}>
-                    Estimated improvement: drill {priorityModule.name}
-                  </div>
-                )}
-              </div>
-            )}
-
             <button
               onClick={() => navigate('/training')}
               style={{
-                width: '100%', padding: '10px',
-                background: 'linear-gradient(135deg, var(--blue-bright) 0%, var(--blue) 100%)',
-                color: '#fff',
-                fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 13,
-                borderRadius: 8, border: 'none', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: 'rgba(13,21,40,0.85)',
+                border: '1px solid #1B2A45',
+                borderRadius: 8, padding: '8px 16px',
+                fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
+                color: '#F8FAFC', cursor: 'pointer',
+                backdropFilter: 'blur(8px)',
+                transition: 'border-color 0.2s ease',
               }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = '#3B82F6'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = '#1B2A45'}
             >
-              View Full Analysis <ArrowRight size={14} />
+              <Target size={14} color="#3B82F6" />
+              Go to Training Center
             </button>
           </div>
+        </div>
 
-          {/* Priority Focus */}
+        {/* Next Reward Card */}
+        <div style={{
+          width: 280, flexShrink: 0, height: 220,
+          background: '#0D1528', border: '1px solid #1B2A45',
+          borderRadius: 16, padding: 20,
+          display: 'flex', flexDirection: 'column',
+        }}>
           <div style={{
-            background: 'var(--card)', border: '1px solid var(--border)',
-            borderRadius: 12, padding: '16px',
+            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
+            color: '#94A3B8', letterSpacing: '0.12em', textTransform: 'uppercase',
+            marginBottom: 16,
+          }}>
+            Next Reward
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: '50%',
+              background: 'rgba(245,158,11,0.15)',
+              border: '1px solid rgba(245,158,11,0.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <Star size={24} color="#F59E0B" />
+            </div>
+            <div style={{
+              fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 24,
+              color: '#F8FAFC',
+            }}>
+              {nextLevelName}
+            </div>
+          </div>
+          <div style={{
+            fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 13,
+            color: '#94A3B8', marginTop: 4,
+          }}>
+            {xpToNext.toLocaleString()} XP remaining
+          </div>
+          {/* XP bar */}
+          <div style={{
+            width: '100%', height: 6, background: '#1B2A45',
+            borderRadius: 3, overflow: 'hidden', margin: '12px 0 6px',
           }}>
             <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              marginBottom: 12,
-            }}>
-              <span style={{
-                fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
-                color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
-              }}>
-                Priority Focus
-              </span>
-              <span style={{
-                background: 'rgba(245,158,11,0.15)',
-                border: '1px solid rgba(245,158,11,0.3)',
-                borderRadius: 999, padding: '2px 8px',
-                fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 10,
-                color: 'var(--amber)',
-              }}>
-                TOP
-              </span>
-            </div>
+              height: '100%',
+              width: `${xpBarPct}%`,
+              background: 'linear-gradient(90deg, #3B82F6, #22D3EE)',
+              borderRadius: 3,
+              transition: 'width 0.5s ease',
+            }} />
+          </div>
+          <div style={{
+            fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
+            color: '#94A3B8',
+          }}>
+            {(xp % 500)} / 500 XP
+          </div>
+          <button
+            onClick={() => navigate('/progress')}
+            style={{
+              marginTop: 'auto', width: '100%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              background: 'transparent', border: '1px solid #1B2A45',
+              borderRadius: 8, padding: '10px',
+              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
+              color: '#F8FAFC', cursor: 'pointer',
+              transition: 'border-color 0.2s ease',
+            }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = '#3B82F6'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = '#1B2A45'}
+          >
+            View Rewards <ChevronRight size={14} />
+          </button>
+        </div>
+      </div>
 
-            {!priorityFocus ? (
-              <div style={{
-                fontFamily: 'Inter, sans-serif', fontSize: 13,
-                color: 'var(--text-subtle)', lineHeight: 1.5,
-              }}>
-                Log 3+ matches to surface your priority area.
-              </div>
-            ) : (
-              <>
-                <div style={{
-                  fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 15,
-                  color: 'var(--text-primary)', marginBottom: 4,
-                }}>
-                  {priorityFocus.name}
-                </div>
-                <div style={{
-                  fontFamily: 'Inter, sans-serif', fontSize: 12,
-                  color: 'var(--text-subtle)', marginBottom: 10,
-                }}>
-                  Focus area for max improvement
-                </div>
-                <div style={{ marginBottom: 12 }}>
-                  <div style={{
-                    display: 'flex', justifyContent: 'space-between',
-                    marginBottom: 4,
-                  }}>
-                    <span style={{ fontSize: 11, color: 'var(--text-subtle)' }}>Impact score</span>
-                    <span style={{ fontFamily: 'Oxanium, sans-serif', fontSize: 12, color: 'var(--blue)', fontWeight: 600 }}>
-                      {Math.min(99, priorityFocus.count * 18)}%
-                    </span>
-                  </div>
-                  <div style={{
-                    width: '100%', height: 4, background: 'var(--border)', borderRadius: 2,
-                  }}>
-                    <div style={{
-                      width: `${Math.min(99, priorityFocus.count * 18)}%`,
-                      height: '100%', background: 'var(--blue)', borderRadius: 2,
-                      boxShadow: '0 0 6px rgba(59,130,246,0.4)',
-                    }} />
-                  </div>
-                </div>
-                <button
-                  onClick={startPriorityDrill}
-                  style={{
-                    width: '100%', padding: '8px',
-                    background: 'transparent',
-                    border: '1px solid var(--blue)',
-                    color: 'var(--blue)',
-                    fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 12,
-                    borderRadius: 6, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+      {/* ══ ROW 2: PERFORMANCE + QUICK STATS + CALENDAR ══════ */}
+      <div style={{ display: 'flex', gap: 16 }} className="row2-grid">
+
+        {/* Performance Overview */}
+        <div style={{
+          flex: 1.5, background: '#0D1528', border: '1px solid #1B2A45',
+          borderRadius: 12, padding: 20, minWidth: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <span style={{
+              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
+              color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
+            }}>
+              Performance Overview
+            </span>
+            <select style={{
+              background: '#101A30', border: '1px solid #1B2A45',
+              borderRadius: 6, padding: '4px 8px',
+              fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
+              color: '#CBD5E1', cursor: 'pointer', outline: 'none',
+            }}>
+              <option>This Week</option>
+              <option>Last Week</option>
+            </select>
+          </div>
+
+          <div style={{ position: 'relative', marginBottom: 16 }}>
+            <ResponsiveContainer width="100%" height={140}>
+              <LineChart data={weeklyChartData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1B2A45" />
+                <XAxis
+                  dataKey="day"
+                  tick={{ fontFamily: 'Inter', fontSize: 11, fill: '#94A3B8' }}
+                  axisLine={false} tickLine={false}
+                />
+                <YAxis
+                  domain={[0, 100]}
+                  ticks={[0, 25, 50, 75, 100]}
+                  tickFormatter={v => `${v}%`}
+                  tick={{ fontFamily: 'Inter', fontSize: 10, fill: '#94A3B8' }}
+                  axisLine={false} tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: '#101A30', border: '1px solid #1B2A45',
+                    borderRadius: 8, fontFamily: 'Inter', fontSize: 12,
                   }}
-                >
-                  Start Drill <ArrowRight size={13} />
-                </button>
-              </>
-            )}
+                  formatter={v => [`${v}%`, 'Activity']}
+                  labelStyle={{ color: '#94A3B8' }}
+                  itemStyle={{ color: '#3B82F6' }}
+                />
+                <Line
+                  type="monotone" dataKey="value"
+                  stroke="#3B82F6" strokeWidth={2}
+                  dot={{ fill: '#3B82F6', r: 4, strokeWidth: 0 }}
+                  activeDot={{ r: 5, fill: '#22D3EE' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* 4 mini stats */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
+            <MiniStat label="K/D Ratio"    value={scrimStats.kd}         color="#3B82F6" />
+            <MiniStat label="Accuracy"     value="—"                     color="#22D3EE" />
+            <MiniStat label="Headshot %"   value={`${scrimStats.hsPct}%`} color="#7C3AED" />
+            <MiniStat label="Win Rate"     value={`${scrimStats.winRate}%`} color="#22C55E" />
+          </div>
+        </div>
+
+        {/* Quick Stats */}
+        <div style={{
+          flex: 1, background: '#0D1528', border: '1px solid #1B2A45',
+          borderRadius: 12, padding: 20, minWidth: 0,
+        }}>
+          <div style={{
+            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
+            color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
+            marginBottom: 16,
+          }}>
+            Quick Stats
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <QuickStatCard icon={<Clock size={16} color="#22D3EE" />}   label="Practice Time"   value={practiceTimeWeek} sub="This week" />
+            <QuickStatCard icon={<Calendar size={16} color="#3B82F6" />} label="Sessions"        value={sessionsThisWeek} sub="This week" />
+            <QuickStatCard icon={<Crosshair size={16} color="#EF4444" />} label="Matches"        value={matchesThisWeek} sub="This week" />
+            <QuickStatCard icon={<MapPin size={16} color="#7C3AED" />}  label="Maps Played"     value={mapsThisWeek}    sub="This week" />
+          </div>
+        </div>
+
+        {/* Activity Calendar */}
+        <div style={{
+          flex: 1, background: '#0D1528', border: '1px solid #1B2A45',
+          borderRadius: 12, padding: 20, minWidth: 0,
+        }}>
+          <div style={{
+            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
+            color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
+            marginBottom: 2,
+          }}>
+            Activity Calendar
+          </div>
+          <div style={{
+            fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
+            color: '#94A3B8', marginBottom: 14,
+          }}>
+            14-Day Activity
+          </div>
+
+          {/* Day labels */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 4, marginBottom: 4 }}>
+            {['M','T','W','T','F','S','S'].map((l, i) => (
+              <div key={i} style={{
+                textAlign: 'center',
+                fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#94A3B8',
+              }}>
+                {l}
+              </div>
+            ))}
+          </div>
+
+          {/* 7×2 grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 4 }}>
+            {activityGrid.map(d => {
+              const total = d.drills + d.matches
+              const bg = total === 0 ? '#1B2A45' : total === 1 ? 'rgba(59,130,246,0.3)' : '#3B82F6'
+              return (
+                <div
+                  key={d.key}
+                  title={`${d.key}: ${total} activities`}
+                  style={{
+                    width: '100%', aspectRatio: '1/1',
+                    borderRadius: 6, background: bg,
+                    cursor: 'default',
+                  }}
+                />
+              )
+            })}
+          </div>
+
+          {/* Legend */}
+          <div style={{
+            display: 'flex', gap: 10, marginTop: 12,
+            fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#94A3B8',
+          }}>
+            {[['#3B82F6','Active'],['rgba(59,130,246,0.3)','Low'],['#1B2A45','None']].map(([c, l]) => (
+              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: 10, height: 10, borderRadius: 2, background: c }} />
+                {l}
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* ══ TODAY'S TRAINING ════════════════════════════════ */}
-      <div>
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          marginBottom: 12,
-        }}>
-          <span style={{
-            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
-            color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
-          }}>
-            Today's Training Recommendations
-          </span>
-          <Link to="/training" style={{
-            fontFamily: 'Inter, sans-serif', fontSize: 12,
-            color: 'var(--blue)', display: 'flex', alignItems: 'center', gap: 4,
-          }}>
-            View all drills <ChevronRight size={12} />
-          </Link>
-        </div>
+      {/* ══ ROW 3: MODULES + RECENT ACTIVITY + COACH AI ══════ */}
+      <div style={{ display: 'flex', gap: 16 }} className="row3-grid">
 
-        {drillCards.length === 0 ? (
+        {/* Training Modules */}
+        <div style={{
+          flex: 1.5, background: '#0D1528', border: '1px solid #1B2A45',
+          borderRadius: 12, padding: 20, minWidth: 0,
+        }}>
           <div style={{
-            background: 'var(--card)', border: '1px solid var(--border)',
-            borderRadius: 12, padding: '28px',
-            textAlign: 'center',
+            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
+            color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
+            marginBottom: 16,
           }}>
-            <Target size={28} style={{ color: 'var(--text-subtle)', opacity: 0.4, marginBottom: 8 }} />
-            <div style={{
-              fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 14,
-              color: 'var(--text-subtle)', marginBottom: 6,
-            }}>
-              No modules set up yet
-            </div>
-            <button onClick={() => navigate('/training')} className="btn btn-primary btn-sm">
-              Go to Training Center
-            </button>
+            Training Modules
           </div>
-        ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 12,
-          }}>
-            {drillCards.map((drill, i) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 10 }}>
+            {[
+              { name: 'ADS',         sub: 'Improve Aim',      Icon: Target,    color: '#3B82F6', bg: 'rgba(59,130,246,0.12)' },
+              { name: 'SPRAY',       sub: 'Control Recoil',   Icon: Flame,     color: '#22D3EE', bg: 'rgba(34,211,238,0.12)' },
+              { name: 'CAR SPRAY',   sub: 'Vehicle Spray',    Icon: Truck,     color: '#7C3AED', bg: 'rgba(124,58,237,0.12)' },
+              { name: 'CLOSE RANGE', sub: 'Reflex Training',  Icon: Crosshair, color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
+            ].map(({ name, sub, Icon, color, bg }) => (
               <div
-                key={i}
-                style={{
-                  background: 'var(--card)', border: '1px solid var(--border)',
-                  borderRadius: 12, padding: '16px',
-                  display: 'flex', alignItems: 'flex-start', gap: 12,
-                  cursor: 'pointer',
-                  transition: 'border-color 0.2s ease',
-                }}
+                key={name}
                 onClick={() => navigate('/training')}
-                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--divider)'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+                style={{
+                  background: '#101A30', border: '1px solid #1B2A45',
+                  borderRadius: 10, padding: 16,
+                  textAlign: 'center', cursor: 'pointer',
+                  transition: 'border-color 0.2s ease',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#3B82F6'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = '#1B2A45'}
               >
                 <div style={{
-                  width: 42, height: 42, borderRadius: '50%',
-                  background: 'rgba(59,130,246,0.12)',
-                  border: '1px solid rgba(59,130,246,0.2)',
+                  width: 36, height: 36, borderRadius: '50%',
+                  background: bg,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0,
                 }}>
-                  <Target size={20} style={{ color: 'var(--blue)' }} />
+                  <Icon size={18} color={color} />
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 14,
-                    color: 'var(--text-primary)', marginBottom: 6,
-                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                  }}>
-                    {drill.name}
-                  </div>
-                  <span style={{
-                    display: 'inline-block',
-                    background: drill.bgColor,
-                    border: `1px solid ${drill.color}40`,
-                    borderRadius: 999, padding: '2px 8px',
-                    fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 10,
-                    color: drill.color, marginBottom: 6,
-                  }}>
-                    {drill.type}
-                  </span>
-                  <div style={{
-                    fontFamily: 'Inter, sans-serif', fontSize: 12,
-                    color: 'var(--text-subtle)',
-                  }}>
-                    {drill.duration} min · +{drill.xp} XP
-                  </div>
+                <div style={{
+                  fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 13,
+                  color: '#F8FAFC',
+                }}>
+                  {name}
+                </div>
+                <div style={{
+                  fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
+                  color: '#94A3B8',
+                }}>
+                  {sub}
                 </div>
               </div>
             ))}
           </div>
-        )}
-      </div>
+          <button
+            onClick={() => navigate('/training')}
+            style={{
+              width: '100%', padding: '10px',
+              background: 'transparent', border: '1px dashed #1B2A45',
+              borderRadius: 8, cursor: 'pointer',
+              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
+              color: '#94A3B8',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              transition: 'border-color 0.2s ease, color 0.2s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#3B82F6'; e.currentTarget.style.color = '#F8FAFC' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#1B2A45'; e.currentTarget.style.color = '#94A3B8' }}
+          >
+            <Plus size={15} /> Custom Module
+          </button>
+        </div>
 
-      {/* ══ TODAY'S SCHEDULE ════════════════════════════════ */}
-      <TodaysScheduleCard />
-
-      {/* ══ FEATURED TOURNAMENT ══════════════════════════════ */}
-      <FeaturedTournamentCard />
-
-      {/* ══ RECENT SESSIONS ════════════════════════════════ */}
-      {stats.recentSessions.length > 0 && (
+        {/* Recent Activity */}
         <div style={{
-          background: 'var(--card)', border: '1px solid var(--border)',
-          borderRadius: 12, padding: '20px',
+          flex: 1, background: '#0D1528', border: '1px solid #1B2A45',
+          borderRadius: 12, padding: 20, minWidth: 0,
         }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            marginBottom: 14,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Activity size={14} style={{ color: 'var(--text-subtle)' }} />
-              <span style={{
-                fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
-                color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
-              }}>
-                Recent Sessions
-              </span>
-            </div>
-            <Link to="/training" style={{
-              fontFamily: 'Inter, sans-serif', fontSize: 12,
-              color: 'var(--text-subtle)', display: 'flex', alignItems: 'center', gap: 4,
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <span style={{
+              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
+              color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
             }}>
-              View all <ChevronRight size={12} />
+              Recent Activity
+            </span>
+            <Link to="/training" style={{
+              fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#3B82F6',
+              display: 'flex', alignItems: 'center', gap: 2, textDecoration: 'none',
+            }}>
+              View All <ArrowRight size={12} />
             </Link>
           </div>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Drill</th>
-                <th>Module</th>
-                <th>Duration</th>
-                <th style={{ textAlign: 'right' }}>When</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stats.recentSessions.map(s => {
-                const mod = modules.find(m => m.id === s.moduleId)
-                return (
-                  <tr key={s.id}>
-                    <td style={{ fontWeight: 500 }}>{s.drillName}</td>
-                    <td style={{ color: 'var(--text-subtle)' }}>{mod?.short || s.module || 'Training'}</td>
-                    <td style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{formatDuration(s.durationSeconds)}</td>
-                    <td style={{ textAlign: 'right', color: 'var(--text-subtle)', fontSize: 12 }}>
-                      {formatRelative(s.timestamp)}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+
+          {recentActivity.length === 0 ? (
+            <div style={{
+              textAlign: 'center', paddingTop: 32,
+              fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#94A3B8',
+            }}>
+              No activity yet. Start training!
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {recentActivity.map((item, i) => (
+                <div key={item.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                    background: item.type === 'session' ? 'rgba(59,130,246,0.12)' : 'rgba(124,58,237,0.12)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {item.type === 'session'
+                      ? <Target size={16} color="#3B82F6" />
+                      : <Crosshair size={16} color="#7C3AED" />
+                    }
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
+                      color: '#F8FAFC',
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                    }}>
+                      {item.title}
+                    </div>
+                    <div style={{
+                      fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
+                      color: '#94A3B8',
+                    }}>
+                      {item.sub}{item.duration ? ` · ${formatDuration(item.duration)}` : ''}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    {item.type === 'session' ? (
+                      <div style={{
+                        fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
+                        color: '#22C55E',
+                      }}>
+                        +{item.xp} XP
+                      </div>
+                    ) : (
+                      <div style={{
+                        fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
+                        color: '#3B82F6',
+                      }}>
+                        #{item.position || '—'}/{item.kills || 0}K
+                      </div>
+                    )}
+                    <div style={{
+                      fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
+                      color: '#64748B',
+                    }}>
+                      {formatRelative(item.timestamp)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Coach AI Insights */}
+        <div style={{
+          flex: 1, background: '#0D1528', border: '1px solid #1B2A45',
+          borderRadius: 12, padding: 20, minWidth: 0,
+          display: 'flex', flexDirection: 'column',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <span style={{
+              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
+              color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
+            }}>
+              Coach AI Insights
+            </span>
+            <span style={{
+              background: 'rgba(124,58,237,0.2)', color: '#7C3AED',
+              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 10,
+              borderRadius: 999, padding: '3px 8px',
+              border: '1px solid rgba(124,58,237,0.3)',
+            }}>
+              BETA
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: '50%', flexShrink: 0,
+              background: 'rgba(124,58,237,0.15)',
+              border: '1px solid rgba(124,58,237,0.25)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Brain size={24} color="#7C3AED" />
+            </div>
+            <div style={{
+              fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 14,
+              color: heatmapData.length > 0 ? '#CBD5E1' : '#94A3B8', lineHeight: 1.6,
+              flex: 1,
+            }}>
+              {heatmapData.length > 0
+                ? `Focus on your ${heatmapData[0].name.toLowerCase()} performance. You've flagged this ${heatmapData[0].count}× — drill it consistently.`
+                : 'Log matches to unlock AI insights.'
+              }
+            </div>
+          </div>
+
+          {heatmapData.length > 0 && (
+            <div style={{
+              borderTop: '1px solid #1B2A45',
+              marginTop: 'auto', paddingTop: 16,
+            }}>
+              <div style={{
+                fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
+                color: '#94A3B8', marginBottom: 8,
+              }}>
+                Recommended Drill
+              </div>
+              <div
+                onClick={() => navigate('/training')}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  cursor: 'pointer',
+                }}
+              >
+                <span style={{
+                  fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14,
+                  color: '#F8FAFC',
+                }}>
+                  {priorityModule?.name || heatmapData[0]?.name || 'Training Center'}
+                </span>
+                <ChevronRight size={16} color="#3B82F6" />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       <style>{`
-        @media (max-width: 900px) {
-          .activity-coach-grid { grid-template-columns: 1fr !important; }
+        @media (max-width: 1100px) {
+          .row2-grid, .row3-grid { flex-direction: column !important; }
+        }
+        @media (max-width: 700px) {
+          .row1-grid { flex-direction: column !important; }
+          .row1-grid > div:last-child { width: 100% !important; height: auto !important; }
         }
       `}</style>
     </div>
@@ -970,66 +912,66 @@ export default function Dashboard() {
 }
 
 /* ── Sub-components ──────────────────────────────────────── */
-function HeroPill({ icon, label }) {
+function TopPill({ icon, label }) {
   return (
     <div style={{
       display: 'inline-flex', alignItems: 'center', gap: 6,
-      background: 'rgba(5,8,22,0.7)',
-      backdropFilter: 'blur(8px)',
-      border: '1px solid rgba(255,255,255,0.15)',
-      borderRadius: 20,
-      padding: '6px 14px',
-      fontFamily: 'Inter, sans-serif',
-      fontWeight: 500, fontSize: 13,
-      color: '#F8FAFC',
-      textShadow: '0 1px 4px rgba(0,0,0,0.8)',
-      whiteSpace: 'nowrap',
+      background: 'rgba(13,21,40,0.6)',
+      border: '1px solid #1B2A45',
+      borderRadius: 20, padding: '5px 12px',
+      fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
+      color: '#CBD5E1', whiteSpace: 'nowrap',
     }}>
-      {icon}
-      {label}
+      {icon}{label}
     </div>
   )
 }
 
-function StatCard({ icon, iconBg, iconBorder, iconColor, label, value, sub, subColor }) {
+function MiniStat({ label, value, color }) {
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <div style={{
+        fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 18,
+        color: color || '#F8FAFC', lineHeight: 1, marginBottom: 4,
+      }}>
+        {value}
+      </div>
+      <div style={{
+        fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
+        color: '#94A3B8',
+      }}>
+        {label}
+      </div>
+    </div>
+  )
+}
+
+function QuickStatCard({ icon, label, value, sub }) {
   return (
     <div style={{
-      background: 'var(--card)', border: '1px solid var(--border)',
-      borderRadius: 12, padding: '20px',
-      display: 'flex', alignItems: 'center', gap: 16,
-      transition: 'border-color 0.2s ease',
+      background: '#101A30', border: '1px solid #1B2A45',
+      borderRadius: 8, padding: 12,
     }}>
-      <div style={{
-        width: 48, height: 48, borderRadius: 12,
-        background: iconBg,
-        border: `1px solid ${iconBorder}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: iconColor, flexShrink: 0,
-      }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
         {icon}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{
-          fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
-          color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em',
-          marginBottom: 4,
+        <span style={{
+          fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
+          color: '#94A3B8',
         }}>
           {label}
-        </div>
-        <div style={{
-          fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 32,
-          color: 'var(--text-primary)', lineHeight: 1,
-          marginBottom: 4,
-          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-        }}>
-          {value}
-        </div>
-        <div style={{
-          fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
-          color: subColor || 'var(--text-subtle)',
-        }}>
-          {sub}
-        </div>
+        </span>
+      </div>
+      <div style={{
+        fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 20,
+        color: '#F8FAFC', lineHeight: 1, marginBottom: 4,
+      }}>
+        {value}
+      </div>
+      <div style={{
+        fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
+        color: '#94A3B8',
+      }}>
+        {sub}
       </div>
     </div>
   )
