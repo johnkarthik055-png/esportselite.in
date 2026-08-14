@@ -311,21 +311,16 @@ export default function Dashboard() {
             objectFit: 'cover',
             objectPosition: 'center center',
             display: 'block',
-            opacity: 0.5,
+            opacity: 1,
           }}
         />
-
-        {/* Gradient overlay */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(135deg, rgba(5,8,22,0.85) 0%, rgba(8,16,31,0.5) 50%, rgba(5,8,22,0.85) 100%)',
-        }} />
 
         {/* Corner text */}
         <div style={{
           position: 'absolute', bottom: 16, left: 20, zIndex: 10,
           fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 12,
-          color: 'var(--text-subtle)', letterSpacing: '0.12em', textTransform: 'uppercase',
+          color: '#FFFFFF', letterSpacing: '0.12em', textTransform: 'uppercase',
+          textShadow: '0 2px 8px rgba(0,0,0,0.8)',
         }}>
           India's #1 BGMI Training Platform
         </div>
