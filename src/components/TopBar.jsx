@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Menu, BarChart2, Zap, Flame, Bell } from 'lucide-react'
+import { Menu, Bell } from 'lucide-react'
 import { useAvatar } from '../hooks/useAvatar.js'
-import { getInitials, greeting } from '../utils/helpers.js'
+import { getInitials } from '../utils/helpers.js'
 import { getDisplayName } from '../utils/storage.js'
 import { getTrialStatus } from '../utils/trial.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useUserData } from '../hooks/useUserData.js'
-import { useStreak } from '../hooks/useStreak.js'
 import { useNotifications } from '../hooks/useNotifications.js'
 import NotificationPanel from './NotificationPanel.jsx'
 
@@ -16,7 +15,6 @@ export default function TopBar({ title }) {
   const { user: authUser } = useAuth()
   const { avatar } = useAvatar()
   const { xp } = useUserData()
-  const streak = useStreak()
   const { unreadCount } = useNotifications()
   const [trial, setTrial] = useState(null)
   const [panelOpen, setPanelOpen] = useState(false)
@@ -37,10 +35,6 @@ export default function TopBar({ title }) {
 
   const displayName = getDisplayName()
   const initials = getInitials(displayName)
-  const streakCount = streak?.current || 0
-
-  /* XP earned today (approximate: xp mod 500, capped visually) */
-  const xpToday = Math.min(xp % 500, 999)
 
   return (
     <>
@@ -60,9 +54,8 @@ export default function TopBar({ title }) {
           padding: '16px 0 14px',
         }}>
 
-          {/* ── LEFT: greeting + username + pills ── */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {/* Mobile menu button */}
+          {/* ── LEFT: mobile menu button only ── */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <button
               onClick={openMobileSidebar}
               aria-label="Open menu"
@@ -71,45 +64,11 @@ export default function TopBar({ title }) {
                 padding: 4,
                 background: 'transparent', border: 'none',
                 cursor: 'pointer', color: 'var(--text-subtle)',
-                display: 'none', marginBottom: 8,
+                display: 'none',
               }}
             >
               <Menu size={20} />
             </button>
-
-            <div style={{
-              fontFamily: 'Inter, sans-serif',
-              fontWeight: 400, fontSize: 13,
-              color: 'var(--text-subtle)',
-              marginBottom: 2,
-            }}>
-              {greeting()},
-            </div>
-
-            <div style={{
-              fontFamily: 'Oxanium, sans-serif',
-              fontWeight: 800,
-              fontSize: 'clamp(28px, 4vw, 48px)',
-              lineHeight: 1,
-              color: 'var(--text-primary)',
-              textTransform: 'uppercase',
-              fontStyle: 'italic',
-              letterSpacing: '0.02em',
-              marginBottom: 10,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              maxWidth: '100%',
-            }}>
-              {displayName}
-            </div>
-
-            {/* Stat pills */}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <StatPill icon={<BarChart2 size={13} color="var(--blue)" />} label="Top 18% this week" />
-              <StatPill icon={<Zap size={13} color="var(--cyan)" />} label={`+${xpToday} XP today`} />
-              <StatPill icon={<Flame size={13} color="var(--amber)" />} label={`${streakCount} day streak`} />
-            </div>
           </div>
 
           {/* ── RIGHT: trial + bell + avatar + CTA ── */}
@@ -118,7 +77,6 @@ export default function TopBar({ title }) {
             alignItems: 'center',
             gap: 10,
             flexShrink: 0,
-            paddingTop: 4,
           }}>
             {/* Trial badge */}
             {trial && !trial.expired && (
@@ -256,23 +214,3 @@ export default function TopBar({ title }) {
   )
 }
 
-function StatPill({ icon, label }) {
-  return (
-    <div style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 5,
-      background: 'rgba(13,21,40,0.8)',
-      border: '1px solid var(--border)',
-      borderRadius: 20,
-      padding: '4px 12px',
-      fontFamily: 'Inter, sans-serif',
-      fontWeight: 400, fontSize: 12,
-      color: 'var(--text-muted)',
-      whiteSpace: 'nowrap',
-    }}>
-      {icon}
-      {label}
-    </div>
-  )
-}
