@@ -296,19 +296,19 @@ export default function Dashboard() {
 
       {/* ══ HERO BANNER ══════════════════════════════════════ */}
       <div style={{
-        width: '100%',
+        width: '100%', height: '220px',
         borderRadius: 16, overflow: 'hidden',
         position: 'relative',
-        border: '1px solid var(--border)',
-        background: 'var(--card)',
+        border: '1px solid #1B2A45',
       }}>
-        {/* Background image — height follows natural image ratio, no cropping */}
         <img
           src="/assets/dashboard-hero.png"
           alt=""
           style={{
             width: '100%',
-            height: 'auto',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center top',
             display: 'block',
             opacity: 0.5,
           }}
