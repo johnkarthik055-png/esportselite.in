@@ -302,23 +302,20 @@ export default function Dashboard() {
         border: '1px solid var(--border)',
         background: 'var(--card)',
       }}>
-        {/* Background video */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
+        {/* Background image */}
+        <img
+          src="/assets/dashboard-hero.png"
+          alt=""
           style={{
             position: 'absolute',
-            top: 0, left: 0,
+            top: 0,
+            left: 0,
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            opacity: 0.4,
+            opacity: 0.5,
           }}
-        >
-          <source src="/assets/login-bg.mp4" type="video/mp4" />
-        </video>
+        />
 
         {/* Gradient overlay */}
         <div style={{
