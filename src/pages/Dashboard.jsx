@@ -296,7 +296,7 @@ export default function Dashboard() {
 
       {/* ══ HERO BANNER ══════════════════════════════════════ */}
       <div style={{
-        width: '100%', height: 180,
+        width: '100%', height: '280px',
         borderRadius: 16, overflow: 'hidden',
         position: 'relative',
         border: '1px solid var(--border)',
@@ -313,6 +313,7 @@ export default function Dashboard() {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
+            objectPosition: 'center center',
             opacity: 0.5,
           }}
         />
