@@ -384,34 +384,12 @@ export default function Dashboard() {
               display: 'block', opacity: 1,
             }}
           />
-          {/* Bottom-left content */}
+          {/* Dark gradient + CTA button */}
           <div style={{
             position: 'absolute', bottom: 0, left: 0, right: 0,
             padding: '20px 24px', zIndex: 10,
             background: 'linear-gradient(to top, rgba(5,8,22,0.92) 0%, rgba(5,8,22,0.4) 70%, transparent 100%)',
           }}>
-            <div style={{
-              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
-              color: '#94A3B8', letterSpacing: '0.12em', textTransform: 'uppercase',
-              marginBottom: 8,
-            }}>
-              Featured
-            </div>
-            <div style={{
-              fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 24,
-              textShadow: '0 2px 8px rgba(0,0,0,0.9)',
-              marginBottom: 6, lineHeight: 1.2,
-            }}>
-              <span style={{ color: '#F8FAFC' }}>TRAIN. ANALYZE. </span>
-              <span style={{ color: '#22D3EE' }}>DOMINATE.</span>
-            </div>
-            <div style={{
-              fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 13,
-              color: '#CBD5E1', textShadow: '0 1px 4px rgba(0,0,0,0.9)',
-              marginBottom: 16,
-            }}>
-              Where grind becomes greatness.
-            </div>
             <button
               onClick={() => navigate('/training')}
               style={{
