@@ -304,9 +304,18 @@ export default function Dashboard() {
       }}>
         {/* Background video */}
         <video
-          autoPlay muted loop playsInline
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.45 }}
-          onError={e => e.currentTarget.style.display = 'none'}
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'absolute',
+            top: 0, left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.4,
+          }}
         >
           <source src="/assets/login-bg.mp4" type="video/mp4" />
         </video>
@@ -316,21 +325,6 @@ export default function Dashboard() {
           position: 'absolute', inset: 0,
           background: 'linear-gradient(135deg, rgba(5,8,22,0.85) 0%, rgba(8,16,31,0.5) 50%, rgba(5,8,22,0.85) 100%)',
         }} />
-
-        {/* Center logo */}
-        <img
-          src="/assets/logo.png"
-          alt="Esports Elite"
-          style={{
-            position: 'absolute',
-            top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 72, height: 'auto',
-            filter: 'drop-shadow(0 0 20px rgba(59,130,246,0.6))',
-            zIndex: 10,
-          }}
-          onError={e => e.currentTarget.style.display = 'none'}
-        />
 
         {/* Corner text */}
         <div style={{
