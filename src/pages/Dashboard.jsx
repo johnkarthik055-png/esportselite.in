@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
   Flame, AlertTriangle, Crosshair, Target, ChevronRight,
   Clock, Calendar, Activity, ArrowRight, Brain, Shield,
-  BarChart2, Zap, Star, Trophy, Sparkles,
+  BarChart2, Zap, Star, Trophy, Sparkles, TrendingUp,
 } from 'lucide-react'
 import FeaturedTournamentCard from '../components/dashboard/FeaturedTournamentCard.jsx'
 import TodaysScheduleCard from '../components/dashboard/TodaysScheduleCard.jsx'
@@ -14,7 +14,7 @@ import { useModules } from '../hooks/useModules.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { STORAGE_KEYS } from '../utils/constants.js'
 import {
-  formatRelative, formatDuration, dateKey, normalizeSessions,
+  formatRelative, formatDuration, dateKey, normalizeSessions, greeting,
 } from '../utils/helpers.js'
 import { getDisplayName } from '../utils/storage.js'
 import { getTrialStatus } from '../utils/trial.js'
@@ -233,7 +233,9 @@ export default function Dashboard() {
   }
   const practiceTime = formatTotal(fsSessions)
 
+  const displayName = getDisplayName()
   const xp       = fsXP ?? 0
+  const xpToday  = Math.min(xp % 500, 999)
   const levelNum  = fsLevel ?? 0
   const levelName = getLevelName(levelNum)
   const floor     = XP_PER_LEVEL[levelNum] ?? 0
@@ -295,19 +297,21 @@ export default function Dashboard() {
       )}
 
       {/* ══ HERO BANNER ══════════════════════════════════════ */}
-      {/* Image is 1672x941 (16:9). Height capped at 280px per 16:9 rule. */}
       <div style={{
         width: '100%', height: '280px',
         borderRadius: 16, overflow: 'hidden',
         position: 'relative',
         border: '1px solid #1B2A45',
+        marginBottom: 4,
       }}>
+        {/* Background image — no overlay */}
         <img
           src="/assets/dashboard-hero.png"
           alt=""
           style={{
-            width: '100%',
-            height: '100%',
+            position: 'absolute',
+            top: 0, left: 0,
+            width: '100%', height: '100%',
             objectFit: 'cover',
             objectPosition: 'center center',
             display: 'block',
@@ -315,14 +319,51 @@ export default function Dashboard() {
           }}
         />
 
-        {/* Corner text */}
+        {/* Content overlay */}
         <div style={{
-          position: 'absolute', bottom: 16, left: 20, zIndex: 10,
-          fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 12,
-          color: '#FFFFFF', letterSpacing: '0.12em', textTransform: 'uppercase',
-          textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+          position: 'absolute',
+          inset: 0,
+          zIndex: 10,
+          padding: '28px 32px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
         }}>
-          India's #1 BGMI Training Platform
+          {/* Greeting */}
+          <div style={{
+            fontFamily: 'Inter, sans-serif',
+            fontWeight: 400, fontSize: 14,
+            color: '#CBD5E1',
+            textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+            marginBottom: 2,
+          }}>
+            {greeting()},
+          </div>
+
+          {/* Username */}
+          <div style={{
+            fontFamily: 'Oxanium, sans-serif',
+            fontWeight: 800,
+            fontSize: 'clamp(36px, 4vw, 56px)',
+            fontStyle: 'italic',
+            textTransform: 'uppercase',
+            color: '#FFFFFF',
+            textShadow: '0 4px 12px rgba(0,0,0,0.9)',
+            lineHeight: 1,
+            marginBottom: 12,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}>
+            {displayName}
+          </div>
+
+          {/* Stat pills */}
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <HeroPill icon={<TrendingUp size={13} color="#22C55E" />} label="Top 18% this week" />
+            <HeroPill icon={<Zap size={13} color="#22D3EE" />} label={`+${xpToday} XP today`} />
+            <HeroPill icon={<Flame size={13} color="#F59E0B" />} label={`${displayStreak} day streak`} />
+          </div>
         </div>
       </div>
 
@@ -929,6 +970,27 @@ export default function Dashboard() {
 }
 
 /* ── Sub-components ──────────────────────────────────────── */
+function HeroPill({ icon, label }) {
+  return (
+    <div style={{
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      background: 'rgba(5,8,22,0.7)',
+      backdropFilter: 'blur(8px)',
+      border: '1px solid rgba(255,255,255,0.15)',
+      borderRadius: 20,
+      padding: '6px 14px',
+      fontFamily: 'Inter, sans-serif',
+      fontWeight: 500, fontSize: 13,
+      color: '#F8FAFC',
+      textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+      whiteSpace: 'nowrap',
+    }}>
+      {icon}
+      {label}
+    </div>
+  )
+}
+
 function StatCard({ icon, iconBg, iconBorder, iconColor, label, value, sub, subColor }) {
   return (
     <div style={{
