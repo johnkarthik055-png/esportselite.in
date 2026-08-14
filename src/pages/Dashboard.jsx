@@ -295,8 +295,9 @@ export default function Dashboard() {
       )}
 
       {/* ══ HERO BANNER ══════════════════════════════════════ */}
+      {/* Image is 1672x941 (16:9). Height capped at 280px per 16:9 rule. */}
       <div style={{
-        width: '100%', height: '220px',
+        width: '100%', height: '280px',
         borderRadius: 16, overflow: 'hidden',
         position: 'relative',
         border: '1px solid #1B2A45',
@@ -308,7 +309,7 @@ export default function Dashboard() {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            objectPosition: 'center top',
+            objectPosition: 'center center',
             display: 'block',
             opacity: 0.5,
           }}
