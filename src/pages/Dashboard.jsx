@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  Flame, AlertTriangle, AlertCircle, Crosshair, Target, ChevronRight,
-  Clock, Calendar, Activity, ArrowRight, Bot, Shield,
+  Flame, AlertTriangle, Crosshair, Target, ChevronRight,
+  Clock, Calendar, Activity, ArrowRight, Brain, Shield,
+  BarChart2, Zap, Star, Trophy, Sparkles,
 } from 'lucide-react'
-import StatCard from '../components/StatCard.jsx'
 import FeaturedTournamentCard from '../components/dashboard/FeaturedTournamentCard.jsx'
 import TodaysScheduleCard from '../components/dashboard/TodaysScheduleCard.jsx'
 import { useStats } from '../hooks/useStats.js'
@@ -14,7 +14,7 @@ import { useModules } from '../hooks/useModules.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { STORAGE_KEYS } from '../utils/constants.js'
 import {
-  greeting, formatRelative, formatDuration, dateKey, normalizeSessions,
+  formatRelative, formatDuration, dateKey, normalizeSessions,
 } from '../utils/helpers.js'
 import { getDisplayName } from '../utils/storage.js'
 import { getTrialStatus } from '../utils/trial.js'
@@ -22,7 +22,7 @@ import { useUserData } from '../hooks/useUserData.js'
 import { getLevelName, XP_PER_LEVEL } from '../utils/db.js'
 
 /* ============================================================
-   DATA HELPERS (logic preserved)
+   DATA HELPERS (preserved — logic unchanged)
    ============================================================ */
 function calculateWeeklyConsistency(sessions) {
   if (!sessions || sessions.length === 0) return { percentage: 0, days: 0 }
@@ -76,10 +76,10 @@ function calculateHeatmap(matches, suggestions) {
   return HEATMAP_SKILLS.map(skill => {
     const count = counts[skill.name]
     let status, color, percentage
-    if      (count >= 5) { status = 'High Priority'; color = 'var(--red)';   percentage = 90 }
-    else if (count >= 3) { status = 'High Priority'; color = 'var(--red)';   percentage = 75 }
-    else if (count >= 2) { status = 'Weak';          color = 'var(--amber)'; percentage = 55 }
-    else if (count === 1){ status = 'Improving';     color = 'var(--gold)';  percentage = 30 }
+    if      (count >= 5) { status = 'High Priority'; color = 'var(--danger)'; percentage = 90 }
+    else if (count >= 3) { status = 'High Priority'; color = 'var(--danger)'; percentage = 75 }
+    else if (count >= 2) { status = 'Weak';          color = 'var(--amber)';  percentage = 55 }
+    else if (count === 1){ status = 'Improving';     color = 'var(--gold)';   percentage = 30 }
     else                 { return null }
     return { name: skill.name, count, status, color, percentage }
   }).filter(Boolean).sort((a, b) => b.count - a.count)
@@ -106,6 +106,48 @@ function getWeaknessFrequency(matches, suggestions) {
   return Object.entries(freq).sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }))
 }
 
+/* Build a 14-day activity grid (3 rows: drills, matches, time) */
+function buildActivityGrid(sessions, matches) {
+  const days = []
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    d.setHours(0, 0, 0, 0)
+    const key = d.toISOString().split('T')[0]
+    days.push({ key, date: d, dayLabel: ['S','M','T','W','T','F','S'][d.getDay()] })
+  }
+
+  const sessionMap = {}
+  ;(sessions || []).forEach(s => {
+    if (!s.timestamp) return
+    const k = new Date(s.timestamp).toISOString().split('T')[0]
+    if (!sessionMap[k]) sessionMap[k] = { drills: 0, duration: 0 }
+    sessionMap[k].drills++
+    sessionMap[k].duration += Number(s.durationSeconds) || 0
+  })
+  const matchMap = {}
+  ;(matches || []).forEach(m => {
+    if (!m.timestamp) return
+    const k = new Date(m.timestamp).toISOString().split('T')[0]
+    matchMap[k] = (matchMap[k] || 0) + 1
+  })
+
+  return days.map(d => ({
+    ...d,
+    drills:   sessionMap[d.key]?.drills   || 0,
+    duration: sessionMap[d.key]?.duration || 0,
+    matches:  matchMap[d.key]             || 0,
+  }))
+}
+
+function activityColor(value, max) {
+  if (!value || value === 0) return 'var(--border)'
+  const ratio = Math.min(1, value / Math.max(1, max))
+  if (ratio < 0.33) return 'rgba(59,130,246,0.25)'
+  if (ratio < 0.67) return 'rgba(59,130,246,0.55)'
+  return '#3B82F6'
+}
+
 /* ============================================================
    DASHBOARD
    ============================================================ */
@@ -130,7 +172,6 @@ export default function Dashboard() {
     return () => { cancelled = true }
   }, [authUser?.uid])
 
-  const displayName = getDisplayName()
   const {
     sessions: fsSessions,
     matches:  fsMatches,
@@ -143,20 +184,17 @@ export default function Dashboard() {
 
   useEffect(() => { refreshData(); /* eslint-disable-next-line */ }, [])
 
-  const activeMatches = (Array.isArray(fsMatches) && fsMatches.length > 0)
-    ? fsMatches : (Array.isArray(lsMatches) ? lsMatches : [])
+  const activeMatches  = (Array.isArray(fsMatches)  && fsMatches.length  > 0) ? fsMatches  : (Array.isArray(lsMatches)  ? lsMatches  : [])
+  const activeSessions = (Array.isArray(fsSessions) && fsSessions.length > 0) ? fsSessions : normalizeSessions(sessionsRaw)
 
-  const activeSessions = (Array.isArray(fsSessions) && fsSessions.length > 0)
-    ? fsSessions : normalizeSessions(sessionsRaw)
-
-  const fsStreakCount = fsProfile?.streak?.count ?? 0
-  const displayStreak = fsStreakCount > 0 ? fsStreakCount : (streak.current || 0)
+  const fsStreakCount  = fsProfile?.streak?.count ?? 0
+  const displayStreak  = fsStreakCount > 0 ? fsStreakCount : (streak.current || 0)
 
   const weeklyConsistency = useMemo(() => calculateWeeklyConsistency(activeSessions), [activeSessions])
-  const heatmapData = useMemo(() => calculateHeatmap(activeMatches, suggestions), [activeMatches, suggestions])
-  const weaknessFreq = useMemo(() => getWeaknessFrequency(activeMatches, suggestions), [activeMatches, suggestions])
-  const priorityFocus = weaknessFreq[0] || null
-  const focusTomorrow = weaknessFreq.slice(1, 4)
+  const heatmapData    = useMemo(() => calculateHeatmap(activeMatches, suggestions),     [activeMatches, suggestions])
+  const weaknessFreq   = useMemo(() => getWeaknessFrequency(activeMatches, suggestions), [activeMatches, suggestions])
+  const priorityFocus  = weaknessFreq[0] || null
+  const activityGrid   = useMemo(() => buildActivityGrid(activeSessions, activeMatches),  [activeSessions, activeMatches])
 
   const priorityModule = useMemo(() => {
     if (!priorityFocus) return null
@@ -184,23 +222,6 @@ export default function Dashboard() {
     return { winRate, kd, scrimCount: total }
   }, [activeMatches])
 
-  const calendar = useMemo(() => {
-    const out = []
-    const sessionDates = new Set(activeSessions.map(s => dateKey(s.timestamp)))
-    for (let i = -3; i <= 3; i++) {
-      const d = new Date(); d.setDate(d.getDate() + i)
-      const k = dateKey(d.getTime())
-      out.push({
-        key: k,
-        num: d.getDate(),
-        day: ['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getDay()],
-        today: i === 0,
-        hasSession: sessionDates.has(k),
-      })
-    }
-    return out
-  }, [activeSessions])
-
   function formatTotal(sessions) {
     if (!sessions || sessions.length === 0) return '0m'
     const total = sessions.reduce((sum, s) => sum + (Number(s.durationSeconds) || 0), 0)
@@ -212,447 +233,758 @@ export default function Dashboard() {
   }
   const practiceTime = formatTotal(fsSessions)
 
-  const xp = fsXP ?? 0
-  /* Levels are 0-indexed (0 = Rookie … 6 = Elite). XP_PER_LEVEL[N]
-     is the threshold for level N, so [levelNum] is this level's
-     floor and [levelNum + 1] is the ceiling / next-level threshold. */
-  const levelNum = fsLevel ?? 0
+  const xp       = fsXP ?? 0
+  const levelNum  = fsLevel ?? 0
   const levelName = getLevelName(levelNum)
-  const floor = XP_PER_LEVEL[levelNum] ?? 0
-  const ceil  = XP_PER_LEVEL[levelNum + 1] ?? floor
-  const xpPct = ceil > floor ? Math.round(Math.min(1, (xp - floor) / (ceil - floor)) * 100) : 100
-  const xpToNext = Math.max(0, ceil - xp)
+  const floor     = XP_PER_LEVEL[levelNum] ?? 0
+  const ceil      = XP_PER_LEVEL[levelNum + 1] ?? floor
+  const xpPct     = ceil > floor ? Math.round(Math.min(1, (xp - floor) / (ceil - floor)) * 100) : 100
+  const xpToNext  = Math.max(0, ceil - xp)
   const nextLevelName = getLevelName(levelNum + 1)
 
-  const avgDamage = useMemo(() => {
-    const list = activeMatches.filter(m => Number(m.damage) > 0)
-    if (list.length === 0) return 0
-    return Math.round(list.reduce((s, m) => s + Number(m.damage), 0) / list.length)
-  }, [activeMatches])
+  const maxDrills   = Math.max(1, ...activityGrid.map(d => d.drills))
+  const maxMatches  = Math.max(1, ...activityGrid.map(d => d.matches))
+  const maxDuration = Math.max(1, ...activityGrid.map(d => d.duration))
+
+  /* Top 3 modules as drill recommendations */
+  const drillCards = useMemo(() => {
+    const top = modules.slice(0, 3)
+    const types = ['Recommended', 'High Priority', 'Suggested']
+    const colors = ['var(--cyan)', 'var(--danger)', 'var(--green)']
+    const bgColors = ['rgba(34,211,238,0.1)', 'rgba(239,68,68,0.1)', 'rgba(34,197,94,0.1)']
+    return top.map((m, i) => ({
+      name: m.name,
+      type: types[i] || 'Suggested',
+      color: colors[i] || 'var(--green)',
+      bgColor: bgColors[i] || 'rgba(34,197,94,0.1)',
+      duration: 15 + i * 5,
+      xp: 80 - i * 10,
+    }))
+  }, [modules])
 
   if (dataLoading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-        <div className="splash-bar-track"><div className="splash-bar-fill" /></div>
+        <div className="splash-bar-track" style={{ width: 200 }}><div className="splash-bar-fill" /></div>
       </div>
     )
   }
 
   return (
-    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
       {/* Trial expired banner */}
-      {trial?.expired && trial?.endDate && (
-        <div
-          className="card"
-          style={{ display: 'flex', gap: 12, alignItems: 'center' }}
-        >
-          <AlertTriangle size={18} style={{ color: 'var(--amber)', flexShrink: 0 }} />
+      {trial?.expired && (
+        <div style={{
+          display: 'flex', gap: 12, alignItems: 'center',
+          background: 'var(--danger-tint)',
+          border: '1px solid rgba(239,68,68,0.25)',
+          borderRadius: 10,
+          padding: '14px 18px',
+        }}>
+          <AlertTriangle size={18} style={{ color: 'var(--danger)', flexShrink: 0 }} />
           <div>
-            <div className="heading" style={{ fontSize: 15 }}>Your free trial has ended.</div>
-            <div style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 2 }}>
+            <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
+              Your free trial has ended.
+            </div>
+            <div style={{ fontFamily: 'Inter, sans-serif', color: 'var(--text-subtle)', fontSize: 13, marginTop: 2 }}>
               All your data is safe. Premium plan coming soon.
             </div>
           </div>
         </div>
       )}
 
-      {/* Greeting */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          gap: 16,
-          flexWrap: 'wrap',
-        }}
-      >
-        <div>
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-subtle)' }}>{greeting()},</div>
-          <h1 style={{
-            fontFamily: 'Oxanium, Bebas Neue, sans-serif',
-            fontWeight: 700,
-            fontSize: 32,
-            letterSpacing: '0.02em',
-            color: 'var(--text-primary)',
-            margin: 0,
-            marginTop: 2,
-          }}>{displayName}</h1>
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-            Level {levelNum} — <span style={{ color: 'var(--gold)' }}>{levelName}</span>
-          </div>
+      {/* ══ HERO BANNER ══════════════════════════════════════ */}
+      <div style={{
+        width: '100%', height: 180,
+        borderRadius: 16, overflow: 'hidden',
+        position: 'relative',
+        border: '1px solid var(--border)',
+        background: 'var(--card)',
+      }}>
+        {/* Background video */}
+        <video
+          autoPlay muted loop playsInline
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.45 }}
+          onError={e => e.currentTarget.style.display = 'none'}
+        >
+          <source src="/assets/login-bg.mp4" type="video/mp4" />
+        </video>
+
+        {/* Gradient overlay */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(135deg, rgba(5,8,22,0.85) 0%, rgba(8,16,31,0.5) 50%, rgba(5,8,22,0.85) 100%)',
+        }} />
+
+        {/* Center logo */}
+        <img
+          src="/assets/logo.png"
+          alt="Esports Elite"
+          style={{
+            position: 'absolute',
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 72, height: 'auto',
+            filter: 'drop-shadow(0 0 20px rgba(59,130,246,0.6))',
+            zIndex: 10,
+          }}
+          onError={e => e.currentTarget.style.display = 'none'}
+        />
+
+        {/* Corner text */}
+        <div style={{
+          position: 'absolute', bottom: 16, left: 20, zIndex: 10,
+          fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 12,
+          color: 'var(--text-subtle)', letterSpacing: '0.12em', textTransform: 'uppercase',
+        }}>
+          India's #1 BGMI Training Platform
         </div>
-        <button onClick={() => navigate('/training')} className="btn btn-primary">
-          <Target size={14} /> Start Training
-        </button>
       </div>
 
-      {/* XP card */}
-      <div className="card">
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+      {/* ══ XP PROGRESS ═════════════════════════════════════ */}
+      <div style={{
+        background: 'var(--card)',
+        border: '1px solid var(--border)',
+        borderRadius: 12,
+        padding: '20px 24px',
+        display: 'flex',
+        gap: 20,
+        alignItems: 'stretch',
+        flexWrap: 'wrap',
+      }}>
+        {/* Left: XP bar */}
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             marginBottom: 10,
-            gap: 10,
-            flexWrap: 'wrap',
-          }}
-        >
-          <div className="label">XP PROGRESS — {levelName.toUpperCase()}</div>
-          <div className="mono" style={{ fontSize: 12, color: 'var(--text-subtle)' }}>
-            {xp.toLocaleString()} / {(ceil || xp).toLocaleString()}
+          }}>
+            <span style={{
+              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
+              color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
+            }}>
+              XP Progress — {levelName}
+            </span>
+            <span style={{
+              fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 13,
+              color: 'var(--text-subtle)',
+            }}>
+              {xp.toLocaleString()} / {(ceil || xp).toLocaleString()} XP
+            </span>
           </div>
+
+          {/* Bar */}
+          <div style={{
+            width: '100%', height: 8,
+            background: 'var(--border)', borderRadius: 4,
+            overflow: 'hidden', marginBottom: 8,
+          }}>
+            <div style={{
+              height: '100%', width: `${xpPct}%`,
+              background: 'var(--blue)',
+              borderRadius: 4,
+              boxShadow: '0 0 12px rgba(59,130,246,0.5)',
+              transition: 'width 0.5s ease',
+            }} />
+          </div>
+
+          <span style={{
+            fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 13,
+            color: 'var(--text-subtle)',
+          }}>
+            {xpToNext.toLocaleString()} XP to{' '}
+            <span style={{ color: 'var(--blue)', fontWeight: 500 }}>{nextLevelName}</span>
+          </span>
         </div>
-        <div className="xp-bar-track"><div className="xp-bar-fill" style={{ width: `${xpPct}%` }} /></div>
-        <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-subtle)' }}>
-          {xpToNext.toLocaleString()} XP to {nextLevelName}
+
+        {/* Right: Next Reward card */}
+        <div style={{
+          background: 'var(--card2)',
+          border: '1px solid var(--border)',
+          borderRadius: 8, padding: '12px 16px',
+          display: 'flex', alignItems: 'center', gap: 12,
+          flexShrink: 0, minWidth: 200,
+        }}>
+          <div style={{
+            width: 38, height: 38, borderRadius: '50%',
+            background: 'rgba(245,158,11,0.15)',
+            border: '1px solid rgba(245,158,11,0.3)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <Star size={18} style={{ color: 'var(--gold)' }} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{
+              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 10,
+              color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
+              marginBottom: 2,
+            }}>
+              Next Reward
+            </div>
+            <div style={{
+              fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 15,
+              color: 'var(--text-primary)',
+            }}>
+              {nextLevelName}
+            </div>
+            <div style={{
+              fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
+              color: 'var(--text-subtle)',
+            }}>
+              Unlock new drills
+            </div>
+          </div>
+          <ChevronRight size={16} style={{ color: 'var(--text-subtle)', flexShrink: 0 }} />
         </div>
       </div>
 
-      {/* Today's Schedule (renders itself null if no active schedule).
-          Placed here so it sits directly under the XP card per spec. */}
-      <TodaysScheduleCard />
-
-      {/* Stat tiles */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
-          gap: 14,
-        }}
-      >
+      {/* ══ 4 STAT CARDS ════════════════════════════════════ */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+        gap: 14,
+      }}>
         <StatCard
-          icon={<Flame size={18} />}
-          value={`${displayStreak}d`}
-          label="Streak"
-          accent="amber"
+          icon={<Flame size={22} />}
+          iconBg="rgba(245,158,11,0.12)"
+          iconBorder="rgba(245,158,11,0.25)"
+          iconColor="var(--amber)"
+          label="Current Streak"
+          value={`${displayStreak}D`}
+          sub="Keep it up!"
+          subColor="var(--green)"
         />
         <StatCard
-          icon={<Clock size={18} />}
+          icon={<Clock size={22} />}
+          iconBg="rgba(34,211,238,0.12)"
+          iconBorder="rgba(34,211,238,0.25)"
+          iconColor="var(--cyan)"
+          label="Practice Time"
           value={practiceTime}
-          label="Practice"
+          sub={`${weeklyConsistency.days}/7 days active`}
+          subColor="var(--text-subtle)"
         />
         <StatCard
-          icon={<Calendar size={18} />}
-          value={stats.totalSessions}
+          icon={<Calendar size={22} />}
+          iconBg="rgba(59,130,246,0.12)"
+          iconBorder="rgba(59,130,246,0.25)"
+          iconColor="var(--blue)"
           label="Sessions"
+          value={stats.totalSessions}
+          sub={activeMatches.length > 0 ? `+${Math.min(stats.totalSessions, 2)} vs yesterday` : 'Start training'}
+          subColor="var(--green)"
         />
         <StatCard
-          icon={<Crosshair size={18} />}
-          value={activeMatches.length}
+          icon={<Crosshair size={22} />}
+          iconBg="rgba(124,58,237,0.12)"
+          iconBorder="rgba(124,58,237,0.25)"
+          iconColor="var(--violet)"
           label="Matches"
+          value={activeMatches.length}
+          sub={scrimStats.scrimCount > 0 ? `${scrimStats.winRate}% Win Rate` : 'Log your matches'}
+          subColor={scrimStats.scrimCount > 0 ? 'var(--green)' : 'var(--text-subtle)'}
         />
       </div>
 
-      {/* Activity calendar */}
-      <div className="card">
-        <div className="card-header">
-          <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Calendar size={15} style={{ color: 'var(--text-subtle)' }} /> Activity
+      {/* ══ ACTIVITY GRID + COACH AI (2-col) ════════════════ */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 16 }} className="activity-coach-grid">
+
+        {/* Activity Grid */}
+        <div style={{
+          background: 'var(--card)', border: '1px solid var(--border)',
+          borderRadius: 12, padding: '20px',
+        }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginBottom: 14,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Calendar size={14} style={{ color: 'var(--blue)' }} />
+              <span style={{
+                fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
+                color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
+              }}>
+                Activity · Last 14 Days
+              </span>
+            </div>
+            <Link to="/analytics" style={{
+              fontFamily: 'Inter, sans-serif', fontSize: 12,
+              color: 'var(--blue)', display: 'flex', alignItems: 'center', gap: 4,
+            }}>
+              View full analytics <ChevronRight size={12} />
+            </Link>
           </div>
-          <div className="label">{weeklyConsistency.days} / 7 days</div>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            gap: 6,
-            overflowX: 'auto',
-          }}
-        >
-          {calendar.map(d => {
-            const isToday = d.today
-            const cellStyle = {
-              width: 38, height: 54, flexShrink: 0,
-              display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center',
-              gap: 3, padding: '4px 0',
-              borderRadius: 'var(--radius-sm)',
-              background: isToday ? 'var(--red-tint)' : 'var(--bg-elevated)',
-              border: `1px solid ${isToday ? 'var(--red)' : 'var(--border)'}`,
-            }
-            return (
-              <div key={d.key} style={cellStyle}>
-                <span
+
+          {/* Row labels */}
+          <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
+            <div style={{ width: 52, flexShrink: 0 }} />
+            {activityGrid.map(d => (
+              <div key={d.key} style={{
+                flex: 1, textAlign: 'center',
+                fontFamily: 'Inter, sans-serif', fontSize: 9,
+                color: 'var(--text-subtle)', fontWeight: 500,
+                letterSpacing: '0.04em',
+              }}>
+                {d.dayLabel}
+              </div>
+            ))}
+          </div>
+
+          {/* Grid rows: Drills, Matches, Time */}
+          {[
+            { label: 'DRILLS',  key: 'drills',   max: maxDrills },
+            { label: 'MATCHES', key: 'matches',  max: maxMatches },
+            { label: 'TIME',    key: 'duration', max: maxDuration },
+          ].map(row => (
+            <div key={row.label} style={{ display: 'flex', gap: 4, marginBottom: 4, alignItems: 'center' }}>
+              <div style={{
+                width: 52, flexShrink: 0,
+                fontFamily: 'Inter, sans-serif', fontSize: 9,
+                color: 'var(--text-subtle)', fontWeight: 500,
+                letterSpacing: '0.06em', textAlign: 'right', paddingRight: 8,
+              }}>
+                {row.label}
+              </div>
+              {activityGrid.map(d => (
+                <div
+                  key={d.key}
+                  title={`${d.key}: ${row.key === 'duration' ? formatDuration(d[row.key]) : d[row.key] + ' ' + row.label.toLowerCase()}`}
                   style={{
-                    fontFamily: 'DM Sans, sans-serif',
-                    fontSize: 10,
-                    fontWeight: 600,
-                    color: 'var(--text-subtle)',
-                    letterSpacing: '0.06em',
-                  }}
-                >
-                  {d.day}
-                </span>
-                <span
-                  style={{
-                    fontFamily: 'Bebas Neue, sans-serif',
-                    fontWeight: 400,
-                    fontSize: 18,
-                    letterSpacing: '0.04em',
-                    color: isToday ? 'var(--text-primary)' : 'var(--text-muted)',
-                    lineHeight: 1,
-                  }}
-                >
-                  {d.num}
-                </span>
-                <span
-                  style={{
-                    width: 4, height: 4, borderRadius: '50%',
-                    background: d.hasSession ? 'var(--green)' : 'transparent',
+                    flex: 1, aspectRatio: '1/1',
+                    minHeight: 14, maxHeight: 28,
+                    borderRadius: 4,
+                    background: activityColor(d[row.key], row.max),
+                    transition: 'transform 0.1s ease',
+                    cursor: 'default',
                   }}
                 />
-              </div>
-            )
-          })}
-        </div>
-      </div>
+              ))}
+            </div>
+          ))}
 
-      {/* Two column */}
-      <div
-        className="dashboard-grid"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0,1fr) 340px',
-          gap: 20,
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
-          {/* Coach AI */}
-          <div
-            className="card"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 14,
-              cursor: priorityFocus ? 'pointer' : 'default',
-            }}
-            onClick={() => priorityFocus && startPriorityDrill()}
-          >
-            <div
-              style={{
-                width: 40, height: 40,
-                borderRadius: 'var(--radius-sm)',
-                background: 'var(--blue-tint)',
-                border: '1px solid rgba(74,158,255,0.25)',
-                color: 'var(--blue)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <Bot size={18} />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Coach AI</div>
-              <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2 }}>
-                {priorityFocus
-                  ? <>Focus on <span style={{ color: 'var(--text-primary)' }}>{priorityFocus.name}</span> — flagged {priorityFocus.count} time{priorityFocus.count === 1 ? '' : 's'}.</>
-                  : 'Log matches to unlock personalised training suggestions.'}
-              </div>
-            </div>
-            {priorityFocus && <ChevronRight size={16} style={{ color: 'var(--text-subtle)' }} />}
+          {/* Legend */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            marginTop: 10, justifyContent: 'flex-end',
+          }}>
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: 'var(--text-subtle)' }}>Less</span>
+            {['var(--border)', 'rgba(59,130,246,0.25)', 'rgba(59,130,246,0.55)', '#3B82F6'].map((c, i) => (
+              <div key={i} style={{
+                width: 10, height: 10, borderRadius: 2, background: c,
+              }} />
+            ))}
+            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: 'var(--text-subtle)' }}>More</span>
           </div>
+        </div>
 
-          {/* Featured Tournament (renders itself null if none) */}
-          <FeaturedTournamentCard />
+        {/* Coach AI + Priority Focus */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-          {/* Heatmap */}
-          <div className="card">
-            <div className="card-header">
-              <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <AlertTriangle size={15} style={{ color: 'var(--text-subtle)' }} />
-                Weakness Heatmap
+          {/* Coach AI */}
+          <div style={{
+            background: 'var(--card)', border: '1px solid var(--border)',
+            borderRadius: 12, padding: '18px',
+            flex: 1,
+          }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              marginBottom: 14,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Sparkles size={14} style={{ color: 'var(--cyan)' }} />
+                <span style={{
+                  fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
+                  color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
+                }}>
+                  Coach AI
+                </span>
               </div>
-              <div className="label">From match logs</div>
+              {heatmapData.length > 0 && (
+                <span style={{
+                  background: 'rgba(124,58,237,0.15)',
+                  border: '1px solid rgba(124,58,237,0.3)',
+                  borderRadius: 999, padding: '3px 8px',
+                  fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 10,
+                  color: 'var(--violet)',
+                }}>
+                  NEW INSIGHTS
+                </span>
+              )}
             </div>
+
+            <div style={{
+              width: 44, height: 44, borderRadius: '50%',
+              background: 'rgba(124,58,237,0.12)',
+              border: '1px solid rgba(124,58,237,0.2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginBottom: 12,
+            }}>
+              <Brain size={22} style={{ color: 'var(--violet)' }} />
+            </div>
+
             {heatmapData.length === 0 ? (
-              <div className="empty-state">
-                <Shield size={26} className="empty-state-icon" />
-                <div className="empty-state-title">No weakness data yet</div>
-                <div className="empty-state-desc">
-                  Log matches with weakest points to see your skill breakdown here.
+              <div>
+                <div style={{
+                  fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 14,
+                  color: 'var(--text-primary)', marginBottom: 8, lineHeight: 1.4,
+                }}>
+                  Log matches to unlock AI insights.
+                </div>
+                <div style={{
+                  fontFamily: 'Inter, sans-serif', fontSize: 13,
+                  color: 'var(--text-subtle)', lineHeight: 1.6,
+                }}>
+                  Track your weaknesses in the Match Logger to get personalised coaching.
                 </div>
               </div>
             ) : (
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {heatmapData.map(skill => (
-                  <li key={skill.name}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{skill.name}</span>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: skill.color }}>{skill.status}</span>
-                    </div>
-                    <div className="xp-bar-track">
-                      <div className="xp-bar-fill" style={{ width: `${skill.percentage}%`, background: skill.color }} />
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <div>
+                <div style={{
+                  fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 14,
+                  color: 'var(--text-primary)', marginBottom: 10, lineHeight: 1.4,
+                }}>
+                  {`Your ${heatmapData[0]?.name || 'close-range'} performance needs focus.`}
+                </div>
+                <ul style={{
+                  listStyle: 'none', margin: 0, padding: 0,
+                  display: 'flex', flexDirection: 'column', gap: 6,
+                  marginBottom: 12,
+                }}>
+                  {heatmapData.slice(0, 3).map(skill => (
+                    <li key={skill.name} style={{
+                      fontFamily: 'Inter, sans-serif', fontSize: 12,
+                      color: 'var(--text-muted)',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                    }}>
+                      <span style={{
+                        width: 6, height: 6, borderRadius: '50%',
+                        background: skill.color, flexShrink: 0,
+                      }} />
+                      {skill.name} — flagged {skill.count}×
+                    </li>
+                  ))}
+                </ul>
+                {priorityModule && (
+                  <div style={{
+                    fontFamily: 'Inter, sans-serif', fontSize: 12,
+                    color: 'var(--green)', marginBottom: 12,
+                  }}>
+                    Estimated improvement: drill {priorityModule.name}
+                  </div>
+                )}
+              </div>
             )}
+
+            <button
+              onClick={() => navigate('/training')}
+              style={{
+                width: '100%', padding: '10px',
+                background: 'linear-gradient(135deg, var(--blue-bright) 0%, var(--blue) 100%)',
+                color: '#fff',
+                fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 13,
+                borderRadius: 8, border: 'none', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              }}
+            >
+              View Full Analysis <ArrowRight size={14} />
+            </button>
           </div>
 
-          {/* Recent sessions table */}
-          <div className="card">
-            <div className="card-header">
-              <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Activity size={15} style={{ color: 'var(--text-subtle)' }} />
-                Recent Sessions
-              </div>
-              <Link
-                to="/training"
-                style={{
-                  fontSize: 12, color: 'var(--text-muted)',
-                  display: 'inline-flex', alignItems: 'center', gap: 4,
-                }}
-              >
-                View all <ChevronRight size={12} />
-              </Link>
-            </div>
-            {stats.recentSessions.length === 0 ? (
-              <div className="empty-state">
-                <Crosshair size={26} className="empty-state-icon" />
-                <div className="empty-state-title">No sessions logged</div>
-                <div className="empty-state-desc">Start a drill in the Training Center to see it here.</div>
-              </div>
-            ) : (
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Drill</th><th>Module</th><th>Duration</th><th style={{ textAlign: 'right' }}>When</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentSessions.map(s => {
-                    const mod = modules.find(m => m.id === s.moduleId)
-                    return (
-                      <tr key={s.id}>
-                        <td>{s.drillName}</td>
-                        <td style={{ color: 'var(--text-muted)' }}>{mod?.short || s.module || 'Training'}</td>
-                        <td className="mono">{formatDuration(s.durationSeconds)}</td>
-                        <td style={{ textAlign: 'right', color: 'var(--text-muted)', fontSize: 12 }}>
-                          {formatRelative(s.timestamp)}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
-
-        {/* Right column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
-          {/* Priority focus */}
-          <div className="card" style={{ borderLeft: '3px solid var(--red)' }}>
-            <div className="card-header">
-              <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Target size={15} style={{ color: 'var(--text-subtle)' }} />
+          {/* Priority Focus */}
+          <div style={{
+            background: 'var(--card)', border: '1px solid var(--border)',
+            borderRadius: 12, padding: '16px',
+          }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              marginBottom: 12,
+            }}>
+              <span style={{
+                fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
+                color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
+              }}>
                 Priority Focus
-              </div>
-              <span className="badge badge-red">Top</span>
+              </span>
+              <span style={{
+                background: 'rgba(245,158,11,0.15)',
+                border: '1px solid rgba(245,158,11,0.3)',
+                borderRadius: 999, padding: '2px 8px',
+                fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 10,
+                color: 'var(--amber)',
+              }}>
+                TOP
+              </span>
             </div>
+
             {!priorityFocus ? (
-              <div className="empty-state">
-                <div className="empty-state-title">No patterns yet</div>
-                <div className="empty-state-desc">Log 3+ matches to surface your priority area.</div>
+              <div style={{
+                fontFamily: 'Inter, sans-serif', fontSize: 13,
+                color: 'var(--text-subtle)', lineHeight: 1.5,
+              }}>
+                Log 3+ matches to surface your priority area.
               </div>
             ) : (
               <>
-                <div className="heading" style={{ fontSize: 18, marginBottom: 6 }}>{priorityFocus.name}</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 14 }}>
-                  Logged {priorityFocus.count} time{priorityFocus.count === 1 ? '' : 's'}
+                <div style={{
+                  fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 15,
+                  color: 'var(--text-primary)', marginBottom: 4,
+                }}>
+                  {priorityFocus.name}
                 </div>
-                <button onClick={startPriorityDrill} className="btn btn-primary btn-sm">
-                  Start drill <ArrowRight size={13} />
+                <div style={{
+                  fontFamily: 'Inter, sans-serif', fontSize: 12,
+                  color: 'var(--text-subtle)', marginBottom: 10,
+                }}>
+                  Focus area for max improvement
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{
+                    display: 'flex', justifyContent: 'space-between',
+                    marginBottom: 4,
+                  }}>
+                    <span style={{ fontSize: 11, color: 'var(--text-subtle)' }}>Impact score</span>
+                    <span style={{ fontFamily: 'Oxanium, sans-serif', fontSize: 12, color: 'var(--blue)', fontWeight: 600 }}>
+                      {Math.min(99, priorityFocus.count * 18)}%
+                    </span>
+                  </div>
+                  <div style={{
+                    width: '100%', height: 4, background: 'var(--border)', borderRadius: 2,
+                  }}>
+                    <div style={{
+                      width: `${Math.min(99, priorityFocus.count * 18)}%`,
+                      height: '100%', background: 'var(--blue)', borderRadius: 2,
+                      boxShadow: '0 0 6px rgba(59,130,246,0.4)',
+                    }} />
+                  </div>
+                </div>
+                <button
+                  onClick={startPriorityDrill}
+                  style={{
+                    width: '100%', padding: '8px',
+                    background: 'transparent',
+                    border: '1px solid var(--blue)',
+                    color: 'var(--blue)',
+                    fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 12,
+                    borderRadius: 6, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  }}
+                >
+                  Start Drill <ArrowRight size={13} />
                 </button>
               </>
             )}
           </div>
-
-          {/* Focus Tomorrow */}
-          <div className="card">
-            <div className="card-header">
-              <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <AlertTriangle size={15} style={{ color: 'var(--text-subtle)' }} />
-                Focus Tomorrow
-              </div>
-            </div>
-            {focusTomorrow.length === 0 ? (
-              <div className="empty-state">
-                <AlertCircle size={26} className="empty-state-icon" />
-                <div className="empty-state-title">No insights yet</div>
-                <div className="empty-state-desc">Log more matches to surface secondary patterns.</div>
-              </div>
-            ) : (
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {focusTomorrow.map((item, i) => (
-                  <li
-                    key={item.name}
-                    style={{
-                      background: 'var(--bg-elevated)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-sm)',
-                      padding: '10px 12px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    }}
-                  >
-                    <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{i + 2}. {item.name}</span>
-                    <span className="mono" style={{ color: 'var(--text-muted)', fontSize: 12 }}>×{item.count}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* Scrim performance */}
-          <div className="card">
-            <div className="card-header">
-              <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Activity size={15} style={{ color: 'var(--text-subtle)' }} />
-                Scrim Performance
-              </div>
-            </div>
-            {scrimStats.scrimCount === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-title">No scrims logged</div>
-                <div className="empty-state-desc">Track scrim and tournament matches to see win rate and K/D.</div>
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-                <Mini label="Win rate" value={`${scrimStats.winRate}%`} />
-                <Mini label="K/D" value={scrimStats.kd} />
-                <Mini label="Scrims" value={scrimStats.scrimCount} />
-                <Mini label="Avg dmg" value={avgDamage || '—'} />
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
+      {/* ══ TODAY'S TRAINING ════════════════════════════════ */}
+      <div>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          marginBottom: 12,
+        }}>
+          <span style={{
+            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
+            color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
+          }}>
+            Today's Training Recommendations
+          </span>
+          <Link to="/training" style={{
+            fontFamily: 'Inter, sans-serif', fontSize: 12,
+            color: 'var(--blue)', display: 'flex', alignItems: 'center', gap: 4,
+          }}>
+            View all drills <ChevronRight size={12} />
+          </Link>
+        </div>
+
+        {drillCards.length === 0 ? (
+          <div style={{
+            background: 'var(--card)', border: '1px solid var(--border)',
+            borderRadius: 12, padding: '28px',
+            textAlign: 'center',
+          }}>
+            <Target size={28} style={{ color: 'var(--text-subtle)', opacity: 0.4, marginBottom: 8 }} />
+            <div style={{
+              fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 14,
+              color: 'var(--text-subtle)', marginBottom: 6,
+            }}>
+              No modules set up yet
+            </div>
+            <button onClick={() => navigate('/training')} className="btn btn-primary btn-sm">
+              Go to Training Center
+            </button>
+          </div>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: 12,
+          }}>
+            {drillCards.map((drill, i) => (
+              <div
+                key={i}
+                style={{
+                  background: 'var(--card)', border: '1px solid var(--border)',
+                  borderRadius: 12, padding: '16px',
+                  display: 'flex', alignItems: 'flex-start', gap: 12,
+                  cursor: 'pointer',
+                  transition: 'border-color 0.2s ease',
+                }}
+                onClick={() => navigate('/training')}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--divider)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+              >
+                <div style={{
+                  width: 42, height: 42, borderRadius: '50%',
+                  background: 'rgba(59,130,246,0.12)',
+                  border: '1px solid rgba(59,130,246,0.2)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
+                }}>
+                  <Target size={20} style={{ color: 'var(--blue)' }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 14,
+                    color: 'var(--text-primary)', marginBottom: 6,
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                  }}>
+                    {drill.name}
+                  </div>
+                  <span style={{
+                    display: 'inline-block',
+                    background: drill.bgColor,
+                    border: `1px solid ${drill.color}40`,
+                    borderRadius: 999, padding: '2px 8px',
+                    fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 10,
+                    color: drill.color, marginBottom: 6,
+                  }}>
+                    {drill.type}
+                  </span>
+                  <div style={{
+                    fontFamily: 'Inter, sans-serif', fontSize: 12,
+                    color: 'var(--text-subtle)',
+                  }}>
+                    {drill.duration} min · +{drill.xp} XP
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ══ TODAY'S SCHEDULE ════════════════════════════════ */}
+      <TodaysScheduleCard />
+
+      {/* ══ FEATURED TOURNAMENT ══════════════════════════════ */}
+      <FeaturedTournamentCard />
+
+      {/* ══ RECENT SESSIONS ════════════════════════════════ */}
+      {stats.recentSessions.length > 0 && (
+        <div style={{
+          background: 'var(--card)', border: '1px solid var(--border)',
+          borderRadius: 12, padding: '20px',
+        }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginBottom: 14,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Activity size={14} style={{ color: 'var(--text-subtle)' }} />
+              <span style={{
+                fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
+                color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.10em',
+              }}>
+                Recent Sessions
+              </span>
+            </div>
+            <Link to="/training" style={{
+              fontFamily: 'Inter, sans-serif', fontSize: 12,
+              color: 'var(--text-subtle)', display: 'flex', alignItems: 'center', gap: 4,
+            }}>
+              View all <ChevronRight size={12} />
+            </Link>
+          </div>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Drill</th>
+                <th>Module</th>
+                <th>Duration</th>
+                <th style={{ textAlign: 'right' }}>When</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.recentSessions.map(s => {
+                const mod = modules.find(m => m.id === s.moduleId)
+                return (
+                  <tr key={s.id}>
+                    <td style={{ fontWeight: 500 }}>{s.drillName}</td>
+                    <td style={{ color: 'var(--text-subtle)' }}>{mod?.short || s.module || 'Training'}</td>
+                    <td style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{formatDuration(s.durationSeconds)}</td>
+                    <td style={{ textAlign: 'right', color: 'var(--text-subtle)', fontSize: 12 }}>
+                      {formatRelative(s.timestamp)}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       <style>{`
-        @media (max-width: 1024px) {
-          .dashboard-grid { grid-template-columns: 1fr !important; }
+        @media (max-width: 900px) {
+          .activity-coach-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>
   )
 }
 
-function Mini({ label, value }) {
+/* ── Sub-components ──────────────────────────────────────── */
+function StatCard({ icon, iconBg, iconBorder, iconColor, label, value, sub, subColor }) {
   return (
-    <div
-      style={{
-        background: 'var(--bg-elevated)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-sm)',
-        padding: '10px 12px',
-      }}
-    >
-      <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400, fontSize: 22, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
-        {value}
+    <div style={{
+      background: 'var(--card)', border: '1px solid var(--border)',
+      borderRadius: 12, padding: '20px',
+      display: 'flex', alignItems: 'center', gap: 16,
+      transition: 'border-color 0.2s ease',
+    }}>
+      <div style={{
+        width: 48, height: 48, borderRadius: 12,
+        background: iconBg,
+        border: `1px solid ${iconBorder}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: iconColor, flexShrink: 0,
+      }}>
+        {icon}
       </div>
-      <div className="stat-label">{label}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{
+          fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
+          color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em',
+          marginBottom: 4,
+        }}>
+          {label}
+        </div>
+        <div style={{
+          fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 32,
+          color: 'var(--text-primary)', lineHeight: 1,
+          marginBottom: 4,
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+        }}>
+          {value}
+        </div>
+        <div style={{
+          fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
+          color: subColor || 'var(--text-subtle)',
+        }}>
+          {sub}
+        </div>
+      </div>
     </div>
   )
 }

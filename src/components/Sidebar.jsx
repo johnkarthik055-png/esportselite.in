@@ -2,14 +2,12 @@ import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   Home, Target, User, ChevronLeft, ChevronRight,
-  LogOut, Crosshair, X, ClipboardList, BarChart3, TrendingUp, Bell, Shield,
-  Users, Map, Trophy, CalendarClock,
+  LogOut, Crosshair, X, ClipboardList, BarChart2, TrendingUp, Bell, Shield,
+  Users, Map, Trophy, CalendarClock, BookOpen, ChevronDown,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
-import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { useAvatar } from '../hooks/useAvatar.js'
 import { useNotifications } from '../hooks/useNotifications.js'
-import { STORAGE_KEYS } from '../utils/constants.js'
 import { getInitials } from '../utils/helpers.js'
 import { getDisplayName, clearAllUserData, setActiveUID } from '../utils/storage.js'
 import { getLevelName, XP_PER_LEVEL } from '../utils/db.js'
@@ -22,18 +20,28 @@ const ADMIN_EMAILS = [
 ]
 
 const NAV_SECTIONS = [
-  { title: 'Overview', items: [{ to: '/dashboard', label: 'Dashboard', icon: Home }] },
+  {
+    title: 'Overview',
+    items: [
+      { to: '/dashboard', label: 'Dashboard', icon: Home },
+    ],
+  },
   {
     title: 'Training',
     items: [
-      { to: '/training', label: 'Training Center', icon: Target },
-      { to: '/scheduler', label: 'Scheduler', icon: CalendarClock },
-      { to: '/analytics', label: 'Analytics', icon: BarChart3 },
-      { to: '/progress', label: 'Progress', icon: TrendingUp },
-      { to: '/training-plan', label: 'Training Plan', icon: ClipboardList },
+      { to: '/training',      label: 'Training Center', icon: Target },
+      { to: '/scheduler',     label: 'Scheduler',       icon: CalendarClock },
+      { to: '/analytics',     label: 'Analytics',       icon: BarChart2 },
+      { to: '/progress',      label: 'Progress',        icon: TrendingUp },
+      { to: '/training-plan', label: 'Training Plan',   icon: BookOpen },
     ],
   },
-  { title: 'Team',    items: [{ to: '/team', label: 'My Team', icon: Users }] },
+  {
+    title: 'Team',
+    items: [
+      { to: '/team', label: 'My Team', icon: Users },
+    ],
+  },
   {
     title: 'Esports',
     items: [
@@ -43,11 +51,16 @@ const NAV_SECTIONS = [
   {
     title: 'Game Knowledge',
     items: [
-      { to: '/map-knowledge', label: 'Map Knowledge',  icon: Map },
+      { to: '/map-knowledge', label: 'Map Knowledge', icon: Map },
       { to: '/weapons',       label: 'Weapons Guide',  icon: Crosshair },
     ],
   },
-  { title: 'Profile', items: [{ to: '/profile', label: 'My Profile', icon: User }] },
+  {
+    title: 'Profile',
+    items: [
+      { to: '/profile', label: 'My Profile', icon: User },
+    ],
+  },
 ]
 
 function clearLocalAppData() {
@@ -88,12 +101,10 @@ export default function Sidebar({ collapsed, onToggle }) {
   const displayName = getDisplayName()
   const { xp, level: levelNum } = useUserData()
   const levelName = getLevelName(levelNum)
-  /* Levels are 0-indexed here — see utils/db.js. XP_PER_LEVEL[N] is
-     the threshold for level N, so the current-level floor is
-     [levelNum] and the next-level ceiling is [levelNum + 1]. */
   const floor = XP_PER_LEVEL[levelNum] ?? 0
-  const ceil = XP_PER_LEVEL[levelNum + 1] ?? floor
+  const ceil  = XP_PER_LEVEL[levelNum + 1] ?? floor
   const xpPct = ceil > floor ? Math.round(Math.min(1, (xp - floor) / (ceil - floor)) * 100) : 100
+  const initials = getInitials(displayName)
 
   useEffect(() => {
     function check() { setViewport(getViewport()) }
@@ -102,15 +113,15 @@ export default function Sidebar({ collapsed, onToggle }) {
   }, [])
 
   useEffect(() => {
-    function onOpen()  { setMobileOpen(true) }
-    function onClose() { setMobileOpen(false) }
+    function onOpen()      { setMobileOpen(true) }
+    function onClose()     { setMobileOpen(false) }
     function onToggleEvt() { setMobileOpen(v => !v) }
-    window.addEventListener('esports-elite:sidebar-open', onOpen)
-    window.addEventListener('esports-elite:sidebar-close', onClose)
+    window.addEventListener('esports-elite:sidebar-open',   onOpen)
+    window.addEventListener('esports-elite:sidebar-close',  onClose)
     window.addEventListener('esports-elite:sidebar-toggle', onToggleEvt)
     return () => {
-      window.removeEventListener('esports-elite:sidebar-open', onOpen)
-      window.removeEventListener('esports-elite:sidebar-close', onClose)
+      window.removeEventListener('esports-elite:sidebar-open',   onOpen)
+      window.removeEventListener('esports-elite:sidebar-close',  onClose)
       window.removeEventListener('esports-elite:sidebar-toggle', onToggleEvt)
     }
   }, [])
@@ -135,8 +146,23 @@ export default function Sidebar({ collapsed, onToggle }) {
 
   const isMobile = viewport === 'mobile'
   const isTablet = viewport === 'tablet'
-  const width = isMobile ? 280 : isTablet ? 60 : (collapsed ? 60 : 220)
   const labelsHidden = isTablet || (!isMobile && collapsed)
+  const sidebarWidth = isMobile ? 260 : isTablet ? 60 : (collapsed ? 60 : 220)
+
+  const sidebarStyle = {
+    position: 'fixed',
+    left: 0, top: 0,
+    height: '100vh',
+    width: sidebarWidth,
+    background: 'var(--sidebar)',
+    borderRight: '1px solid var(--border)',
+    zIndex: 50,
+    display: 'flex',
+    flexDirection: 'column',
+    transition: 'transform 0.25s ease, width 0.25s ease',
+    transform: isMobile && !mobileOpen ? 'translateX(-100%)' : 'translateX(0)',
+    overflow: 'hidden',
+  }
 
   return (
     <>
@@ -145,98 +171,74 @@ export default function Sidebar({ collapsed, onToggle }) {
           onClick={() => setMobileOpen(false)}
           style={{
             position: 'fixed', inset: 0, zIndex: 40,
-            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
           }}
         />
       )}
 
-      <aside
-        className="sidebar"
-        style={{
-          position: 'fixed',
-          left: 0, top: 0,
-          height: '100vh',
-          width,
-          background: 'var(--bg-surface)',
-          borderRight: '1px solid var(--border)',
-          zIndex: 50,
-          display: 'flex',
-          flexDirection: 'column',
-          transition: 'transform 0.25s ease, width 0.25s ease',
-          transform: isMobile && !mobileOpen ? 'translateX(-100%)' : 'translateX(0)',
-        }}
-      >
-        {/* Logo row */}
-        <div
-          style={{
-            height: 60,
-            padding: '0 16px',
-            borderBottom: '1px solid var(--border)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            flexShrink: 0,
-          }}
-        >
+      <aside className="sidebar" style={sidebarStyle}>
+
+        {/* ── Logo row ─────────────────────── */}
+        <div style={{
+          height: 60, padding: '0 16px',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex', alignItems: 'center', gap: 10,
+          flexShrink: 0,
+        }}>
           {!logoFailed && (
             <img
               src="/assets/logo.png"
               alt=""
-              style={{ width: 26, height: 26, objectFit: 'contain', flexShrink: 0 }}
+              style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }}
               onError={(e) => { e.currentTarget.style.display = 'none'; setLogoFailed(true) }}
             />
           )}
           {!labelsHidden && (
-            <span
-              style={{
-                fontFamily: 'Bebas Neue, sans-serif',
-                fontWeight: 400,
-                fontSize: 16,
-                color: 'var(--text-primary)',
-                letterSpacing: '0.10em',
-                textTransform: 'uppercase',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-              }}
-            >
+            <span style={{
+              fontFamily: 'Oxanium, sans-serif',
+              fontWeight: 700, fontSize: 14,
+              color: 'var(--text-primary)',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              flex: 1,
+            }}>
               Esports Elite
             </span>
           )}
           {isMobile && (
             <button
               onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
               style={{
                 marginLeft: 'auto', padding: 6,
-                background: 'transparent', border: 'none', cursor: 'pointer',
-                color: 'var(--text-muted)', display: 'flex',
+                background: 'transparent', border: 'none',
+                cursor: 'pointer', color: 'var(--text-subtle)',
+                display: 'flex',
               }}
-              aria-label="Close menu"
             >
               <X size={18} />
             </button>
           )}
         </div>
 
-        {/* Nav */}
-        <nav style={{ flex: 1, padding: '14px 10px', overflowY: 'auto' }}>
+        {/* ── Nav ──────────────────────────── */}
+        <nav style={{ flex: 1, padding: '12px 8px', overflowY: 'auto' }}>
           {NAV_SECTIONS.map(section => (
-            <div key={section.title} style={{ marginBottom: 18 }}>
+            <div key={section.title} style={{ marginBottom: 16 }}>
               {!labelsHidden && (
-                <div
-                  style={{
-                    fontFamily: 'DM Sans, sans-serif',
-                    fontWeight: 600,
-                    fontSize: 10,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.12em',
-                    color: 'var(--text-subtle)',
-                    padding: '0 12px 5px',
-                  }}
-                >
+                <div style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: 500, fontSize: 11,
+                  textTransform: 'uppercase', letterSpacing: '0.10em',
+                  color: 'var(--text-subtle)',
+                  padding: '0 8px 6px',
+                }}>
                   {section.title}
                 </div>
               )}
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
                 {section.items.map(item => {
                   const Icon = item.icon
                   return (
@@ -244,30 +246,35 @@ export default function Sidebar({ collapsed, onToggle }) {
                       <NavLink
                         to={item.to}
                         title={labelsHidden ? item.label : undefined}
-                        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                        style={labelsHidden ? { justifyContent: 'center', padding: '9px 0' } : undefined}
+                        style={({ isActive }) => ({
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          padding: labelsHidden ? '10px 0' : '10px 16px',
+                          justifyContent: labelsHidden ? 'center' : 'flex-start',
+                          borderRadius: isActive ? '0 8px 8px 0' : '8px',
+                          background: isActive ? 'rgba(59,130,246,0.10)' : 'transparent',
+                          borderLeft: isActive ? '3px solid var(--blue)' : '3px solid transparent',
+                          color: isActive ? 'var(--text-primary)' : 'var(--text-subtle)',
+                          fontFamily: 'Inter, sans-serif',
+                          fontWeight: 500, fontSize: 14,
+                          textDecoration: 'none',
+                          transition: 'all 0.15s ease',
+                          cursor: 'pointer',
+                        })}
                       >
-                        <Icon size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
-                        {!labelsHidden && (
+                        {({ isActive }) => (
                           <>
-                            <span style={{ flex: 1 }}>{item.label}</span>
-                            {item.soon && (
-                              <span
-                                style={{
-                                  fontSize: 9,
-                                  fontWeight: 600,
-                                  color: 'var(--text-subtle)',
-                                  background: 'var(--bg-elevated)',
-                                  border: '1px solid var(--border)',
-                                  padding: '1px 6px',
-                                  borderRadius: 4,
-                                  marginLeft: 'auto',
-                                  textTransform: 'uppercase',
-                                  letterSpacing: '0.06em',
-                                }}
-                              >
-                                SOON
-                              </span>
+                            <Icon
+                              size={18}
+                              strokeWidth={2}
+                              style={{
+                                flexShrink: 0,
+                                color: isActive ? 'var(--blue)' : 'currentColor',
+                              }}
+                            />
+                            {!labelsHidden && (
+                              <span style={{ flex: 1 }}>{item.label}</span>
                             )}
                           </>
                         )}
@@ -278,132 +285,209 @@ export default function Sidebar({ collapsed, onToggle }) {
               </ul>
             </div>
           ))}
+
+          {isAdmin && !labelsHidden && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 500, fontSize: 11,
+                textTransform: 'uppercase', letterSpacing: '0.10em',
+                color: 'var(--text-subtle)',
+                padding: '0 8px 6px',
+              }}>
+                Admin
+              </div>
+              <NavLink
+                to="/admin"
+                style={({ isActive }) => ({
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '10px 16px',
+                  borderRadius: isActive ? '0 8px 8px 0' : '8px',
+                  background: isActive ? 'rgba(59,130,246,0.10)' : 'transparent',
+                  borderLeft: isActive ? '3px solid var(--blue)' : '3px solid transparent',
+                  color: isActive ? 'var(--text-primary)' : 'var(--text-subtle)',
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: 500, fontSize: 14,
+                  textDecoration: 'none',
+                  transition: 'all 0.15s ease',
+                })}
+              >
+                {({ isActive }) => (
+                  <>
+                    <Shield size={18} strokeWidth={2} style={{ flexShrink: 0, color: isActive ? 'var(--blue)' : 'currentColor' }} />
+                    <span>Admin Panel</span>
+                  </>
+                )}
+              </NavLink>
+            </div>
+          )}
         </nav>
 
-        {/* XP block */}
+        {/* ── User card ────────────────────── */}
         {!labelsHidden && (
-          <div style={{ padding: '12px 14px', borderTop: '1px solid var(--border)' }}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 6,
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: 'Bebas Neue, sans-serif',
-                  fontWeight: 400,
-                  fontSize: 14,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                {levelName}
-              </span>
-              <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: 'var(--text-subtle)' }}>
-                {xp.toLocaleString()} / {(ceil || xp).toLocaleString()}
-              </span>
-            </div>
-            <div className="xp-bar-track"><div className="xp-bar-fill" style={{ width: `${xpPct}%` }} /></div>
-          </div>
-        )}
-
-        {/* User row */}
-        {!labelsHidden && (
-          <div style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-            {avatar ? (
-              <img
-                src={avatar}
-                alt=""
-                style={{
-                  width: 28, height: 28, borderRadius: '50%',
-                  objectFit: 'cover', border: '1px solid var(--border)',
-                  flexShrink: 0,
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: 28, height: 28, borderRadius: '50%',
-                  background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                  color: 'var(--text-primary)',
-                  fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 11,
+          <div style={{
+            padding: '12px 16px',
+            borderTop: '1px solid var(--border)',
+            flexShrink: 0,
+          }}>
+            {/* Avatar + name row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              {avatar ? (
+                <img
+                  src={avatar}
+                  alt=""
+                  style={{
+                    width: 40, height: 40, borderRadius: '50%',
+                    objectFit: 'cover',
+                    border: '1px solid var(--border)',
+                    flexShrink: 0,
+                  }}
+                />
+              ) : (
+                <div style={{
+                  width: 40, height: 40, borderRadius: '50%',
+                  background: 'rgba(59,130,246,0.10)',
+                  border: '1px solid var(--border)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 14,
+                  color: 'var(--blue)',
                   flexShrink: 0,
-                }}
-              >
-                {getInitials(displayName)}
+                }}>
+                  {initials}
+                </div>
+              )}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{
+                  fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
+                  color: 'var(--text-primary)',
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                }}>
+                  {displayName}
+                </div>
+                <div style={{
+                  fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
+                  color: 'var(--text-subtle)', marginTop: 1,
+                }}>
+                  {levelName}
+                </div>
               </div>
-            )}
-            <div
-              style={{
-                fontSize: 12,
-                fontFamily: 'DM Sans, sans-serif',
-                fontWeight: 500,
-                color: 'var(--text-primary)',
-                whiteSpace: 'nowrap',
+              <ChevronDown size={14} style={{ color: 'var(--text-subtle)', flexShrink: 0 }} />
+            </div>
+
+            {/* XP bar */}
+            <div style={{ marginBottom: 4 }}>
+              <div style={{
+                width: '100%', height: 3,
+                background: 'var(--border)',
+                borderRadius: 2,
                 overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              {displayName}
+              }}>
+                <div style={{
+                  height: '100%', width: `${xpPct}%`,
+                  background: 'var(--blue)',
+                  borderRadius: 2,
+                  boxShadow: '0 0 6px rgba(59,130,246,0.5)',
+                  transition: 'width 0.4s ease',
+                }} />
+              </div>
+            </div>
+            <div style={{
+              fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 10,
+              color: 'var(--text-subtle)',
+            }}>
+              {xp.toLocaleString()} / {(ceil || xp).toLocaleString()} XP
+            </div>
+
+            {/* Icons row */}
+            <div style={{ display: 'flex', gap: 4, marginTop: 10 }}>
+              <button
+                onClick={() => setPanelOpen(true)}
+                title="Notifications"
+                style={{
+                  flex: 1, padding: '7px 0',
+                  background: 'transparent',
+                  border: '1px solid var(--border)',
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  gap: 4,
+                  color: 'var(--text-subtle)',
+                  position: 'relative',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--divider)' }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-subtle)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+              >
+                <Bell size={15} />
+                {unreadCount > 0 && (
+                  <span style={{
+                    position: 'absolute', top: 4, right: 10,
+                    width: 7, height: 7, borderRadius: '50%',
+                    background: 'var(--blue)',
+                  }} />
+                )}
+              </button>
+              <button
+                onClick={logout}
+                title="Logout"
+                style={{
+                  flex: 1, padding: '7px 0',
+                  background: 'transparent',
+                  border: '1px solid var(--border)',
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'var(--text-subtle)',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = 'var(--danger)'; e.currentTarget.style.borderColor = 'var(--danger)' }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-subtle)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+              >
+                <LogOut size={15} />
+              </button>
             </div>
           </div>
         )}
 
-        {/* Bottom controls */}
-        <div style={{ padding: '8px 10px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {isAdmin && (
-            <NavLink
-              to="/admin"
-              title={labelsHidden ? 'Admin' : undefined}
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-              style={labelsHidden ? { justifyContent: 'center', padding: '9px 0' } : undefined}
+        {/* Collapsed: icon-only bottom row */}
+        {labelsHidden && !isMobile && (
+          <div style={{
+            padding: '8px 0 12px',
+            borderTop: '1px solid var(--border)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+          }}>
+            <button
+              onClick={() => setPanelOpen(true)}
+              title="Notifications"
+              style={{
+                padding: '9px', background: 'transparent',
+                border: 'none', cursor: 'pointer',
+                color: 'var(--text-subtle)',
+                display: 'flex', position: 'relative',
+              }}
             >
-              <Shield size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
-              {!labelsHidden && <span>Admin</span>}
-            </NavLink>
-          )}
-          <button
-            onClick={() => setPanelOpen(true)}
-            title={labelsHidden ? 'Notifications' : undefined}
-            className="nav-item"
-            style={labelsHidden ? { justifyContent: 'center', padding: '9px 0' } : undefined}
-          >
-            <Bell size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
-            {!labelsHidden && <span style={{ flex: 1 }}>Notifications</span>}
-            {unreadCount > 0 && (
-              <span
-                style={{
-                  background: 'var(--red)',
-                  color: '#fff',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  padding: '1px 6px',
-                  borderRadius: 999,
-                  minWidth: 18,
-                  textAlign: 'center',
-                  marginLeft: labelsHidden ? 0 : 'auto',
-                }}
-              >
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={logout}
-            title={labelsHidden ? 'Logout' : undefined}
-            className="nav-item"
-            style={labelsHidden ? { justifyContent: 'center', padding: '9px 0' } : undefined}
-          >
-            <LogOut size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
-            {!labelsHidden && <span>Logout</span>}
-          </button>
-        </div>
+              <Bell size={16} />
+              {unreadCount > 0 && (
+                <span style={{
+                  position: 'absolute', top: 6, right: 6,
+                  width: 6, height: 6, borderRadius: '50%',
+                  background: 'var(--blue)',
+                }} />
+              )}
+            </button>
+            <button
+              onClick={logout}
+              title="Logout"
+              style={{
+                padding: '9px', background: 'transparent',
+                border: 'none', cursor: 'pointer',
+                color: 'var(--text-subtle)', display: 'flex',
+              }}
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+        )}
 
         {/* Desktop collapse toggle */}
         {!isMobile && !isTablet && (
@@ -411,17 +495,13 @@ export default function Sidebar({ collapsed, onToggle }) {
             onClick={onToggle}
             title={collapsed ? 'Expand' : 'Collapse'}
             style={{
-              position: 'absolute',
-              top: 18,
-              right: -12,
-              width: 24, height: 24,
-              borderRadius: '50%',
+              position: 'absolute', top: 18, right: -12,
+              width: 24, height: 24, borderRadius: '50%',
               background: 'var(--bg-elevated)',
               border: '1px solid var(--border)',
-              color: 'var(--text-muted)',
+              color: 'var(--text-subtle)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer',
-              zIndex: 51,
+              cursor: 'pointer', zIndex: 51,
             }}
           >
             {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}

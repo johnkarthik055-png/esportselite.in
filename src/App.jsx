@@ -5,7 +5,6 @@ import { AnimatePresence } from 'framer-motion'
 import { Wrench, Shield } from 'lucide-react'
 import { db } from './utils/firebase.js'
 
-import Landing from './pages/Landing.jsx'
 import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Training from './pages/Training.jsx'
@@ -45,7 +44,7 @@ function Splash() {
           onError={(e) => { e.currentTarget.style.display = 'none'; setLogoFailed(true) }}
         />
       ) : (
-        <Shield size={64} className="splash-logo" style={{ color: 'var(--red)' }} strokeWidth={2.5} />
+        <Shield size={64} className="splash-logo" style={{ color: 'var(--blue)' }} strokeWidth={2.5} />
       )}
       <div className="splash-bar-track">
         <div className="splash-bar-fill" />
@@ -70,17 +69,16 @@ function AppRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<PublicRoute><Landing /></PublicRoute>} />
+        {/* / and /login both go to Login */}
+        <Route path="/" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
-        {/* Legal / contact pages — accessible whether signed in or out */}
+        {/* Legal / contact pages */}
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/contact" element={<Contact />} />
 
-        {/* Password reset — public. Firebase's default action URL is
-            `/__/auth/action`, but we ship a custom URL too so branded
-            templates land here directly. */}
+        {/* Password reset */}
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/__/auth/action" element={<ResetPassword />} />
 
@@ -158,14 +156,11 @@ export function ComingSoon({ title = 'Coming Soon', description = 'This feature 
     <div className="coming-soon-page">
       <div
         style={{
-          width: 56,
-          height: 56,
+          width: 56, height: 56,
           borderRadius: 12,
           background: 'var(--bg-elevated)',
           border: '1px solid var(--border)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}
       >
         <Wrench size={26} style={{ color: 'var(--text-muted)' }} />
