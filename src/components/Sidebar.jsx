@@ -153,7 +153,11 @@ export default function Sidebar({ collapsed, onToggle }) {
   const sidebarStyle = {
     position: 'fixed',
     left: 0, top: 0,
-    height: '100vh',
+    /* dvh tracks the browser's actual visible viewport (shrinks
+       when a mobile toolbar is showing) instead of the old 100vh,
+       which is pinned to the tallest possible viewport and can let
+       a fixed drawer's bottom edge sit below the visible fold. */
+    height: '100dvh',
     width: sidebarWidth,
     background: 'var(--sidebar)',
     borderRight: '1px solid var(--border)',

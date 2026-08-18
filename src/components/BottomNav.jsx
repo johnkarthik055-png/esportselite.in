@@ -171,13 +171,19 @@ export default function BottomNav() {
                 </span>
                 <span>Notifications</span>
               </button>
+            </div>
+
+            {/* Logout gets its own anchored footer row, separated by a
+                divider, instead of being just another grid cell that
+                can end up alone on a trailing row. */}
+            <div className="bottom-nav-drawer-footer">
               <button
                 type="button"
                 onClick={handleLogout}
-                className="bottom-nav-drawer-cell"
+                className="bottom-nav-logout-btn"
               >
-                <LogOut size={22} strokeWidth={2} />
-                <span>Logout</span>
+                <LogOut size={16} strokeWidth={2} />
+                Logout
               </button>
             </div>
           </div>

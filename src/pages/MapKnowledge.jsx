@@ -531,6 +531,11 @@ function MapPanel({
   return (
     <div className="mk-canvas" style={{
       position: 'relative',
+      /* zIndex here (any value, not just a high one) turns this
+         into its own stacking context, so the custom zoom buttons'
+         z-index below is contained locally and can never compete
+         with page-level fixed overlays (nav drawers, modals) again. */
+      zIndex: 0,
       background: 'var(--bg-elevated)',
       border: '1px solid var(--border)',
       borderRadius: 'var(--radius-lg)',
@@ -630,7 +635,7 @@ function MapPanel({
 
       {/* Custom zoom controls */}
       <div style={{
-        position: 'absolute', top: 10, right: 10, zIndex: 500,
+        position: 'absolute', top: 10, right: 10, zIndex: 10,
         display: 'flex', flexDirection: 'column', gap: 4,
       }}>
         <ZoomBtn onClick={() => mapRef.current?.zoomIn()}><Plus size={14} /></ZoomBtn>

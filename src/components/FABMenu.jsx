@@ -78,7 +78,7 @@ export default function FABMenu() {
 
       <div
         className="fixed z-[60] flex flex-col items-end gap-2"
-        style={{ bottom: 80, right: 20 }}
+        style={{ bottom: 'calc(64px + env(safe-area-inset-bottom) + 12px)', right: 16 }}
       >
         {open && (
           <>
