@@ -31,3 +31,8 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: ./domains/esportselite.in/public_html/app/
+          exclude: |
+            **/tiles/**
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
