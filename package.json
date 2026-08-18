@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "backup": "node backup.js",
     "build": "node backup.js && vite build",
+    "build:ci": "vite build",
+    "backup": "node backup.js",
     "preview": "vite preview"
   },
   "dependencies": {
