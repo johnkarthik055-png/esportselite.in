@@ -33,6 +33,9 @@ jobs:
           server-dir: ./domains/esportselite.in/public_html/app/
           exclude: |
             **/tiles/**
+            **/maps/**
+            **/weapons/**
+            **/attachments/**
             **/.git*
             **/.git*/**
             **/node_modules/**
