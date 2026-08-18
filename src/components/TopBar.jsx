@@ -170,6 +170,7 @@ export default function TopBar({ title }) {
 
             {/* Start Training CTA */}
             <button
+              type="button"
               onClick={() => navigate('/training')}
               style={{
                 background: 'linear-gradient(135deg, var(--blue-bright) 0%, var(--blue) 100%)',
@@ -182,6 +183,9 @@ export default function TopBar({ title }) {
                 cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 6,
                 whiteSpace: 'nowrap',
+                position: 'relative',
+                zIndex: 10,
+                pointerEvents: 'auto',
                 transition: 'opacity 0.2s ease, box-shadow 0.2s ease',
               }}
               onMouseEnter={e => {

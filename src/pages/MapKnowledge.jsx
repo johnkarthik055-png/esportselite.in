@@ -76,7 +76,6 @@ const WORLD_SIZE       = 256
 const TILE_ZOOM_OFFSET = 3
 const MAX_NATIVE_ZOOM  = 5     /* Leaflet zoom (URL zoom = 8 with offset) */
 const BOUNDS           = [[0, 0], [WORLD_SIZE, WORLD_SIZE]]
-const OUTER_BOUNDS     = [[-50, -50], [WORLD_SIZE + 50, WORLD_SIZE + 50]]
 const CENTER           = [WORLD_SIZE / 2, WORLD_SIZE / 2]
 const MIN_ZOOM         = 0
 const MAX_ZOOM         = 8     /* Leaflet zoom (5 native + 3 upscaled) */
@@ -552,7 +551,7 @@ function MapPanel({
         zoom={DEFAULT_ZOOM}
         minZoom={MIN_ZOOM}
         maxZoom={MAX_ZOOM}
-        maxBounds={OUTER_BOUNDS}
+        maxBounds={BOUNDS}
         maxBoundsViscosity={1.0}
         zoomControl={false}
         attributionControl={false}

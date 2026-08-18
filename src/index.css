@@ -78,7 +78,11 @@
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; }
 
-html, body { height: 100%; margin: 0; padding: 0; background-color: #050816 !important; }
+html, body {
+  height: 100%; margin: 0; padding: 0; background-color: #050816 !important;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
 #root { height: 100%; margin: 0; padding: 0; background-color: #050816; }
 
 html { scroll-behavior: smooth; }
@@ -942,7 +946,6 @@ body { overflow-x: hidden; }
    MOBILE LAYOUT OVERRIDES (<=768px)
    ============================================================ */
 @media (max-width: 768px) {
-  .sidebar     { display: none !important; }
   .bottom-nav  { display: flex !important; }
   .main-content { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
   .page-body   { padding: 12px !important; }
@@ -962,4 +965,11 @@ body { overflow-x: hidden; }
   .card        { padding: 14px; }
   .stat-number { font-size: 24px; }
   .btn         { font-size: 12px; padding: 9px 14px; }
+}
+
+/* Prevent iOS Safari from auto-zooming the viewport when a form
+   field smaller than 16px receives focus. Scoped to mobile so
+   desktop input typography is untouched. */
+@media (max-width: 768px) {
+  input, select, textarea { font-size: 16px !important; }
 }

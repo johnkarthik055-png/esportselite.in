@@ -157,7 +157,7 @@ export default function Sidebar({ collapsed, onToggle }) {
     width: sidebarWidth,
     background: 'var(--sidebar)',
     borderRight: '1px solid var(--border)',
-    zIndex: 50,
+    zIndex: isMobile ? 9999 : 50,
     display: 'flex',
     flexDirection: 'column',
     transition: 'transform 0.25s ease, width 0.25s ease',
@@ -171,7 +171,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         <div
           onClick={() => setMobileOpen(false)}
           style={{
-            position: 'fixed', inset: 0, zIndex: 40,
+            position: 'fixed', inset: 0, zIndex: 9998,
             background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
           }}
         />
