@@ -356,7 +356,7 @@ export default function Dashboard() {
         }}>
           {displayName}
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div className="stat-pills-row" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <TopPill icon={<TrendingUp size={13} color="#22C55E" />} label="Top 18% this week" />
           <TopPill icon={<Zap size={13} color="#22D3EE" />} label={`+${xpToday} XP today`} />
           <TopPill icon={<Flame size={13} color="#F59E0B" />} label={`${displayStreak} day streak`} />
@@ -519,7 +519,7 @@ export default function Dashboard() {
           flex: 1.5, background: '#0D1528', border: '1px solid #1B2A45',
           borderRadius: 12, padding: 20, minWidth: 0,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
             <span style={{
               fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
               color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
@@ -531,6 +531,7 @@ export default function Dashboard() {
               borderRadius: 6, padding: '4px 8px',
               fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
               color: '#CBD5E1', cursor: 'pointer', outline: 'none',
+              maxWidth: 100,
             }}>
               <option>This Week</option>
               <option>Last Week</option>
@@ -910,6 +911,20 @@ export default function Dashboard() {
         @media (max-width: 700px) {
           .row1-grid { flex-direction: column !important; }
           .row1-grid > div:last-child { width: 100% !important; height: auto !important; }
+        }
+        @media (max-width: 480px) {
+          .stat-pills-row {
+            flex-wrap: nowrap !important;
+            overflow-x: auto;
+            scroll-snap-type: x proximity;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            margin: 0 -12px;
+            padding: 0 12px 4px;
+          }
+          .stat-pills-row::-webkit-scrollbar { display: none; }
+          .stat-pills-row > * { scroll-snap-align: start; flex-shrink: 0; }
         }
       `}</style>
     </div>

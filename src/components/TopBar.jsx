@@ -44,7 +44,7 @@ export default function TopBar({ title }) {
         position: 'sticky',
         top: 0,
         zIndex: 20,
-        padding: '0 24px',
+        padding: '0 clamp(12px, 4vw, 24px)',
       }}>
         <div style={{
           display: 'flex',
@@ -55,7 +55,7 @@ export default function TopBar({ title }) {
         }}>
 
           {/* ── LEFT: mobile menu button only ── */}
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
             <button
               onClick={openMobileSidebar}
               aria-label="Open menu"
@@ -72,15 +72,18 @@ export default function TopBar({ title }) {
           </div>
 
           {/* ── RIGHT: trial + bell + avatar + CTA ── */}
-          <div style={{
+          <div className="topbar-actions" style={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'flex-end',
             gap: 10,
-            flexShrink: 0,
+            flex: '1 1 auto',
+            minWidth: 0,
+            overflowX: 'auto',
           }}>
             {/* Trial badge */}
             {trial && !trial.expired && (
-              <span style={{
+              <span className="topbar-trial-badge" style={{
                 background: 'rgba(13,21,40,0.9)',
                 border: '1px solid var(--border)',
                 borderRadius: 20,
@@ -89,12 +92,13 @@ export default function TopBar({ title }) {
                 fontWeight: 500, fontSize: 11,
                 color: 'var(--text-muted)',
                 whiteSpace: 'nowrap',
+                flexShrink: 0,
               }}>
                 FREE TRIAL · {trial.daysLeft} days left
               </span>
             )}
             {trial?.expired && (
-              <span style={{
+              <span className="topbar-trial-badge" style={{
                 background: 'var(--danger-tint)',
                 border: '1px solid rgba(239,68,68,0.3)',
                 borderRadius: 20,
@@ -103,6 +107,7 @@ export default function TopBar({ title }) {
                 fontWeight: 500, fontSize: 11,
                 color: 'var(--danger)',
                 whiteSpace: 'nowrap',
+                flexShrink: 0,
               }}>
                 Trial Expired
               </span>
@@ -118,6 +123,7 @@ export default function TopBar({ title }) {
                 border: 'none', cursor: 'pointer',
                 color: 'var(--text-subtle)',
                 display: 'flex',
+                flexShrink: 0,
                 transition: 'color 0.15s ease',
               }}
               onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
@@ -134,7 +140,7 @@ export default function TopBar({ title }) {
             </button>
 
             {/* Avatar */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
               {avatar ? (
                 <img
                   src={avatar}
@@ -183,6 +189,7 @@ export default function TopBar({ title }) {
                 cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 6,
                 whiteSpace: 'nowrap',
+                flexShrink: 0,
                 position: 'relative',
                 zIndex: 10,
                 pointerEvents: 'auto',
@@ -212,6 +219,11 @@ export default function TopBar({ title }) {
         }
         @media (min-width: 769px) {
           .topbar-name { display: inline !important; }
+        }
+        .topbar-actions { scrollbar-width: none; -ms-overflow-style: none; }
+        .topbar-actions::-webkit-scrollbar { display: none; }
+        @media (max-width: 480px) {
+          .topbar-trial-badge { display: none !important; }
         }
       `}</style>
     </>

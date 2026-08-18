@@ -11,7 +11,7 @@
  * }
  */
 
-import { useEffect, useMemo, useRef, useState, Component } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, Component } from 'react'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import {
@@ -584,6 +584,7 @@ function MapPanel({
         <ZoomWatcher onZoomChange={onZoomChange} />
         <MouseWatcher onMove={onMouseMove} />
         <FlyToTarget target={flyTarget} onDone={onFlyDone} />
+        <FitToContainer />
 
         {/* Compound + zone polygons (real-time from Firestore) */}
         {polygons.map(p => (
@@ -674,6 +675,31 @@ function MouseWatcher({ onMove }) {
     mousemove: (e) => onMove({ lat: e.latlng.lat, lng: e.latlng.lng }),
     mouseout:  () => onMove(null),
   })
+  return null
+}
+
+/* On mount, zoom the map so the square tile bounds fully COVER the
+   container (no empty dark gaps on any side), rather than Leaflet's
+   default fitBounds "contain" behaviour which can leave letterboxing
+   when the container's aspect ratio isn't square — e.g. the desktop
+   map column (wide) or the clamped mobile height (short). Excess
+   content beyond the container edges is simply outside the viewport,
+   same as object-fit: cover on an <img>. Only runs once per mount
+   (map switch remounts via the `key={activeMap.id}` above) so it
+   never yanks a user's manual pan/zoom back to center. Resize only
+   calls invalidateSize() — required whenever a Leaflet container's
+   box changes size — without forcing a re-fit. */
+function FitToContainer() {
+  const map = useMap()
+  useLayoutEffect(() => {
+    map.invalidateSize()
+    const coverZoom = map.getBoundsZoom(BOUNDS, true)
+    map.setView(CENTER, Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, coverZoom)), { animate: false })
+
+    function onResize() { map.invalidateSize() }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [map])
   return null
 }
 

@@ -82,8 +82,14 @@ html, body {
   height: 100%; margin: 0; padding: 0; background-color: #050816 !important;
   touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
-#root { height: 100%; margin: 0; padding: 0; background-color: #050816; }
+#root {
+  height: 100%; margin: 0; padding: 0; background-color: #050816;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
 
 html { scroll-behavior: smooth; }
 
@@ -833,30 +839,30 @@ body.amoled {
 /* ============================================================
    MOBILE — BOTTOM NAVIGATION
    ============================================================ */
-body { overflow-x: hidden; }
-
 .bottom-nav {
   display: none;
   position: fixed;
   bottom: 0; left: 0; right: 0;
+  width: 100%;
   height: 64px;
   background: var(--sidebar);
   border-top: 1px solid var(--border);
   z-index: 200;
-  align-items: center;
-  justify-content: space-around;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: stretch;
   padding-bottom: env(safe-area-inset-bottom);
 }
 .bottom-nav-item {
-  flex: 1; height: 100%;
+  height: 100%;
+  min-width: 0;
   display: inline-flex;
   flex-direction: column;
   align-items: center; justify-content: center;
   gap: 3px;
   color: var(--text-subtle);
   font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   text-decoration: none;
@@ -946,7 +952,7 @@ body { overflow-x: hidden; }
    MOBILE LAYOUT OVERRIDES (<=768px)
    ============================================================ */
 @media (max-width: 768px) {
-  .bottom-nav  { display: flex !important; }
+  .bottom-nav  { display: grid !important; }
   .main-content { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
   .page-body   { padding: 12px !important; }
   .grid-cols-4,
