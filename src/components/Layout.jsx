@@ -17,7 +17,6 @@ const PAGE_TITLES = {
   '/profile': 'My Profile',
   '/weapons': 'Weapons Guide',
   '/analytics': 'Analytics',
-  '/progress': 'Progress',
 }
 
 function getViewport() {

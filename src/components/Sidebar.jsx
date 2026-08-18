@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   Home, Target, User, ChevronLeft, ChevronRight,
-  LogOut, Crosshair, X, ClipboardList, BarChart2, TrendingUp, Bell, Shield,
+  LogOut, Crosshair, X, ClipboardList, BarChart2, Bell, Shield,
   Users, Map, Trophy, CalendarClock, BookOpen, ChevronDown, Settings,
   Award,
 } from 'lucide-react'
@@ -33,7 +33,6 @@ const NAV_SECTIONS = [
       { to: '/training',      label: 'Training Center', icon: Target },
       { to: '/scheduler',     label: 'Scheduler',       icon: CalendarClock },
       { to: '/analytics',     label: 'Analytics',       icon: BarChart2 },
-      { to: '/progress',      label: 'Progress',        icon: TrendingUp },
       { to: '/training-plan', label: 'Training Plan',   icon: BookOpen },
     ],
   },
@@ -532,11 +531,23 @@ export default function Sidebar({ collapsed, onToggle }) {
             style={{
               position: 'absolute', top: 18, right: -12,
               width: 24, height: 24, borderRadius: '50%',
-              background: 'var(--bg-elevated)',
-              border: '1px solid var(--border)',
+              background: '#101A30',
+              border: '1px solid #1B2A45',
               color: 'var(--text-subtle)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer', zIndex: 51,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.45)',
+              transition: 'border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = '#3B82F6'
+              e.currentTarget.style.color = '#3B82F6'
+              e.currentTarget.style.boxShadow = '0 0 12px rgba(59,130,246,0.35)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = '#1B2A45'
+              e.currentTarget.style.color = 'var(--text-subtle)'
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.45)'
             }}
           >
             {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}

@@ -11,7 +11,7 @@
  * }
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, Component } from 'react'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import {
@@ -520,7 +520,7 @@ function MapPanel({
   flyTarget, onFlyDone,
   onMouseMove, mode,
 }) {
-  const [mapRef, setMapRef] = useState(null)
+  const mapRef = useRef(null)
 
   /* Strategy Maker and Dev Editor push their own layers onto the
      canvas via context (children of MapContainer that we render
@@ -557,7 +557,7 @@ function MapPanel({
         zoomControl={false}
         attributionControl={false}
         style={{ height: '100%', width: '100%', minHeight: 300 }}
-        whenCreated={setMapRef}
+        ref={mapRef}
       >
         {/* Tile URLs offset by TILE_ZOOM_OFFSET so Leaflet zoom N
             requests URL zoom N+3. That lines up with the on-disk
@@ -633,8 +633,8 @@ function MapPanel({
         position: 'absolute', top: 10, right: 10, zIndex: 500,
         display: 'flex', flexDirection: 'column', gap: 4,
       }}>
-        <ZoomBtn onClick={() => mapRef && mapRef.zoomIn()}><Plus size={14} /></ZoomBtn>
-        <ZoomBtn onClick={() => mapRef && mapRef.zoomOut()}><Minus size={14} /></ZoomBtn>
+        <ZoomBtn onClick={() => mapRef.current?.zoomIn()}><Plus size={14} /></ZoomBtn>
+        <ZoomBtn onClick={() => mapRef.current?.zoomOut()}><Minus size={14} /></ZoomBtn>
       </div>
     </div>
   )

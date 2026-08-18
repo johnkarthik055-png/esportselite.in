@@ -70,10 +70,10 @@ const AI_LOADING_MESSAGES = [
 /* ============================================================
    FIRESTORE HELPERS
    ============================================================ */
-const schedulesCol = (uid)       => collection(db, 'users', uid, 'schedules')
-const scheduleDoc  = (uid, id)   => doc(db, 'users', uid, 'schedules', id)
-const daysCol      = (uid, id)   => collection(db, 'users', uid, 'schedules', id, 'days')
-const dayDoc       = (uid, sid, dayId) => doc(db, 'users', uid, 'schedules', sid, 'days', dayId)
+const schedulesCol = (uid)           => collection(db, 'users', uid, 'schedules')
+const scheduleDoc  = (uid, id)       => doc(db, 'users', uid, 'schedules', id)
+const daysCol      = (uid, id)       => collection(db, 'users', uid, 'schedules', id, 'days')
+const dayDoc       = (uid, sid, did) => doc(db, 'users', uid, 'schedules', sid, 'days', did)
 
 /* ============================================================
    PAGE ROOT
@@ -483,8 +483,6 @@ function TodayTasksCard({ uid, schedule, day }) {
       batch.update(scheduleDoc(uid, schedule.id), scheduleUpdate)
       await batch.commit()
 
-      /* Fire the existing XP toast + level-up event stream so the
-         scheduler feels connected to the rest of the app. */
       awardXP(xpReward, 'Schedule day completed')
     } catch (e) { alert('Save failed: ' + (e?.message || e)) }
     finally    { setSaving(false) }
@@ -629,80 +627,178 @@ function TaskCheckbox({ checked, disabled, onChange }) {
 }
 
 /* ============================================================
-   CALENDAR GRID
+   CALENDAR GRID — full month calendar with navigation
    ============================================================ */
 function CalendarGrid({ days, todayId, selectedDayId, onSelect }) {
+  /* Default to the month that contains today or the first schedule day */
+  const [monthKey, setMonthKey] = useState(() => {
+    const anchor = days.find(d => d.date)?.date || todayId
+    const d = new Date(anchor + 'T00:00')
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+  })
+
+  /* When new days load (Firestore onSnapshot) re-anchor to the first day's month
+     only if the user hasn't manually navigated yet. We track that with a ref. */
+  const hasNavigated = useRef(false)
+  useEffect(() => {
+    if (hasNavigated.current || days.length === 0) return
+    const first = days.find(d => d.date)
+    if (!first) return
+    const d = new Date(first.date + 'T00:00')
+    setMonthKey(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
+  }, [days.length])   // eslint-disable-line react-hooks/exhaustive-deps
+
+  const [year, month0] = monthKey.split('-').map(Number)  /* month0 is 1-based */
+  const month = month0 - 1                                /* 0-based for Date() */
+
+  const firstOfMonth = new Date(year, month, 1)
+  const startDow     = firstOfMonth.getDay()              /* 0=Sun */
+
+  /* Build cells — 35 or 42 depending on whether the month needs 6 rows */
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const totalCells  = startDow + daysInMonth > 35 ? 42 : 35
+  const cells = Array.from({ length: totalCells }, (_, i) => {
+    const dayOffset = i - startDow
+    const cellDate  = new Date(year, month, 1 + dayOffset)
+    const dateStr   = cellDate.toISOString().split('T')[0]
+    const inMonth   = cellDate.getMonth() === month
+    const schedDay  = days.find(d => d.date === dateStr) || null
+    return { dateStr, inMonth, cellDate, schedDay }
+  })
+
+  const monthLabel = firstOfMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+
+  function prevMonth() {
+    hasNavigated.current = true
+    const d = new Date(year, month - 1, 1)
+    setMonthKey(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
+  }
+  function nextMonth() {
+    hasNavigated.current = true
+    const d = new Date(year, month + 1, 1)
+    setMonthKey(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
+  }
+
   return (
     <div className="card">
-      <SectionLabel>Calendar</SectionLabel>
-      <div className="sched-cal-grid">
-        {days.length === 0 ? (
-          <div style={{ fontSize: 13, color: 'var(--text-subtle)', gridColumn: '1 / -1' }}>
-            No days generated yet.
-          </div>
-        ) : days.map(d => (
-          <DayTile
-            key={d.id}
-            day={d}
-            isToday={d.date === todayId}
-            isSelected={d.id === selectedDayId}
-            onClick={() => onSelect(d.id)}
+      {/* Month navigation */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <button onClick={prevMonth} className="btn btn-secondary btn-sm" style={{ padding: '4px 10px' }}>
+          <ChevronLeft size={14} />
+        </button>
+        <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 18, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+          {monthLabel}
+        </span>
+        <button onClick={nextMonth} className="btn btn-secondary btn-sm" style={{ padding: '4px 10px' }}>
+          <ChevronRight size={14} />
+        </button>
+      </div>
+
+      {/* Day-of-week headers */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 4, marginBottom: 4 }}>
+        {['Su','Mo','Tu','We','Th','Fr','Sa'].map(l => (
+          <div key={l} style={{
+            textAlign: 'center', fontSize: 10, fontWeight: 600,
+            fontFamily: 'DM Sans, sans-serif', color: 'var(--text-subtle)',
+            textTransform: 'uppercase', letterSpacing: '0.06em', padding: '2px 0',
+          }}>{l}</div>
+        ))}
+      </div>
+
+      {/* Calendar cells */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 4 }}>
+        {cells.map((cell, i) => (
+          <CalendarCell
+            key={i}
+            cell={cell}
+            isToday={cell.dateStr === todayId}
+            isSelected={!!cell.schedDay && cell.schedDay.id === selectedDayId}
+            onClick={() => cell.schedDay && onSelect(cell.schedDay.id)}
           />
         ))}
       </div>
+
+      {days.length === 0 && (
+        <div style={{ fontSize: 13, color: 'var(--text-subtle)', marginTop: 10, textAlign: 'center' }}>
+          No days generated yet.
+        </div>
+      )}
     </div>
   )
 }
 
-function DayTile({ day, isToday, isSelected, onClick }) {
-  const status = day.status
-  const isRest = status === 'rest' || tasksAreOnlyRest(day.tasks)
-  const done = status === 'done'
-  const missed = status === 'missed'
+function CalendarCell({ cell, isToday, isSelected, onClick }) {
+  const { dateStr, inMonth, schedDay } = cell
+  const tasks    = schedDay ? (Array.isArray(schedDay.tasks) ? schedDay.tasks : []) : []
+  const nonRest  = tasks.filter(t => t.type !== 'rest')
+  const visible  = nonRest.slice(0, 2)
+  const more     = nonRest.length - 2
+  const status   = schedDay?.status
 
-  const bg =
-    done   ? 'rgba(0, 201, 110, 0.2)' :
-    missed ? 'rgba(232, 0, 28, 0.10)' :
-    isToday ? 'var(--amber-tint)' :
-    'var(--bg-elevated)'
-  const border =
-    done   ? 'var(--green)' :
-    missed ? 'var(--red)'   :
-    isToday ? 'var(--amber)' :
+  const borderColor =
+    isSelected ? 'var(--text-primary)' :
+    isToday    ? 'var(--amber)'        :
+    status === 'done'   ? 'var(--green)' :
+    status === 'missed' ? 'var(--red)'   :
     'var(--border)'
-  const numberColor =
-    done   ? 'var(--green)' :
-    missed ? 'var(--red)'   :
-    isToday ? 'var(--amber)' :
-    'var(--text-subtle)'
+  const bg =
+    !inMonth ? 'transparent' :
+    status === 'done'   ? 'rgba(0,201,110,0.10)' :
+    status === 'missed' ? 'rgba(232,0,28,0.07)'  :
+    isToday  ? 'var(--amber-tint)'               :
+    'var(--bg-elevated)'
 
   return (
-    <button
-      onClick={onClick}
-      className={`sched-day-tile ${isSelected ? 'selected' : ''}`}
+    <div
+      onClick={schedDay ? onClick : undefined}
       style={{
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        gap: 2,
-        background: bg,
-        border: `${isToday ? 2 : 1}px solid ${border}`,
-        color: numberColor,
+        minHeight: 90,
         borderRadius: 'var(--radius-sm)',
-        padding: '8px 6px',
-        cursor: 'pointer',
-        fontFamily: 'DM Sans, sans-serif',
-        transition: 'transform 0.12s ease',
-        outline: isSelected ? '2px solid var(--text-primary)' : 'none',
-        outlineOffset: 1,
+        background: bg,
+        border: `${isToday || isSelected ? 2 : 1}px solid ${borderColor}`,
+        padding: '5px 6px',
+        cursor: schedDay && inMonth ? 'pointer' : 'default',
+        opacity: inMonth ? 1 : 0.2,
+        overflow: 'hidden',
+        transition: 'background 0.12s ease',
+        boxSizing: 'border-box',
       }}
     >
-      <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 16, letterSpacing: '0.04em', lineHeight: 1 }}>
-        {day.dayNumber}
-      </span>
-      <span style={{ fontSize: 9, color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-        {isRest ? 'Rest' : shortDate(day.date)}
-      </span>
-    </button>
+      {/* Date number */}
+      <div style={{
+        fontFamily: 'Bebas Neue, sans-serif',
+        fontSize: 14, letterSpacing: '0.04em', lineHeight: 1,
+        color:
+          status === 'done'   ? 'var(--green)'  :
+          status === 'missed' ? 'var(--red)'    :
+          isToday ? 'var(--amber)'              :
+          'var(--text-primary)',
+        marginBottom: 4,
+      }}>
+        {new Date(dateStr + 'T00:00').getDate()}
+      </div>
+
+      {/* Task pills (max 2) */}
+      {inMonth && visible.map((t, i) => (
+        <div key={i} style={{
+          fontSize: 9, fontFamily: 'DM Sans, sans-serif',
+          color: t.done ? 'var(--text-subtle)' : 'var(--text-muted)',
+          background: 'var(--bg-surface)',
+          borderRadius: 3, padding: '1px 4px',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          marginBottom: 2,
+          textDecoration: t.done ? 'line-through' : 'none',
+        }}>
+          {t.title || 'Task'}
+        </div>
+      ))}
+
+      {inMonth && more > 0 && (
+        <div style={{ fontSize: 9, color: 'var(--text-subtle)', fontFamily: 'DM Sans, sans-serif' }}>
+          +{more} more
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -878,13 +974,8 @@ function CreateScheduleModal({ uid, onClose }) {
   const [saving, setSaving] = useState(false)
   const [genError, setGenError] = useState('')
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
-  /* AbortController for the in-flight Anthropic fetch so the Cancel
-     button in Step 3 can actually stop the request instead of just
-     hiding the loading UI. Recreated on every generate() so a
-     retry after cancel starts with a fresh signal. */
   const abortRef = useRef(null)
 
-  /* Rotating status text while the AI call is in flight. */
   useEffect(() => {
     if (!saving) return
     const t = setInterval(() => setLoadingMsgIdx(i => (i + 1) % AI_LOADING_MESSAGES.length), 2000)
@@ -940,9 +1031,8 @@ function CreateScheduleModal({ uid, onClose }) {
         try {
           dayPlan = await generateAIPlan(config, abortRef.current.signal)
         } catch (e) {
-          /* User hit Cancel — exit cleanly, no fallback, no error. */
           if (e?.name === 'AbortError') return
-          /* eslint-disable-next-line no-console */
+          // eslint-disable-next-line no-console
           console.warn('[Scheduler] AI generation failed, falling back to rule-based:', e)
           setGenError(`AI generation failed (${e?.message || e}). Fell back to standard plan.`)
           dayPlan = generateRulePlan(config)
@@ -952,7 +1042,7 @@ function CreateScheduleModal({ uid, onClose }) {
       }
 
       const scheduleId = await createSchedule(uid, config, kind, dayPlan)
-      /* eslint-disable-next-line no-console */
+      // eslint-disable-next-line no-console
       console.log('[Scheduler] created schedule', scheduleId, 'with', dayPlan.length, 'days')
       onClose()
     } catch (e) {
@@ -1011,8 +1101,6 @@ function CreateScheduleModal({ uid, onClose }) {
             onAI={() => generate('ai')}
             onRule={() => generate('rule')}
             onCancel={() => {
-              /* Abort the in-flight fetch; the generate() catch
-                 sees AbortError and returns without falling back. */
               abortRef.current?.abort()
               setSaving(false)
               setGenError('AI generation cancelled.')
@@ -1401,7 +1489,7 @@ function generateRulePlan(config) {
   for (let i = 0; i < totalDays; i++) {
     const dayNumber = i + 1
     const date = addDaysISO(startDate, i)
-    const dow = new Date(date + 'T00:00').getDay()   /* 0=Sun … 6=Sat */
+    const dow = new Date(date + 'T00:00').getDay()
     const isRest = shouldRestOn(dow, daysPerWeek)
 
     if (isRest) {
@@ -1475,14 +1563,12 @@ function pickKind(goalType, taskIndex, numTasks) {
   if (goalType === 'sessions') return taskIndex === numTasks - 1 ? 'match' : 'drill'
   if (goalType === 'rank')     return taskIndex === 0 ? 'drill' : taskIndex === numTasks - 1 ? 'review' : 'match'
   if (goalType === 'weakness') return taskIndex === numTasks - 1 ? 'review' : 'drill'
-  /* custom / fallback */
   return ['drill', 'match', 'review'][taskIndex % 3]
 }
 
 function shouldRestOn(dow, daysPerWeek) {
   if (daysPerWeek >= 7) return false
-  if (daysPerWeek === 5) return dow === 0 || dow === 6       /* weekend off */
-  /* 3 days/week → train Mon/Wed/Fri */
+  if (daysPerWeek === 5) return dow === 0 || dow === 6
   return !(dow === 1 || dow === 3 || dow === 5)
 }
 
@@ -1661,9 +1747,6 @@ function buildGoalString({ goalType, weaknessChoice, rankChoice, sessionsCount, 
   return (customGoal || '').trim()
 }
 
-/* Very permissive JSON extractor — Claude occasionally wraps the
-   array in prose despite the "return only JSON" instruction. Grab
-   the outermost `[ ... ]` and JSON.parse that. */
 function extractJsonArray(raw) {
   if (!raw) return null
   const start = raw.indexOf('[')
@@ -1781,10 +1864,6 @@ function SchedulerStyles() {
         grid-template-columns: repeat(7, minmax(0, 1fr));
         gap: 6px;
       }
-      /* Each tile is a strict square so a 30-day plan renders in
-         perfectly aligned rows. min/max clamps keep 4x-wide desktops
-         from stretching tiles into rectangles and phones from
-         crushing them below tap-target size. */
       .sched-day-tile {
         aspect-ratio: 1 / 1;
         min-height: 32px;
@@ -1792,9 +1871,6 @@ function SchedulerStyles() {
       }
       @media (max-width: 767px) {
         .sched-cal-grid {
-          /* Keep the full 7-column week on mobile at a tighter gap
-             so the whole month stays visible without horizontal
-             scroll. */
           grid-template-columns: repeat(7, 1fr);
           gap: 3px;
         }

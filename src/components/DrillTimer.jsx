@@ -276,12 +276,6 @@ export default function DrillTimer({
       style={sortableStyle}
       className={`relative ${containerClass} ${isDragging ? 'scale-[1.02] shadow-red-glow-lg z-10' : ''}`}
     >
-      {running && !isLocked && !isEditing && (
-        <span className="live-badge absolute" style={{ top: 8, right: 8 }} aria-label="Timer running">
-          ● LIVE
-        </span>
-      )}
-
       {/* HEADER ROW */}
       <div className="flex items-start justify-between gap-3">
         <button
@@ -299,6 +293,21 @@ export default function DrillTimer({
             <span>{drill.name}</span>
             {isLocked  && <span className="pill text-[10px] tracking-widest bg-success/15 border-success/40 text-success">COMPLETED</span>}
             {isEditing && <span className="pill pill-red text-[10px] tracking-widest">EDITING</span>}
+            {running && !isLocked && !isEditing && (
+              <span aria-label="Timer running" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
+                color: '#22D3EE', textTransform: 'uppercase', flexShrink: 0,
+              }}>
+                <span style={{
+                  width: 6, height: 6, borderRadius: '50%', background: '#22D3EE',
+                  animation: 'drillLivePulse 1.2s ease-in-out infinite',
+                  display: 'inline-block',
+                }} />
+                LIVE
+                <style>{`@keyframes drillLivePulse { 0%,100%{opacity:0.4;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }`}</style>
+              </span>
+            )}
           </div>
 
           {isLocked ? (

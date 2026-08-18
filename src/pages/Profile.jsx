@@ -17,6 +17,7 @@ import { getTrialStatus, formatTrialDate } from '../utils/trial.js'
 import { getLevelName } from '../utils/db.js'
 import { auth } from '../utils/firebase.js'
 import AvatarUploader from '../components/AvatarUploader.jsx'
+import { seedTestData } from '../utils/seedTestData.js'
 
 const FIELDS = [
   { key: 'username', label: 'Username', icon: User, placeholder: 'Your display name' },
@@ -546,6 +547,29 @@ export default function Profile() {
             <Upload size={13} /> Import
           </button>
           <ResetButton onClick={resetLocalData} />
+          {import.meta.env.DEV && (
+            <button
+              onClick={async () => {
+                if (!authUser?.uid) { showToast('Not signed in.'); return }
+                try {
+                  const result = await seedTestData(authUser.uid)
+                  alert(`Added ${result.sessionsAdded} sessions and ${result.matchesAdded} matches!`)
+                  window.location.reload()
+                } catch (e) {
+                  console.error('Seed failed:', e)
+                  showToast('Seed failed: ' + e.message)
+                }
+              }}
+              style={{
+                marginTop: 20, padding: '10px 20px',
+                background: '#7C3AED', color: 'white',
+                borderRadius: 8, border: 'none', cursor: 'pointer',
+                fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, fontWeight: 600,
+              }}
+            >
+              🧪 Seed Test Data (Dev Only)
+            </button>
+          )}
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-subtle)', marginTop: 12 }}>
           Reset clears local cache on this device only. Your cloud data stays intact.

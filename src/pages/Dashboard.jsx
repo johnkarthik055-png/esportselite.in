@@ -4,7 +4,7 @@ import {
   Flame, AlertTriangle, Crosshair, Target, ChevronRight,
   Clock, Calendar, Activity, ArrowRight, Brain, Shield,
   BarChart2, Zap, Star, Trophy, Sparkles, TrendingUp,
-  Plus, MapPin, Truck, Settings,
+  Plus, MapPin, Car, Settings,
 } from 'lucide-react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -411,7 +411,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Next Reward Card */}
+        {/* Today's Focus Card */}
         <div style={{
           width: 280, flexShrink: 0, height: 220,
           background: '#0D1528', border: '1px solid #1B2A45',
@@ -421,67 +421,92 @@ export default function Dashboard() {
           <div style={{
             fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
             color: '#94A3B8', letterSpacing: '0.12em', textTransform: 'uppercase',
-            marginBottom: 16,
+            marginBottom: 14,
           }}>
-            Next Reward
+            Today's Focus
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-            <div style={{
-              width: 48, height: 48, borderRadius: '50%',
-              background: 'rgba(245,158,11,0.15)',
-              border: '1px solid rgba(245,158,11,0.3)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <Star size={24} color="#F59E0B" />
-            </div>
-            <div style={{
-              fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 24,
-              color: '#F8FAFC',
-            }}>
-              {nextLevelName}
-            </div>
-          </div>
-          <div style={{
-            fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 13,
-            color: '#94A3B8', marginTop: 4,
-          }}>
-            {xpToNext.toLocaleString()} XP remaining
-          </div>
-          {/* XP bar */}
-          <div style={{
-            width: '100%', height: 6, background: '#1B2A45',
-            borderRadius: 3, overflow: 'hidden', margin: '12px 0 6px',
-          }}>
-            <div style={{
-              height: '100%',
-              width: `${xpBarPct}%`,
-              background: 'linear-gradient(90deg, #3B82F6, #22D3EE)',
-              borderRadius: 3,
-              transition: 'width 0.5s ease',
-            }} />
-          </div>
-          <div style={{
-            fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
-            color: '#94A3B8',
-          }}>
-            {(xp % 500)} / 500 XP
-          </div>
+
+          {priorityFocus ? (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 12,
+                  background: 'rgba(239,68,68,0.15)',
+                  border: '1px solid rgba(239,68,68,0.3)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
+                  filter: 'drop-shadow(0 0 8px rgba(239,68,68,0.25))',
+                }}>
+                  <AlertTriangle size={22} color="#EF4444" />
+                </div>
+                <div>
+                  <div style={{
+                    fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 18,
+                    color: '#F8FAFC', lineHeight: 1.2,
+                  }}>
+                    {priorityFocus.name}
+                  </div>
+                  <div style={{
+                    fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
+                    color: '#EF4444', marginTop: 2,
+                  }}>
+                    Flagged {priorityFocus.count}× in matches
+                  </div>
+                </div>
+              </div>
+              <div style={{
+                fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 13,
+                color: '#94A3B8', lineHeight: 1.5, flex: 1,
+              }}>
+                {priorityModule
+                  ? `Drill "${priorityModule.name}" to address this weakness.`
+                  : 'Hit the Training Center and run targeted drills on this area.'}
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 12,
+                  background: 'rgba(34,211,238,0.12)',
+                  border: '1px solid rgba(34,211,238,0.25)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
+                }}>
+                  <Brain size={22} color="#22D3EE" />
+                </div>
+                <div style={{
+                  fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 18,
+                  color: '#F8FAFC', lineHeight: 1.2,
+                }}>
+                  Log Matches
+                </div>
+              </div>
+              <div style={{
+                fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 13,
+                color: '#94A3B8', lineHeight: 1.5, flex: 1,
+              }}>
+                Log a few matches to unlock AI-powered focus recommendations.
+              </div>
+            </>
+          )}
+
           <button
-            onClick={() => navigate('/progress')}
+            onClick={() => navigate('/training')}
             style={{
               marginTop: 'auto', width: '100%',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              background: 'transparent', border: '1px solid #1B2A45',
+              background: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(34,211,238,0.15) 100%)',
+              border: '1px solid rgba(59,130,246,0.4)',
               borderRadius: 8, padding: '10px',
-              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
-              color: '#F8FAFC', cursor: 'pointer',
-              transition: 'border-color 0.2s ease',
+              fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
+              color: '#93C5FD', cursor: 'pointer',
+              transition: 'border-color 0.2s ease, color 0.2s ease',
             }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = '#3B82F6'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = '#1B2A45'}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#3B82F6'; e.currentTarget.style.color = '#F8FAFC' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(59,130,246,0.4)'; e.currentTarget.style.color = '#93C5FD' }}
           >
-            View Rewards <ChevronRight size={14} />
+            <Target size={14} /> Start Training
           </button>
         </div>
       </div>
@@ -658,11 +683,11 @@ export default function Dashboard() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 10 }}>
             {[
-              { name: 'ADS',         sub: 'Improve Aim',      Icon: Target,    color: '#3B82F6', bg: 'rgba(59,130,246,0.12)' },
-              { name: 'SPRAY',       sub: 'Control Recoil',   Icon: Flame,     color: '#22D3EE', bg: 'rgba(34,211,238,0.12)' },
-              { name: 'CAR SPRAY',   sub: 'Vehicle Spray',    Icon: Truck,     color: '#7C3AED', bg: 'rgba(124,58,237,0.12)' },
-              { name: 'CLOSE RANGE', sub: 'Reflex Training',  Icon: Crosshair, color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
-            ].map(({ name, sub, Icon, color, bg }) => (
+              { name: 'ADS',         sub: 'Improve Aim',      Icon: Crosshair, color: '#3B82F6', grad: 'linear-gradient(135deg,rgba(59,130,246,0.25),rgba(59,130,246,0.08))' },
+              { name: 'SPRAY',       sub: 'Control Recoil',   Icon: Flame,     color: '#22D3EE', grad: 'linear-gradient(135deg,rgba(34,211,238,0.25),rgba(34,211,238,0.08))' },
+              { name: 'CAR SPRAY',   sub: 'Vehicle Spray',    Icon: Car,       color: '#7C3AED', grad: 'linear-gradient(135deg,rgba(124,58,237,0.25),rgba(124,58,237,0.08))' },
+              { name: 'CLOSE RANGE', sub: 'Reflex Training',  Icon: Zap,       color: '#EF4444', grad: 'linear-gradient(135deg,rgba(239,68,68,0.25),rgba(239,68,68,0.08))' },
+            ].map(({ name, sub, Icon, color, grad }) => (
               <div
                 key={name}
                 onClick={() => navigate('/training')}
@@ -670,18 +695,20 @@ export default function Dashboard() {
                   background: '#101A30', border: '1px solid #1B2A45',
                   borderRadius: 10, padding: 16,
                   textAlign: 'center', cursor: 'pointer',
-                  transition: 'border-color 0.2s ease',
+                  transition: 'border-color 0.2s ease, transform 0.15s ease',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
                 }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#3B82F6'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = '#1B2A45'}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#1B2A45'; e.currentTarget.style.transform = 'none' }}
               >
                 <div style={{
-                  width: 36, height: 36, borderRadius: '50%',
-                  background: bg,
+                  width: 44, height: 44, borderRadius: 12,
+                  background: grad,
+                  border: `1px solid ${color}30`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  filter: `drop-shadow(0 2px 8px ${color}40)`,
                 }}>
-                  <Icon size={18} color={color} />
+                  <Icon size={20} color={color} />
                 </div>
                 <div style={{
                   fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 13,

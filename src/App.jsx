@@ -13,7 +13,6 @@ import Profile from './pages/Profile.jsx'
 import Weapons from './pages/Weapons.jsx'
 import MapKnowledge from './pages/MapKnowledge.jsx'
 import Analytics from './pages/Analytics.jsx'
-import Progress from './pages/Progress.jsx'
 import MaintenancePage from './pages/MaintenancePage.jsx'
 import Privacy from './pages/Privacy.jsx'
 import Terms from './pages/Terms.jsx'
@@ -93,7 +92,6 @@ function AppRoutes() {
           <Route path="/training" element={<Training />} />
           <Route path="/training-plan" element={<TrainingPlan />} />
           <Route path="/analytics" element={<Analytics />} />
-          <Route path="/progress" element={<Progress />} />
           <Route path="/weapons" element={<Weapons />} />
           <Route path="/map-knowledge" element={<MapKnowledge />} />
           <Route path="/profile" element={<Profile />} />

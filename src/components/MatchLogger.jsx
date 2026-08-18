@@ -30,6 +30,7 @@ import {
   MAPS_CLASSIC,
   MAPS_SCRIMS,
   CLASSIC_TEAM_SIZES,
+  WEAPON_CATEGORIES,
   teamSizeLabel,
 } from '../utils/constants.js'
 import { uid, formatDateShort } from '../utils/helpers.js'
@@ -51,16 +52,16 @@ const TYPE_TABS = [
 const EMPTY_FORM = {
   Classic: {
     teamSize: 'Squad', map: 'Erangel', position: '', kills: '',
-    weakestPoints: [], strongestPoints: [], notes: '',
+    weakestPoints: [], strongestPoints: [], notes: '', weaponUsed: '',
   },
   Scrims: {
     map: 'Erangel', teamPosition: '', teamKills: '', individualKills: '',
-    weakestPoints: [], strongestPoints: [], notes: '',
+    weakestPoints: [], strongestPoints: [], notes: '', weaponUsed: '',
   },
   Tournament: {
     tournamentName: '', stage: 'Group Stage', map: 'Erangel',
     teamPosition: '', teamKills: '', individualKills: '',
-    weakestPoints: [], strongestPoints: [], notes: '',
+    weakestPoints: [], strongestPoints: [], notes: '', weaponUsed: '',
   },
 }
 
@@ -240,6 +241,7 @@ export default function MatchLogger() {
                     <tr>
                       <th>Date</th><th>Type</th><th>Map</th>
                       <th>Position</th><th>Kills</th>
+                      <th>Weapon</th>
                       <th>Weakest</th><th>Strongest</th>
                       <th className="text-right">Actions</th>
                     </tr>
@@ -275,6 +277,7 @@ export default function MatchLogger() {
                             #{pos ?? '—'}
                           </td>
                           <td className="mono" style={{ color: killColor }}>{killsDisplay ?? 0}</td>
+                          <td className="text-sm text-text-secondary">{m.weaponUsed || '—'}</td>
                           <td className="text-sm text-text-secondary max-w-[180px] truncate" title={pointsLabel('weakestPoints', 'weakestPoint', m)}>
                             {pointsLabel('weakestPoints', 'weakestPoint', m) || '—'}
                           </td>
@@ -302,6 +305,22 @@ export default function MatchLogger() {
       )}
 
     </div>
+  )
+}
+
+/* ─── Weapon select shared across all forms ──────────────────── */
+function WeaponSelect({ value, onChange }) {
+  return (
+    <select value={value} onChange={e => onChange(e.target.value)} className="input-field">
+      <option value="">— Optional —</option>
+      {WEAPON_CATEGORIES.map(cat => (
+        <optgroup key={cat.id} label={cat.label}>
+          {cat.weapons.map(w => (
+            <option key={w} value={w}>{w}</option>
+          ))}
+        </optgroup>
+      ))}
+    </select>
   )
 }
 
@@ -345,6 +364,9 @@ function ClassicForm({ form, update }) {
           {MAPS_CLASSIC.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
       </FormField>
+      <FormField label="Primary Weapon Used">
+        <WeaponSelect value={form.weaponUsed} onChange={v => update('weaponUsed', v)} />
+      </FormField>
       <FormField label="Position (1–100)">
         <input type="number" min="1" max="100" value={form.position}
           onChange={e => update('position', e.target.value)} className="input-field" placeholder="e.g. 4" />
@@ -353,7 +375,6 @@ function ClassicForm({ form, update }) {
         <input type="number" min="0" value={form.kills}
           onChange={e => update('kills', e.target.value)} className="input-field" placeholder="e.g. 6" />
       </FormField>
-      <div />
       <FormField label="Weakest Points">
         <SuggestionDropdown value={form.weakestPoints} onChange={ids => update('weakestPoints', ids)} placeholder="Pick or type a weakness…" />
       </FormField>
@@ -379,6 +400,10 @@ function ScrimsForm({ form, update }) {
           {MAPS_SCRIMS.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
       </FormField>
+      <FormField label="Primary Weapon Used">
+        <WeaponSelect value={form.weaponUsed} onChange={v => update('weaponUsed', v)} />
+      </FormField>
+      <div />
       <FormField label="Team Position (1–16)">
         <input type="number" min="1" max="16" value={form.teamPosition}
           onChange={e => update('teamPosition', e.target.value)} className="input-field" placeholder="e.g. 3" />
@@ -422,6 +447,10 @@ function TournamentForm({ form, update }) {
           {MAPS_SCRIMS.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
       </FormField>
+      <FormField label="Primary Weapon Used">
+        <WeaponSelect value={form.weaponUsed} onChange={v => update('weaponUsed', v)} />
+      </FormField>
+      <div />
       <FormField label="Team Position (1–16)">
         <input type="number" min="1" max="16" value={form.teamPosition}
           onChange={e => update('teamPosition', e.target.value)} className="input-field" placeholder="e.g. 2" />

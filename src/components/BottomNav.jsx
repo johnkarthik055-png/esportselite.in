@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Swords, Users, Map, Menu,
-  BarChart3, TrendingUp, ClipboardList, Crosshair,
+  BarChart3, ClipboardList, Crosshair,
   User, Shield, Bell, LogOut, X,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -26,7 +26,6 @@ const PRIMARY = [
    find things where they expect. */
 const DRAWER_ITEMS = [
   { to: '/analytics',     label: 'Analytics',      icon: BarChart3 },
-  { to: '/progress',      label: 'Progress',       icon: TrendingUp },
   { to: '/training-plan', label: 'Training Plan',  icon: ClipboardList },
   { to: '/weapons',       label: 'Weapons Guide',  icon: Crosshair },
   { to: '/profile',       label: 'My Profile',     icon: User },
