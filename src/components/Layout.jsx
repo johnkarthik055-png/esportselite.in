@@ -93,6 +93,16 @@ export default function Layout() {
         style={{
           flex: 1, display: 'flex', flexDirection: 'column',
           minHeight: '100vh',
+          /* Flex items default to min-width:auto, which floors their
+             shrink at their content's min-content size. This column
+             is the ONLY flow-participating child of the outer flex
+             row (Sidebar/FABMenu/BottomNav are all position:fixed),
+             so without this it silently grows to fit whatever page
+             content refuses to wrap — the root cause of every
+             per-page "topbar/content cut off on mobile" report,
+             since every protected page renders through this one
+             wrapper. */
+          minWidth: 0,
           marginLeft: mainMl,
           transition: 'margin-left 0.25s ease',
         }}
@@ -102,6 +112,7 @@ export default function Layout() {
           className="main-content"
           style={{
             flex: 1,
+            minWidth: 0,
             padding: '24px clamp(16px, 4vw, 36px)',
             background: 'var(--bg-base)',
             position: 'relative',
