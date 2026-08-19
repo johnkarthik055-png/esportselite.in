@@ -776,7 +776,17 @@ function TrainingStyles() {
       .tc-left { flex: 2; min-width: 0; }
       .tc-right { width: 340px; flex-shrink: 0; }
       @media (max-width: 960px) {
-        .tc-two-col { flex-direction: column; }
+        /* align-items: flex-start (above) is correct in row mode — it
+           lets .tc-left/.tc-right have independent heights. But once
+           this switches to a column, the cross-axis becomes WIDTH, and
+           flex-start means "size to content" instead of "fill the
+           column" — so .tc-left's content (drill rows, weapon picker)
+           renders at its natural, unconstrained width and overflows
+           the screen. min-width: 0 alone can't fix this: it only lowers
+           the shrink floor, it doesn't request shrinking in the first
+           place. stretch is what forces both columns to the full
+           mobile width. */
+        .tc-two-col { flex-direction: column; align-items: stretch; }
         .tc-right { width: 100%; }
       }
     `}</style>
