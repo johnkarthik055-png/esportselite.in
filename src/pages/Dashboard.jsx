@@ -682,7 +682,7 @@ export default function Dashboard() {
           }}>
             Training Modules
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 10 }}>
+          <div className="training-modules-grid" style={{ gap: 10, marginBottom: 10 }}>
             {[
               { name: 'ADS',         sub: 'Improve Aim',      Icon: Crosshair, color: '#3B82F6', grad: 'linear-gradient(135deg,rgba(59,130,246,0.25),rgba(59,130,246,0.08))' },
               { name: 'SPRAY',       sub: 'Control Recoil',   Icon: Flame,     color: '#22D3EE', grad: 'linear-gradient(135deg,rgba(34,211,238,0.25),rgba(34,211,238,0.08))' },
@@ -911,6 +911,19 @@ export default function Dashboard() {
         @media (max-width: 700px) {
           .row1-grid { flex-direction: column !important; }
           .row1-grid > div:last-child { width: 100% !important; height: auto !important; }
+        }
+        .training-modules-grid {
+          display: grid;
+          /* minmax(0, 1fr) — not plain 1fr — so a card's own content
+             (e.g. "CLOSE RANGE" not wrapping) can never force its
+             track wider than its equal share, which is exactly what
+             was pushing the 4th card off the right edge on mobile. */
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        @media (min-width: 480px) {
+          .training-modules-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+          }
         }
         @media (max-width: 480px) {
           .stat-pills-row {
