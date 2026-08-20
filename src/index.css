@@ -844,13 +844,20 @@ body.amoled {
   position: fixed;
   bottom: 0; left: 0; right: 0;
   width: 100%;
-  height: 64px;
+  /* height must ADD the safe-area inset on top of the 64px content
+     band, not just reserve it via padding-bottom on a fixed 64px box
+     — box-sizing:border-box otherwise eats the padding out of that
+     64px, squeezing the icons/labels into whatever's left (as little
+     as ~30px on a notched iPhone) instead of giving them their full
+     64px plus clearance above the home indicator. */
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
   background: var(--sidebar);
   border-top: 1px solid var(--border);
   z-index: 200;
   grid-template-columns: repeat(5, 1fr);
   align-items: stretch;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-top: 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .bottom-nav-item {
   height: 100%;
