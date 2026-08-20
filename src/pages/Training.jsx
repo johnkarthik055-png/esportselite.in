@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import {
   Target, ClipboardList, Plus, RotateCcw, Sparkles, CalendarClock,
   CheckCircle2, ArrowRight, Swords, Skull, Star, TrendingUp, Flame,
-  Trophy, BarChart2, Lightbulb, Clock, Zap, X,
+  Trophy, Lightbulb, Clock, Zap, X,
   Clipboard,
 } from 'lucide-react'
 import {
@@ -41,13 +41,6 @@ const PLANS_KEY = 'esportselite_training_plans'
 const TABS = [
   { id: 'modules', label: 'Training Modules', icon: Target },
   { id: 'logger',  label: 'Match Logger',     icon: ClipboardList },
-]
-
-const MATCH_SUBTABS = [
-  { id: 'classic',     label: 'Classic',     icon: Swords },
-  { id: 'scrims',      label: 'Scrims',      icon: Target },
-  { id: 'tournament',  label: 'Tournament',  icon: Trophy },
-  { id: 'performance', label: 'Performance', icon: BarChart2 },
 ]
 
 /* ── helpers ── */
@@ -393,7 +386,6 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
    MATCH LOGGER TAB
    ================================================================ */
 function MatchLoggerTab({ uid, matches, xp, matchCount }) {
-  const [subTab, setSubTab] = useState('classic')
   const todayStr = new Date().toISOString().split('T')[0]
   const todayMatches = useMemo(() =>
     matches.filter(m => {
@@ -412,9 +404,12 @@ function MatchLoggerTab({ uid, matches, xp, matchCount }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* MatchLogger below already renders its own calendar strip and
+          Classic/Scrims/Tournament sub-tabs (wired to its own
+          activeType state) — rendering them here too duplicated both
+          on screen, and this outer copy was never even connected to
+          MatchLogger's filtering, so it did nothing when clicked. */}
       <TodayMatchStatsRow matchCount={matchCount} avgKills={avgKills} avgPlacement={avgPlacement} winRate={winRate} avgDamage={avgDamage} />
-      <CalendarStrip context="matches" />
-      <MatchSubTabs active={subTab} onChange={setSubTab} />
       <div className="tc-two-col">
         <div className="tc-left"><MatchLogger /></div>
         <div className="tc-right" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -562,7 +557,7 @@ function TodayMatchStatsRow({ matchCount, avgKills, avgPlacement, winRate, avgDa
     { Icon: TrendingUp, color: '#22C55E', label: 'Avg Damage',     value: avgDamage != null ? avgDamage : '—' },
   ]
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
+    <div className="match-logger-stats-row" style={{ gap: 10 }}>
       {cards.map(({ Icon, color, label, value }) => (
         <div key={label} style={{ background: '#0D1528', border: '1px solid #1B2A45', borderRadius: 10, padding: 16 }}>
           <Icon size={18} style={{ color, marginBottom: 8 }} />
@@ -571,22 +566,6 @@ function TodayMatchStatsRow({ matchCount, avgKills, avgPlacement, winRate, avgDa
           <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 10, color: '#64748B', marginTop: 4 }}>Today</div>
         </div>
       ))}
-    </div>
-  )
-}
-
-function MatchSubTabs({ active, onChange }) {
-  return (
-    <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid #1B2A45' }}>
-      {MATCH_SUBTABS.map(t => {
-        const Icon = t.icon
-        const isActive = active === t.id
-        return (
-          <button key={t.id} onClick={() => onChange(t.id)} style={{ background: 'transparent', border: 'none', borderBottom: `2px solid ${isActive ? '#3B82F6' : 'transparent'}`, color: isActive ? '#F8FAFC' : '#94A3B8', padding: '10px 16px', cursor: 'pointer', fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'all 0.15s ease', marginBottom: -1 }}>
-            <Icon size={14} /> {t.label}
-          </button>
-        )
-      })}
     </div>
   )
 }
@@ -788,6 +767,18 @@ function TrainingStyles() {
            mobile width. */
         .tc-two-col { flex-direction: column; align-items: stretch; }
         .tc-right { width: 100%; }
+      }
+      .match-logger-stats-row {
+        display: grid;
+        /* minmax(0, 1fr) — not plain 1fr — so a card's own content
+           can never force its track wider than its equal share. */
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      @media (min-width: 480px) {
+        .match-logger-stats-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      }
+      @media (min-width: 768px) {
+        .match-logger-stats-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
       }
     `}</style>
   )

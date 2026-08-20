@@ -28,9 +28,7 @@ export default function SessionBanner({
         justifyContent: 'space-between',
         gap: 12,
         flexWrap: 'wrap',
-        position: 'sticky',
-        top: 56,
-        zIndex: 30,
+        position: 'relative',
         borderRadius: 'var(--radius-sm)',
       }}
     >
