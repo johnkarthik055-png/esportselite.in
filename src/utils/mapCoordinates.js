@@ -27,15 +27,35 @@
    sitting exactly on a road and every boat spawn hugging the
    coastline — confirming both the axis orientation and the
    816000-unit game-world size below.
+
+   Miramar was verified the same way (overlaid every point in
+   miramar_boat_spawns.json against public/tiles/Miramar/3/0/0.png):
+   the identical formula and 816000 constant put every boat spawn
+   exactly on the coastline, so it reuses GAME_WORLD_SIZE unchanged
+   rather than needing its own constant.
+
+   Rondo has NOT been verified or wired in. A "Rondo vehicle spawns"
+   file was provided but its x/y values are byte-identical to
+   erangel_vehicle_boat_spawns.json's vehicleSpawns (just with a z
+   field added) — i.e. not real Rondo data, so there is nothing
+   correct to derive a constant from yet. When genuine Rondo data
+   arrives, derive and verify its constant the same way (Rondo is a
+   3x3km map, so GAME_WORLD_SIZE is very unlikely to apply as-is)
+   before adding a Rondo entry here.
    ============================================================ */
 
 export const MAP_WORLD_SIZE = 256
 
-/* Erangel's (and Miramar/Rondo's — PUBG's other 8x8km maps share
-   the same engine scale) raw playable area is 816000 x 816000
-   engine units. Only Erangel has spawn data wired in today, but
-   the constant is map-independent so it's safe to reuse. */
+/* Erangel and Miramar's raw playable area is 816000 x 816000 engine
+   units — both empirically verified (see above). Keyed by map id so
+   callers can look up the right constant without an if/else chain;
+   add 'rondo' here once real Rondo data lets us derive and verify
+   its own constant. */
 export const GAME_WORLD_SIZE = 816000
+export const GAME_WORLD_SIZE_BY_MAP = {
+  erangel: GAME_WORLD_SIZE,
+  miramar: GAME_WORLD_SIZE,
+}
 
 /**
  * Convert a raw in-game world coordinate into this app's Leaflet

@@ -837,6 +837,25 @@ body.amoled {
 }
 
 /* ============================================================
+   SPAWN MARKER BADGES — Vehicle/Boat dense point-cloud layers
+   (Compound/Hot Drop/Garage/etc. keep the plain .mk-pin-marker
+   dot from createPinIcon; this is only for createSpawnIcon).
+   ============================================================ */
+.spawn-marker-icon { background: transparent; border: none; }
+.spawn-badge {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: width 0.15s ease, height 0.15s ease;
+}
+.spawn-badge-vehicle { background: #F59E0B; }
+.spawn-badge-boat    { background: #3B82F6; }
+
+/* ============================================================
    MOBILE — BOTTOM NAVIGATION
    ============================================================ */
 .bottom-nav {

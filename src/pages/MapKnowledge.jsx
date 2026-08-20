@@ -32,6 +32,7 @@ import { db } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { gameCoordToLatLng } from '../utils/mapCoordinates.js'
 import erangelSpawns from '../data/erangel_vehicle_boat_spawns.json'
+import miramarSpawns from '../data/miramar_boat_spawns.json'
 
 /* ============================================================
    LEAFLET DEFAULT ICON FIX
@@ -253,18 +254,67 @@ function createPinIcon(type, tier) {
 }
 
 /* ============================================================
-   ERANGEL VEHICLE / BOAT SPAWNS — static dataset, Erangel only
+   SPAWN-POINT DATASETS — Erangel (vehicle + boat), Miramar (boat)
    ------------------------------------------------------------
    Converted once at module load (not per-render) since the source
-   data never changes at runtime. Icons are likewise created once
-   and reused across all 416 + 149 markers — createPinIcon('vehicle')
-   returns an identical DivIcon regardless of which point it's for,
-   so there's no reason to instantiate one per marker.
+   data never changes at runtime.
+
+   Rondo is deliberately NOT included: the "Rondo vehicle spawns"
+   file provided alongside this data has x/y values byte-identical
+   to erangelSpawns.vehicleSpawns (same 416 points, same order —
+   just with a z/elevation field added), i.e. it's the Erangel
+   dataset relabeled, not real Rondo data. Rondo is a 3x3km map
+   with its own coordinate scale, so plotting Erangel's 8x8km-scale
+   points on it would scatter every marker off the actual roads.
+   Add a Rondo dataset here once genuine Rondo-specific spawn data
+   is available and its own world-size constant has been verified
+   the same way Erangel's and Miramar's were (see mapCoordinates.js).
    ============================================================ */
 const ERANGEL_VEHICLE_POSITIONS = erangelSpawns.vehicleSpawns.map(p => gameCoordToLatLng(p.x, p.y))
 const ERANGEL_BOAT_POSITIONS    = erangelSpawns.boatSpawns.map(p => gameCoordToLatLng(p.x, p.y))
-const VEHICLE_SPAWN_ICON = createPinIcon('vehicle')
-const BOAT_SPAWN_ICON    = createPinIcon('boat')
+const MIRAMAR_BOAT_POSITIONS    = miramarSpawns.boatSpawns.map(p => gameCoordToLatLng(p.x, p.y))
+
+/* ============================================================
+   SPAWN MARKER ICONS — small colored badge + glyph, zoom-scaled
+   ------------------------------------------------------------
+   Separate from createPinIcon() above: that one's a plain 12px dot,
+   fine for a handful of hand-placed Compound/Hot Drop pins, but at
+   400+ points a fixed-size icon either looks like clutter when
+   zoomed out or is too small to read when zoomed in. This scales
+   across the map's real MIN_ZOOM..MAX_ZOOM range (0..8, see below)
+   instead of guessed thresholds, and every icon at a given
+   (type, size) pair is byte-identical, so they're cached rather
+   than rebuilt per marker per zoom change.
+   ============================================================ */
+const SPAWN_BADGE_COLORS = { vehicle: '#F59E0B', boat: '#3B82F6' }
+const SPAWN_BADGE_GLYPHS = {
+  vehicle: '<svg viewBox="0 0 24 24" width="60%" height="60%" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11m-14 0h14m-14 0a2 2 0 0 0-2 2v3a1 1 0 0 0 1 1h1m14-6a2 2 0 0 1 2 2v3a1 1 0 0 1-1 1h-1m-13 0a1.5 1.5 0 1 0 3 0m8 0a1.5 1.5 0 1 0 3 0"/></svg>',
+  boat:    '<svg viewBox="0 0 24 24" width="60%" height="60%" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15l1.5 4.5a1 1 0 0 0 .95.5h13.1a1 1 0 0 0 .95-.5L21 15M4 15h16M6 15V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6M12 3v4"/></svg>',
+}
+const spawnIconCache = {}
+function createSpawnIcon(type, size) {
+  const cacheKey = `${type}-${size}`
+  if (spawnIconCache[cacheKey]) return spawnIconCache[cacheKey]
+  const icon = L.divIcon({
+    className: 'spawn-marker-icon',
+    html: `<div class="spawn-badge spawn-badge-${type}" style="width:${size}px;height:${size}px;">${SPAWN_BADGE_GLYPHS[type]}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2],
+  })
+  spawnIconCache[cacheKey] = icon
+  return icon
+}
+
+/* Buckets derived from this map's actual MIN_ZOOM(0)..MAX_ZOOM(8)
+   range (defined below), not a guessed scale: small/clean in the
+   bottom third (whole-map overview), full-size glyph once zoom
+   reaches MAX_NATIVE_ZOOM(5) where native tile detail takes over. */
+function spawnIconSizeForZoom(zoom) {
+  if (zoom <= 2) return 10
+  if (zoom <= 4) return 14
+  return 18
+}
 
 function createLabelIcon(name) {
   const safe = String(name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -643,15 +693,19 @@ function MapPanel({
           />
         ))}
 
-        {/* Erangel-only static vehicle/boat spawn markers. Same
-            Layers-panel toggles as every other pin type (visibleLayers
-            is the single source of truth for what's shown), same
-            zoom/pan behavior as any other Marker since these are
-            ordinary react-leaflet Markers positioned with the exact
-            same [lat, lng] space as the Firestore-backed pins above. */}
+        {/* Static vehicle/boat spawn markers (Erangel: vehicle + boat,
+            Miramar: boat only — see the dataset comment above for why
+            Rondo isn't here). Same Layers-panel toggles as every other
+            pin type (visibleLayers is the single source of truth for
+            what's shown), same zoom/pan behavior as any other Marker
+            since these are ordinary react-leaflet Markers positioned
+            with the exact same [lat, lng] space as the Firestore-backed
+            pins above. Icon size is recomputed from the live zoom each
+            render — createSpawnIcon caches by (type, size) so this is
+            a cheap lookup, not a rebuild, once a given size is seen. */}
         {activeMap.id === 'erangel' && visibleLayers.has('vehicle') &&
           ERANGEL_VEHICLE_POSITIONS.map((position, i) => (
-            <Marker key={`vehicle-${i}`} position={position} icon={VEHICLE_SPAWN_ICON}>
+            <Marker key={`vehicle-${i}`} position={position} icon={createSpawnIcon('vehicle', spawnIconSizeForZoom(zoom))}>
               <Popup>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>Vehicle Spawn</div>
               </Popup>
@@ -659,7 +713,15 @@ function MapPanel({
           ))}
         {activeMap.id === 'erangel' && visibleLayers.has('boat') &&
           ERANGEL_BOAT_POSITIONS.map((position, i) => (
-            <Marker key={`boat-${i}`} position={position} icon={BOAT_SPAWN_ICON}>
+            <Marker key={`boat-${i}`} position={position} icon={createSpawnIcon('boat', spawnIconSizeForZoom(zoom))}>
+              <Popup>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>Boat Spawn</div>
+              </Popup>
+            </Marker>
+          ))}
+        {activeMap.id === 'miramar' && visibleLayers.has('boat') &&
+          MIRAMAR_BOAT_POSITIONS.map((position, i) => (
+            <Marker key={`miramar-boat-${i}`} position={position} icon={createSpawnIcon('boat', spawnIconSizeForZoom(zoom))}>
               <Popup>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>Boat Spawn</div>
               </Popup>
@@ -830,6 +892,9 @@ function ViewPanel({
     if (mapId === 'erangel') {
       c.vehicle = (c.vehicle || 0) + ERANGEL_VEHICLE_POSITIONS.length
       c.boat    = (c.boat    || 0) + ERANGEL_BOAT_POSITIONS.length
+    }
+    if (mapId === 'miramar') {
+      c.boat = (c.boat || 0) + MIRAMAR_BOAT_POSITIONS.length
     }
     return c
   }, [pins, mapId])
@@ -1141,6 +1206,9 @@ function MapInfoCard({ map, pins }) {
     if (map.id === 'erangel') {
       c.vehicle = (c.vehicle || 0) + ERANGEL_VEHICLE_POSITIONS.length
       c.boat    = (c.boat    || 0) + ERANGEL_BOAT_POSITIONS.length
+    }
+    if (map.id === 'miramar') {
+      c.boat = (c.boat || 0) + MIRAMAR_BOAT_POSITIONS.length
     }
     return c
   }, [pins, map.id])
