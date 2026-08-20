@@ -1,0 +1,90 @@
+import { LAYER_GROUPS, VERIFIED_SPAWN_DATA } from '../../utils/strategyDataSchema.js'
+import { getSpawnReference } from '../../utils/spawnReferenceData.js'
+import { useStrategyStore, toggleLayerGroup, toggleSpawnRef } from './strategyStore.js'
+import { SectionLabel } from './strategyUI.jsx'
+
+export default function LayersPanel({ mapId }) {
+  const st = useStrategyStore()
+  const vehicleAvailable = VERIFIED_SPAWN_DATA[mapId]?.vehicle
+  const boatAvailable = VERIFIED_SPAWN_DATA[mapId]?.boat
+  const vehiclePositions = getSpawnReference(mapId, 'vehicle')
+  const boatPositions = getSpawnReference(mapId, 'boat')
+
+  return (
+    <div className="card">
+      <SectionLabel>Layers</SectionLabel>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 12 }}>
+        {LAYER_GROUPS.map(g => {
+          const count = st.objects.filter(o => o.phase === st.activePhase && g.match(o)).length
+          const active = st.visibleLayerGroups.has(g.key)
+          return (
+            <LayerRow key={g.key} active={active} onClick={() => toggleLayerGroup(g.key)} label={g.label} count={count} />
+          )
+        })}
+      </div>
+
+      <SectionLabel small>Vehicle Spawns (Reference Data)</SectionLabel>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {vehicleAvailable ? (
+          <LayerRow active={st.showSpawnRefVehicle} onClick={() => toggleSpawnRef('vehicle')} label="Vehicle Spawns" count={vehiclePositions?.length || 0} />
+        ) : (
+          <UnavailableRow label="Vehicle Spawns" />
+        )}
+        {boatAvailable ? (
+          <LayerRow active={st.showSpawnRefBoat} onClick={() => toggleSpawnRef('boat')} label="Boat Spawns" count={boatPositions?.length || 0} />
+        ) : (
+          <UnavailableRow label="Boat Spawns" />
+        )}
+      </div>
+    </div>
+  )
+}
+
+function LayerRow({ active, onClick, label, count }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        padding: '6px 8px', background: 'transparent', border: 'none',
+        borderRadius: 6, cursor: 'pointer', width: '100%', textAlign: 'left',
+        fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-primary)',
+      }}
+    >
+      <span aria-hidden style={{
+        width: 15, height: 15, borderRadius: 4, flexShrink: 0,
+        background: active ? 'var(--blue)' : 'var(--bg-elevated)',
+        border: '1px solid var(--border)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: '#fff', fontSize: 9, fontWeight: 800,
+      }}>
+        {active ? '✓' : ''}
+      </span>
+      <span style={{ flex: 1 }}>{label}</span>
+      <span style={{
+        fontSize: 10, color: 'var(--text-subtle)', background: 'var(--bg-elevated)',
+        border: '1px solid var(--border)', padding: '1px 7px', borderRadius: 999,
+      }}>
+        {count}
+      </span>
+    </button>
+  )
+}
+
+function UnavailableRow({ label }) {
+  return (
+    <div
+      title="No verified spawn coordinates exist for this map yet — nothing is plotted rather than guessing."
+      style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        padding: '6px 8px', borderRadius: 6,
+        fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-subtle)',
+        opacity: 0.6,
+      }}
+    >
+      <span style={{ width: 15, height: 15, borderRadius: 4, flexShrink: 0, border: '1px dashed var(--border)' }} />
+      <span style={{ flex: 1 }}>{label}</span>
+      <span style={{ fontSize: 10, fontStyle: 'italic' }}>Data unavailable</span>
+    </div>
+  )
+}

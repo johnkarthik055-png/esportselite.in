@@ -30,9 +30,12 @@ import {
 } from 'lucide-react'
 import { db } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
-import { gameCoordToLatLng } from '../utils/mapCoordinates.js'
-import erangelSpawns from '../data/erangel_vehicle_boat_spawns.json'
-import miramarSpawns from '../data/miramar_boat_spawns.json'
+import {
+  ERANGEL_VEHICLE_POSITIONS, ERANGEL_BOAT_POSITIONS, MIRAMAR_BOAT_POSITIONS,
+} from '../utils/spawnReferenceData.js'
+import StrategyMakerPanel from '../components/strategy/StrategyMakerPanel.jsx'
+import StrategyDrawingLayer from '../components/strategy/StrategyDrawingLayer.jsx'
+import { resetForMap } from '../components/strategy/strategyStore.js'
 
 /* ============================================================
    LEAFLET DEFAULT ICON FIX
@@ -215,6 +218,9 @@ async function addStrategy(mapId, data, uid) {
 async function deleteStrategy(mapId, id) {
   return deleteDoc(doc(db, 'mapData', mapId, 'strategies', id))
 }
+async function updateStrategy(mapId, id, data) {
+  return updateDoc(doc(db, 'mapData', mapId, 'strategies', id), data)
+}
 
 /* ============================================================
    DIVICON FACTORIES
@@ -270,9 +276,10 @@ function createPinIcon(type, tier) {
    is available and its own world-size constant has been verified
    the same way Erangel's and Miramar's were (see mapCoordinates.js).
    ============================================================ */
-const ERANGEL_VEHICLE_POSITIONS = erangelSpawns.vehicleSpawns.map(p => gameCoordToLatLng(p.x, p.y))
-const ERANGEL_BOAT_POSITIONS    = erangelSpawns.boatSpawns.map(p => gameCoordToLatLng(p.x, p.y))
-const MIRAMAR_BOAT_POSITIONS    = miramarSpawns.boatSpawns.map(p => gameCoordToLatLng(p.x, p.y))
+/* Computed once in spawnReferenceData.js and imported from there —
+   Strategy Maker's reference-layer toggle uses the exact same
+   values, so there's one source of truth instead of two datasets
+   that could quietly drift apart. */
 
 /* ============================================================
    SPAWN MARKER ICONS — small colored badge + glyph, zoom-scaled
@@ -408,6 +415,13 @@ export default function MapKnowledge() {
   const activeMap = MAPS.find(m => m.id === activeMapId) || MAPS[0]
   const tileUrl = `/tiles/${activeMap.tileFolder}/{z}/{x}/{y}.png`
 
+  /* Strategy Maker's object list is map-scoped (Issue 17) — reset
+     it the moment the active map changes so Erangel objects never
+     carry over onto Miramar/Rondo. resetForMap is a no-op if the
+     store is already tracking this map, so this is safe to call on
+     every render of this effect regardless of which tab is open. */
+  useEffect(() => { resetForMap(activeMapId) }, [activeMapId])
+
   /* Real-time pins subscription + auto-seed on empty */
   useEffect(() => {
     const unsub = onSnapshot(pinsCol(activeMapId), (snap) => {
@@ -526,9 +540,12 @@ export default function MapKnowledge() {
             />
           )}
           {mode === 'strategy' && (
-            <StrategyPanel
+            <StrategyMakerPanel
               mapId={activeMapId}
               strategies={strategies}
+              addStrategyDoc={addStrategy}
+              updateStrategyDoc={updateStrategy}
+              deleteStrategyDoc={deleteStrategy}
             />
           )}
           {mode === 'dev' && isAdmin && (
@@ -729,7 +746,7 @@ function MapPanel({
           ))}
 
         {/* Strategy Maker overlay */}
-        {mode === 'strategy' && <StrategyDrawingLayer />}
+        {mode === 'strategy' && <StrategyDrawingLayer mapId={activeMap.id} />}
 
         {/* Dev Editor overlay */}
         {mode === 'dev' && <DevDrawingLayer />}
@@ -1236,371 +1253,6 @@ function MapInfoCard({ map, pins }) {
             <span style={{ fontSize: 11, color: 'var(--text-subtle)' }}>{counts[key] || 0}</span>
           </div>
         ))}
-      </div>
-    </div>
-  )
-}
-
-/* ============================================================
-   STRATEGY MAKER — drawing layer + right panel
-   ============================================================
-   The drawing state lives in module-scoped refs via window
-   events so the canvas can inject Leaflet layers without
-   prop-drilling the tool state through MapContainer's context. */
-const strategyBus = new EventTarget()
-const strategyState = {
-  tool: 'select',      /* select | pin | arrow | zone | eraser */
-  color: '#E8001C',
-  pins: [],            /* [{ id, lat, lng, name, type, color }] */
-  arrows: [],          /* [{ id, from:[lat,lng], to:[lat,lng], color, label }] */
-  zones: [],           /* [{ id, center:[lat,lng], radius, color, label }] */
-  drafting: null,      /* { kind: 'arrow' | 'zone', ... } */
-}
-function fireStrategy() {
-  strategyBus.dispatchEvent(new Event('change'))
-}
-
-function useStrategyState() {
-  const [, tick] = useState(0)
-  useEffect(() => {
-    function onChange() { tick(v => v + 1) }
-    strategyBus.addEventListener('change', onChange)
-    return () => strategyBus.removeEventListener('change', onChange)
-  }, [])
-  return strategyState
-}
-
-function StrategyDrawingLayer() {
-  const st = useStrategyState()
-  const [pendingPin, setPendingPin] = useState(null)
-
-  useMapEvents({
-    click: (e) => {
-      const { lat, lng } = e.latlng
-      if (st.tool === 'pin') {
-        setPendingPin({ lat, lng, name: '', type: 'drop', color: st.color })
-      } else if (st.tool === 'arrow') {
-        if (!st.drafting) {
-          st.drafting = { kind: 'arrow', from: [lat, lng], to: [lat, lng] }
-          fireStrategy()
-        } else if (st.drafting.kind === 'arrow') {
-          st.arrows = [...st.arrows, { id: uid(), from: st.drafting.from, to: [lat, lng], color: st.color, label: '' }]
-          st.drafting = null
-          fireStrategy()
-        }
-      } else if (st.tool === 'zone') {
-        if (!st.drafting) {
-          st.drafting = { kind: 'zone', center: [lat, lng], radius: 0 }
-          fireStrategy()
-        } else if (st.drafting.kind === 'zone') {
-          const dx = lat - st.drafting.center[0]
-          const dy = lng - st.drafting.center[1]
-          const r = Math.max(2, Math.hypot(dx, dy))
-          st.zones = [...st.zones, { id: uid(), center: st.drafting.center, radius: r, color: st.color, label: '' }]
-          st.drafting = null
-          fireStrategy()
-        }
-      } else if (st.tool === 'eraser') {
-        if (st.pins.length)        st.pins   = st.pins.slice(0, -1)
-        else if (st.arrows.length) st.arrows = st.arrows.slice(0, -1)
-        else if (st.zones.length)  st.zones  = st.zones.slice(0, -1)
-        fireStrategy()
-      }
-    },
-    mousemove: (e) => {
-      if (!st.drafting) return
-      const { lat, lng } = e.latlng
-      if (st.drafting.kind === 'arrow') {
-        st.drafting = { ...st.drafting, to: [lat, lng] }
-        fireStrategy()
-      } else if (st.drafting.kind === 'zone') {
-        const dx = lat - st.drafting.center[0]
-        const dy = lng - st.drafting.center[1]
-        st.drafting = { ...st.drafting, radius: Math.max(2, Math.hypot(dx, dy)) }
-        fireStrategy()
-      }
-    },
-  })
-
-  function commitPin() {
-    if (!pendingPin?.name?.trim()) { setPendingPin(null); return }
-    st.pins = [...st.pins, {
-      id: uid(),
-      lat: pendingPin.lat, lng: pendingPin.lng,
-      name: pendingPin.name.trim(),
-      type: pendingPin.type,
-      color: pendingPin.color,
-    }]
-    setPendingPin(null)
-    fireStrategy()
-  }
-
-  return (
-    <>
-      {st.zones.map(z => (
-        <Circle key={z.id} center={z.center} radius={z.radius}
-          pathOptions={{ color: z.color, fillColor: z.color, fillOpacity: 0.2, weight: 2 }} />
-      ))}
-      {st.drafting?.kind === 'zone' && (
-        <Circle center={st.drafting.center} radius={st.drafting.radius}
-          pathOptions={{ color: '#4A9EFF', fillColor: '#4A9EFF', fillOpacity: 0.15, weight: 1, dashArray: '4 4' }} />
-      )}
-
-      {st.arrows.map(a => (
-        <Polyline key={a.id} positions={[a.from, a.to]}
-          pathOptions={{ color: a.color, weight: 3, opacity: 0.8 }} />
-      ))}
-      {st.drafting?.kind === 'arrow' && (
-        <Polyline positions={[st.drafting.from, st.drafting.to]}
-          pathOptions={{ color: '#ffffff', weight: 2, opacity: 0.5, dashArray: '4 4' }} />
-      )}
-
-      {st.pins.map(p => (
-        <Marker key={p.id} position={[p.lat, p.lng]}
-          icon={L.divIcon({
-            className: 'mk-strat-pin',
-            html: `<div style="
-              width:14px; height:14px; background:${p.color};
-              border:2px solid #fff; border-radius:50%;
-              box-shadow:0 1px 3px rgba(0,0,0,0.6);"></div>`,
-            iconSize: [14, 14],
-            iconAnchor: [7, 7],
-          })}
-        >
-          <Popup>{p.name}</Popup>
-        </Marker>
-      ))}
-
-      {pendingPin && (
-        <StrategyPinFormPopup
-          pin={pendingPin}
-          onChange={setPendingPin}
-          onCancel={() => setPendingPin(null)}
-          onSave={commitPin}
-        />
-      )}
-    </>
-  )
-}
-
-function StrategyPinFormPopup({ pin, onChange, onCancel, onSave }) {
-  return (
-    <Popup
-      position={[pin.lat, pin.lng]}
-      eventHandlers={{ remove: onCancel }}
-      autoClose={false}
-      closeOnClick={false}
-    >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 200 }}>
-        <input
-          autoFocus
-          value={pin.name}
-          placeholder="Name"
-          onChange={(e) => onChange({ ...pin, name: e.target.value })}
-          onKeyDown={(e) => { if (e.key === 'Enter') onSave(); if (e.key === 'Escape') onCancel() }}
-          style={inputStyle}
-        />
-        <select
-          value={pin.type}
-          onChange={(e) => onChange({ ...pin, type: e.target.value })}
-          style={inputStyle}
-        >
-          {STRATEGY_TYPES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
-        </select>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {COLOR_PRESETS.slice(0, 5).map(c => (
-            <button
-              key={c.key}
-              onClick={() => onChange({ ...pin, color: c.value })}
-              style={{
-                width: 18, height: 18, borderRadius: '50%',
-                background: c.value,
-                border: `2px solid ${pin.color === c.value ? '#fff' : 'transparent'}`,
-                cursor: 'pointer',
-              }}
-            />
-          ))}
-        </div>
-        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-          <button onClick={onCancel} className="btn btn-secondary btn-sm">Cancel</button>
-          <button onClick={onSave} className="btn btn-primary btn-sm">Save</button>
-        </div>
-      </div>
-    </Popup>
-  )
-}
-
-function StrategyPanel({ mapId, strategies }) {
-  const st = useStrategyState()
-  const { user } = useAuth()
-  const [name, setName] = useState('')
-  const [desc, setDesc] = useState('')
-  const [saving, setSaving] = useState(false)
-
-  function setTool(t) { st.tool = t; st.drafting = null; fireStrategy() }
-  function setColor(c) { st.color = c; fireStrategy() }
-  function clearAll() {
-    if (!window.confirm('Clear all drawings?')) return
-    st.pins = []; st.arrows = []; st.zones = []; st.drafting = null
-    fireStrategy()
-  }
-
-  async function saveStrategy() {
-    if (!user?.uid)     { alert('Sign in to save strategies.'); return }
-    if (!name.trim())   { alert('Give this strategy a name first.'); return }
-    setSaving(true)
-    try {
-      await addStrategy(mapId, {
-        name: name.trim(),
-        description: desc.trim(),
-        pins: st.pins,
-        arrows: st.arrows,
-        zones: st.zones,
-        isPublic: false,
-      }, user.uid)
-      setName(''); setDesc('')
-      alert('Strategy saved.')
-    } catch (e) { alert('Save failed: ' + (e?.message || e)) }
-    finally    { setSaving(false) }
-  }
-
-  function loadStrategy(s) {
-    st.pins = s.pins || []
-    st.arrows = s.arrows || []
-    st.zones = s.zones || []
-    st.drafting = null
-    fireStrategy()
-  }
-
-  async function removeStrategy(s) {
-    if (!window.confirm(`Delete strategy "${s.name}"?`)) return
-    try { await deleteStrategy(mapId, s.id) }
-    catch (e) { alert('Delete failed: ' + (e?.message || e)) }
-  }
-
-  const tools = [
-    { key: 'select', icon: <MousePointer2 size={13} />,  label: 'Select' },
-    { key: 'pin',    icon: <MapPin size={13} />,        label: 'Pin' },
-    { key: 'arrow',  icon: <ArrowUpRight size={13} />,  label: 'Arrow' },
-    { key: 'zone',   icon: <CircleIcon size={13} />,    label: 'Zone' },
-    { key: 'eraser', icon: <Eraser size={13} />,        label: 'Eraser' },
-  ]
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, height: '100%', overflowY: 'auto', paddingRight: 4 }}>
-      <div className="card">
-        <SectionLabel>Tools</SectionLabel>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-          {tools.map(t => (
-            <button
-              key={t.key}
-              onClick={() => setTool(t.key)}
-              className="btn btn-sm"
-              style={{
-                background: st.tool === t.key ? 'var(--red)' : 'var(--bg-elevated)',
-                border: `1px solid ${st.tool === t.key ? 'var(--red)' : 'var(--border)'}`,
-                color: st.tool === t.key ? '#fff' : 'var(--text-primary)',
-                justifyContent: 'flex-start',
-              }}
-            >
-              {t.icon} {t.label}
-            </button>
-          ))}
-        </div>
-
-        <div style={{ marginTop: 10 }}>
-          <SectionLabel small>Color</SectionLabel>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {COLOR_PRESETS.map(c => (
-              <button
-                key={c.key}
-                onClick={() => setColor(c.value)}
-                aria-label={c.key}
-                style={{
-                  width: 22, height: 22, borderRadius: '50%',
-                  background: c.value,
-                  border: `2px solid ${st.color === c.value ? '#fff' : 'transparent'}`,
-                  cursor: 'pointer',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <button onClick={clearAll} className="btn btn-secondary btn-sm" style={{ marginTop: 12, width: '100%' }}>
-          <Trash2 size={12} /> Clear All
-        </button>
-      </div>
-
-      <div className="card">
-        <SectionLabel>Save Strategy</SectionLabel>
-        <input
-          value={name} onChange={(e) => setName(e.target.value)}
-          placeholder="Strategy name"
-          style={inputStyle}
-        />
-        <textarea
-          value={desc} onChange={(e) => setDesc(e.target.value)}
-          placeholder="Description (optional)"
-          rows={2}
-          style={{ ...inputStyle, marginTop: 6, resize: 'vertical' }}
-        />
-        <button
-          onClick={saveStrategy}
-          disabled={saving}
-          className="btn btn-primary btn-sm"
-          style={{ marginTop: 8, width: '100%' }}
-        >
-          {saving ? <><Loader2 size={12} className="animate-spin" /> Saving</> : <><Save size={12} /> Save Strategy</>}
-        </button>
-      </div>
-
-      <div className="card">
-        <SectionLabel>My Strategies</SectionLabel>
-        {strategies.length === 0 ? (
-          <div style={{ fontSize: 12, color: 'var(--text-subtle)' }}>
-            No saved strategies yet.
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {strategies.map(s => (
-              <div key={s.id} style={{
-                background: 'var(--bg-elevated)',
-                border: '1px solid var(--border)',
-                borderRadius: 6,
-                padding: '8px 10px',
-                display: 'flex', alignItems: 'center', gap: 8,
-              }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {s.name}
-                  </div>
-                  {s.description && (
-                    <div style={{ fontSize: 11, color: 'var(--text-subtle)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {s.description}
-                    </div>
-                  )}
-                </div>
-                <button onClick={() => loadStrategy(s)} className="btn btn-secondary btn-sm">Load</button>
-                <button onClick={() => removeStrategy(s)} className="btn btn-secondary btn-sm">
-                  <Trash2 size={12} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="card" style={{ background: 'var(--bg-elevated)' }}>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-          <Info size={14} style={{ color: 'var(--text-subtle)', flexShrink: 0, marginTop: 2 }} />
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-            <strong>Pin:</strong> Click once. Fill form.<br />
-            <strong>Arrow:</strong> Click start, then end.<br />
-            <strong>Zone:</strong> Click centre, then edge.<br />
-            <strong>Eraser:</strong> Removes last item.
-          </div>
-        </div>
       </div>
     </div>
   )
