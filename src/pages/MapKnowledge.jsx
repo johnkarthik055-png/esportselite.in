@@ -30,6 +30,8 @@ import {
 } from 'lucide-react'
 import { db } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import { gameCoordToLatLng } from '../utils/mapCoordinates.js'
+import erangelSpawns from '../data/erangel_vehicle_boat_spawns.json'
 
 /* ============================================================
    LEAFLET DEFAULT ICON FIX
@@ -250,6 +252,20 @@ function createPinIcon(type, tier) {
   })
 }
 
+/* ============================================================
+   ERANGEL VEHICLE / BOAT SPAWNS — static dataset, Erangel only
+   ------------------------------------------------------------
+   Converted once at module load (not per-render) since the source
+   data never changes at runtime. Icons are likewise created once
+   and reused across all 416 + 149 markers — createPinIcon('vehicle')
+   returns an identical DivIcon regardless of which point it's for,
+   so there's no reason to instantiate one per marker.
+   ============================================================ */
+const ERANGEL_VEHICLE_POSITIONS = erangelSpawns.vehicleSpawns.map(p => gameCoordToLatLng(p.x, p.y))
+const ERANGEL_BOAT_POSITIONS    = erangelSpawns.boatSpawns.map(p => gameCoordToLatLng(p.x, p.y))
+const VEHICLE_SPAWN_ICON = createPinIcon('vehicle')
+const BOAT_SPAWN_ICON    = createPinIcon('boat')
+
 function createLabelIcon(name) {
   const safe = String(name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   return L.divIcon({
@@ -432,6 +448,7 @@ export default function MapKnowledge() {
             tileUrl={tileUrl}
             pins={pins}
             visiblePins={visiblePins}
+            visibleLayers={visibleLayers}
             polygons={polygons}
             zoom={zoom}
             onZoomChange={setZoom}
@@ -513,7 +530,7 @@ function TabButton({ active, onClick, children }) {
    ============================================================ */
 function MapPanel({
   activeMap, tileUrl,
-  pins, visiblePins, polygons,
+  pins, visiblePins, visibleLayers, polygons,
   zoom, onZoomChange,
   selectedPin, onSelectPin,
   flyTarget, onFlyDone,
@@ -625,6 +642,29 @@ function MapPanel({
             interactive={false}
           />
         ))}
+
+        {/* Erangel-only static vehicle/boat spawn markers. Same
+            Layers-panel toggles as every other pin type (visibleLayers
+            is the single source of truth for what's shown), same
+            zoom/pan behavior as any other Marker since these are
+            ordinary react-leaflet Markers positioned with the exact
+            same [lat, lng] space as the Firestore-backed pins above. */}
+        {activeMap.id === 'erangel' && visibleLayers.has('vehicle') &&
+          ERANGEL_VEHICLE_POSITIONS.map((position, i) => (
+            <Marker key={`vehicle-${i}`} position={position} icon={VEHICLE_SPAWN_ICON}>
+              <Popup>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>Vehicle Spawn</div>
+              </Popup>
+            </Marker>
+          ))}
+        {activeMap.id === 'erangel' && visibleLayers.has('boat') &&
+          ERANGEL_BOAT_POSITIONS.map((position, i) => (
+            <Marker key={`boat-${i}`} position={position} icon={BOAT_SPAWN_ICON}>
+              <Popup>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>Boat Spawn</div>
+              </Popup>
+            </Marker>
+          ))}
 
         {/* Strategy Maker overlay */}
         {mode === 'strategy' && <StrategyDrawingLayer />}
@@ -783,8 +823,16 @@ function ViewPanel({
   const counts = useMemo(() => {
     const c = {}
     for (const p of pins) c[p.type] = (c[p.type] || 0) + 1
+    /* Erangel's vehicle/boat markers come from a static dataset, not
+       Firestore pins, so they're added in here rather than counted
+       above — additive, so any admin-placed vehicle/boat pins still
+       count too instead of being overwritten. */
+    if (mapId === 'erangel') {
+      c.vehicle = (c.vehicle || 0) + ERANGEL_VEHICLE_POSITIONS.length
+      c.boat    = (c.boat    || 0) + ERANGEL_BOAT_POSITIONS.length
+    }
     return c
-  }, [pins])
+  }, [pins, mapId])
 
   const results = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -1090,8 +1138,12 @@ function MapInfoCard({ map, pins }) {
   const counts = useMemo(() => {
     const c = {}
     for (const p of pins) c[p.type] = (c[p.type] || 0) + 1
+    if (map.id === 'erangel') {
+      c.vehicle = (c.vehicle || 0) + ERANGEL_VEHICLE_POSITIONS.length
+      c.boat    = (c.boat    || 0) + ERANGEL_BOAT_POSITIONS.length
+    }
     return c
-  }, [pins])
+  }, [pins, map.id])
   return (
     <div className="card">
       <SectionLabel>Map Info</SectionLabel>
