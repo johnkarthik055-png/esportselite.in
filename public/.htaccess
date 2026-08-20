@@ -1,3 +1,22 @@
+# SPA fallback: the app subdomain's document root IS this folder
+# (confirmed live — requesting /.htaccess here 403s, and a bare path
+# like /dashboard 404s straight from Apache before React Router ever
+# gets a chance to run). The app uses react-router's HashRouter
+# (routes live in the URL fragment, e.g. /#/dashboard), so normal
+# in-app navigation never touches the server at all — but any direct/
+# bookmarked/shared link that omits the "#" (e.g. /dashboard) is a
+# literal path Apache tries to resolve on disk, finds nothing, and
+# 404s on. Rewrite anything that isn't a real file or directory back
+# to index.html so those links load the app shell instead of a dead
+# host 404 page, same as any other client-side-routed SPA.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
 # SPA shell: never cache index.html, so every deploy is visible on the
 # very next page load instead of waiting out a stale server/CDN cache.
 <IfModule mod_headers.c>
