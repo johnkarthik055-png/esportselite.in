@@ -31,7 +31,8 @@ import {
 import { db } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import {
-  ERANGEL_VEHICLE_POSITIONS, ERANGEL_BOAT_POSITIONS, MIRAMAR_BOAT_POSITIONS,
+  ERANGEL_VEHICLE_POSITIONS, ERANGEL_BOAT_POSITIONS,
+  MIRAMAR_VEHICLE_POSITIONS, MIRAMAR_BOAT_POSITIONS,
 } from '../utils/spawnReferenceData.js'
 import StrategyMakerPanel from '../components/strategy/StrategyMakerPanel.jsx'
 import StrategyDrawingLayer from '../components/strategy/StrategyDrawingLayer.jsx'
@@ -744,6 +745,14 @@ function MapPanel({
               </Popup>
             </Marker>
           ))}
+        {activeMap.id === 'miramar' && visibleLayers.has('vehicle') &&
+          MIRAMAR_VEHICLE_POSITIONS.map((position, i) => (
+            <Marker key={`miramar-vehicle-${i}`} position={position} icon={createSpawnIcon('vehicle', spawnIconSizeForZoom(zoom))}>
+              <Popup>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>Vehicle Spawn</div>
+              </Popup>
+            </Marker>
+          ))}
 
         {/* Strategy Maker overlay */}
         {mode === 'strategy' && <StrategyDrawingLayer mapId={activeMap.id} />}
@@ -911,7 +920,8 @@ function ViewPanel({
       c.boat    = (c.boat    || 0) + ERANGEL_BOAT_POSITIONS.length
     }
     if (mapId === 'miramar') {
-      c.boat = (c.boat || 0) + MIRAMAR_BOAT_POSITIONS.length
+      c.vehicle = (c.vehicle || 0) + MIRAMAR_VEHICLE_POSITIONS.length
+      c.boat    = (c.boat    || 0) + MIRAMAR_BOAT_POSITIONS.length
     }
     return c
   }, [pins, mapId])
@@ -1225,7 +1235,8 @@ function MapInfoCard({ map, pins }) {
       c.boat    = (c.boat    || 0) + ERANGEL_BOAT_POSITIONS.length
     }
     if (map.id === 'miramar') {
-      c.boat = (c.boat || 0) + MIRAMAR_BOAT_POSITIONS.length
+      c.vehicle = (c.vehicle || 0) + MIRAMAR_VEHICLE_POSITIONS.length
+      c.boat    = (c.boat    || 0) + MIRAMAR_BOAT_POSITIONS.length
     }
     return c
   }, [pins, map.id])

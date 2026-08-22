@@ -1,0 +1,5620 @@
+{
+  "map": "Miramar",
+  "spawnCount": 550,
+  "spawns": [
+    {
+      "id": 0,
+      "name": "VehicleSpot1",
+      "x": 47107.61,
+      "y": 155941.28,
+      "z": 13070.227,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "VehicleSpot10",
+      "x": 280849.12,
+      "y": 722894,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "VehicleSpot100",
+      "x": 84022.61,
+      "y": 87186.28,
+      "z": 12655.774,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "VehicleSpot101_197",
+      "x": 506273.2,
+      "y": 61319.375,
+      "z": 7782.092,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "VehicleSpot102_199",
+      "x": 482063.97,
+      "y": 121539,
+      "z": 5369.753,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "VehicleSpot103_201",
+      "x": 595744.6,
+      "y": 95974.88,
+      "z": 6330.6665,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "VehicleSpot104_203",
+      "x": 625970.3,
+      "y": 71672.39,
+      "z": 5913.9707,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "VehicleSpot105_205",
+      "x": 575337.1,
+      "y": 163151.98,
+      "z": 9936.509,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "VehicleSpot106",
+      "x": 357977.62,
+      "y": 138026.28,
+      "z": 6593.3906,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "VehicleSpot108_211",
+      "x": 664089.8,
+      "y": 96423.8,
+      "z": 4887.303,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "VehicleSpot109_213",
+      "x": 650794.2,
+      "y": 149233.38,
+      "z": 4418.451,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "VehicleSpot11",
+      "x": 115812.11,
+      "y": 662471.2,
+      "z": 9785.823,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "VehicleSpot110_215",
+      "x": 652027.5,
+      "y": 186934.81,
+      "z": 6516.2705,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "VehicleSpot111_217",
+      "x": 613801.2,
+      "y": 202172.38,
+      "z": 6782.3516,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 14,
+      "name": "VehicleSpot112_219",
+      "x": 648798.3,
+      "y": 242444.66,
+      "z": 5824.197,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "VehicleSpot113_221",
+      "x": 643776.9,
+      "y": 260131.98,
+      "z": 5777.6313,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 16,
+      "name": "VehicleSpot114",
+      "x": 653084.2,
+      "y": 139693.38,
+      "z": 4146.631,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 17,
+      "name": "VehicleSpot115_225",
+      "x": 634214.2,
+      "y": 353203.38,
+      "z": 7689.5693,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 18,
+      "name": "VehicleSpot116_227",
+      "x": 587955.7,
+      "y": 367734,
+      "z": 10144.82,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 19,
+      "name": "VehicleSpot117_229",
+      "x": 556925.5,
+      "y": 358116.84,
+      "z": 9690.608,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 20,
+      "name": "VehicleSpot118_231",
+      "x": 558187.8,
+      "y": 391347.25,
+      "z": 6104.195,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 21,
+      "name": "VehicleSpot119_233",
+      "x": 578069.56,
+      "y": 454596.72,
+      "z": 6134.6084,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 22,
+      "name": "VehicleSpot12",
+      "x": 662790.6,
+      "y": 118430.28,
+      "z": 3961.512,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 23,
+      "name": "VehicleSpot120",
+      "x": 608340.7,
+      "y": 363988,
+      "z": 9777.35,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 24,
+      "name": "VehicleSpot121_237",
+      "x": 523914.5,
+      "y": 536631.44,
+      "z": 18367.053,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 25,
+      "name": "VehicleSpot122",
+      "x": 588250.1,
+      "y": 480401.72,
+      "z": 7033.615,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 26,
+      "name": "VehicleSpot123_241",
+      "x": 533380.4,
+      "y": 373063.12,
+      "z": 9424.28,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 27,
+      "name": "VehicleSpot124_243",
+      "x": 476276.2,
+      "y": 396971.38,
+      "z": 8236.49,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 28,
+      "name": "VehicleSpot125",
+      "x": 577203.75,
+      "y": 319885.2,
+      "z": 13925.35,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 29,
+      "name": "VehicleSpot126_247",
+      "x": 423734.2,
+      "y": 531503.4,
+      "z": 15587.913,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 30,
+      "name": "VehicleSpot127",
+      "x": 635451.3,
+      "y": 242144.66,
+      "z": 5858.598,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 31,
+      "name": "VehicleSpot128_251",
+      "x": 370700.2,
+      "y": 447999.38,
+      "z": 5049.1895,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 32,
+      "name": "VehicleSpot129_253",
+      "x": 396335.2,
+      "y": 476837.38,
+      "z": 10436.598,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 33,
+      "name": "VehicleSpot13",
+      "x": 209946.34,
+      "y": 669722.2,
+      "z": 1319.7983,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 34,
+      "name": "VehicleSpot130",
+      "x": 522197.38,
+      "y": 367832.12,
+      "z": 9152.159,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 35,
+      "name": "VehicleSpot131",
+      "x": 133761.88,
+      "y": 149969.69,
+      "z": 8250.776,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 36,
+      "name": "VehicleSpot132",
+      "x": 496406.38,
+      "y": 346261.12,
+      "z": 9422.376,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 37,
+      "name": "VehicleSpot133",
+      "x": 97635.945,
+      "y": 99042.83,
+      "z": 14213.661,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 38,
+      "name": "VehicleSpot134",
+      "x": 122303.945,
+      "y": 47211.83,
+      "z": 4256.49,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 39,
+      "name": "VehicleSpot135",
+      "x": 166233.92,
+      "y": 137515.31,
+      "z": 6034.3755,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 40,
+      "name": "VehicleSpot136",
+      "x": 182827.19,
+      "y": 92552.375,
+      "z": 8513.931,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 41,
+      "name": "VehicleSpot137",
+      "x": 155829.92,
+      "y": 103865.32,
+      "z": 7367.1855,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 42,
+      "name": "VehicleSpot138",
+      "x": 182636.28,
+      "y": 129080.75,
+      "z": 7056.7246,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 43,
+      "name": "VehicleSpot139",
+      "x": 380030.44,
+      "y": 77813.625,
+      "z": 8617.727,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 44,
+      "name": "VehicleSpot140",
+      "x": 620443.75,
+      "y": 322240.2,
+      "z": 7210.3794,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 45,
+      "name": "VehicleSpot141",
+      "x": 158071.19,
+      "y": 156983.38,
+      "z": 6234.9497,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 46,
+      "name": "VehicleSpot142",
+      "x": 165284.19,
+      "y": 211100.38,
+      "z": 11065.977,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 47,
+      "name": "VehicleSpot145",
+      "x": 634967.6,
+      "y": 54281.28,
+      "z": 5614.839,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 48,
+      "name": "VehicleSpot146",
+      "x": 118018.65,
+      "y": 189616.61,
+      "z": 11540.59,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 49,
+      "name": "VehicleSpot147",
+      "x": 152185.25,
+      "y": 181041.89,
+      "z": 9985.121,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 50,
+      "name": "VehicleSpot148",
+      "x": 57306.652,
+      "y": 101429.06,
+      "z": 15276.403,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 51,
+      "name": "VehicleSpot149",
+      "x": 89783.73,
+      "y": 157229.52,
+      "z": 10680.201,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 52,
+      "name": "VehicleSpot14_25",
+      "x": 242334.55,
+      "y": 692424.4,
+      "z": -976.38025,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 53,
+      "name": "VehicleSpot15",
+      "x": 281207.2,
+      "y": 659504.4,
+      "z": 4039.6548,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 54,
+      "name": "VehicleSpot150",
+      "x": 74771.56,
+      "y": 193470.9,
+      "z": 12267.055,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 55,
+      "name": "VehicleSpot151",
+      "x": 118092.625,
+      "y": 425266.28,
+      "z": 6851.914,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 56,
+      "name": "VehicleSpot152",
+      "x": 104088.13,
+      "y": 258204.77,
+      "z": 14026.361,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 57,
+      "name": "VehicleSpot153",
+      "x": 48645.16,
+      "y": 258684.11,
+      "z": 9259.792,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 58,
+      "name": "VehicleSpot155",
+      "x": 463581.84,
+      "y": 185867.78,
+      "z": 8061.13,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 59,
+      "name": "VehicleSpot156",
+      "x": 57118.125,
+      "y": 329550.8,
+      "z": 7036.1875,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 60,
+      "name": "VehicleSpot157",
+      "x": 102200.55,
+      "y": 334715.1,
+      "z": 10557.294,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 61,
+      "name": "VehicleSpot158",
+      "x": 683332.6,
+      "y": 359396.28,
+      "z": 8280.174,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 62,
+      "name": "VehicleSpot159",
+      "x": 112723.19,
+      "y": 331338.38,
+      "z": 12402.255,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 63,
+      "name": "VehicleSpot16",
+      "x": 325065.2,
+      "y": 614593.4,
+      "z": 7963.297,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 64,
+      "name": "VehicleSpot160",
+      "x": 667402.6,
+      "y": 439906.25,
+      "z": 4761.591,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 65,
+      "name": "VehicleSpot161",
+      "x": 543325.2,
+      "y": 296658.38,
+      "z": 12882.806,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 66,
+      "name": "VehicleSpot162",
+      "x": 174581.19,
+      "y": 246605.38,
+      "z": 13364.513,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 67,
+      "name": "VehicleSpot163",
+      "x": 128563.75,
+      "y": 263654.5,
+      "z": 10859.567,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 68,
+      "name": "VehicleSpot164",
+      "x": 139441.19,
+      "y": 296585.38,
+      "z": 9832.847,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 69,
+      "name": "VehicleSpot165",
+      "x": 112273.19,
+      "y": 301999.38,
+      "z": 12152.335,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 70,
+      "name": "VehicleSpot166",
+      "x": 366179.62,
+      "y": 752190.25,
+      "z": -1128.0908,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 71,
+      "name": "VehicleSpot167",
+      "x": 117519.19,
+      "y": 360011.38,
+      "z": 11079.601,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 72,
+      "name": "VehicleSpot168",
+      "x": 120045.19,
+      "y": 396136.38,
+      "z": 8071.525,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 73,
+      "name": "VehicleSpot169",
+      "x": 127662.19,
+      "y": 319354.38,
+      "z": 14599.6875,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 74,
+      "name": "VehicleSpot17",
+      "x": 382296.2,
+      "y": 597422.4,
+      "z": 9867.981,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 75,
+      "name": "VehicleSpot170",
+      "x": 114646.625,
+      "y": 195577.25,
+      "z": 12014.106,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 76,
+      "name": "VehicleSpot171",
+      "x": 160052.19,
+      "y": 336237.38,
+      "z": 11470.224,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 77,
+      "name": "VehicleSpot172",
+      "x": 235543.19,
+      "y": 338361.38,
+      "z": 6911.9106,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 78,
+      "name": "VehicleSpot173",
+      "x": 52701.625,
+      "y": 325962.25,
+      "z": 7438.109,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 79,
+      "name": "VehicleSpot174",
+      "x": 92821.625,
+      "y": 502567.25,
+      "z": 12574.954,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 80,
+      "name": "VehicleSpot175",
+      "x": 174231.22,
+      "y": 380860.25,
+      "z": 7451.8643,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 81,
+      "name": "VehicleSpot176",
+      "x": 170251.62,
+      "y": 475872.25,
+      "z": 6519.3438,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 82,
+      "name": "VehicleSpot177",
+      "x": 130071.66,
+      "y": 478875.34,
+      "z": 15058.336,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 83,
+      "name": "VehicleSpot178",
+      "x": 144573.88,
+      "y": 539535.06,
+      "z": 5112.253,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 84,
+      "name": "VehicleSpot179",
+      "x": 81805.19,
+      "y": 549780.4,
+      "z": 11846.379,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 85,
+      "name": "VehicleSpot18",
+      "x": 398274.2,
+      "y": 580411.4,
+      "z": 13318.208,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 86,
+      "name": "VehicleSpot180",
+      "x": 308741.62,
+      "y": 60607.25,
+      "z": 5888.8584,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 87,
+      "name": "VehicleSpot181",
+      "x": 146878.19,
+      "y": 516342.34,
+      "z": 5298.0933,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 88,
+      "name": "VehicleSpot182",
+      "x": 155378.19,
+      "y": 556837.4,
+      "z": 8875.907,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 89,
+      "name": "VehicleSpot183",
+      "x": 396686.62,
+      "y": 119652.25,
+      "z": 4977.97,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 90,
+      "name": "VehicleSpot184",
+      "x": 148518.19,
+      "y": 423608.34,
+      "z": 7783.061,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 91,
+      "name": "VehicleSpot185",
+      "x": 280786.62,
+      "y": 222397.25,
+      "z": 14249.264,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 92,
+      "name": "VehicleSpot186",
+      "x": 169554.19,
+      "y": 477507.34,
+      "z": 6514.288,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 93,
+      "name": "VehicleSpot187",
+      "x": 183961.88,
+      "y": 442140.8,
+      "z": 6384.4004,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 94,
+      "name": "VehicleSpot188",
+      "x": 167863.89,
+      "y": 599896.8,
+      "z": 532.0536,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 95,
+      "name": "VehicleSpot189",
+      "x": 225763.56,
+      "y": 479977.22,
+      "z": 8305.407,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 96,
+      "name": "VehicleSpot190",
+      "x": 178783.89,
+      "y": 613156.8,
+      "z": 409.33542,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 97,
+      "name": "VehicleSpot191",
+      "x": 204489.19,
+      "y": 508824.34,
+      "z": 7221.366,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 98,
+      "name": "VehicleSpot192",
+      "x": 310871.62,
+      "y": 361027.25,
+      "z": 13653.781,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 99,
+      "name": "VehicleSpot193",
+      "x": 337011.62,
+      "y": 549152.25,
+      "z": 10566.383,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 100,
+      "name": "VehicleSpot194",
+      "x": 172828.19,
+      "y": 516976.34,
+      "z": 15478.653,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 101,
+      "name": "VehicleSpot195",
+      "x": 122328.19,
+      "y": 569382.4,
+      "z": 5857.5127,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 102,
+      "name": "VehicleSpot196",
+      "x": 141576.19,
+      "y": 586210.4,
+      "z": 1769.2509,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 103,
+      "name": "VehicleSpot197",
+      "x": 135303.19,
+      "y": 596600.4,
+      "z": 664.16797,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 104,
+      "name": "VehicleSpot198",
+      "x": 389868.16,
+      "y": 730875.44,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 105,
+      "name": "VehicleSpot199",
+      "x": 739276.06,
+      "y": 557557.25,
+      "z": -1450,
+      "categories": [
+        "Water_Ferry"
+      ]
+    },
+    {
+      "id": 106,
+      "name": "VehicleSpot19_34",
+      "x": 359377.2,
+      "y": 578555.4,
+      "z": 9957.075,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 107,
+      "name": "VehicleSpot2",
+      "x": 150446.45,
+      "y": 362070.7,
+      "z": 11455.037,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 108,
+      "name": "VehicleSpot20",
+      "x": 330143.2,
+      "y": 536036.4,
+      "z": 11581.72,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 109,
+      "name": "VehicleSpot200",
+      "x": 100152.19,
+      "y": 616080.4,
+      "z": 1694.6375,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 110,
+      "name": "VehicleSpot201",
+      "x": 200600.19,
+      "y": 765019.44,
+      "z": 853.3318,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 111,
+      "name": "VehicleSpot202",
+      "x": 190251.19,
+      "y": 705766.4,
+      "z": 2915.747,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 112,
+      "name": "VehicleSpot203",
+      "x": 187776.47,
+      "y": 647965.06,
+      "z": 1477.2079,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 113,
+      "name": "VehicleSpot204",
+      "x": 239661.19,
+      "y": 158733.38,
+      "z": 4706.4736,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 114,
+      "name": "VehicleSpot205",
+      "x": 241211.62,
+      "y": 623757.25,
+      "z": 11504.176,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 115,
+      "name": "VehicleSpot206",
+      "x": 273438.25,
+      "y": 144682.9,
+      "z": 4935.728,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 116,
+      "name": "VehicleSpot207",
+      "x": 250611.27,
+      "y": 132680.19,
+      "z": 4559.0054,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 117,
+      "name": "VehicleSpot208",
+      "x": 273452.2,
+      "y": 122697.375,
+      "z": 4796.7515,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 118,
+      "name": "VehicleSpot209",
+      "x": 249423.84,
+      "y": 63387.67,
+      "z": 7034.83,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 119,
+      "name": "VehicleSpot21",
+      "x": 646207.6,
+      "y": 253844.28,
+      "z": 5822.505,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 120,
+      "name": "VehicleSpot210",
+      "x": 293537.2,
+      "y": 90882.375,
+      "z": 4457.62,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 121,
+      "name": "VehicleSpot211",
+      "x": 310159.2,
+      "y": 158280.38,
+      "z": 7924.013,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 122,
+      "name": "VehicleSpot212",
+      "x": 291111.3,
+      "y": 164024.28,
+      "z": 9431.314,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 123,
+      "name": "VehicleSpot213",
+      "x": 273278.2,
+      "y": 158359.38,
+      "z": 6390.9214,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 124,
+      "name": "VehicleSpot214",
+      "x": 235318.19,
+      "y": 185721.38,
+      "z": 9348.963,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 125,
+      "name": "VehicleSpot215",
+      "x": 240325.19,
+      "y": 145831.38,
+      "z": 4310.5967,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 126,
+      "name": "VehicleSpot216",
+      "x": 220567.19,
+      "y": 249744.38,
+      "z": 13638.192,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 127,
+      "name": "VehicleSpot217",
+      "x": 225795.19,
+      "y": 147641.38,
+      "z": 4258.5786,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 128,
+      "name": "VehicleSpot218",
+      "x": 218870.19,
+      "y": 162318.38,
+      "z": 4693.192,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 129,
+      "name": "VehicleSpot219",
+      "x": 261943.19,
+      "y": 206534.38,
+      "z": 9790.081,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 130,
+      "name": "VehicleSpot22",
+      "x": 221499.19,
+      "y": 592284.4,
+      "z": 17335.918,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 131,
+      "name": "VehicleSpot220",
+      "x": 211259.19,
+      "y": 148152.38,
+      "z": 4423.227,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 132,
+      "name": "VehicleSpot221",
+      "x": 325637.2,
+      "y": 197657.38,
+      "z": 8031.4785,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 133,
+      "name": "VehicleSpot222",
+      "x": 284052.2,
+      "y": 128427.375,
+      "z": 5027.34,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 134,
+      "name": "VehicleSpot223",
+      "x": 304589.2,
+      "y": 62371.375,
+      "z": 5844.9014,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 135,
+      "name": "VehicleSpot224",
+      "x": 390359.2,
+      "y": 226280.38,
+      "z": 7799.843,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 136,
+      "name": "VehicleSpot225",
+      "x": 365144.2,
+      "y": 246382.38,
+      "z": 7924.1123,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 137,
+      "name": "VehicleSpot226",
+      "x": 346298.2,
+      "y": 322342.38,
+      "z": 9556.62,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 138,
+      "name": "VehicleSpot227",
+      "x": 370782.2,
+      "y": 260432.38,
+      "z": 7248.6367,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 139,
+      "name": "VehicleSpot228",
+      "x": 347063.2,
+      "y": 272499.38,
+      "z": 11682.023,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 140,
+      "name": "VehicleSpot229",
+      "x": 381093.72,
+      "y": 283853.75,
+      "z": 6930.7817,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 141,
+      "name": "VehicleSpot23",
+      "x": 259443.12,
+      "y": 396969.44,
+      "z": 6243.4844,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 142,
+      "name": "VehicleSpot230",
+      "x": 382470.2,
+      "y": 301351.38,
+      "z": 7188.604,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 143,
+      "name": "VehicleSpot231",
+      "x": 351799.2,
+      "y": 236129.38,
+      "z": 9219.937,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 144,
+      "name": "VehicleSpot232",
+      "x": 340719.2,
+      "y": 221758.38,
+      "z": 7870.995,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 145,
+      "name": "VehicleSpot233",
+      "x": 306746.22,
+      "y": 179563.05,
+      "z": 8110.6045,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 146,
+      "name": "VehicleSpot234",
+      "x": 371850.2,
+      "y": 306931.38,
+      "z": 7417.7354,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 147,
+      "name": "VehicleSpot235",
+      "x": 321700.2,
+      "y": 239668.38,
+      "z": 7797.582,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 148,
+      "name": "VehicleSpot236",
+      "x": 307255.2,
+      "y": 256091.38,
+      "z": 6627.886,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 149,
+      "name": "VehicleSpot237",
+      "x": 379512.97,
+      "y": 351894.1,
+      "z": 12743.883,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 150,
+      "name": "VehicleSpot238",
+      "x": 360105.7,
+      "y": 369036.5,
+      "z": 12753.511,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 151,
+      "name": "VehicleSpot239",
+      "x": 378019.2,
+      "y": 420618.38,
+      "z": 4698.157,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 152,
+      "name": "VehicleSpot24",
+      "x": 500623.62,
+      "y": 362472.28,
+      "z": 10044.938,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 153,
+      "name": "VehicleSpot240",
+      "x": 344291.2,
+      "y": 379129.38,
+      "z": 13214.294,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 154,
+      "name": "VehicleSpot241",
+      "x": 331297.2,
+      "y": 401847.38,
+      "z": 8757.339,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 155,
+      "name": "VehicleSpot242",
+      "x": 352722.2,
+      "y": 494777.38,
+      "z": 6987.7163,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 156,
+      "name": "VehicleSpot243",
+      "x": 370710.2,
+      "y": 295771.38,
+      "z": 7031.243,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 157,
+      "name": "VehicleSpot244",
+      "x": 372643.72,
+      "y": 278343.75,
+      "z": 7145.467,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 158,
+      "name": "VehicleSpot245",
+      "x": 385224.2,
+      "y": 519355.38,
+      "z": 9881.566,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 159,
+      "name": "VehicleSpot246",
+      "x": 306813.2,
+      "y": 557483.4,
+      "z": 7858.3535,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 160,
+      "name": "VehicleSpot247",
+      "x": 329350.2,
+      "y": 587297.4,
+      "z": 12495.633,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 161,
+      "name": "VehicleSpot248",
+      "x": 277764.2,
+      "y": 596034.4,
+      "z": 8866.143,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 162,
+      "name": "VehicleSpot249",
+      "x": 278078.1,
+      "y": 563801.25,
+      "z": 11242.529,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 163,
+      "name": "VehicleSpot25",
+      "x": 303596.88,
+      "y": 503345.2,
+      "z": 11466.426,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 164,
+      "name": "VehicleSpot250",
+      "x": 270318.44,
+      "y": 545587.56,
+      "z": 14746.834,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 165,
+      "name": "VehicleSpot251",
+      "x": 351466.2,
+      "y": 607522.94,
+      "z": 8507.451,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 166,
+      "name": "VehicleSpot252",
+      "x": 368525.2,
+      "y": 587145.4,
+      "z": 9781.915,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 167,
+      "name": "VehicleSpot253",
+      "x": 363419.2,
+      "y": 421828.38,
+      "z": 5471.1104,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 168,
+      "name": "VehicleSpot254",
+      "x": 343904.2,
+      "y": 558028.4,
+      "z": 10340.365,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 169,
+      "name": "VehicleSpot255_1",
+      "x": 347700,
+      "y": 512890,
+      "z": 8370,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 170,
+      "name": "VehicleSpot256",
+      "x": 345940,
+      "y": 54665,
+      "z": 8363.883,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 171,
+      "name": "VehicleSpot257",
+      "x": 243901.36,
+      "y": 660269,
+      "z": 9713.148,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 172,
+      "name": "VehicleSpot258",
+      "x": 236161.6,
+      "y": 621197.2,
+      "z": 11535.973,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 173,
+      "name": "VehicleSpot259",
+      "x": 229933.19,
+      "y": 509285.38,
+      "z": 9122.943,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 174,
+      "name": "VehicleSpot260",
+      "x": 210027.19,
+      "y": 614101.4,
+      "z": 9462.522,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 175,
+      "name": "VehicleSpot261",
+      "x": 362938.2,
+      "y": 36203.375,
+      "z": 8676.302,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 176,
+      "name": "VehicleSpot262",
+      "x": 266748.2,
+      "y": 681172.4,
+      "z": 1114.1243,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 177,
+      "name": "VehicleSpot263",
+      "x": 296392.2,
+      "y": 670284.4,
+      "z": 4159.169,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 178,
+      "name": "VehicleSpot264",
+      "x": 321091.2,
+      "y": 671495.4,
+      "z": 5528.5635,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 179,
+      "name": "VehicleSpot265",
+      "x": 403184.2,
+      "y": 58229.375,
+      "z": 8454.302,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 180,
+      "name": "VehicleSpot266",
+      "x": 354699.97,
+      "y": 644289.3,
+      "z": 6825.3994,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 181,
+      "name": "VehicleSpot267",
+      "x": 397786.2,
+      "y": 648610.4,
+      "z": 6775.5435,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 182,
+      "name": "VehicleSpot268",
+      "x": 443321.2,
+      "y": 63295.375,
+      "z": 4868.8877,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 183,
+      "name": "VehicleSpot269",
+      "x": 361886.62,
+      "y": 670322.25,
+      "z": 1388.8828,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 184,
+      "name": "VehicleSpot26_47",
+      "x": 318536.2,
+      "y": 473610.38,
+      "z": 6913.799,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 185,
+      "name": "VehicleSpot270",
+      "x": 442891.62,
+      "y": 232132.25,
+      "z": 3209.285,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 186,
+      "name": "VehicleSpot271",
+      "x": 515512.2,
+      "y": 114350.375,
+      "z": 4534.7446,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 187,
+      "name": "VehicleSpot272",
+      "x": 538910.8,
+      "y": 126218.66,
+      "z": 5172.2534,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 188,
+      "name": "VehicleSpot273",
+      "x": 551459.6,
+      "y": 151135.97,
+      "z": 4824.0557,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 189,
+      "name": "VehicleSpot274",
+      "x": 497095.22,
+      "y": 172117.23,
+      "z": 8580.371,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 190,
+      "name": "VehicleSpot275",
+      "x": 524353.2,
+      "y": 200298.38,
+      "z": 6702.8193,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 191,
+      "name": "VehicleSpot276",
+      "x": 171971.19,
+      "y": 684951.4,
+      "z": 2839.127,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 192,
+      "name": "VehicleSpot277",
+      "x": 567614.2,
+      "y": 118514.375,
+      "z": 6366.1807,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 193,
+      "name": "VehicleSpot278",
+      "x": 600643.9,
+      "y": 133317.95,
+      "z": 8492.743,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 194,
+      "name": "VehicleSpot279",
+      "x": 545061.25,
+      "y": 74189.51,
+      "z": 7219.486,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 195,
+      "name": "VehicleSpot27_49",
+      "x": 340616.2,
+      "y": 455813.38,
+      "z": 5312.8735,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 196,
+      "name": "VehicleSpot280",
+      "x": 574768.2,
+      "y": 83976.375,
+      "z": 6729.389,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 197,
+      "name": "VehicleSpot281",
+      "x": 581300.2,
+      "y": 38009.375,
+      "z": 6405.983,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 198,
+      "name": "VehicleSpot282",
+      "x": 560446.2,
+      "y": 42797.375,
+      "z": 7027.0537,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 199,
+      "name": "VehicleSpot283",
+      "x": 606385.2,
+      "y": 43143.375,
+      "z": 5208.9956,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 200,
+      "name": "VehicleSpot284",
+      "x": 525324.2,
+      "y": 46504.375,
+      "z": 7643.835,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 201,
+      "name": "VehicleSpot285",
+      "x": 386087.44,
+      "y": 241118.6,
+      "z": 7804.413,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 202,
+      "name": "VehicleSpot286",
+      "x": 276884.2,
+      "y": 208105.38,
+      "z": 11096.148,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 203,
+      "name": "VehicleSpot287",
+      "x": 156701.19,
+      "y": 667801.4,
+      "z": 4857.0146,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 204,
+      "name": "VehicleSpot288",
+      "x": 550479.6,
+      "y": 164165.97,
+      "z": 4583.4478,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 205,
+      "name": "VehicleSpot289",
+      "x": 552974.2,
+      "y": 130184.375,
+      "z": 5356.9995,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 206,
+      "name": "VehicleSpot28_51",
+      "x": 367164.2,
+      "y": 432317.38,
+      "z": 4801.163,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 207,
+      "name": "VehicleSpot290",
+      "x": 479593.44,
+      "y": 260416.7,
+      "z": 2990.0732,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 208,
+      "name": "VehicleSpot291",
+      "x": 680893.2,
+      "y": 205495.38,
+      "z": 7966.966,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 209,
+      "name": "VehicleSpot292",
+      "x": 501130.2,
+      "y": 89832.375,
+      "z": 5358.2075,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 210,
+      "name": "VehicleSpot293",
+      "x": 545396.2,
+      "y": 262471.38,
+      "z": 4310.7324,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 211,
+      "name": "VehicleSpot294",
+      "x": 565779.7,
+      "y": 261824.03,
+      "z": 4751.9883,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 212,
+      "name": "VehicleSpot295",
+      "x": 594582.2,
+      "y": 258440.38,
+      "z": 5235.349,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 213,
+      "name": "VehicleSpot296",
+      "x": 563838.2,
+      "y": 288409.38,
+      "z": 12304.698,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 214,
+      "name": "VehicleSpot297",
+      "x": 559345.2,
+      "y": 411474.38,
+      "z": 5050.677,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 215,
+      "name": "VehicleSpot298",
+      "x": 686714.2,
+      "y": 248657.38,
+      "z": 12276.223,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 216,
+      "name": "VehicleSpot299",
+      "x": 542907.2,
+      "y": 441819.38,
+      "z": 7955.4185,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 217,
+      "name": "VehicleSpot29_53",
+      "x": 386561.2,
+      "y": 419480.38,
+      "z": 4553.1416,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 218,
+      "name": "VehicleSpot3",
+      "x": 198713.08,
+      "y": 418156.9,
+      "z": 6245.5244,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 219,
+      "name": "VehicleSpot300",
+      "x": 566781.6,
+      "y": 287872.25,
+      "z": 12179.826,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 220,
+      "name": "VehicleSpot301",
+      "x": 477071.62,
+      "y": 422097.25,
+      "z": 10028.596,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 221,
+      "name": "VehicleSpot302",
+      "x": 518726.62,
+      "y": 643042.25,
+      "z": 12696.258,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 222,
+      "name": "VehicleSpot303",
+      "x": 518230.2,
+      "y": 378606.38,
+      "z": 9800.19,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 223,
+      "name": "VehicleSpot304",
+      "x": 458821.62,
+      "y": 713707.25,
+      "z": -672.666,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 224,
+      "name": "VehicleSpot305",
+      "x": 705809.2,
+      "y": 148100.38,
+      "z": 11478.83,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 225,
+      "name": "VehicleSpot306",
+      "x": 518760.2,
+      "y": 482197.38,
+      "z": 14532.613,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 226,
+      "name": "VehicleSpot307",
+      "x": 693451.6,
+      "y": 161522.25,
+      "z": 10939.313,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 227,
+      "name": "VehicleSpot308",
+      "x": 492833.2,
+      "y": 475410.38,
+      "z": 16303.297,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 228,
+      "name": "VehicleSpot309",
+      "x": 503074.9,
+      "y": 411648.34,
+      "z": 8947.697,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 229,
+      "name": "VehicleSpot30_55",
+      "x": 412813.2,
+      "y": 382538.38,
+      "z": 4903.386,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 230,
+      "name": "VehicleSpot310",
+      "x": 764906.6,
+      "y": 296767.25,
+      "z": 947.501,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 231,
+      "name": "VehicleSpot311",
+      "x": 713746.6,
+      "y": 336867.25,
+      "z": 7737.496,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 232,
+      "name": "VehicleSpot312",
+      "x": 605096.6,
+      "y": 367242.25,
+      "z": 9735.108,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 233,
+      "name": "VehicleSpot313",
+      "x": 446687.2,
+      "y": 469739.38,
+      "z": 15461.539,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 234,
+      "name": "VehicleSpot314",
+      "x": 188847.62,
+      "y": 773501.25,
+      "z": 1228.2529,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 235,
+      "name": "VehicleSpot315",
+      "x": 429810.2,
+      "y": 449456.38,
+      "z": 9914.451,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 236,
+      "name": "VehicleSpot316",
+      "x": 687832.2,
+      "y": 169671.38,
+      "z": 10155.431,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 237,
+      "name": "VehicleSpot317",
+      "x": 283562.62,
+      "y": 646741.25,
+      "z": 5819.927,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 238,
+      "name": "VehicleSpot318",
+      "x": 429381.97,
+      "y": 411774.9,
+      "z": 10804.143,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 239,
+      "name": "VehicleSpot319",
+      "x": 498862.2,
+      "y": 374360.38,
+      "z": 10136.008,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 240,
+      "name": "VehicleSpot31_57",
+      "x": 427247.2,
+      "y": 341030.38,
+      "z": 3410.9663,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 241,
+      "name": "VehicleSpot320",
+      "x": 438674.06,
+      "y": 390658.44,
+      "z": 7717.6167,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 242,
+      "name": "VehicleSpot321",
+      "x": 586872.2,
+      "y": 494083.38,
+      "z": 7927.6997,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 243,
+      "name": "VehicleSpot322",
+      "x": 519140,
+      "y": 681126.9,
+      "z": 5528.299,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 244,
+      "name": "VehicleSpot323",
+      "x": 642957.5,
+      "y": 557585.06,
+      "z": 255.18298,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 245,
+      "name": "VehicleSpot324",
+      "x": 564023.2,
+      "y": 504892.38,
+      "z": 10490.8125,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 246,
+      "name": "VehicleSpot325",
+      "x": 543998.2,
+      "y": 497242.38,
+      "z": 11678.493,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 247,
+      "name": "VehicleSpot326",
+      "x": 544098.25,
+      "y": 525845.94,
+      "z": 13620.198,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 248,
+      "name": "VehicleSpot327",
+      "x": 522072.7,
+      "y": 514711.6,
+      "z": 17365.076,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 249,
+      "name": "VehicleSpot328",
+      "x": 518523.28,
+      "y": 591723.5,
+      "z": 18010.82,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 250,
+      "name": "VehicleSpot329",
+      "x": 533992.2,
+      "y": 603272.4,
+      "z": 15994.885,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 251,
+      "name": "VehicleSpot32_59",
+      "x": 468613,
+      "y": 311375.06,
+      "z": 4016.3887,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 252,
+      "name": "VehicleSpot330",
+      "x": 458215.1,
+      "y": 601669.9,
+      "z": 16945.6,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 253,
+      "name": "VehicleSpot331",
+      "x": 445531.97,
+      "y": 573101.3,
+      "z": 18913.947,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 254,
+      "name": "VehicleSpot332",
+      "x": 475406.03,
+      "y": 583495.4,
+      "z": 19551.564,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 255,
+      "name": "VehicleSpot333",
+      "x": 440439.88,
+      "y": 619900.2,
+      "z": 16234.6045,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 256,
+      "name": "VehicleSpot334",
+      "x": 461761.97,
+      "y": 571501.3,
+      "z": 19685.969,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 257,
+      "name": "VehicleSpot335",
+      "x": 36435.61,
+      "y": 203636.28,
+      "z": 12267.559,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 258,
+      "name": "VehicleSpot336",
+      "x": 388171.2,
+      "y": 620946.4,
+      "z": 9296.978,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 259,
+      "name": "VehicleSpot337",
+      "x": 443689.2,
+      "y": 599632.4,
+      "z": 16476.68,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 260,
+      "name": "VehicleSpot338",
+      "x": 476488.47,
+      "y": 630227.75,
+      "z": 13649.008,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 261,
+      "name": "VehicleSpot339",
+      "x": 483588.2,
+      "y": 638416.4,
+      "z": 12539.104,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 262,
+      "name": "VehicleSpot33_61",
+      "x": 482205.8,
+      "y": 301549.12,
+      "z": 3879.9521,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 263,
+      "name": "VehicleSpot340",
+      "x": 122702.61,
+      "y": 211456.28,
+      "z": 12201.051,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 264,
+      "name": "VehicleSpot341",
+      "x": 150157.61,
+      "y": 330956.28,
+      "z": 12456.444,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 265,
+      "name": "VehicleSpot342",
+      "x": 480285.2,
+      "y": 662068.4,
+      "z": 9093.281,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 266,
+      "name": "VehicleSpot343",
+      "x": 501616.2,
+      "y": 706963.4,
+      "z": 190.95789,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 267,
+      "name": "VehicleSpot344",
+      "x": 428082.6,
+      "y": 711815.94,
+      "z": -497.407,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 268,
+      "name": "VehicleSpot345",
+      "x": 620997.8,
+      "y": 507034.62,
+      "z": 6116.41,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 269,
+      "name": "VehicleSpot346",
+      "x": 466476.2,
+      "y": 714413.4,
+      "z": -643.09863,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 270,
+      "name": "VehicleSpot347",
+      "x": 215252.62,
+      "y": 714416.25,
+      "z": 502.21094,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 271,
+      "name": "VehicleSpot348",
+      "x": 104002.625,
+      "y": 673371.25,
+      "z": 10706.982,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 272,
+      "name": "VehicleSpot349",
+      "x": 518196.2,
+      "y": 628689.4,
+      "z": 14946.363,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 273,
+      "name": "VehicleSpot34_63",
+      "x": 501841.2,
+      "y": 274386.38,
+      "z": 3846.4683,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 274,
+      "name": "VehicleSpot35",
+      "x": 383281.2,
+      "y": 431135.38,
+      "z": 4781.242,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 275,
+      "name": "VehicleSpot350",
+      "x": 299962.62,
+      "y": 737921.25,
+      "z": -68.086914,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 276,
+      "name": "VehicleSpot351",
+      "x": 427610.8,
+      "y": 279662.5,
+      "z": 4431.757,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 277,
+      "name": "VehicleSpot352",
+      "x": 559713.2,
+      "y": 618322.4,
+      "z": 11225.718,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 278,
+      "name": "VehicleSpot353",
+      "x": 401973.8,
+      "y": 297407.5,
+      "z": 6920.466,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 279,
+      "name": "VehicleSpot354",
+      "x": 598540.4,
+      "y": 633727.7,
+      "z": 2454.543,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 280,
+      "name": "VehicleSpot355",
+      "x": 592232.94,
+      "y": 669095.5,
+      "z": 254.63171,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 281,
+      "name": "VehicleSpot356",
+      "x": 783177.6,
+      "y": 329771.25,
+      "z": -988.3301,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 282,
+      "name": "VehicleSpot357",
+      "x": 584470.5,
+      "y": 684172.06,
+      "z": 857.2925,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 283,
+      "name": "VehicleSpot358",
+      "x": 487719.22,
+      "y": 332197.03,
+      "z": 4956.8726,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 284,
+      "name": "VehicleSpot359",
+      "x": 416862.62,
+      "y": 711001.25,
+      "z": 18.05664,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 285,
+      "name": "VehicleSpot360",
+      "x": 456125.16,
+      "y": 520749,
+      "z": 19460.871,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 286,
+      "name": "VehicleSpot361",
+      "x": 518826.4,
+      "y": 697453.8,
+      "z": 1746.927,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 287,
+      "name": "VehicleSpot362",
+      "x": 521089.4,
+      "y": 676713.8,
+      "z": 6974.8457,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 288,
+      "name": "VehicleSpot363",
+      "x": 562012.6,
+      "y": 619556.25,
+      "z": 10774.66,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 289,
+      "name": "VehicleSpot364",
+      "x": 641107.6,
+      "y": 572916.25,
+      "z": 376.14258,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 290,
+      "name": "VehicleSpot365",
+      "x": 509745.97,
+      "y": 230343.66,
+      "z": 6567.13,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 291,
+      "name": "VehicleSpot366",
+      "x": 527785.7,
+      "y": 653516.9,
+      "z": 10722.668,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 292,
+      "name": "VehicleSpot367",
+      "x": 705197.6,
+      "y": 261191.25,
+      "z": 11111.957,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 293,
+      "name": "VehicleSpot368",
+      "x": 721857.6,
+      "y": 137241.28,
+      "z": 8772.133,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 294,
+      "name": "VehicleSpot369",
+      "x": 494697.62,
+      "y": 66916.28,
+      "z": 6994.6445,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 295,
+      "name": "VehicleSpot36_67",
+      "x": 501364.16,
+      "y": 250765.81,
+      "z": 4492.082,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 296,
+      "name": "VehicleSpot370",
+      "x": 633721.8,
+      "y": 171837.48,
+      "z": 5967.6675,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 297,
+      "name": "VehicleSpot371",
+      "x": 661726.2,
+      "y": 128589.375,
+      "z": 4171.924,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 298,
+      "name": "VehicleSpot372",
+      "x": 329851.06,
+      "y": 57811.28,
+      "z": 7756.5186,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 299,
+      "name": "VehicleSpot373",
+      "x": 646974.1,
+      "y": 62588.355,
+      "z": 6405.542,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 300,
+      "name": "VehicleSpot375",
+      "x": 480591.06,
+      "y": 715546.25,
+      "z": -693.7744,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 301,
+      "name": "VehicleSpot376",
+      "x": 171947.62,
+      "y": 463926.28,
+      "z": 6490.0674,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 302,
+      "name": "VehicleSpot377",
+      "x": 623884.2,
+      "y": 233793.33,
+      "z": 6850.3027,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 303,
+      "name": "VehicleSpot378",
+      "x": 707081.94,
+      "y": 290983.38,
+      "z": 8890.878,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 304,
+      "name": "VehicleSpot379",
+      "x": 701962.2,
+      "y": 351390.38,
+      "z": 7329.499,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 305,
+      "name": "VehicleSpot37_69",
+      "x": 627097.2,
+      "y": 262682.38,
+      "z": 5792.1855,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 306,
+      "name": "VehicleSpot380",
+      "x": 677259.2,
+      "y": 359835.38,
+      "z": 8151.809,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 307,
+      "name": "VehicleSpot381",
+      "x": 637458.4,
+      "y": 390232.75,
+      "z": 3880.9531,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 308,
+      "name": "VehicleSpot382",
+      "x": 654617,
+      "y": 348567.3,
+      "z": 9093.341,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 309,
+      "name": "VehicleSpot383",
+      "x": 167317.61,
+      "y": 156521.28,
+      "z": 5797.2026,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 310,
+      "name": "VehicleSpot384",
+      "x": 736422.6,
+      "y": 541516.25,
+      "z": 843.0093,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 311,
+      "name": "VehicleSpot385_13",
+      "x": 443211.2,
+      "y": 547944,
+      "z": 19607.857,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 312,
+      "name": "VehicleSpot386",
+      "x": 629520.94,
+      "y": 314148,
+      "z": 9776.648,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 313,
+      "name": "VehicleSpot387_15",
+      "x": 484170.84,
+      "y": 566703.56,
+      "z": 19701.531,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 314,
+      "name": "VehicleSpot388",
+      "x": 444263.2,
+      "y": 536968,
+      "z": 19624.99,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 315,
+      "name": "VehicleSpot389",
+      "x": 663636.25,
+      "y": 314557.72,
+      "z": 12856.556,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 316,
+      "name": "VehicleSpot38_71",
+      "x": 664728.2,
+      "y": 270051.38,
+      "z": 6349.7793,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 317,
+      "name": "VehicleSpot39",
+      "x": 657098.2,
+      "y": 266861.38,
+      "z": 5856.8,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 318,
+      "name": "VehicleSpot390",
+      "x": 714217.44,
+      "y": 328843.78,
+      "z": 7931.384,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 319,
+      "name": "VehicleSpot391",
+      "x": 663347.2,
+      "y": 442894.38,
+      "z": 5174.5493,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 320,
+      "name": "VehicleSpot392",
+      "x": 650881.2,
+      "y": 444312.38,
+      "z": 5328.093,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 321,
+      "name": "VehicleSpot393",
+      "x": 675225.94,
+      "y": 464611.53,
+      "z": 3790.5698,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 322,
+      "name": "VehicleSpot394",
+      "x": 736682.6,
+      "y": 481071.25,
+      "z": -578.7461,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 323,
+      "name": "VehicleSpot395",
+      "x": 653226.2,
+      "y": 505737.38,
+      "z": 3547.1602,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 324,
+      "name": "VehicleSpot396",
+      "x": 638566.1,
+      "y": 518534.25,
+      "z": 3477.9438,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 325,
+      "name": "VehicleSpot397",
+      "x": 619619.2,
+      "y": 483192.38,
+      "z": 7350.4414,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 326,
+      "name": "VehicleSpot398",
+      "x": 219327.62,
+      "y": 591931.25,
+      "z": 17308.32,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 327,
+      "name": "VehicleSpot399",
+      "x": 633980.06,
+      "y": 449755.25,
+      "z": 5637.257,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 328,
+      "name": "VehicleSpot4",
+      "x": 176162.61,
+      "y": 389946.28,
+      "z": 7293.524,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 329,
+      "name": "VehicleSpot40",
+      "x": 620143.6,
+      "y": 470030.28,
+      "z": 7529.896,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 330,
+      "name": "VehicleSpot400",
+      "x": 623042.2,
+      "y": 631388.4,
+      "z": -1393.001,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 331,
+      "name": "VehicleSpot401",
+      "x": 624600.06,
+      "y": 460945.25,
+      "z": 7398.13,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 332,
+      "name": "VehicleSpot402",
+      "x": 443370.62,
+      "y": 670294.25,
+      "z": 8569.272,
+      "categories": [
+        "Esports2"
+      ]
+    },
+    {
+      "id": 333,
+      "name": "VehicleSpot403",
+      "x": 270797.2,
+      "y": 729930.4,
+      "z": -494.50537,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 334,
+      "name": "VehicleSpot404",
+      "x": 256167.19,
+      "y": 728760.4,
+      "z": -953.5747,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 335,
+      "name": "VehicleSpot405",
+      "x": 161601.53,
+      "y": 787134.56,
+      "z": 2424.9277,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 336,
+      "name": "VehicleSpot406",
+      "x": 132344.19,
+      "y": 770754.4,
+      "z": 2326.9565,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 337,
+      "name": "VehicleSpot407",
+      "x": 98918.586,
+      "y": 725033.75,
+      "z": 5094.583,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 338,
+      "name": "VehicleSpot408",
+      "x": 624001.2,
+      "y": 613155.4,
+      "z": 432.2882,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 339,
+      "name": "VehicleSpot409",
+      "x": 84168.52,
+      "y": 701707,
+      "z": 5782.073,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 340,
+      "name": "VehicleSpot41",
+      "x": 626075.6,
+      "y": 610923.25,
+      "z": 460.2207,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 341,
+      "name": "VehicleSpot410",
+      "x": 98879.19,
+      "y": 676079.4,
+      "z": 10943.596,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 342,
+      "name": "VehicleSpot411",
+      "x": 136220.19,
+      "y": 646193.4,
+      "z": 3513.7544,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 343,
+      "name": "VehicleSpot412",
+      "x": 468589.2,
+      "y": 674059.4,
+      "z": 7947.6025,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 344,
+      "name": "VehicleSpot413",
+      "x": 644950,
+      "y": 457400,
+      "z": 7873.047,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 345,
+      "name": "VehicleSpot414",
+      "x": 291035.2,
+      "y": 532878.4,
+      "z": 11208.068,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 346,
+      "name": "VehicleSpot415",
+      "x": 315542.2,
+      "y": 734549.4,
+      "z": 699.27966,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 347,
+      "name": "VehicleSpot416",
+      "x": 360825.2,
+      "y": 719965.4,
+      "z": -151.52385,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 348,
+      "name": "VehicleSpot418",
+      "x": 736315.56,
+      "y": 104714.336,
+      "z": 4801.1904,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 349,
+      "name": "VehicleSpot419",
+      "x": 300355.2,
+      "y": 541978.4,
+      "z": 11212.819,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 350,
+      "name": "VehicleSpot420",
+      "x": 235687.19,
+      "y": 722270.4,
+      "z": -609.0168,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 351,
+      "name": "VehicleSpot421",
+      "x": 614961.2,
+      "y": 622625.4,
+      "z": 521.2461,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 352,
+      "name": "VehicleSpot422",
+      "x": 554666.56,
+      "y": 311119.34,
+      "z": 13954.213,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 353,
+      "name": "VehicleSpot423",
+      "x": 694116.56,
+      "y": 86945.336,
+      "z": 6160.953,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 354,
+      "name": "VehicleSpot424",
+      "x": 158877.44,
+      "y": 798619,
+      "z": -1450,
+      "categories": [
+        "Water_Ferry"
+      ]
+    },
+    {
+      "id": 355,
+      "name": "VehicleSpot425",
+      "x": 223203.25,
+      "y": 764665,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 356,
+      "name": "VehicleSpot426",
+      "x": 706881.7,
+      "y": 551731.4,
+      "z": -1450,
+      "categories": [
+        "Water_Ferry"
+      ]
+    },
+    {
+      "id": 357,
+      "name": "VehicleSpot427",
+      "x": 303681.44,
+      "y": 764599.8,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 358,
+      "name": "VehicleSpot428",
+      "x": 644687.7,
+      "y": 626747.3,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 359,
+      "name": "VehicleSpot429",
+      "x": 60787.875,
+      "y": 675215.06,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 360,
+      "name": "VehicleSpot42_79",
+      "x": 679068.2,
+      "y": 404968.38,
+      "z": 2067.967,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 361,
+      "name": "VehicleSpot430",
+      "x": 605478.8,
+      "y": 670190.75,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 362,
+      "name": "VehicleSpot431",
+      "x": 579722.06,
+      "y": 704602.2,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 363,
+      "name": "VehicleSpot432",
+      "x": 529672.7,
+      "y": 711929.6,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 364,
+      "name": "VehicleSpot433",
+      "x": 665408.56,
+      "y": 74578.336,
+      "z": 6058.7905,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 365,
+      "name": "VehicleSpot434",
+      "x": 500161.5,
+      "y": 717151.1,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 366,
+      "name": "VehicleSpot435",
+      "x": 679452.6,
+      "y": 218181.28,
+      "z": 8555.885,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 367,
+      "name": "VehicleSpot436",
+      "x": 439616.84,
+      "y": 720730.2,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 368,
+      "name": "VehicleSpot437",
+      "x": 711794,
+      "y": 495047,
+      "z": -1450,
+      "categories": [
+        "Water_Ferry"
+      ]
+    },
+    {
+      "id": 369,
+      "name": "VehicleSpot438",
+      "x": 375153.28,
+      "y": 753679.1,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 370,
+      "name": "VehicleSpot439",
+      "x": 349835.47,
+      "y": 712825.44,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 371,
+      "name": "VehicleSpot43_81",
+      "x": 634811.2,
+      "y": 472378.38,
+      "z": 8259.284,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 372,
+      "name": "VehicleSpot440",
+      "x": 375761.38,
+      "y": 690876.9,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 373,
+      "name": "VehicleSpot441",
+      "x": 356553.2,
+      "y": 690340.4,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 374,
+      "name": "VehicleSpot442",
+      "x": 669373.2,
+      "y": 510876.88,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 375,
+      "name": "VehicleSpot443",
+      "x": 324555.47,
+      "y": 766260.5,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 376,
+      "name": "VehicleSpot444",
+      "x": 309654.2,
+      "y": 722704.4,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 377,
+      "name": "VehicleSpot445",
+      "x": 119576.625,
+      "y": 634466.25,
+      "z": -957,
+      "categories": [
+        "EsportsWater"
+      ]
+    },
+    {
+      "id": 378,
+      "name": "VehicleSpot446",
+      "x": 299012.06,
+      "y": 692043.2,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 379,
+      "name": "VehicleSpot447",
+      "x": 343005.38,
+      "y": 775542.44,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 380,
+      "name": "VehicleSpot448",
+      "x": 246942.62,
+      "y": 714835.25,
+      "z": -1000,
+      "categories": [
+        "EsportsWater"
+      ]
+    },
+    {
+      "id": 381,
+      "name": "VehicleSpot449",
+      "x": 756539.94,
+      "y": 518924.2,
+      "z": -1450,
+      "categories": [
+        "Water_Ferry"
+      ]
+    },
+    {
+      "id": 382,
+      "name": "VehicleSpot44_5",
+      "x": 463833.62,
+      "y": 540612.25,
+      "z": 19820.02,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 383,
+      "name": "VehicleSpot450",
+      "x": 628926,
+      "y": 643682.4,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 384,
+      "name": "VehicleSpot451",
+      "x": 104660.625,
+      "y": 766999.25,
+      "z": -1000,
+      "categories": [
+        "EsportsWater"
+      ]
+    },
+    {
+      "id": 385,
+      "name": "VehicleSpot452",
+      "x": 306431.62,
+      "y": 691237.25,
+      "z": -1000,
+      "categories": [
+        "EsportsWater"
+      ]
+    },
+    {
+      "id": 386,
+      "name": "VehicleSpot453",
+      "x": 212467.06,
+      "y": 684991.94,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 387,
+      "name": "VehicleSpot454",
+      "x": 178097.36,
+      "y": 625131,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 388,
+      "name": "VehicleSpot455",
+      "x": 407938.62,
+      "y": 715984.25,
+      "z": -1000,
+      "categories": [
+        "EsportsWater"
+      ]
+    },
+    {
+      "id": 389,
+      "name": "VehicleSpot456",
+      "x": 261393.88,
+      "y": 714378.1,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 390,
+      "name": "VehicleSpot458",
+      "x": 132252.42,
+      "y": 627944.9,
+      "z": -1553,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 391,
+      "name": "VehicleSpot459",
+      "x": 156825.89,
+      "y": 608923.06,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 392,
+      "name": "VehicleSpot45_85",
+      "x": 641286.3,
+      "y": 579225.4,
+      "z": 91.563354,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 393,
+      "name": "VehicleSpot46",
+      "x": 360816.62,
+      "y": 423008.25,
+      "z": 5481.073,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 394,
+      "name": "VehicleSpot460",
+      "x": 464250.66,
+      "y": 721189.5,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 395,
+      "name": "VehicleSpot461",
+      "x": 240963,
+      "y": 701258.1,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 396,
+      "name": "VehicleSpot462",
+      "x": 249933.66,
+      "y": 765970.9,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 397,
+      "name": "VehicleSpot463",
+      "x": 278929.56,
+      "y": 758033.4,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 398,
+      "name": "VehicleSpot465",
+      "x": 272166.56,
+      "y": 697018.9,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 399,
+      "name": "VehicleSpot466",
+      "x": 660676.44,
+      "y": 526610.7,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 400,
+      "name": "VehicleSpot467",
+      "x": 45537.688,
+      "y": 689222.3,
+      "z": -1450,
+      "categories": [
+        "Water_Ferry"
+      ]
+    },
+    {
+      "id": 401,
+      "name": "VehicleSpot468",
+      "x": 199667.95,
+      "y": 778566.3,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 402,
+      "name": "VehicleSpot469",
+      "x": 134442.12,
+      "y": 795442.1,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 403,
+      "name": "VehicleSpot470",
+      "x": 91767.625,
+      "y": 759983.5,
+      "z": -1500,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 404,
+      "name": "VehicleSpot471",
+      "x": 634514.6,
+      "y": 642270.25,
+      "z": -1000,
+      "categories": [
+        "EsportsWater"
+      ]
+    },
+    {
+      "id": 405,
+      "name": "VehicleSpot472",
+      "x": 653344.5,
+      "y": 598040.56,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 406,
+      "name": "VehicleSpot473",
+      "x": 689301.7,
+      "y": 456276.2,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 407,
+      "name": "VehicleSpot474",
+      "x": 361873.62,
+      "y": 768590.25,
+      "z": -1000,
+      "categories": [
+        "EsportsWater"
+      ]
+    },
+    {
+      "id": 408,
+      "name": "VehicleSpot475",
+      "x": 692250.94,
+      "y": 418752.28,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 409,
+      "name": "VehicleSpot476",
+      "x": 701358.1,
+      "y": 396935.78,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 410,
+      "name": "VehicleSpot477",
+      "x": 770228.06,
+      "y": 333856.5,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 411,
+      "name": "VehicleSpot478_1",
+      "x": 651663.8,
+      "y": 573388.8,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 412,
+      "name": "VehicleSpot479",
+      "x": 761668.2,
+      "y": 344122.34,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 413,
+      "name": "VehicleSpot47_7",
+      "x": 394548.62,
+      "y": 301458.25,
+      "z": 6983.2188,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 414,
+      "name": "VehicleSpot480",
+      "x": 652001.6,
+      "y": 552119.25,
+      "z": -1000,
+      "categories": [
+        "EsportsWater"
+      ]
+    },
+    {
+      "id": 415,
+      "name": "VehicleSpot481",
+      "x": 560555.6,
+      "y": 707965.94,
+      "z": -1450,
+      "categories": [
+        "Water"
+      ]
+    },
+    {
+      "id": 416,
+      "name": "VehicleSpot482",
+      "x": 694329.6,
+      "y": 406562.25,
+      "z": -1000,
+      "categories": [
+        "EsportsWater"
+      ]
+    },
+    {
+      "id": 417,
+      "name": "VehicleSpot483",
+      "x": 725604.1,
+      "y": 471543.75,
+      "z": -1450,
+      "categories": [
+        "Water_Ferry"
+      ]
+    },
+    {
+      "id": 418,
+      "name": "VehicleSpot484",
+      "x": 693338.9,
+      "y": 563532,
+      "z": -1450,
+      "categories": [
+        "Water_Ferry"
+      ]
+    },
+    {
+      "id": 419,
+      "name": "VehicleSpot485",
+      "x": 126522.19,
+      "y": 235046.38,
+      "z": 11240.1045,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 420,
+      "name": "VehicleSpot486",
+      "x": 180268.28,
+      "y": 290509.06,
+      "z": 8616.826,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 421,
+      "name": "VehicleSpot487",
+      "x": 179396.19,
+      "y": 266057.38,
+      "z": 9231.239,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 422,
+      "name": "VehicleSpot488",
+      "x": 96907.19,
+      "y": 316533.38,
+      "z": 12077.689,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 423,
+      "name": "VehicleSpot489",
+      "x": 161010.77,
+      "y": 283512.12,
+      "z": 9171.853,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 424,
+      "name": "VehicleSpot48_91",
+      "x": 561907.2,
+      "y": 686033.4,
+      "z": 2219.4326,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 425,
+      "name": "VehicleSpot49",
+      "x": 253032.62,
+      "y": 142101.25,
+      "z": 5133.665,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 426,
+      "name": "VehicleSpot490",
+      "x": 171045.19,
+      "y": 301502.38,
+      "z": 9196.257,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 427,
+      "name": "VehicleSpot491",
+      "x": 215065.19,
+      "y": 288232.38,
+      "z": 9174.339,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 428,
+      "name": "VehicleSpot492",
+      "x": 196157.19,
+      "y": 296856.38,
+      "z": 8349.677,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 429,
+      "name": "VehicleSpot493",
+      "x": 322682.6,
+      "y": 343705.75,
+      "z": 13646.071,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 430,
+      "name": "VehicleSpot494",
+      "x": 481412.16,
+      "y": 534351.2,
+      "z": 19671.154,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 431,
+      "name": "VehicleSpot495",
+      "x": 83398.19,
+      "y": 202974.38,
+      "z": 11740.496,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 432,
+      "name": "VehicleSpot496",
+      "x": 507822.2,
+      "y": 535079.4,
+      "z": 19772.191,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 433,
+      "name": "VehicleSpot497",
+      "x": 499621.2,
+      "y": 560897.4,
+      "z": 19785.12,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 434,
+      "name": "VehicleSpot498",
+      "x": 432106.2,
+      "y": 562519.4,
+      "z": 16438.752,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 435,
+      "name": "VehicleSpot499",
+      "x": 471756.2,
+      "y": 501559.38,
+      "z": 18191.787,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 436,
+      "name": "VehicleSpot5",
+      "x": 110813.19,
+      "y": 445588.22,
+      "z": 7372.504,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 437,
+      "name": "VehicleSpot500",
+      "x": 490554.72,
+      "y": 552238.9,
+      "z": 19813.217,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 438,
+      "name": "VehicleSpot501",
+      "x": 209759.19,
+      "y": 117919.375,
+      "z": 4319.2607,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 439,
+      "name": "VehicleSpot502",
+      "x": 135128.19,
+      "y": 277894.38,
+      "z": 9483.967,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 440,
+      "name": "VehicleSpot503",
+      "x": 181615.19,
+      "y": 296574.38,
+      "z": 8928.81,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 441,
+      "name": "VehicleSpot504",
+      "x": 464641.2,
+      "y": 549687.4,
+      "z": 19764.17,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 442,
+      "name": "VehicleSpot505",
+      "x": 78742.19,
+      "y": 300925.38,
+      "z": 10653.646,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 443,
+      "name": "VehicleSpot506",
+      "x": 56321.188,
+      "y": 282415.38,
+      "z": 8240.691,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 444,
+      "name": "VehicleSpot507",
+      "x": 36306.188,
+      "y": 230979.38,
+      "z": 10934.273,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 445,
+      "name": "VehicleSpot508",
+      "x": 39311.188,
+      "y": 193133.38,
+      "z": 12570.052,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 446,
+      "name": "VehicleSpot509",
+      "x": 96499.19,
+      "y": 228660.38,
+      "z": 12214.852,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 447,
+      "name": "VehicleSpot50_95",
+      "x": 503446.06,
+      "y": 641113.75,
+      "z": 11320.982,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 448,
+      "name": "VehicleSpot510",
+      "x": 76304.19,
+      "y": 95314.375,
+      "z": 14340.983,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 449,
+      "name": "VehicleSpot511",
+      "x": 115077.19,
+      "y": 86897.375,
+      "z": 8684.988,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 450,
+      "name": "VehicleSpot512",
+      "x": 57741.188,
+      "y": 119833.375,
+      "z": 15133.105,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 451,
+      "name": "VehicleSpot513",
+      "x": 121107.19,
+      "y": 249325.38,
+      "z": 11286.437,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 452,
+      "name": "VehicleSpot514",
+      "x": 45379.188,
+      "y": 313743.38,
+      "z": 7438.2617,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 453,
+      "name": "VehicleSpot515",
+      "x": 107457.625,
+      "y": 555171.25,
+      "z": 11665.63,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 454,
+      "name": "VehicleSpot516",
+      "x": 779453.6,
+      "y": 344403.25,
+      "z": -1000,
+      "categories": [
+        "EsportsWater"
+      ]
+    },
+    {
+      "id": 455,
+      "name": "VehicleSpot517",
+      "x": 374878.62,
+      "y": 658467.25,
+      "z": 5082.7617,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 456,
+      "name": "VehicleSpot518",
+      "x": 419612.62,
+      "y": 53496.28,
+      "z": 6258.874,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 457,
+      "name": "VehicleSpot519",
+      "x": 202192.62,
+      "y": 111261.28,
+      "z": 5054.336,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 458,
+      "name": "VehicleSpot51_97",
+      "x": 505130.7,
+      "y": 580534.4,
+      "z": 19617.219,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 459,
+      "name": "VehicleSpot520",
+      "x": 55001.062,
+      "y": 286006.28,
+      "z": 8342.498,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 460,
+      "name": "VehicleSpot521",
+      "x": 155491.06,
+      "y": 669306.25,
+      "z": 4865.6953,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 461,
+      "name": "VehicleSpot522",
+      "x": 94322.625,
+      "y": 619461.25,
+      "z": 1968.4932,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 462,
+      "name": "VehicleSpot523",
+      "x": 101082.625,
+      "y": 743781.25,
+      "z": 3529.5654,
+      "categories": [
+        "Motorglider"
+      ],
+      "crCategories": [
+        "Sky"
+      ]
+    },
+    {
+      "id": 463,
+      "name": "VehicleSpot524",
+      "x": 498113.2,
+      "y": 623299.7,
+      "z": 12735.744,
+      "categories": [
+        "Hacienda_GoldMirado"
+      ]
+    },
+    {
+      "id": 464,
+      "name": "VehicleSpot525",
+      "x": 440351.4,
+      "y": 280638.12,
+      "z": 5036.076,
+      "categories": [
+        "Hacienda_GoldMirado"
+      ]
+    },
+    {
+      "id": 465,
+      "name": "VehicleSpot526_1",
+      "x": 375130,
+      "y": 57330,
+      "z": 8617.969,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 466,
+      "name": "VehicleSpot527",
+      "x": 310302.2,
+      "y": 483621.38,
+      "z": 7365.2207,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 467,
+      "name": "VehicleSpot528",
+      "x": 327116.88,
+      "y": 496315.2,
+      "z": 6662.715,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 468,
+      "name": "VehicleSpot529",
+      "x": 70585.19,
+      "y": 235084.38,
+      "z": 13562.533,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 469,
+      "name": "VehicleSpot52_99",
+      "x": 465399.2,
+      "y": 620702.4,
+      "z": 14453.977,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 470,
+      "name": "VehicleSpot53",
+      "x": 91686.625,
+      "y": 220937.25,
+      "z": 12219.534,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 471,
+      "name": "VehicleSpot530",
+      "x": 81025.19,
+      "y": 175034.38,
+      "z": 11274.326,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 472,
+      "name": "VehicleSpot531",
+      "x": 99935.19,
+      "y": 151294.38,
+      "z": 10479.875,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 473,
+      "name": "VehicleSpot532",
+      "x": 126345.19,
+      "y": 163155.38,
+      "z": 9326.838,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 474,
+      "name": "VehicleSpot533",
+      "x": 457334.2,
+      "y": 681712.4,
+      "z": 7772.4297,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 475,
+      "name": "VehicleSpot534",
+      "x": 378570.2,
+      "y": 741380.4,
+      "z": -964.02386,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 476,
+      "name": "VehicleSpot536",
+      "x": 349170.2,
+      "y": 753785.4,
+      "z": -1209.1416,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 477,
+      "name": "VehicleSpot537",
+      "x": 318635.2,
+      "y": 756095.4,
+      "z": -1200.2622,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 478,
+      "name": "VehicleSpot538",
+      "x": 343680.2,
+      "y": 770975.4,
+      "z": -1322.8704,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 479,
+      "name": "VehicleSpot539",
+      "x": 344925.2,
+      "y": 739950.4,
+      "z": -974.3706,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 480,
+      "name": "VehicleSpot540",
+      "x": 292710.2,
+      "y": 757785.4,
+      "z": -1212.6553,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 481,
+      "name": "VehicleSpot541",
+      "x": 262050.19,
+      "y": 756710.4,
+      "z": -1064.4258,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 482,
+      "name": "VehicleSpot542",
+      "x": 230570.19,
+      "y": 753080.4,
+      "z": -1298.4136,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 483,
+      "name": "VehicleSpot543",
+      "x": 117073.586,
+      "y": 711743.75,
+      "z": 10544.157,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 484,
+      "name": "VehicleSpot544",
+      "x": 132478.6,
+      "y": 702763.75,
+      "z": 10693.345,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 485,
+      "name": "VehicleSpot545",
+      "x": 155923.6,
+      "y": 686798.75,
+      "z": 6540.5557,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 486,
+      "name": "VehicleSpot54_103",
+      "x": 423424.2,
+      "y": 676682.4,
+      "z": 7437.911,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 487,
+      "name": "VehicleSpot55_105",
+      "x": 400346.1,
+      "y": 703423.5,
+      "z": -325.07397,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 488,
+      "name": "VehicleSpot56_10",
+      "x": 156338.62,
+      "y": 305375.25,
+      "z": 10367.816,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 489,
+      "name": "VehicleSpot57_109",
+      "x": 359009.2,
+      "y": 670113.4,
+      "z": 1333.4982,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 490,
+      "name": "VehicleSpot58_11",
+      "x": 208757.62,
+      "y": 409378.25,
+      "z": 6165.6895,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 491,
+      "name": "VehicleSpot59_113",
+      "x": 292551.6,
+      "y": 631455.1,
+      "z": 6610.873,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 492,
+      "name": "VehicleSpot6",
+      "x": 98827.19,
+      "y": 484771.34,
+      "z": 11008.07,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 493,
+      "name": "VehicleSpot60",
+      "x": 149079.62,
+      "y": 596571.25,
+      "z": 754.5338,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 494,
+      "name": "VehicleSpot61_117",
+      "x": 189851.86,
+      "y": 607765.3,
+      "z": 2820.5435,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 495,
+      "name": "VehicleSpot62_119",
+      "x": 209325.19,
+      "y": 563805.4,
+      "z": 7217.117,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 496,
+      "name": "VehicleSpot63_28",
+      "x": 587050.6,
+      "y": 84186.28,
+      "z": 6513.6436,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 497,
+      "name": "VehicleSpot64_123",
+      "x": 256780.19,
+      "y": 515104.38,
+      "z": 13294.002,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 498,
+      "name": "VehicleSpot65_125",
+      "x": 281378.2,
+      "y": 477750.97,
+      "z": 8728.836,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 499,
+      "name": "VehicleSpot66",
+      "x": 272960.2,
+      "y": 524407.4,
+      "z": 11361.586,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 500,
+      "name": "VehicleSpot67_129",
+      "x": 284975.2,
+      "y": 451222.38,
+      "z": 5848.331,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 501,
+      "name": "VehicleSpot68_30",
+      "x": 552252.6,
+      "y": 140930.28,
+      "z": 5025.3086,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 502,
+      "name": "VehicleSpot69_133",
+      "x": 246998.19,
+      "y": 425598.38,
+      "z": 4720.2627,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 503,
+      "name": "VehicleSpot7",
+      "x": 99415.76,
+      "y": 512461.16,
+      "z": 12730.625,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 504,
+      "name": "VehicleSpot70_135",
+      "x": 217295.19,
+      "y": 406841.38,
+      "z": 6239.5093,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 505,
+      "name": "VehicleSpot72_139",
+      "x": 309669.2,
+      "y": 421200.38,
+      "z": 5619.539,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 506,
+      "name": "VehicleSpot73_141",
+      "x": 340943.2,
+      "y": 424042.38,
+      "z": 5182.5864,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 507,
+      "name": "VehicleSpot74_143",
+      "x": 293081.1,
+      "y": 366130.78,
+      "z": 13876.151,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 508,
+      "name": "VehicleSpot75_32",
+      "x": 493181.62,
+      "y": 569482.25,
+      "z": 19641.723,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 509,
+      "name": "VehicleSpot76_147",
+      "x": 264522.2,
+      "y": 335117.38,
+      "z": 6460.5654,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 510,
+      "name": "VehicleSpot77_149",
+      "x": 321374.2,
+      "y": 312277.38,
+      "z": 9885.18,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 511,
+      "name": "VehicleSpot78_151",
+      "x": 226373.19,
+      "y": 366756.38,
+      "z": 5668.5635,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 512,
+      "name": "VehicleSpot79_153",
+      "x": 290514.6,
+      "y": 320797.1,
+      "z": 8931.125,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 513,
+      "name": "VehicleSpot8",
+      "x": 105304.19,
+      "y": 545501.4,
+      "z": 12814.975,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 514,
+      "name": "VehicleSpot80_155",
+      "x": 263072.2,
+      "y": 276269.38,
+      "z": 6384.2266,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 515,
+      "name": "VehicleSpot81_157",
+      "x": 236936.19,
+      "y": 273721.38,
+      "z": 10889.436,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 516,
+      "name": "VehicleSpot82_159",
+      "x": 288614.2,
+      "y": 262450.38,
+      "z": 6250.784,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 517,
+      "name": "VehicleSpot83_161",
+      "x": 315794.2,
+      "y": 276103.38,
+      "z": 6249.1265,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 518,
+      "name": "VehicleSpot84_163",
+      "x": 345678.2,
+      "y": 294851.38,
+      "z": 7207.3716,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 519,
+      "name": "VehicleSpot85_165",
+      "x": 438160.66,
+      "y": 312072.03,
+      "z": 3341.0886,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 520,
+      "name": "VehicleSpot86",
+      "x": 96380.625,
+      "y": 715537.25,
+      "z": 5183.3164,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 521,
+      "name": "VehicleSpot87_169",
+      "x": 448644.03,
+      "y": 234689.52,
+      "z": 3162.5552,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 522,
+      "name": "VehicleSpot88_171",
+      "x": 412199.2,
+      "y": 206224.38,
+      "z": 4700.4634,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 523,
+      "name": "VehicleSpot89_173",
+      "x": 391912.78,
+      "y": 178248.77,
+      "z": 4874.7515,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 524,
+      "name": "VehicleSpot9",
+      "x": 462356.62,
+      "y": 82310.28,
+      "z": 4241.7935,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 525,
+      "name": "VehicleSpot90",
+      "x": 273273.62,
+      "y": 522614.25,
+      "z": 11418.115,
+      "categories": [
+        "Esports1"
+      ]
+    },
+    {
+      "id": 526,
+      "name": "VehicleSpot91_177",
+      "x": 343427.2,
+      "y": 183093.38,
+      "z": 7647.1562,
+      "categories": [
+        "Offroad"
+      ]
+    },
+    {
+      "id": 527,
+      "name": "VehicleSpot92",
+      "x": 717160.06,
+      "y": 529983.7,
+      "z": -1450,
+      "categories": [
+        "Water_Ferry"
+      ]
+    },
+    {
+      "id": 528,
+      "name": "VehicleSpot93_181",
+      "x": 394343.2,
+      "y": 147414.38,
+      "z": 4942.285,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 529,
+      "name": "VehicleSpot94_183",
+      "x": 392259.2,
+      "y": 119291.99,
+      "z": 4974.5337,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 530,
+      "name": "VehicleSpot95_185",
+      "x": 362606.2,
+      "y": 134909.38,
+      "z": 6785.4814,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 531,
+      "name": "VehicleSpot96_187",
+      "x": 329503.2,
+      "y": 124564.375,
+      "z": 6470.3315,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 532,
+      "name": "VehicleSpot97_189",
+      "x": 299589.2,
+      "y": 122133.375,
+      "z": 5339.2407,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 533,
+      "name": "VehicleSpot98",
+      "x": 186132.61,
+      "y": 397436.28,
+      "z": 6396.0957,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 534,
+      "name": "VehicleSpot99_193",
+      "x": 454217.8,
+      "y": 83836.984,
+      "z": 4018.958,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 535,
+      "name": "Grid-Level_0-2_1-0_1-0_0-0_DesignItems_2_DupThingSpot_0",
+      "x": 90489.5144,
+      "y": 208749.2344,
+      "z": 12296.22652,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 536,
+      "name": "Grid-Level_0-2_1-0_1-0_1-0_DesignItems_2_DupThingSpot_0",
+      "x": 93274.6497,
+      "y": 218004.23619999998,
+      "z": 12027.2351,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 537,
+      "name": "Grid-Level_0-2_1-0_1-0_1-1_DesignItems_2_DupThingSpot_0",
+      "x": 91565.034,
+      "y": 226420.053,
+      "z": 12347.67871,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 538,
+      "name": "Grid-Level_1-3_1-1_1-1_0-0_DesignItems_2_DupThingSpot_0",
+      "x": 181038.3725,
+      "y": 389725.49620000005,
+      "z": 7159.211176,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 539,
+      "name": "Grid-Level_1-3_1-1_1-1_0-1_DesignItems_2_DupThingSpot_0",
+      "x": 179377.6575,
+      "y": 406151.94,
+      "z": 6821.7989,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 540,
+      "name": "Grid-Level_1-3_1-1_1-1_1-1_DesignItems_2_DupThingSpot_0",
+      "x": 195881.5769,
+      "y": 406399.10620000004,
+      "z": 6401.39547,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 541,
+      "name": "Grid-Level_1-4_1-0_1-0_DesignItems_2_DupThingSpot_0",
+      "x": 199685.1444,
+      "y": 413990.97,
+      "z": 6418.180100000001,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 542,
+      "name": "Grid-Level_1-5_1-1_DesignItems_2_DupThingSpot_0",
+      "x": 154053.904,
+      "y": 592074.2875,
+      "z": 1190.4884000000002,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 543,
+      "name": "Grid-Level_3-7_0-0_1-1_1-1_DesignItems_2_DupThingSpot_0",
+      "x": 346608.8,
+      "y": 762074.7875,
+      "z": -1082.85888,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 544,
+      "name": "Grid-Level_6-1_0-0_1-1_1-0_DesignItems_2_DupThingSpot_0",
+      "x": 661973.9625,
+      "y": 140817.9412,
+      "z": 4496.01567,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 545,
+      "name": "Grid-Level_6-2_0-0_0-1_DesignItems_2_DupThingSpot_0",
+      "x": 623341.375,
+      "y": 253674.0475,
+      "z": 5832.6513,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 546,
+      "name": "Grid-Level_6-2_0-0_0-1_DesignItems_2_DupThingSpot_1",
+      "x": 632862.3125,
+      "y": 249183.3288,
+      "z": 5813.59613,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 547,
+      "name": "Grid-Level_6-4_0-1_0-0_0-0_DesignItems_2_DupThingSpot_0",
+      "x": 625123.69,
+      "y": 463811.90125,
+      "z": 7896.4238399999995,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 548,
+      "name": "Grid-Level_6-4_0-1_0-0_1-0_DesignItems_2_DupThingSpot_0",
+      "x": 634588.025,
+      "y": 468571.46379999997,
+      "z": 8308.999812,
+      "categories": [
+        "Road"
+      ]
+    },
+    {
+      "id": 549,
+      "name": "Grid-Level_6-4_0-1_0-0_1-1_DesignItems_2_DupThingSpot_0",
+      "x": 626952.5375,
+      "y": 474892.5375,
+      "z": 8367.9996,
+      "categories": [
+        "Road"
+      ]
+    }
+  ]
+}

@@ -122,8 +122,8 @@ export const VEHICLE_ANNOTATION_TYPES = [
    for it rather than a toggle, and nothing may fall back to
    another map's coordinates (Issue 9 / Issue 17). */
 export const VERIFIED_SPAWN_DATA = {
-  erangel: { vehicle: true,  boat: true },
-  miramar: { vehicle: false, boat: true },
+  erangel: { vehicle: true, boat: true },
+  miramar: { vehicle: true, boat: true },
   rondo:   { vehicle: false, boat: false },
 }
 
