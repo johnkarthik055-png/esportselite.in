@@ -2,6 +2,8 @@ import { useRef, useState } from 'react'
 import { Camera, Trash2, Check, X } from 'lucide-react'
 import { useAvatar } from '../hooks/useAvatar.js'
 import { getInitials, cropImageToSquareBase64 } from '../utils/helpers.js'
+import { useConfirm } from '../hooks/useConfirm.js'
+import ConfirmModal from './ConfirmModal.jsx'
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2 MB
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
@@ -14,6 +16,7 @@ const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
  * - Calls `onToast(msg)` (optional) for error messages
  */
 export default function AvatarUploader({ username, onToast }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const { avatar, saveAvatar, removeAvatar } = useAvatar()
   const inputRef = useRef(null)
   const [pending, setPending] = useState(null) // base64 data URL pending confirm
@@ -62,8 +65,8 @@ export default function AvatarUploader({ username, onToast }) {
     inputRef.current?.click()
   }
 
-  function handleRemove() {
-    if (!window.confirm('Remove your profile photo?')) return
+  async function handleRemove() {
+    if (!await confirm('Remove your profile photo?')) return
     removeAvatar()
   }
 
@@ -71,6 +74,7 @@ export default function AvatarUploader({ username, onToast }) {
   const showAvatar = pending || avatar
 
   return (
+    <>
     <div className="flex flex-col items-center">
       {/* Avatar circle */}
       <div className="relative w-[140px] h-[140px]">
@@ -144,5 +148,7 @@ export default function AvatarUploader({ username, onToast }) {
         </div>
       )}
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }

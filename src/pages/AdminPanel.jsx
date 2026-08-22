@@ -25,6 +25,8 @@ import {
 import { db } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import TournamentsAdminTab from '../components/admin/TournamentsAdminTab.jsx'
+import { useConfirm } from '../hooks/useConfirm.js'
+import ConfirmModal from '../components/ConfirmModal.jsx'
 
 const ADMIN_EMAILS = [
   'karthikreddyy2010@gmail.com',
@@ -302,6 +304,7 @@ function OverviewTab() {
    USERS TAB
    ============================================================ */
 function UsersTab() {
+  const { confirm, confirmModalProps } = useConfirm()
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -385,7 +388,7 @@ function UsersTab() {
   }
 
   async function revokeTrial(uid) {
-    if (!window.confirm('Revoke this user\'s trial? They will lose access immediately.')) return
+    if (!await confirm('Revoke this user\'s trial? They will lose access immediately.')) return
     try {
       await updateDoc(doc(db, 'users', uid), {
         'trial.active': false,
@@ -406,7 +409,7 @@ function UsersTab() {
       `Firebase Authentication account (that requires the Admin SDK\n` +
       `server-side). They will be able to sign in again but with an\n` +
       `empty profile.\n\nContinue?`
-    if (!window.confirm(confirmMsg)) return
+    if (!await confirm(confirmMsg)) return
     try {
       await deleteDoc(doc(db, 'users', uid))
       await load()
@@ -419,6 +422,7 @@ function UsersTab() {
   if (error) return <ErrorBlock error={error} />
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       {/* Search */}
       <div style={{ position: 'relative', maxWidth: 480 }}>
@@ -505,6 +509,8 @@ function UsersTab() {
         </div>
       </div>
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 
@@ -583,6 +589,7 @@ function UserRow({ u, extendOpen, onExtendToggle, onExtendConfirm, onRevoke, onD
    TRIALS TAB
    ============================================================ */
 function TrialsTab() {
+  const { confirm, confirmModalProps } = useConfirm()
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -648,7 +655,7 @@ function TrialsTab() {
 
   async function bulkExtend(list, days = 30) {
     if (list.length === 0) return
-    if (!window.confirm(`Extend trials for ${list.length} user${list.length === 1 ? '' : 's'} by ${days} days?`)) return
+    if (!await confirm(`Extend trials for ${list.length} user${list.length === 1 ? '' : 's'} by ${days} days?`)) return
     setBulkRunning(true)
     for (const u of list) {
       await extendOne(u.uid, days)
@@ -672,6 +679,7 @@ function TrialsTab() {
     bySub.expired
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div className="seg">
         {SUB_TABS.map(s => (
@@ -755,6 +763,8 @@ function TrialsTab() {
         )}
       </div>
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 
@@ -1151,6 +1161,7 @@ function TypeBadge({ type }) {
    WAITLIST TAB
    ============================================================ */
 function WaitlistTab() {
+  const { confirm, confirmModalProps } = useConfirm()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -1198,7 +1209,7 @@ function WaitlistTab() {
   }
 
   async function deleteEntry(id, email) {
-    if (!window.confirm(`Delete waitlist entry for ${email}?`)) return
+    if (!await confirm(`Delete waitlist entry for ${email}?`)) return
     try {
       await deleteDoc(doc(db, 'waitlist', id))
       await load()
@@ -1228,6 +1239,7 @@ function WaitlistTab() {
   if (error) return <ErrorBlock error={error} />
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
         <span className="badge">
@@ -1283,6 +1295,8 @@ function WaitlistTab() {
         )}
       </div>
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 
@@ -1290,6 +1304,7 @@ function WaitlistTab() {
    MAINTENANCE TAB
    ============================================================ */
 function MaintenanceTab({ adminEmail }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -1320,7 +1335,7 @@ function MaintenanceTab({ adminEmail }) {
 
   async function toggle() {
     const nowActive = !data?.isActive
-    if (nowActive && !window.confirm('This will lock out ALL users. Are you sure?')) return
+    if (nowActive && !await confirm('This will lock out ALL users. Are you sure?')) return
     setToggling(true)
     try {
       const payload = {
@@ -1360,6 +1375,7 @@ function MaintenanceTab({ adminEmail }) {
   const isActive = !!data?.isActive
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div className="card" style={{ padding: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
@@ -1450,6 +1466,8 @@ function MaintenanceTab({ adminEmail }) {
         </div>
       </div>
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 

@@ -7,6 +7,8 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useUserTeamId, useTeam } from '../hooks/useTeam.js'
 import { leaveTeam } from '../utils/team.js'
+import { useConfirm } from '../hooks/useConfirm.js'
+import ConfirmModal from '../components/ConfirmModal.jsx'
 import TeamDashboard from '../components/team/TeamDashboard.jsx'
 import TeamRoster from '../components/team/TeamRoster.jsx'
 import TeamPractice from '../components/team/TeamPractice.jsx'
@@ -29,6 +31,7 @@ const TABS = [
 
 export default function Team() {
   const navigate = useNavigate()
+  const { confirm, confirmModalProps } = useConfirm()
   const { user } = useAuth()
   const { teamId, loading: idLoading } = useUserTeamId()
   const { team, members, myRole, loading: teamLoading } = useTeam(teamId)
@@ -59,7 +62,7 @@ export default function Team() {
       alert('Transfer ownership before leaving the team.')
       return
     }
-    if (!window.confirm('Leave this team? You can rejoin later with a new invite code.')) return
+    if (!await confirm('Leave this team? You can rejoin later with a new invite code.')) return
     setLeaving(true)
     try {
       await leaveTeam(teamId, user.uid, myRole)
@@ -71,6 +74,7 @@ export default function Team() {
   }
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }} className="page-transition">
       <TeamHeader
         team={team}
@@ -136,6 +140,8 @@ export default function Team() {
         ? <TeamSettings         team={team} members={members} myRole={myRole} teamId={teamId} onTeamDeleted={() => navigate('/team')} />
         : null)}
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 

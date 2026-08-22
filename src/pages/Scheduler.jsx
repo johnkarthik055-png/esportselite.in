@@ -28,6 +28,8 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { useUserData } from '../hooks/useUserData.js'
 import { getLevelName } from '../utils/db.js'
 import { awardXP } from '../utils/xp.js'
+import { useConfirm } from '../hooks/useConfirm.js'
+import ConfirmModal from '../components/ConfirmModal.jsx'
 
 /* ============================================================
    CONSTANTS
@@ -184,6 +186,7 @@ function LandingCTA({ onCreate }) {
    ACTIVE-SCHEDULE DASHBOARD
    ============================================================ */
 function ScheduleDashboard({ schedule, uid }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const [days, setDays] = useState([])
   const [selectedDayId, setSelectedDayId] = useState(null)
 
@@ -247,7 +250,7 @@ function ScheduleDashboard({ schedule, uid }) {
   }
 
   async function abandonSchedule() {
-    if (!window.confirm(`Abandon "${schedule.title}"?\n\nProgress will be kept in your history but no new tasks will fire.`)) return
+    if (!await confirm(`Abandon "${schedule.title}"?\n\nProgress will be kept in your history but no new tasks will fire.`)) return
     try {
       await updateDoc(scheduleDoc(uid, schedule.id), {
         status: 'failed',
@@ -295,6 +298,7 @@ function ScheduleDashboard({ schedule, uid }) {
           />
         )}
       </div>
+      <ConfirmModal {...confirmModalProps} />
     </>
   )
 }

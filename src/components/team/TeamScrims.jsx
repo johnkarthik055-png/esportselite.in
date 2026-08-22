@@ -13,8 +13,11 @@ import {
 } from '../../utils/notifications.js'
 import { useAuth } from '../../context/AuthContext.jsx'
 import ScrimResultModal from './ScrimResultModal.jsx'
+import { useConfirm } from '../../hooks/useConfirm.js'
+import ConfirmModal from '../ConfirmModal.jsx'
 
 export default function TeamScrims({ team, members, myRole, teamId }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const { user } = useAuth()
   const uid = user?.uid
   const canManage = myRole === 'owner' || myRole === 'igl'
@@ -61,11 +64,12 @@ export default function TeamScrims({ team, members, myRole, teamId }) {
     setEditing(null)
   }
   async function handleDelete(id) {
-    if (!window.confirm('Delete this scrim?')) return
+    if (!await confirm('Delete this scrim?')) return
     await deleteScrim(teamId, id)
   }
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
         <h2
@@ -143,6 +147,8 @@ export default function TeamScrims({ team, members, myRole, teamId }) {
 
       <style>{`.animate-spin{animation:ee-s-spin .9s linear infinite}@keyframes ee-s-spin{to{transform:rotate(360deg)}}`}</style>
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 

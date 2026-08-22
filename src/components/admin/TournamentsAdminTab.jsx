@@ -9,6 +9,8 @@ import {
 } from 'lucide-react'
 import { db } from '../../utils/firebase.js'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { useConfirm } from '../../hooks/useConfirm.js'
+import ConfirmModal from '../ConfirmModal.jsx'
 
 const MAPS = ['Erangel', 'Miramar', 'Rondo']
 const TYPES = [
@@ -40,6 +42,7 @@ const EMPTY_FORM = {
 }
 
 export default function TournamentsAdminTab() {
+  const { confirm, confirmModalProps } = useConfirm()
   const { user } = useAuth()
   const [list, setList] = useState([])
   const [matchCounts, setMatchCounts] = useState({})
@@ -137,7 +140,7 @@ export default function TournamentsAdminTab() {
   }
 
   async function removeTournament(t) {
-    if (!window.confirm(
+    if (!await confirm(
       `Delete "${t.name}" and all its matches?\n\nThis cannot be undone.`
     )) return
     try {
@@ -158,6 +161,7 @@ export default function TournamentsAdminTab() {
   }
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div className="card">
         <div className="card-header">
@@ -277,6 +281,8 @@ export default function TournamentsAdminTab() {
         />
       )}
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 
@@ -437,6 +443,7 @@ function Field({ label, children }) {
    MATCHES PANEL (per tournament, admin list)
    ============================================================ */
 function MatchesPanel({ tournament, onAddMatch, onEditMatch }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const [matches, setMatches] = useState([])
   const [open, setOpen] = useState(false)
 
@@ -453,12 +460,13 @@ function MatchesPanel({ tournament, onAddMatch, onEditMatch }) {
   }, [tournament.id])
 
   async function removeMatch(m) {
-    if (!window.confirm(`Delete "${m.round || 'match'}" from "${tournament.name}"?`)) return
+    if (!await confirm(`Delete "${m.round || 'match'}" from "${tournament.name}"?`)) return
     try { await deleteDoc(doc(db, 'tournaments', tournament.id, 'matches', m.id)) }
     catch (e) { alert('Delete failed: ' + (e?.message || e)) }
   }
 
   return (
+    <>
     <div className="card">
       <button
         onClick={() => setOpen(v => !v)}
@@ -514,6 +522,8 @@ function MatchesPanel({ tournament, onAddMatch, onEditMatch }) {
         </div>
       )}
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 

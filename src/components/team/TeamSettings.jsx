@@ -10,6 +10,8 @@ import {
 import {
   notifyTeamMembers, sendTeamNotification, TEAM_NOTIFICATIONS,
 } from '../../utils/notifications.js'
+import { useConfirm } from '../../hooks/useConfirm.js'
+import ConfirmModal from '../ConfirmModal.jsx'
 
 const REGIONS = [
   'India - North',
@@ -215,6 +217,7 @@ function IdentityCard({ team, canEdit, teamId }) {
    DANGER ZONE — owner only
    ============================================================ */
 function DangerZone({ team, members, teamId, uid, onTeamDeleted }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const [xferTarget, setXferTarget] = useState('')
   const [xferBusy, setXferBusy] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
@@ -227,7 +230,7 @@ function DangerZone({ team, members, teamId, uid, onTeamDeleted }) {
     if (!xferTarget) return
     const target = members.find(m => m.uid === xferTarget)
     if (!target) return
-    if (!window.confirm(`Transfer ownership to ${target.ign || 'this member'}? You will become a regular player.`)) return
+    if (!await confirm(`Transfer ownership to ${target.ign || 'this member'}? You will become a regular player.`)) return
     setXferBusy(true); setErr('')
     try {
       await transferOwnership(teamId, uid, xferTarget)
@@ -255,6 +258,7 @@ function DangerZone({ team, members, teamId, uid, onTeamDeleted }) {
   const canDelete = deleteConfirm.trim() === (team?.name || '').trim() && !!(team?.name || '').trim()
 
   return (
+    <>
     <div
       className="card"
       style={{
@@ -336,6 +340,8 @@ function DangerZone({ team, members, teamId, uid, onTeamDeleted }) {
         </div>
       )}
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 
@@ -343,11 +349,12 @@ function DangerZone({ team, members, teamId, uid, onTeamDeleted }) {
    LEAVE / OWNER NOTICE
    ============================================================ */
 function LeaveCard({ team, myRole, teamId, uid, onDone }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
 
   async function leave() {
-    if (!window.confirm(`Are you sure you want to leave ${team?.name || 'the team'}?`)) return
+    if (!await confirm(`Are you sure you want to leave ${team?.name || 'the team'}?`)) return
     setBusy(true); setErr('')
     try {
       await leaveTeam(teamId, uid, myRole)
@@ -376,6 +383,7 @@ function LeaveCard({ team, myRole, teamId, uid, onDone }) {
   }
 
   return (
+    <>
     <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <div className="card-header">
         <div className="card-title">Leave team</div>
@@ -394,6 +402,8 @@ function LeaveCard({ team, myRole, teamId, uid, onDone }) {
         </button>
       </div>
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 

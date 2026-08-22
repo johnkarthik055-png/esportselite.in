@@ -111,7 +111,7 @@ function pointAtBearing(origin, angleDeg, radius) {
   return [origin[0] + radius * Math.cos(rad), origin[1] + radius * Math.sin(rad)]
 }
 
-export default function StrategyDrawingLayer({ mapId }) {
+export default function StrategyDrawingLayer({ mapId, readOnly = false }) {
   const st = useStrategyStore()
   const [zoneDraftRadius, setZoneDraftRadius] = useState(0)
 
@@ -128,6 +128,7 @@ export default function StrategyDrawingLayer({ mapId }) {
 
   useMapEvents({
     click: (e) => {
+      if (readOnly) return
       const { lat, lng } = e.latlng
       const pos = [lat, lng]
       const tool = st.tool
@@ -213,6 +214,7 @@ export default function StrategyDrawingLayer({ mapId }) {
       }
     },
     dblclick: (e) => {
+      if (readOnly) return
       if (st.tool === 'rotation' && st.drafting?.kind === 'rotation') {
         const waypoints = st.drafting.waypoints
         if (waypoints.length >= 2) {
@@ -224,7 +226,7 @@ export default function StrategyDrawingLayer({ mapId }) {
       }
     },
     mousemove: (e) => {
-      if (!st.drafting) return
+      if (readOnly || !st.drafting) return
       const { lat, lng } = e.latlng
       if (st.drafting.kind === 'zone') {
         const dx = lat - st.drafting.center[0]
@@ -246,10 +248,14 @@ export default function StrategyDrawingLayer({ mapId }) {
 
       {/* ---- committed objects ---- */}
       {visibleObjects.map(obj => (
-        <StrategyObjectRender key={obj.id} obj={obj} isSelected={obj.id === st.selectedObjectId} mapId={mapId} />
+        <StrategyObjectRender
+          key={obj.id} obj={obj} mapId={mapId} readOnly={readOnly}
+          isSelected={!readOnly && obj.id === st.selectedObjectId}
+        />
       ))}
 
-      {/* ---- in-progress drafts ---- */}
+      {/* ---- in-progress drafts (never populated in read-only — the
+          click/dblclick handlers above bail out before setDrafting) ---- */}
       {st.drafting?.kind === 'rotation' && (
         <Polyline
           positions={st.drafting.waypoints}
@@ -283,8 +289,8 @@ export default function StrategyDrawingLayer({ mapId }) {
   )
 }
 
-function StrategyObjectRender({ obj, isSelected, mapId }) {
-  const draggable = true
+function StrategyObjectRender({ obj, isSelected, mapId, readOnly }) {
+  const draggable = !readOnly
 
   function commonMarkerProps(pos) {
     return {

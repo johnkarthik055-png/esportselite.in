@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { X, Bell, Trash2, CheckCheck } from 'lucide-react'
 import { useNotifications } from '../hooks/useNotifications.js'
 import { formatRelative } from '../utils/helpers.js'
+import { useConfirm } from '../hooks/useConfirm.js'
+import ConfirmModal from './ConfirmModal.jsx'
 
 /**
  * Right-side slide-in notification panel.
@@ -11,6 +13,7 @@ import { formatRelative } from '../utils/helpers.js'
  *  - onClose()
  */
 export default function NotificationPanel({ open, onClose }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const { notifications, unreadCount, markRead, markAllRead, clearAll, removeNotification } =
     useNotifications()
 
@@ -167,8 +170,8 @@ export default function NotificationPanel({ open, onClose }) {
         {notifications.length > 0 && (
           <div className="border-t border-border bg-bg-primary/30 p-4">
             <button
-              onClick={() => {
-                if (window.confirm('Clear all notifications? This cannot be undone.')) {
+              onClick={async () => {
+                if (await confirm('Clear all notifications? This cannot be undone.')) {
                   clearAll()
                 }
               }}
@@ -179,6 +182,7 @@ export default function NotificationPanel({ open, onClose }) {
           </div>
         )}
       </aside>
+      <ConfirmModal {...confirmModalProps} />
     </>
   )
 }

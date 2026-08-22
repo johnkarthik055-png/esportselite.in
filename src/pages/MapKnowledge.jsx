@@ -27,6 +27,7 @@ import {
   X, MapPin, MousePointer2, ArrowUpRight, Circle as CircleIcon,
   Eraser, Save, Trash2, Search, Plus, Minus, ChevronDown,
   Loader2, PencilLine, Info, Edit, ArrowRight, Shield,
+  Undo2, Redo2, Crosshair,
 } from 'lucide-react'
 import { db } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -37,7 +38,14 @@ import {
 } from '../utils/spawnReferenceData.js'
 import StrategyMakerPanel from '../components/strategy/StrategyMakerPanel.jsx'
 import StrategyDrawingLayer from '../components/strategy/StrategyDrawingLayer.jsx'
-import { resetForMap } from '../components/strategy/strategyStore.js'
+import BottomToolBar from '../components/strategy/BottomToolBar.jsx'
+import PlayerModeSidebar, { PlayerModeHeader } from '../components/strategy/PlayerModeView.jsx'
+import {
+  resetForMap, useStrategyStore, setViewMode, undo, redo,
+  toSaveableDoc, setStrategyDocId,
+} from '../components/strategy/strategyStore.js'
+import { useConfirm } from '../hooks/useConfirm.js'
+import ConfirmModal from '../components/ConfirmModal.jsx'
 
 /* ============================================================
    LEAFLET DEFAULT ICON FIX
@@ -413,9 +421,28 @@ export default function MapKnowledge() {
   const [pins, setPins] = useState([])
   const [polygons, setPolygons] = useState([])
   const [strategies, setStrategies] = useState([])
+  const [playerModeSaving, setPlayerModeSaving] = useState(false)
+
+  const strategyState = useStrategyStore()
+  const isPlayerMode = mode === 'strategy' && strategyState.viewMode === 'player'
 
   const activeMap = MAPS.find(m => m.id === activeMapId) || MAPS[0]
   const tileUrl = `/tiles/${activeMap.tileFolder}/{z}/{x}/{y}.png`
+
+  async function handlePlayerModeSave() {
+    if (!user?.uid || !strategyState.name.trim()) return
+    setPlayerModeSaving(true)
+    try {
+      if (strategyState.strategyDocId) {
+        await updateStrategy(activeMapId, strategyState.strategyDocId, toSaveableDoc())
+      } else {
+        const ref = await addStrategy(activeMapId, toSaveableDoc(), user.uid)
+        if (ref?.id) setStrategyDocId(ref.id)
+      }
+    } finally {
+      setPlayerModeSaving(false)
+    }
+  }
 
   /* Strategy Maker's object list is map-scoped (Issue 17) — reset
      it the moment the active map changes so Erangel objects never
@@ -483,48 +510,65 @@ export default function MapKnowledge() {
   return (
     <div className="mk-page">
       <div className="mk-header">
-        <div style={{ display: 'flex', gap: 4 }}>
-          {MAPS.map(m => (
-            <TabButton
-              key={m.id}
-              active={activeMapId === m.id}
-              onClick={() => { setActiveMapId(m.id); setSelectedPin(null) }}
-            >
-              {m.name}
-            </TabButton>
-          ))}
-        </div>
-        <div style={{ display: 'flex', gap: 4 }}>
-          <TabButton active={mode === 'view'} onClick={() => setMode('view')}>View Map</TabButton>
-          <TabButton active={mode === 'strategy'} onClick={() => setMode('strategy')}>Strategy Maker</TabButton>
-          {isAdmin && (
-            <span className="mk-dev-tab" style={{ display: 'inline-flex' }}>
-              <TabButton active={mode === 'dev'} onClick={() => setMode('dev')}>
-                <Shield size={12} style={{ marginRight: 4 }} /> Dev Editor
-              </TabButton>
-            </span>
-          )}
-        </div>
+        {isPlayerMode ? (
+          <PlayerModeHeader
+            activeMap={activeMap}
+            mapList={MAPS}
+            onSelectMap={(id) => { setActiveMapId(id); setSelectedPin(null) }}
+            onBack={() => setViewMode('coach')}
+            onSave={handlePlayerModeSave}
+            saving={playerModeSaving}
+          />
+        ) : (
+          <>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {MAPS.map(m => (
+                <TabButton
+                  key={m.id}
+                  active={activeMapId === m.id}
+                  onClick={() => { setActiveMapId(m.id); setSelectedPin(null) }}
+                >
+                  {m.name}
+                </TabButton>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              <TabButton active={mode === 'view'} onClick={() => setMode('view')}>View Map</TabButton>
+              <TabButton active={mode === 'strategy'} onClick={() => setMode('strategy')}>Strategy Maker</TabButton>
+              {isAdmin && (
+                <span className="mk-dev-tab" style={{ display: 'inline-flex' }}>
+                  <TabButton active={mode === 'dev'} onClick={() => setMode('dev')}>
+                    <Shield size={12} style={{ marginRight: 4 }} /> Dev Editor
+                  </TabButton>
+                </span>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       <div className="mk-body">
-        <div className="mk-map-col">
-          <MapPanel
-            activeMap={activeMap}
-            tileUrl={tileUrl}
-            pins={pins}
-            visiblePins={visiblePins}
-            visibleLayers={visibleLayers}
-            polygons={polygons}
-            zoom={zoom}
-            onZoomChange={setZoom}
-            selectedPin={selectedPin}
-            onSelectPin={setSelectedPin}
-            flyTarget={flyTarget}
-            onFlyDone={() => setFlyTarget(null)}
-            onMouseMove={setMousePos}
-            mode={mode}
-          />
+        <div className="mk-map-col" style={{ display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0 }}>
+          <div style={{ flex: 1, minHeight: 0 }}>
+            <MapPanel
+              activeMap={activeMap}
+              tileUrl={tileUrl}
+              pins={pins}
+              visiblePins={visiblePins}
+              visibleLayers={visibleLayers}
+              polygons={polygons}
+              zoom={zoom}
+              onZoomChange={setZoom}
+              selectedPin={selectedPin}
+              onSelectPin={setSelectedPin}
+              flyTarget={flyTarget}
+              onFlyDone={() => setFlyTarget(null)}
+              onMouseMove={setMousePos}
+              mode={mode}
+              strategyReadOnly={isPlayerMode}
+            />
+          </div>
+          {mode === 'strategy' && !isPlayerMode && <BottomToolBar />}
         </div>
 
         <div className="mk-side-col">
@@ -541,7 +585,7 @@ export default function MapKnowledge() {
               mapId={activeMapId}
             />
           )}
-          {mode === 'strategy' && (
+          {mode === 'strategy' && !isPlayerMode && (
             <StrategyMakerPanel
               mapId={activeMapId}
               strategies={strategies}
@@ -550,6 +594,7 @@ export default function MapKnowledge() {
               deleteStrategyDoc={deleteStrategy}
             />
           )}
+          {mode === 'strategy' && isPlayerMode && <PlayerModeSidebar />}
           {mode === 'dev' && isAdmin && (
             <DevPanel
               mapId={activeMapId}
@@ -604,8 +649,10 @@ function MapPanel({
   selectedPin, onSelectPin,
   flyTarget, onFlyDone,
   onMouseMove, mode,
+  strategyReadOnly,
 }) {
   const mapRef = useRef(null)
+  const strategyState = useStrategyStore()
 
   /* Strategy Maker and Dev Editor push their own layers onto the
      canvas via context (children of MapContainer that we render
@@ -764,35 +811,57 @@ function MapPanel({
           ))}
 
         {/* Strategy Maker overlay */}
-        {mode === 'strategy' && <StrategyDrawingLayer mapId={activeMap.id} />}
+        {mode === 'strategy' && <StrategyDrawingLayer mapId={activeMap.id} readOnly={strategyReadOnly} />}
 
         {/* Dev Editor overlay */}
         {mode === 'dev' && <DevDrawingLayer />}
       </MapContainer>
 
-      {/* Custom zoom controls */}
+      {/* Custom zoom controls (unchanged position — top-right, as before) */}
       <div style={{
         position: 'absolute', top: 10, right: 10, zIndex: 10,
         display: 'flex', flexDirection: 'column', gap: 4,
       }}>
         <ZoomBtn onClick={() => mapRef.current?.zoomIn()}><Plus size={14} /></ZoomBtn>
         <ZoomBtn onClick={() => mapRef.current?.zoomOut()}><Minus size={14} /></ZoomBtn>
+        <ZoomBtn onClick={() => {
+          const map = mapRef.current
+          if (!map) return
+          const coverZoom = map.getBoundsZoom(BOUNDS, true)
+          map.flyTo(CENTER, Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, coverZoom)), { duration: 0.4 })
+        }} title="Recenter"><Crosshair size={14} /></ZoomBtn>
       </div>
+
+      {/* Undo/Redo — Strategy Maker, Coach Mode only, bottom-right of
+          the canvas (mirrors the Actions card in the sidebar; mockup
+          shows both). */}
+      {mode === 'strategy' && !strategyReadOnly && (
+        <div style={{
+          position: 'absolute', bottom: 10, right: 10, zIndex: 10,
+          display: 'flex', gap: 4,
+        }}>
+          <ZoomBtn onClick={undo} disabled={strategyState.history.length === 0} title="Undo (Ctrl+Z)"><Undo2 size={14} /></ZoomBtn>
+          <ZoomBtn onClick={redo} disabled={strategyState.future.length === 0} title="Redo (Ctrl+Shift+Z)"><Redo2 size={14} /></ZoomBtn>
+        </div>
+      )}
     </div>
   )
 }
 
-function ZoomBtn({ onClick, children }) {
+function ZoomBtn({ onClick, children, title, disabled }) {
   return (
     <button
       onClick={onClick}
+      title={title}
+      disabled={disabled}
       style={{
         width: 32, height: 32,
         background: 'var(--bg-elevated)',
         border: '1px solid var(--border)',
         borderRadius: 6,
         color: 'var(--text-primary)',
-        cursor: 'pointer',
+        cursor: disabled ? 'default' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
     >
@@ -1104,9 +1173,10 @@ function PinDetailCard({ pin, onClose, isAdmin, mapId }) {
   const info = PIN_TYPES[pin.type] || { label: 'Pin', color: '#8888A8' }
   const tierColor = pin.tier ? TIER_COLORS[pin.tier] : null
   const loot = Number(pin.loot) || 0
+  const { confirm, confirmModalProps } = useConfirm()
 
   async function handleDelete() {
-    if (!window.confirm(`Delete pin "${pin.name}"?`)) return
+    if (!await confirm(`Delete pin "${pin.name}"?`)) return
     try {
       await deletePin(mapId, pin.id)
       onClose()
@@ -1201,6 +1271,7 @@ function PinDetailCard({ pin, onClose, isAdmin, mapId }) {
           </button>
         </div>
       )}
+      <ConfirmModal {...confirmModalProps} />
     </div>
   )
 }
@@ -1361,6 +1432,7 @@ function DevPanel({ mapId, pins, polygons, mousePos, user }) {
   const [openManagePins, setOpenManagePins] = useState(false)
   const [openManagePolys, setOpenManagePolys] = useState(false)
   const [editingPolyId, setEditingPolyId] = useState(null)
+  const { confirm, confirmModalProps } = useConfirm()
 
   /* When a pending pin position was set from the map click, save it. */
   async function commitPendingPin() {
@@ -1460,7 +1532,7 @@ function DevPanel({ mapId, pins, polygons, mousePos, user }) {
   }
 
   async function removePolygon(p) {
-    if (!window.confirm(`Delete polygon "${p.name}"?`)) return
+    if (!await confirm(`Delete polygon "${p.name}"?`)) return
     try { await deletePolygon(mapId, p.id) }
     catch (e) { alert('Delete failed: ' + (e?.message || e)) }
   }
@@ -1499,7 +1571,7 @@ function DevPanel({ mapId, pins, polygons, mousePos, user }) {
   async function deleteAllPinsOnMap() {
     const count = pins.length
     if (count === 0) { alert('No pins to delete on this map.'); return }
-    if (!window.confirm(
+    if (!await confirm(
       `Delete ALL ${count} pin${count === 1 ? '' : 's'} on ${mapId}?\n\nThis cannot be undone.`
     )) return
     setDeletingAll(true)
@@ -1726,6 +1798,7 @@ function DevPanel({ mapId, pins, polygons, mousePos, user }) {
           }}
         />
       )}
+      <ConfirmModal {...confirmModalProps} />
     </div>
   )
 }
@@ -1739,6 +1812,7 @@ function PinManageRow({ pin, mapId }) {
     notes: pin.notes || '',
   })
   const [saving, setSaving] = useState(false)
+  const { confirm, confirmModalProps } = useConfirm()
 
   async function save() {
     setSaving(true)
@@ -1749,7 +1823,7 @@ function PinManageRow({ pin, mapId }) {
     finally    { setSaving(false) }
   }
   async function del() {
-    if (!window.confirm(`Delete "${pin.name}"?`)) return
+    if (!await confirm(`Delete "${pin.name}"?`)) return
     try { await deletePin(mapId, pin.id) }
     catch (e) { alert('Delete failed: ' + (e?.message || e)) }
   }
@@ -1778,6 +1852,7 @@ function PinManageRow({ pin, mapId }) {
       </div>
       <button onClick={() => setEditing(true)} className="btn btn-secondary btn-sm"><Edit size={11} /></button>
       <button onClick={del} className="btn btn-secondary btn-sm"><Trash2 size={11} /></button>
+      <ConfirmModal {...confirmModalProps} />
     </div>
   )
 }

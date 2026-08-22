@@ -6,9 +6,12 @@ import {
   toSaveableDoc, loadStrategyData, setStrategyDocId, setTool,
 } from './strategyStore.js'
 import { isLegacyStrategyDoc, migrateLegacyStrategy } from '../../utils/strategyDataSchema.js'
+import { useConfirm } from '../../hooks/useConfirm.js'
+import ConfirmModal from '../ConfirmModal.jsx'
 import CoachPlayerModeToggle from './CoachPlayerModeToggle.jsx'
-import ToolPanel from './ToolPanel.jsx'
 import LayersPanel from './LayersPanel.jsx'
+import SelectedItemPanel from './SelectedItemPanel.jsx'
+import ToolPanel from './ToolPanel.jsx'
 import PhaseSelector from './PhaseSelector.jsx'
 import QuickActions from './QuickActions.jsx'
 import SaveStrategyPanel from './SaveStrategyPanel.jsx'
@@ -46,6 +49,7 @@ export default function StrategyMakerPanel({ mapId, strategies, addStrategyDoc, 
   const st = useStrategyStore()
   const { user } = useAuth()
   const [saving, setSaving] = useState(false)
+  const { confirm, confirmModalProps } = useConfirm()
 
   useStrategyKeyboardShortcuts()
 
@@ -80,9 +84,14 @@ export default function StrategyMakerPanel({ mapId, strategies, addStrategyDoc, 
   }
 
   async function handleDelete(doc) {
-    if (!window.confirm(`Delete strategy "${doc.name}"?`)) return
+    if (!await confirm(`Delete strategy "${doc.name}"?`)) return
     try { await deleteStrategyDoc(mapId, doc.id) }
     catch (e) { alert('Delete failed: ' + (e?.message || e)) }
+  }
+
+  async function handleClearAll() {
+    if (!await confirm('Clear every object in this phase\'s plan? This cannot be undone with Undo once other actions follow.')) return
+    clearAllObjects()
   }
 
   return (
@@ -98,18 +107,15 @@ export default function StrategyMakerPanel({ mapId, strategies, addStrategyDoc, 
             <button onClick={redo} disabled={st.future.length === 0} className="btn btn-secondary btn-sm" style={{ flex: 1 }} title="Redo (Ctrl+Shift+Z)">
               <Redo2 size={12} /> Redo
             </button>
-            <button
-              onClick={() => { if (window.confirm('Clear every object in this phase\'s plan? This cannot be undone with Undo once other actions follow.')) clearAllObjects() }}
-              className="btn btn-secondary btn-sm"
-              title="Clear all"
-            >
+            <button onClick={handleClearAll} className="btn btn-secondary btn-sm" title="Clear all">
               <Trash2 size={12} />
             </button>
           </div>
 
-          <ToolPanel />
-          {st.tool === 'measure' && <MeasureReadout mapId={mapId} />}
           <LayersPanel mapId={mapId} />
+          <SelectedItemPanel />
+          {st.tool === 'measure' && <MeasureReadout mapId={mapId} />}
+          <ToolPanel />
           <PhaseSelector />
           <QuickActions />
           <SaveStrategyPanel
@@ -121,6 +127,8 @@ export default function StrategyMakerPanel({ mapId, strategies, addStrategyDoc, 
           />
         </>
       )}
+
+      <ConfirmModal {...confirmModalProps} />
     </div>
   )
 }

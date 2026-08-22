@@ -18,6 +18,8 @@ import { getLevelName } from '../utils/db.js'
 import { auth } from '../utils/firebase.js'
 import AvatarUploader from '../components/AvatarUploader.jsx'
 import { seedTestData } from '../utils/seedTestData.js'
+import { useConfirm } from '../hooks/useConfirm.js'
+import ConfirmModal from '../components/ConfirmModal.jsx'
 
 const FIELDS = [
   { key: 'username', label: 'Username', icon: User, placeholder: 'Your display name' },
@@ -46,6 +48,7 @@ function longestStreakFrom(daily) {
 }
 
 export default function Profile() {
+  const { confirm, confirmModalProps } = useConfirm()
   const [profile, setProfile] = useLocalStorage(STORAGE_KEYS.USER, DEFAULT_PROFILE)
   const [matches] = useLocalStorage(STORAGE_KEYS.MATCHES, [])
   const [sessions] = useLocalStorage(STORAGE_KEYS.SESSIONS, [])
@@ -182,8 +185,8 @@ export default function Profile() {
     }
     inp.click()
   }
-  function resetLocalData() {
-    if (!window.confirm('Reset all local data on this device? This does not affect cloud data.')) return
+  async function resetLocalData() {
+    if (!await confirm('Reset all local data on this device? This does not affect cloud data.')) return
     try {
       const toRemove = []
       for (let i = 0; i < localStorage.length; i++) {
@@ -197,6 +200,7 @@ export default function Profile() {
   }
 
   return (
+    <>
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
       {/* Edit profile */}
       <div className="card" style={{ maxWidth: 600, width: '100%', alignSelf: 'center' }}>
@@ -582,6 +586,8 @@ export default function Profile() {
         </div>
       )}
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 

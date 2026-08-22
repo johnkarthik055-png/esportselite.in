@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { ChevronDown, Trash2, Calendar, Filter } from 'lucide-react'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
+import { useConfirm } from '../hooks/useConfirm.js'
+import ConfirmModal from './ConfirmModal.jsx'
 import { STORAGE_KEYS } from '../utils/constants.js'
 import {
   dateKey,
@@ -20,6 +22,7 @@ import {
  *             used to populate filter chips and show readable module names.
  */
 export default function PracticeHistory({ modules = [] }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const [sessionsRaw, setSessions] = useLocalStorage(STORAGE_KEYS.SESSIONS, [])
   const sessions = useMemo(() => normalizeSessions(sessionsRaw), [sessionsRaw])
 
@@ -79,8 +82,8 @@ export default function PracticeHistory({ modules = [] }) {
     })
   }
 
-  function deleteSession(id) {
-    if (!window.confirm('Delete this practice session? This cannot be undone.')) return
+  async function deleteSession(id) {
+    if (!await confirm('Delete this practice session? This cannot be undone.')) return
     setSessions(prev => prev.filter(s => s.id !== id))
   }
 
@@ -91,6 +94,7 @@ export default function PracticeHistory({ modules = [] }) {
   }
 
   return (
+    <>
     <div className="glass clip-corner-sm p-6 lg:p-7 relative overflow-hidden">
       <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-accent-primary opacity-[0.08] blur-[100px] pointer-events-none" />
 
@@ -231,6 +235,8 @@ export default function PracticeHistory({ modules = [] }) {
         )}
       </div>
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 

@@ -145,6 +145,8 @@ export function setActivePhase(id) {
 }
 export function setViewMode(mode) {
   strategyStore.viewMode = mode
+  strategyStore.selectedObjectId = null
+  strategyStore.drafting = null
   fire()
 }
 export function setPlayerModeSelectedId(id) {

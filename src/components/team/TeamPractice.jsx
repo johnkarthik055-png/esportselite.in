@@ -25,8 +25,11 @@ import {
 } from '../../utils/notifications.js'
 import { useAuth } from '../../context/AuthContext.jsx'
 import AttendanceModal from './AttendanceModal.jsx'
+import { useConfirm } from '../../hooks/useConfirm.js'
+import ConfirmModal from '../ConfirmModal.jsx'
 
 export default function TeamPractice({ team, members, myRole, teamId }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const { user } = useAuth()
   const uid = user?.uid
   const canManage = myRole === 'owner' || myRole === 'igl'
@@ -74,7 +77,7 @@ export default function TeamPractice({ team, members, myRole, teamId }) {
     setEditing(null)
   }
   async function handleDelete(id) {
-    if (!window.confirm('Delete this practice session?')) return
+    if (!await confirm('Delete this practice session?')) return
     await deletePractice(teamId, id)
   }
   async function handleAttendance(pId, targetUid, status) {
@@ -82,6 +85,7 @@ export default function TeamPractice({ team, members, myRole, teamId }) {
   }
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
@@ -158,6 +162,8 @@ export default function TeamPractice({ team, members, myRole, teamId }) {
 
       <style>{`.animate-spin{animation:ee-p-spin .9s linear infinite}@keyframes ee-p-spin{to{transform:rotate(360deg)}}`}</style>
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 

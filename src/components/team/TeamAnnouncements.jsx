@@ -13,8 +13,11 @@ import {
 } from '../../utils/notifications.js'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { getDisplayName } from '../../utils/storage.js'
+import { useConfirm } from '../../hooks/useConfirm.js'
+import ConfirmModal from '../ConfirmModal.jsx'
 
 export default function TeamAnnouncements({ team, members, myRole, teamId }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const { user } = useAuth()
   const uid = user?.uid
   const canManage = myRole === 'owner' || myRole === 'igl'
@@ -58,7 +61,7 @@ export default function TeamAnnouncements({ team, members, myRole, teamId }) {
     setEditingId(null)
   }
   async function handleDelete(id) {
-    if (!window.confirm('Delete this announcement?')) return
+    if (!await confirm('Delete this announcement?')) return
     await deleteAnnouncement(teamId, id)
   }
   async function handleTogglePin(id, currentPinned) {
@@ -66,6 +69,7 @@ export default function TeamAnnouncements({ team, members, myRole, teamId }) {
   }
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
         <h2
@@ -139,6 +143,8 @@ export default function TeamAnnouncements({ team, members, myRole, teamId }) {
 
       <style>{`.animate-spin{animation:ee-a-spin .9s linear infinite}@keyframes ee-a-spin{to{transform:rotate(360deg)}}`}</style>
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 

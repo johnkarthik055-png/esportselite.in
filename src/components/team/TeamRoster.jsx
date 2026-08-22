@@ -8,6 +8,8 @@ import {
   transferOwnership, updateMember,
 } from '../../utils/team.js'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { useConfirm } from '../../hooks/useConfirm.js'
+import ConfirmModal from '../ConfirmModal.jsx'
 
 /* ============================================================
    IN-GAME SQUAD ROLES
@@ -49,6 +51,7 @@ function roleBadgeProps(role) {
 }
 
 export default function TeamRoster({ team, members, myRole, teamId }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const { user } = useAuth()
   const uid = user?.uid
   const isOwner = myRole === 'owner'
@@ -71,7 +74,7 @@ export default function TeamRoster({ team, members, myRole, teamId }) {
   }
   async function doRemove(target) {
     if (!canManage) return
-    if (!window.confirm('Remove this member from the team?')) return
+    if (!await confirm('Remove this member from the team?')) return
     setBusyUid(target); setErr('')
     try { await removeMember(teamId, target, myRole) }
     catch (e) { setErr(e.message) }
@@ -79,7 +82,7 @@ export default function TeamRoster({ team, members, myRole, teamId }) {
   }
   async function doTransfer(target, ign) {
     if (!isOwner) return
-    if (!window.confirm(`Transfer ownership to ${ign || 'this member'}? You will become a regular player.`)) return
+    if (!await confirm(`Transfer ownership to ${ign || 'this member'}? You will become a regular player.`)) return
     setBusyUid(target); setErr('')
     try { await transferOwnership(teamId, uid, target) }
     catch (e) { setErr(e.message) }
@@ -87,6 +90,7 @@ export default function TeamRoster({ team, members, myRole, teamId }) {
   }
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {err && (
         <div
@@ -141,6 +145,8 @@ export default function TeamRoster({ team, members, myRole, teamId }) {
         isOwner={isOwner}
       />
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 
@@ -472,6 +478,7 @@ function MiniStat({ label, value }) {
    INVITE CARD
    ============================================================ */
 function InviteCard({ team, teamId, isOwner }) {
+  const { confirm, confirmModalProps } = useConfirm()
   const [copied, setCopied] = useState(null)   /* 'code' | 'link' | null */
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
@@ -490,7 +497,7 @@ function InviteCard({ team, teamId, isOwner }) {
 
   async function regen() {
     if (!isOwner) return
-    if (!window.confirm('Regenerate the invite code? The old code will stop working immediately.')) return
+    if (!await confirm('Regenerate the invite code? The old code will stop working immediately.')) return
     setBusy(true); setErr('')
     try {
       await regenerateInviteCode(teamId, user?.uid)
@@ -502,6 +509,7 @@ function InviteCard({ team, teamId, isOwner }) {
   }
 
   return (
+    <>
     <div className="card">
       <div className="card-header">
         <div className="card-title">Invite code</div>
@@ -576,6 +584,8 @@ function InviteCard({ team, teamId, isOwner }) {
         </div>
       )}
     </div>
+    <ConfirmModal {...confirmModalProps} />
+    </>
   )
 }
 
