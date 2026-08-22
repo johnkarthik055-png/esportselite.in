@@ -34,27 +34,61 @@
    exactly on the coastline, so it reuses GAME_WORLD_SIZE unchanged
    rather than needing its own constant.
 
-   Rondo has NOT been verified or wired in. A "Rondo vehicle spawns"
-   file was provided but its x/y values are byte-identical to
-   erangel_vehicle_boat_spawns.json's vehicleSpawns (just with a z
-   field added) — i.e. not real Rondo data, so there is nothing
-   correct to derive a constant from yet. When genuine Rondo data
-   arrives, derive and verify its constant the same way (Rondo is a
-   3x3km map, so GAME_WORLD_SIZE is very unlikely to apply as-is)
-   before adding a Rondo entry here.
+   Rondo was verified the same way once a genuine (non-duplicate)
+   Rondo dataset arrived: rondo_vehicle_spawns.json's 402 points were
+   first checked byte-for-byte against Erangel's and Miramar's vehicle
+   AND boat coordinates (zero matches, unlike the two earlier "Rondo"
+   files that turned out to be Erangel's data relabeled) — genuinely
+   new data.
+
+   Deriving its constant did NOT start from an assumption. Rondo is a
+   3x3km map versus Erangel/Miramar's 8x8km, so a naively "proportional"
+   guess would suggest a much smaller GAME_SIZE — but the raw x/y values
+   in the file already span up to ~795,000 units, close to Erangel's
+   816,000 ceiling, which rules out a small constant immediately (a
+   smaller GAME_SIZE would push those points off the 0..WORLD_SIZE
+   canvas entirely). Plotting the full point set against
+   public/tiles/Rondo/3/0/0.png (confirmed via sharp to be the same
+   256x256 single full-map tile layout as Erangel/Miramar) at several
+   candidate constants (800000 / 816000 / 830000), cross-checked at
+   both Y-flip and no-flip orientation, showed:
+     - 816000 traces every road far more tightly than 800000 or 830000
+       (both show visible cumulative drift for points far from the
+       origin corner) — so Rondo reuses the exact same 816000 engine
+       constant as Erangel/Miramar, not a scaled-down one. The map's
+       smaller physical footprint apparently just occupies a smaller
+       region of the same fixed engine coordinate space, rather than
+       using a rescaled unit system of its own.
+     - Y-flip is WRONG for this file — dots sit visibly off every road.
+       No-flip (raw y used directly as top-down image-row, without the
+       WORLD_SIZE - ... inversion Erangel/Miramar's telemetry needs) is
+       the one where every dot lands exactly on the road centerline.
+       This dataset's y-axis convention is the opposite of Erangel's
+       and Miramar's raw telemetry — likely extracted by a different
+       tool/pipeline than those two files were.
    ============================================================ */
 
 export const MAP_WORLD_SIZE = 256
 
-/* Erangel and Miramar's raw playable area is 816000 x 816000 engine
-   units — both empirically verified (see above). Keyed by map id so
-   callers can look up the right constant without an if/else chain;
-   add 'rondo' here once real Rondo data lets us derive and verify
-   its own constant. */
+/* Erangel, Miramar, and Rondo's raw coordinate space all use the same
+   816000 x 816000 engine-unit constant — empirically verified for
+   each map individually (see above), not assumed to carry over. Keyed
+   by map id so callers can look up the right constant without an
+   if/else chain. */
 export const GAME_WORLD_SIZE = 816000
 export const GAME_WORLD_SIZE_BY_MAP = {
   erangel: GAME_WORLD_SIZE,
   miramar: GAME_WORLD_SIZE,
+  rondo:   GAME_WORLD_SIZE,
+}
+
+/* Whether a map's raw y needs the WORLD_SIZE-flip to land in Leaflet's
+   top-down lat space (see gameCoordToLatLng). Erangel and Miramar's
+   telemetry both do; Rondo's dataset — verified above — does not. */
+export const Y_FLIP_BY_MAP = {
+  erangel: true,
+  miramar: true,
+  rondo:   false,
 }
 
 /**
@@ -62,8 +96,19 @@ export const GAME_WORLD_SIZE_BY_MAP = {
  * [lat, lng] space (0..MAP_WORLD_SIZE), matching how every other
  * pin on the map (Compound, Hot Drop, etc.) is positioned.
  */
-export function gameCoordToLatLng(x, y, gameSize = GAME_WORLD_SIZE, worldSize = MAP_WORLD_SIZE) {
+export function gameCoordToLatLng(x, y, gameSize = GAME_WORLD_SIZE, worldSize = MAP_WORLD_SIZE, flipY = true) {
   const lng = (x / gameSize) * worldSize
-  const lat = worldSize - (y / gameSize) * worldSize
+  const lat = flipY ? worldSize - (y / gameSize) * worldSize : (y / gameSize) * worldSize
   return [lat, lng]
+}
+
+/**
+ * Same conversion, looked up per map id instead of passing the game
+ * size / flip flag by hand at every call site — the single place new
+ * maps plug into once their own constant is derived and verified.
+ */
+export function gameCoordToLatLngForMap(mapId, x, y) {
+  const gameSize = GAME_WORLD_SIZE_BY_MAP[mapId] ?? GAME_WORLD_SIZE
+  const flipY = Y_FLIP_BY_MAP[mapId] ?? true
+  return gameCoordToLatLng(x, y, gameSize, MAP_WORLD_SIZE, flipY)
 }
