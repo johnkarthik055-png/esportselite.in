@@ -117,14 +117,30 @@ export const VEHICLE_ANNOTATION_TYPES = [
 
 /* Real, verified spawn datasets by map — see mapCoordinates.js and
    erangel_vehicle_boat_spawns.json / miramar_boat_spawns.json for
-   how these were empirically derived. Anything not listed here has
-   NO verified data; the Layers panel must show "Data unavailable"
-   for it rather than a toggle, and nothing may fall back to
-   another map's coordinates (Issue 9 / Issue 17). */
+   how these were empirically derived. Every map/kind pair is one of
+   three distinct states, not a plain available/unavailable boolean:
+     - VERIFIED       — real coordinates exist and are wired in.
+     - PENDING         — the spawn kind exists in-game on this map, but
+       no verified coordinate data has been wired in yet (may arrive
+       later). The Layers panel shows "Data unavailable" for this.
+     - NOT_APPLICABLE  — confirmed the spawn kind does not exist on
+       this map at all (e.g. Rondo has no navigable water, so it has
+       no boat spawns to ever find). This is a permanent fact about
+       the map, not a missing-data gap, so it must read differently
+       from PENDING — conflating the two would wrongly imply boat data
+       is still coming for a map that will never have any.
+   Nothing may fall back to another map's coordinates for a PENDING or
+   NOT_APPLICABLE entry (Issue 9 / Issue 17). */
+export const SPAWN_STATUS = {
+  VERIFIED: 'verified',
+  PENDING: 'pending',
+  NOT_APPLICABLE: 'not_applicable',
+}
+
 export const VERIFIED_SPAWN_DATA = {
-  erangel: { vehicle: true,  boat: true },
-  miramar: { vehicle: true,  boat: true },
-  rondo:   { vehicle: true,  boat: false },
+  erangel: { vehicle: SPAWN_STATUS.VERIFIED, boat: SPAWN_STATUS.VERIFIED },
+  miramar: { vehicle: SPAWN_STATUS.VERIFIED, boat: SPAWN_STATUS.VERIFIED },
+  rondo:   { vehicle: SPAWN_STATUS.VERIFIED, boat: SPAWN_STATUS.NOT_APPLICABLE },
 }
 
 export const FORMATIONS = [
