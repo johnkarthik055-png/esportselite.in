@@ -569,7 +569,7 @@ export default function MapKnowledge() {
       </div>
 
       <div className="mk-body">
-        <div className="mk-map-col" style={{ display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0 }}>
+        <div className="mk-map-col" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ flex: 1, minHeight: 0 }}>
             <MapPanel
               activeMap={activeMap}
@@ -2201,8 +2201,22 @@ function MapStyles() {
            the parent is a plain flex child at 0. 60vh keeps enough
            screen real estate to draw polygons accurately on
            phones; 300 / 700 clamps prevent collapse on tiny
-           screens and runaway growth on tablets in landscape. */
+           screens and runaway growth on tablets in landscape.
+
+           flex: none is the part that actually makes any of this
+           take effect: the base (desktop) rule above sets flex: 1,
+           which expands to flex-basis: 0percent — and in a column-
+           direction flex container (.mk-body flips to flex-direction:
+           column at this same breakpoint), flex-basis wins over the
+           height property for main-axis sizing. Without overriding it
+           here, height: 60vh was silently ignored and the column
+           collapsed to its min-height: 300px floor no matter what the
+           height value said — confirmed via computed-style inspection
+           in a real browser, not assumed. flex: none (equivalent to
+           0 0 auto) makes flex-basis auto, which lets the explicit
+           height actually govern. */
         .mk-map-col {
+          flex: none;
           height: 60vh;
           min-height: 300px;
           max-height: 700px;
