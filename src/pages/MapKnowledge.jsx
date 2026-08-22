@@ -39,6 +39,7 @@ import {
 import StrategyMakerPanel from '../components/strategy/StrategyMakerPanel.jsx'
 import StrategyDrawingLayer from '../components/strategy/StrategyDrawingLayer.jsx'
 import BottomToolBar from '../components/strategy/BottomToolBar.jsx'
+import MobileToolDrawer from '../components/strategy/MobileToolDrawer.jsx'
 import PlayerModeSidebar, { PlayerModeHeader } from '../components/strategy/PlayerModeView.jsx'
 import {
   resetForMap, useStrategyStore, setViewMode, undo, redo,
@@ -422,9 +423,29 @@ export default function MapKnowledge() {
   const [polygons, setPolygons] = useState([])
   const [strategies, setStrategies] = useState([])
   const [playerModeSaving, setPlayerModeSaving] = useState(false)
+  /* Matches the <=900px breakpoint in MapStyles() below, where
+     .mk-body switches from side-by-side to stacked — kept in sync so
+     the JS-driven drawer logic and the CSS layout it depends on
+     always flip together instead of drifting into a half-mobile,
+     half-desktop state in between. */
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 900)
+
+  useEffect(() => {
+    function check() { setIsMobile(window.innerWidth <= 900) }
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   const strategyState = useStrategyStore()
   const isPlayerMode = mode === 'strategy' && strategyState.viewMode === 'player'
+  /* Coach Mode's full tool grid + Mode/Actions/Layers/Selected-Item/
+     Save stack is a lot of always-visible sidebar content — fine
+     next to a wide desktop map, but flow-stacked below a mobile map
+     it used to crush the map into a sliver. On mobile this content
+     moves into MobileToolDrawer (a position:fixed bottom sheet that
+     floats over the map instead of pushing it) rather than rendering
+     inline in .mk-map-col / .mk-side-col. */
+  const showMobileStrategyDrawer = mode === 'strategy' && !isPlayerMode && isMobile
 
   const activeMap = MAPS.find(m => m.id === activeMapId) || MAPS[0]
   const tileUrl = `/tiles/${activeMap.tileFolder}/{z}/{x}/{y}.png`
@@ -568,7 +589,7 @@ export default function MapKnowledge() {
               strategyReadOnly={isPlayerMode}
             />
           </div>
-          {mode === 'strategy' && !isPlayerMode && <BottomToolBar />}
+          {mode === 'strategy' && !isPlayerMode && !isMobile && <BottomToolBar />}
         </div>
 
         <div className="mk-side-col">
@@ -585,7 +606,7 @@ export default function MapKnowledge() {
               mapId={activeMapId}
             />
           )}
-          {mode === 'strategy' && !isPlayerMode && (
+          {mode === 'strategy' && !isPlayerMode && !isMobile && (
             <StrategyMakerPanel
               mapId={activeMapId}
               strategies={strategies}
@@ -606,6 +627,24 @@ export default function MapKnowledge() {
           )}
         </div>
       </div>
+
+      {/* Mobile-only: Coach Mode's tool bar + full sidebar stack,
+          as a collapsible bottom sheet floating over the map instead
+          of squeezing it out of flex-column flow (see isMobile / .mk-map-col
+          above). Desktop rendering above (BottomToolBar + StrategyMakerPanel
+          inline) is completely unaffected — this is a separate render path. */}
+      {showMobileStrategyDrawer && (
+        <MobileToolDrawer>
+          <BottomToolBar />
+          <StrategyMakerPanel
+            mapId={activeMapId}
+            strategies={strategies}
+            addStrategyDoc={addStrategy}
+            updateStrategyDoc={updateStrategy}
+            deleteStrategyDoc={deleteStrategy}
+          />
+        </MobileToolDrawer>
+      )}
 
       <MapStyles />
     </div>
@@ -2131,7 +2170,24 @@ function MapStyles() {
           min-height: 300px;
           max-height: 700px;
         }
-        .mk-side-col { width: 100%; max-height: 60vh; }
+        .mk-side-col {
+          width: 100%;
+          max-height: 60vh;
+          /* Its own internal scroll region, separate from the page's
+             own scroll (.main-content) — needs its own clearance so
+             its last card never sits under the fixed bottom nav bar.
+             The FAB itself is hidden on this page (see FABMenu.jsx),
+             so only the nav bar's height needs clearing here. */
+          padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 16px);
+        }
+      }
+      .strategy-mobile-drawer {
+        bottom: env(safe-area-inset-bottom, 0px);
+      }
+      @media (max-width: 768px) {
+        .strategy-mobile-drawer {
+          bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+        }
       }
       .mk-pin-detail { animation: mk-fade 0.22s ease; }
       @keyframes mk-fade {

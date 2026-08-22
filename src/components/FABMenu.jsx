@@ -35,6 +35,13 @@ export default function FABMenu() {
 
   if (!mobile) return null
   if (location.pathname === '/login') return null
+  /* Map Knowledge's quick actions (Add Note / Log Match / Quick Drill)
+     are all training-related and irrelevant here, and Strategy Maker's
+     own mobile bottom sheet already occupies this same bottom-right
+     screen real estate — hiding the FAB outright avoids it overlapping
+     Undo/Redo/Delete rather than padding around a floating button that
+     has nothing useful to do on this page anyway. */
+  if (location.pathname === '/map-knowledge') return null
 
   function quickDrill() {
     setOpen(false)

@@ -1016,17 +1016,16 @@ body.amoled {
   .card        { padding: 16px; }
   .stat-number { font-size: 28px; }
 
-  /* Map Knowledge */
-  .mk-page { height: auto !important; }
-  .mk-body { flex-direction: column !important; }
-  .mk-map-col { height: 55vw !important; min-height: 300px !important; width: 100% !important; }
-  .mk-side-col {
-    width: 100% !important;
-    max-height: 60vh;
-    /* Its own scroll region (separate from .main-content), so it
-       needs its own clearance from the fixed FAB button. */
-    padding-bottom: 110px;
-  }
+  /* Map Knowledge's own responsive rules for .mk-page/.mk-body/
+     .mk-map-col/.mk-side-col live in MapKnowledge.jsx's MapStyles()
+     component (scoped <style> tag, <=900px breakpoint) — intentionally
+     NOT duplicated here. This block used to also define .mk-map-col
+     with `height: 55vw`, which on a ~375px phone resolved to ~206px —
+     a barely-usable sliver fighting (via !important) against
+     MapStyles()'s own 60vh rule. Two stylesheets asserting different
+     heights for the same selector was the actual root cause of the
+     "map squished to a thin strip" bug — fixed by having exactly one
+     owner for this layout instead of patching the losing value. */
 }
 
 @media (max-width: 480px) {
