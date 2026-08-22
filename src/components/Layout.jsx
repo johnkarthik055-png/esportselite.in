@@ -91,7 +91,7 @@ export default function Layout() {
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(v => !v)} />
       <div
         style={{
-          flex: 1, display: 'flex', flexDirection: 'column',
+          display: 'flex', flexDirection: 'column',
           minHeight: '100vh',
           /* Flex items default to min-width:auto, which floors their
              shrink at their content's min-content size. This column
@@ -103,8 +103,19 @@ export default function Layout() {
              since every protected page renders through this one
              wrapper. */
           minWidth: 0,
+          /* Sidebar is position:fixed, so it never consumes space in
+             this flex row — `flex:1` alone resolved to 100% of the
+             row's width regardless of mainMl, and marginLeft then
+             shifted that full-width box mainMl px to the right,
+             overflowing the viewport's right edge by exactly mainMl
+             px (tablet width, or desktop with the sidebar manually
+             collapsed). That overflow is what let the sidebar visually
+             overlap page content instead of content reflowing beside
+             it — width has to shrink by the same amount margin pushes
+             it over, not just flex:1's default 100%. */
+          width: `calc(100% - ${mainMl}px)`,
           marginLeft: mainMl,
-          transition: 'margin-left 0.25s ease',
+          transition: 'margin-left 0.25s ease, width 0.25s ease',
         }}
       >
         <TopBar title={title} />

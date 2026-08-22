@@ -948,7 +948,44 @@ function FitToContainer() {
 
     function onResize() { map.invalidateSize() }
     window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+
+    /* Rotating a phone doesn't reliably fire a same-tick 'resize'
+       with final dimensions on every mobile browser — the address
+       bar / safe-area insets are sometimes still settling when the
+       event fires, so Leaflet can invalidateSize() against a
+       transitional box and lock in a stale size until the NEXT
+       resize. Re-checking a couple times after the event catches
+       that instead of trusting the first measurement. */
+    function onOrientation() {
+      onResize()
+      setTimeout(onResize, 200)
+      setTimeout(onResize, 500)
+    }
+    window.addEventListener('orientationchange', onOrientation)
+
+    /* Window 'resize' only fires for viewport changes — it says
+       nothing about THIS container's own box, which can also change
+       size for reasons the window never sees at all (the sidebar
+       collapsing/expanding at the tablet breakpoint, the Strategy
+       Maker mobile drawer opening, a tab switch that changes which
+       sibling elements are mounted next to the map). Observing the
+       container directly catches all of those without needing to
+       know about each one individually — this is what actually
+       fixes the "map renders at a stale/incorrect size" family of
+       bugs, rather than window-resize alone which only covers one
+       of several ways this box's size can change. */
+    const el = map.getContainer()
+    let ro
+    if (typeof ResizeObserver !== 'undefined' && el) {
+      ro = new ResizeObserver(() => map.invalidateSize())
+      ro.observe(el)
+    }
+
+    return () => {
+      window.removeEventListener('resize', onResize)
+      window.removeEventListener('orientationchange', onOrientation)
+      ro?.disconnect()
+    }
   }, [map])
   return null
 }
