@@ -87,7 +87,23 @@ export default function Layout() {
     collapsed ? 60 : 220
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-base)', display: 'flex' }}>
+    <div
+      style={{
+        minHeight: '100vh', background: 'var(--bg-base)', display: 'flex',
+        /* Single source of truth for the sidebar's current rendered
+           width, exposed as a CSS custom property so any descendant —
+           including position:fixed elements like Strategy Maker's
+           mobile tool drawer, which sit outside the .main-content flow
+           this component already offsets via marginLeft — can reserve
+           space next to the sidebar instead of rendering underneath
+           it. Custom properties inherit down the DOM tree regardless
+           of position:fixed (that only affects the containing block
+           for layout, not CSS variable inheritance), so this reaches
+           every page without each one re-deriving the same viewport
+           breakpoint independently. */
+        '--app-sidebar-width': `${mainMl}px`,
+      }}
+    >
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(v => !v)} />
       <div
         style={{

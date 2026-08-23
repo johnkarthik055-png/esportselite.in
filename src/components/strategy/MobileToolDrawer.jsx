@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { useStrategyStore } from './strategyStore.js'
 
@@ -18,16 +18,53 @@ const TOOL_LABELS = {
    Defaults to collapsed (just the active tool + a handle to expand)
    so the map stays dominant until the user actually wants the full
    tool grid — desktop's always-visible sidebar is untouched, this
-   component only ever mounts on mobile. */
-export default function MobileToolDrawer({ children }) {
+   component only ever mounts on mobile.
+
+   Floating over the map (position:fixed) means padding/margin tricks
+   on the map's own box can't make room for this drawer — a fixed
+   element is pinned to the same screen pixels no matter how tall the
+   flow content around it gets, so the map's actual box has to end
+   exactly at the drawer's top edge, not just grow taller with empty
+   space at the bottom that the fixed drawer still sits on top of
+   regardless. onMetricsChange reports this drawer's real measured
+   top position and height (via ResizeObserver, not a guessed
+   constant) so the caller can size the map container to stop exactly
+   there. */
+export default function MobileToolDrawer({ children, onMetricsChange, maxExpandedHeight }) {
   const st = useStrategyStore()
   const [expanded, setExpanded] = useState(false)
+  const rootRef = useRef(null)
+
+  useEffect(() => {
+    const el = rootRef.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    function report() {
+      const r = el.getBoundingClientRect()
+      onMetricsChange?.({ top: r.top, height: r.height })
+    }
+    const ro = new ResizeObserver(report)
+    ro.observe(el)
+    report()
+    return () => ro.disconnect()
+  }, [onMetricsChange])
+
+  /* Reported metrics must clear when this component unmounts (e.g.
+     leaving Strategy Maker, or switching to Player Mode) — otherwise
+     the map would keep reserving space for a drawer that's no longer
+     on screen. */
+  useEffect(() => () => onMetricsChange?.(null), [onMetricsChange])
 
   return (
     <div
+      ref={rootRef}
       className="strategy-mobile-drawer"
       style={{
-        position: 'fixed', left: 0, right: 0,
+        position: 'fixed',
+        /* Reserves space beside the tablet-breakpoint icon sidebar
+           (see Layout.jsx) instead of rendering underneath it — a
+           fixed-position element ignores the sidebar's flex/margin
+           offset entirely unless told about it explicitly. */
+        left: 'var(--app-sidebar-width, 0px)', right: 0,
         /* Bottom offset (clearing the fixed bottom nav bar, which
            itself only renders <=768px) is defined in MapStyles()'s
            .strategy-mobile-drawer media query rather than here —
@@ -35,13 +72,23 @@ export default function MobileToolDrawer({ children }) {
            <=900px "should this drawer render at all" threshold, so
            tablet widths (769-900px, no bottom nav) don't reserve
            space for a nav bar that isn't actually on screen. */
-        zIndex: 30, /* above the map canvas, below ConfirmModal (50) and the bottom-nav "More" drawer (1999) */
+        zIndex: 30, /* above the map canvas, below the sidebar (50), ConfirmModal (50) and the bottom-nav "More" drawer (1999) */
         display: 'flex', flexDirection: 'column',
         background: 'var(--sidebar)',
         borderTop: '1px solid var(--border)',
         borderRadius: '16px 16px 0 0',
         boxShadow: '0 -12px 32px rgba(0,0,0,0.55)',
-        maxHeight: expanded ? '62vh' : 'auto',
+        /* maxExpandedHeight (from MapKnowledge, derived from the map's
+           own real measured position) is what actually guarantees this
+           drawer never claims more space than leaves the map its
+           minimum usable height — a flat vh/px cap alone can't know
+           that on a short landscape screen the header has already
+           eaten into the budget. Falls back to a flat cap only for the
+           brief render before that measurement exists. */
+        maxHeight: expanded
+          ? (maxExpandedHeight != null ? `${maxExpandedHeight}px` : 'min(58vh, 340px)')
+          : 'auto',
+        transition: 'max-height 0.2s ease',
       }}
     >
       <button

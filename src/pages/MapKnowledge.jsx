@@ -429,6 +429,17 @@ export default function MapKnowledge() {
      always flip together instead of drifting into a half-mobile,
      half-desktop state in between. */
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 900)
+  /* Real measured position of the mobile Strategy Maker drawer (see
+     MobileToolDrawer's onMetricsChange) — { top, height } in viewport
+     coordinates. Used below to size the map column so its box ends
+     exactly at the drawer's top edge; padding/margin on the map
+     itself can't do this because the drawer is position:fixed and
+     stays pinned to the same screen pixels no matter how tall the
+     map's flow content is. */
+  const [drawerMetrics, setDrawerMetrics] = useState(null)
+  const mapColRef = useRef(null)
+  const [mapColTop, setMapColTop] = useState(null)
+  const [mapColMaxHeight, setMapColMaxHeight] = useState(null)
 
   useEffect(() => {
     function check() { setIsMobile(window.innerWidth <= 900) }
@@ -446,6 +457,73 @@ export default function MapKnowledge() {
      floats over the map instead of pushing it) rather than rendering
      inline in .mk-map-col / .mk-side-col. */
   const showMobileStrategyDrawer = mode === 'strategy' && !isPlayerMode && isMobile
+
+  /* mapColTop only depends on the header/page layout, never on the
+     drawer's own height — measuring it independently (rather than
+     deriving everything from a single pass) is what makes the map
+     and the drawer agree on a fixed budget instead of each one
+     growing to fill whatever the other one didn't claim yet. */
+  useEffect(() => {
+    if (!showMobileStrategyDrawer) { setMapColTop(null); return }
+    function measure() {
+      const el = mapColRef.current
+      if (el) setMapColTop(el.getBoundingClientRect().top)
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    window.addEventListener('orientationchange', measure)
+    return () => {
+      window.removeEventListener('resize', measure)
+      window.removeEventListener('orientationchange', measure)
+    }
+  }, [showMobileStrategyDrawer])
+
+  /* Minimum usable map height, even in the worst case (drawer fully
+     expanded on a short landscape screen) — smaller than the map's
+     normal 300px comfort floor, but still enough to see terrain and
+     tap a spot on it, which matters more than letting the drawer
+     claim every remaining pixel. */
+  const MAP_MIN_HEIGHT = 140
+  /* The drawer's own floor here is deliberately just "tall enough to
+     show its collapse handle" (56px), not a content-comfort minimum —
+     on a short landscape screen the header + MAP_MIN_HEIGHT can
+     already claim most of the available height, and giving the
+     drawer its own separate comfort floor on top of that reintroduces
+     the exact overlap this calculation exists to prevent (two
+     independent minimums whose sum exceeds what the screen actually
+     has). If there's truly not enough room for a comfortable drawer,
+     it scrolls its own content via overflow-y instead of overlapping
+     the map. */
+  /* The drawer's CSS bottom offset itself (see MapStyles'
+     .strategy-mobile-drawer rule) reserves 64px of bottom-nav
+     clearance at <=768px width — meaning the drawer's real top edge
+     sits 64px higher than "viewport bottom minus its height" alone
+     would suggest at that width. Leaving this out understated the
+     drawer's real top by exactly that much and let the map's height
+     calc claim space the drawer's clearance had already reserved. */
+  const bottomNavClearance = typeof window !== 'undefined' && window.innerWidth <= 768 ? 64 : 0
+  const maxDrawerHeight = mapColTop != null && typeof window !== 'undefined'
+    ? Math.max(56, window.innerHeight - mapColTop - MAP_MIN_HEIGHT - bottomNavClearance)
+    : undefined
+
+  /* Final map-column height: the real measured gap between where the
+     column starts and the drawer's real measured top edge — no
+     MAP_MIN_HEIGHT floor here. That floor already lives one step
+     upstream, in maxDrawerHeight's own formula (it's what keeps the
+     drawer from claiming more than leaves the map its minimum) —
+     re-applying it here too would let the map's height win a fight
+     against the drawer's actual reported top whenever the drawer
+     used its full allowance, pushing the map's bottom edge past the
+     drawer's top by however much this floor and that allowance
+     disagreed on (that's exactly what caused the map to overlap the
+     drawer in portrait mode: the map insisted on 140px in a spot
+     where only ~68px of real gap existed). A small structural floor
+     (not a comfort one) still guards against a degenerate 0/negative
+     height if measurement runs before layout settles. */
+  useEffect(() => {
+    if (!showMobileStrategyDrawer || !drawerMetrics || mapColTop == null) { setMapColMaxHeight(null); return }
+    setMapColMaxHeight(Math.max(80, drawerMetrics.top - mapColTop - 8))
+  }, [showMobileStrategyDrawer, drawerMetrics, mapColTop])
 
   const activeMap = MAPS.find(m => m.id === activeMapId) || MAPS[0]
   const tileUrl = `/tiles/${activeMap.tileFolder}/{z}/{x}/{y}.png`
@@ -569,7 +647,33 @@ export default function MapKnowledge() {
       </div>
 
       <div className="mk-body">
-        <div className="mk-map-col" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div
+          ref={mapColRef}
+          className="mk-map-col"
+          style={{
+            display: 'flex', flexDirection: 'column', gap: 10,
+            /* The drawer is position:fixed, so it's pinned to the same
+               screen pixels no matter how tall the map's own flow
+               content is — padding/margin on the map can't make room
+               for it. Instead the map column's own HEIGHT is capped to
+               exactly the real measured gap between where it starts
+               and where the drawer's real measured top edge is (see
+               mapColMaxHeight above), so the column's box — and the
+               .mk-canvas overflow:hidden clip boundary inside it —
+               ends exactly where the drawer begins. null (no drawer
+               mounted, or metrics not measured yet) falls back to the
+               normal CSS-driven height. */
+            height: mapColMaxHeight != null ? `${mapColMaxHeight}px` : undefined,
+            /* Also override the CSS min-height/max-height floor and
+               ceiling (300px / 700px, see MapStyles' <=900px block) —
+               height alone doesn't beat those, and a min-height floor
+               taller than the real available gap would re-create the
+               exact overlap this whole calculation exists to prevent. */
+            minHeight: mapColMaxHeight != null ? `${mapColMaxHeight}px` : undefined,
+            maxHeight: mapColMaxHeight != null ? `${mapColMaxHeight}px` : undefined,
+            transition: 'height 0.2s ease',
+          }}
+        >
           <div style={{ flex: 1, minHeight: 0 }}>
             <MapPanel
               activeMap={activeMap}
@@ -634,7 +738,7 @@ export default function MapKnowledge() {
           above). Desktop rendering above (BottomToolBar + StrategyMakerPanel
           inline) is completely unaffected — this is a separate render path. */}
       {showMobileStrategyDrawer && (
-        <MobileToolDrawer>
+        <MobileToolDrawer onMetricsChange={setDrawerMetrics} maxExpandedHeight={maxDrawerHeight}>
           <BottomToolBar />
           <StrategyMakerPanel
             mapId={activeMapId}
