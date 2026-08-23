@@ -39,7 +39,7 @@ import {
 import StrategyMakerPanel from '../components/strategy/StrategyMakerPanel.jsx'
 import StrategyDrawingLayer from '../components/strategy/StrategyDrawingLayer.jsx'
 import BottomToolBar from '../components/strategy/BottomToolBar.jsx'
-import MobileToolDrawer from '../components/strategy/MobileToolDrawer.jsx'
+import FloatingToolsPanel from '../components/strategy/FloatingToolsPanel.jsx'
 import PlayerModeSidebar, { PlayerModeHeader } from '../components/strategy/PlayerModeView.jsx'
 import {
   resetForMap, useStrategyStore, setViewMode, undo, redo,
@@ -47,6 +47,7 @@ import {
 } from '../components/strategy/strategyStore.js'
 import { useConfirm } from '../hooks/useConfirm.js'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import { getViewport } from '../utils/viewport.js'
 
 /* ============================================================
    LEAFLET DEFAULT ICON FIX
@@ -423,107 +424,34 @@ export default function MapKnowledge() {
   const [polygons, setPolygons] = useState([])
   const [strategies, setStrategies] = useState([])
   const [playerModeSaving, setPlayerModeSaving] = useState(false)
-  /* Matches the <=900px breakpoint in MapStyles() below, where
-     .mk-body switches from side-by-side to stacked — kept in sync so
-     the JS-driven drawer logic and the CSS layout it depends on
-     always flip together instead of drifting into a half-mobile,
-     half-desktop state in between. */
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 900)
-  /* Real measured position of the mobile Strategy Maker drawer (see
-     MobileToolDrawer's onMetricsChange) — { top, height } in viewport
-     coordinates. Used below to size the map column so its box ends
-     exactly at the drawer's top edge; padding/margin on the map
-     itself can't do this because the drawer is position:fixed and
-     stays pinned to the same screen pixels no matter how tall the
-     map's flow content is. */
-  const [drawerMetrics, setDrawerMetrics] = useState(null)
-  const mapColRef = useRef(null)
-  const [mapColTop, setMapColTop] = useState(null)
-  const [mapColMaxHeight, setMapColMaxHeight] = useState(null)
+  /* Same shortSide-based check the app-wide sidebar/bottom-nav use
+     (see utils/viewport.js) — a landscape phone has to land in the
+     same "mobile" bucket as portrait, or it falls back to the
+     tablet/desktop sidebar layout below with none of the reasoning
+     that made this page's mobile layout work in the first place.
+     This replaces an entire family of ResizeObserver/height-budget
+     calculations that used to live here: the previous mobile layout
+     put the map and a tools drawer in the same flex column competing
+     for a shared height, which is what caused the repeated "map
+     split into strips" bugs. The mobile layout below instead makes
+     the map position:fixed and full-bleed (sized only by the topbar/
+     bottom-nav, both fixed and known) with all controls floating on
+     top of it — nothing ever competes with the map for space, so
+     there's nothing left to measure or calculate. */
+  const [isMobile, setIsMobile] = useState(() => getViewport() === 'mobile')
 
   useEffect(() => {
-    function check() { setIsMobile(window.innerWidth <= 900) }
+    function check() { setIsMobile(getViewport() === 'mobile') }
     window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
+    window.addEventListener('orientationchange', check)
+    return () => {
+      window.removeEventListener('resize', check)
+      window.removeEventListener('orientationchange', check)
+    }
   }, [])
 
   const strategyState = useStrategyStore()
   const isPlayerMode = mode === 'strategy' && strategyState.viewMode === 'player'
-  /* Coach Mode's full tool grid + Mode/Actions/Layers/Selected-Item/
-     Save stack is a lot of always-visible sidebar content — fine
-     next to a wide desktop map, but flow-stacked below a mobile map
-     it used to crush the map into a sliver. On mobile this content
-     moves into MobileToolDrawer (a position:fixed bottom sheet that
-     floats over the map instead of pushing it) rather than rendering
-     inline in .mk-map-col / .mk-side-col. */
-  const showMobileStrategyDrawer = mode === 'strategy' && !isPlayerMode && isMobile
-
-  /* mapColTop only depends on the header/page layout, never on the
-     drawer's own height — measuring it independently (rather than
-     deriving everything from a single pass) is what makes the map
-     and the drawer agree on a fixed budget instead of each one
-     growing to fill whatever the other one didn't claim yet. */
-  useEffect(() => {
-    if (!showMobileStrategyDrawer) { setMapColTop(null); return }
-    function measure() {
-      const el = mapColRef.current
-      if (el) setMapColTop(el.getBoundingClientRect().top)
-    }
-    measure()
-    window.addEventListener('resize', measure)
-    window.addEventListener('orientationchange', measure)
-    return () => {
-      window.removeEventListener('resize', measure)
-      window.removeEventListener('orientationchange', measure)
-    }
-  }, [showMobileStrategyDrawer])
-
-  /* Minimum usable map height, even in the worst case (drawer fully
-     expanded on a short landscape screen) — smaller than the map's
-     normal 300px comfort floor, but still enough to see terrain and
-     tap a spot on it, which matters more than letting the drawer
-     claim every remaining pixel. */
-  const MAP_MIN_HEIGHT = 140
-  /* The drawer's own floor here is deliberately just "tall enough to
-     show its collapse handle" (56px), not a content-comfort minimum —
-     on a short landscape screen the header + MAP_MIN_HEIGHT can
-     already claim most of the available height, and giving the
-     drawer its own separate comfort floor on top of that reintroduces
-     the exact overlap this calculation exists to prevent (two
-     independent minimums whose sum exceeds what the screen actually
-     has). If there's truly not enough room for a comfortable drawer,
-     it scrolls its own content via overflow-y instead of overlapping
-     the map. */
-  /* The drawer's CSS bottom offset itself (see MapStyles'
-     .strategy-mobile-drawer rule) reserves 64px of bottom-nav
-     clearance at <=768px width — meaning the drawer's real top edge
-     sits 64px higher than "viewport bottom minus its height" alone
-     would suggest at that width. Leaving this out understated the
-     drawer's real top by exactly that much and let the map's height
-     calc claim space the drawer's clearance had already reserved. */
-  const bottomNavClearance = typeof window !== 'undefined' && window.innerWidth <= 768 ? 64 : 0
-  const maxDrawerHeight = mapColTop != null && typeof window !== 'undefined'
-    ? Math.max(56, window.innerHeight - mapColTop - MAP_MIN_HEIGHT - bottomNavClearance)
-    : undefined
-
-  /* Final map-column height: the real measured gap between where the
-     column starts and the drawer's real measured top edge — no
-     MAP_MIN_HEIGHT floor here. That floor already lives one step
-     upstream, in maxDrawerHeight's own formula (it's what keeps the
-     drawer from claiming more than leaves the map its minimum) —
-     re-applying it here too would let the map's height win a fight
-     against the drawer's actual reported top whenever the drawer
-     used its full allowance, pushing the map's bottom edge past the
-     drawer's top by however much this floor and that allowance
-     disagreed on (that's exactly what caused the map to overlap the
-     drawer in portrait mode: the map insisted on 140px in a spot
-     where only ~68px of real gap existed). A small structural floor
-     (not a comfort one) still guards against a degenerate 0/negative
-     height if measurement runs before layout settles. */
-  useEffect(() => {
-    if (!showMobileStrategyDrawer || !drawerMetrics || mapColTop == null) { setMapColMaxHeight(null); return }
-    setMapColMaxHeight(Math.max(80, drawerMetrics.top - mapColTop - 8))
-  }, [showMobileStrategyDrawer, drawerMetrics, mapColTop])
 
   const activeMap = MAPS.find(m => m.id === activeMapId) || MAPS[0]
   const tileUrl = `/tiles/${activeMap.tileFolder}/{z}/{x}/{y}.png`
@@ -606,75 +534,18 @@ export default function MapKnowledge() {
     })
   }
 
+  /* Mobile: full-bleed map (position:fixed, sized only by the topbar/
+     bottom-nav) with every control floating on top of it as its own
+     overlay — nothing here shares layout space with the map, which is
+     the whole point (see the isMobile comment above). Desktop/tablet:
+     the original sidebar-based .mk-page structure, completely
+     unchanged, gated behind the same isMobile flag rather than sprinkled
+     with individual !isMobile checks. */
   return (
-    <div className="mk-page">
-      <div className="mk-header">
-        {isPlayerMode ? (
-          <PlayerModeHeader
-            activeMap={activeMap}
-            mapList={MAPS}
-            onSelectMap={(id) => { setActiveMapId(id); setSelectedPin(null) }}
-            onBack={() => setViewMode('coach')}
-            onSave={handlePlayerModeSave}
-            saving={playerModeSaving}
-          />
-        ) : (
-          <>
-            <div style={{ display: 'flex', gap: 4 }}>
-              {MAPS.map(m => (
-                <TabButton
-                  key={m.id}
-                  active={activeMapId === m.id}
-                  onClick={() => { setActiveMapId(m.id); setSelectedPin(null) }}
-                >
-                  {m.name}
-                </TabButton>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: 4 }}>
-              <TabButton active={mode === 'view'} onClick={() => setMode('view')}>View Map</TabButton>
-              <TabButton active={mode === 'strategy'} onClick={() => setMode('strategy')}>Strategy Maker</TabButton>
-              {isAdmin && (
-                <span className="mk-dev-tab" style={{ display: 'inline-flex' }}>
-                  <TabButton active={mode === 'dev'} onClick={() => setMode('dev')}>
-                    <Shield size={12} style={{ marginRight: 4 }} /> Dev Editor
-                  </TabButton>
-                </span>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-
-      <div className="mk-body">
-        <div
-          ref={mapColRef}
-          className="mk-map-col"
-          style={{
-            display: 'flex', flexDirection: 'column', gap: 10,
-            /* The drawer is position:fixed, so it's pinned to the same
-               screen pixels no matter how tall the map's own flow
-               content is — padding/margin on the map can't make room
-               for it. Instead the map column's own HEIGHT is capped to
-               exactly the real measured gap between where it starts
-               and where the drawer's real measured top edge is (see
-               mapColMaxHeight above), so the column's box — and the
-               .mk-canvas overflow:hidden clip boundary inside it —
-               ends exactly where the drawer begins. null (no drawer
-               mounted, or metrics not measured yet) falls back to the
-               normal CSS-driven height. */
-            height: mapColMaxHeight != null ? `${mapColMaxHeight}px` : undefined,
-            /* Also override the CSS min-height/max-height floor and
-               ceiling (300px / 700px, see MapStyles' <=900px block) —
-               height alone doesn't beat those, and a min-height floor
-               taller than the real available gap would re-create the
-               exact overlap this whole calculation exists to prevent. */
-            minHeight: mapColMaxHeight != null ? `${mapColMaxHeight}px` : undefined,
-            maxHeight: mapColMaxHeight != null ? `${mapColMaxHeight}px` : undefined,
-            transition: 'height 0.2s ease',
-          }}
-        >
-          <div style={{ flex: 1, minHeight: 0 }}>
+    <>
+      {isMobile ? (
+        <div className="mk-mobile-root">
+          <div className="mk-map-fullbleed">
             <MapPanel
               activeMap={activeMap}
               tileUrl={tileUrl}
@@ -691,67 +562,197 @@ export default function MapKnowledge() {
               onMouseMove={setMousePos}
               mode={mode}
               strategyReadOnly={isPlayerMode}
+              fullBleed
             />
           </div>
-          {mode === 'strategy' && !isPlayerMode && !isMobile && <BottomToolBar />}
-        </div>
 
-        <div className="mk-side-col">
+          {isPlayerMode ? (
+            <div className="mk-top-overlay-bar">
+              <PlayerModeHeader
+                activeMap={activeMap}
+                mapList={MAPS}
+                onSelectMap={(id) => { setActiveMapId(id); setSelectedPin(null) }}
+                onBack={() => setViewMode('coach')}
+                onSave={handlePlayerModeSave}
+                saving={playerModeSaving}
+              />
+            </div>
+          ) : (
+            <div className="mk-top-overlay">
+              <div className="mk-top-overlay-row">
+                {MAPS.map(m => (
+                  <OverlayPill key={m.id} active={activeMapId === m.id} onClick={() => { setActiveMapId(m.id); setSelectedPin(null) }}>
+                    {m.name}
+                  </OverlayPill>
+                ))}
+              </div>
+              <div className="mk-top-overlay-row">
+                <OverlayPill active={mode === 'view'} onClick={() => setMode('view')}>View Map</OverlayPill>
+                <OverlayPill active={mode === 'strategy'} onClick={() => setMode('strategy')}>Strategy</OverlayPill>
+                {isAdmin && (
+                  <OverlayPill active={mode === 'dev'} onClick={() => setMode('dev')}>
+                    <Shield size={12} /> Dev
+                  </OverlayPill>
+                )}
+              </div>
+            </div>
+          )}
+
           {mode === 'view' && (
-            <ViewPanel
-              activeMap={activeMap}
-              pins={pins}
-              visibleLayers={visibleLayers}
-              onToggleLayer={toggleLayer}
-              selectedPin={selectedPin}
-              onSelectPin={setSelectedPin}
-              onFlyTo={setFlyTarget}
-              isAdmin={isAdmin}
-              mapId={activeMapId}
-            />
+            <FloatingToolsPanel title="Layers">
+              <ViewPanel
+                activeMap={activeMap}
+                pins={pins}
+                visibleLayers={visibleLayers}
+                onToggleLayer={toggleLayer}
+                selectedPin={selectedPin}
+                onSelectPin={setSelectedPin}
+                onFlyTo={setFlyTarget}
+                isAdmin={isAdmin}
+                mapId={activeMapId}
+              />
+            </FloatingToolsPanel>
           )}
-          {mode === 'strategy' && !isPlayerMode && !isMobile && (
-            <StrategyMakerPanel
-              mapId={activeMapId}
-              strategies={strategies}
-              addStrategyDoc={addStrategy}
-              updateStrategyDoc={updateStrategy}
-              deleteStrategyDoc={deleteStrategy}
-            />
+          {mode === 'strategy' && !isPlayerMode && (
+            <FloatingToolsPanel title="Tools">
+              <BottomToolBar />
+              <StrategyMakerPanel
+                mapId={activeMapId}
+                strategies={strategies}
+                addStrategyDoc={addStrategy}
+                updateStrategyDoc={updateStrategy}
+                deleteStrategyDoc={deleteStrategy}
+              />
+            </FloatingToolsPanel>
           )}
-          {mode === 'strategy' && isPlayerMode && <PlayerModeSidebar />}
+          {mode === 'strategy' && isPlayerMode && (
+            <FloatingToolsPanel
+              title="Squad Briefing"
+              /* Player Mode's top bar spans the full width (back/map
+                 name/save/menu), unlike the map-selector pills used
+                 everywhere else — this panel has to sit below it
+                 instead of beside it, or the two would overlap. */
+              style={{ top: 'calc(var(--app-topbar-height, 64px) + 68px)' }}
+            >
+              <PlayerModeSidebar />
+            </FloatingToolsPanel>
+          )}
           {mode === 'dev' && isAdmin && (
-            <DevPanel
-              mapId={activeMapId}
-              pins={pins}
-              polygons={polygons}
-              mousePos={mousePos}
-              user={user}
-            />
+            <FloatingToolsPanel title="Dev Editor">
+              <DevPanel
+                mapId={activeMapId}
+                pins={pins}
+                polygons={polygons}
+                mousePos={mousePos}
+                user={user}
+              />
+            </FloatingToolsPanel>
           )}
         </div>
-      </div>
+      ) : (
+        <div className="mk-page">
+          <div className="mk-header">
+            {isPlayerMode ? (
+              <PlayerModeHeader
+                activeMap={activeMap}
+                mapList={MAPS}
+                onSelectMap={(id) => { setActiveMapId(id); setSelectedPin(null) }}
+                onBack={() => setViewMode('coach')}
+                onSave={handlePlayerModeSave}
+                saving={playerModeSaving}
+              />
+            ) : (
+              <>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {MAPS.map(m => (
+                    <TabButton
+                      key={m.id}
+                      active={activeMapId === m.id}
+                      onClick={() => { setActiveMapId(m.id); setSelectedPin(null) }}
+                    >
+                      {m.name}
+                    </TabButton>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <TabButton active={mode === 'view'} onClick={() => setMode('view')}>View Map</TabButton>
+                  <TabButton active={mode === 'strategy'} onClick={() => setMode('strategy')}>Strategy Maker</TabButton>
+                  {isAdmin && (
+                    <span className="mk-dev-tab" style={{ display: 'inline-flex' }}>
+                      <TabButton active={mode === 'dev'} onClick={() => setMode('dev')}>
+                        <Shield size={12} style={{ marginRight: 4 }} /> Dev Editor
+                      </TabButton>
+                    </span>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
 
-      {/* Mobile-only: Coach Mode's tool bar + full sidebar stack,
-          as a collapsible bottom sheet floating over the map instead
-          of squeezing it out of flex-column flow (see isMobile / .mk-map-col
-          above). Desktop rendering above (BottomToolBar + StrategyMakerPanel
-          inline) is completely unaffected — this is a separate render path. */}
-      {showMobileStrategyDrawer && (
-        <MobileToolDrawer onMetricsChange={setDrawerMetrics} maxExpandedHeight={maxDrawerHeight}>
-          <BottomToolBar />
-          <StrategyMakerPanel
-            mapId={activeMapId}
-            strategies={strategies}
-            addStrategyDoc={addStrategy}
-            updateStrategyDoc={updateStrategy}
-            deleteStrategyDoc={deleteStrategy}
-          />
-        </MobileToolDrawer>
+          <div className="mk-body">
+            <div className="mk-map-col" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ flex: 1, minHeight: 0 }}>
+                <MapPanel
+                  activeMap={activeMap}
+                  tileUrl={tileUrl}
+                  pins={pins}
+                  visiblePins={visiblePins}
+                  visibleLayers={visibleLayers}
+                  polygons={polygons}
+                  zoom={zoom}
+                  onZoomChange={setZoom}
+                  selectedPin={selectedPin}
+                  onSelectPin={setSelectedPin}
+                  flyTarget={flyTarget}
+                  onFlyDone={() => setFlyTarget(null)}
+                  onMouseMove={setMousePos}
+                  mode={mode}
+                  strategyReadOnly={isPlayerMode}
+                />
+              </div>
+              {mode === 'strategy' && !isPlayerMode && <BottomToolBar />}
+            </div>
+
+            <div className="mk-side-col">
+              {mode === 'view' && (
+                <ViewPanel
+                  activeMap={activeMap}
+                  pins={pins}
+                  visibleLayers={visibleLayers}
+                  onToggleLayer={toggleLayer}
+                  selectedPin={selectedPin}
+                  onSelectPin={setSelectedPin}
+                  onFlyTo={setFlyTarget}
+                  isAdmin={isAdmin}
+                  mapId={activeMapId}
+                />
+              )}
+              {mode === 'strategy' && !isPlayerMode && (
+                <StrategyMakerPanel
+                  mapId={activeMapId}
+                  strategies={strategies}
+                  addStrategyDoc={addStrategy}
+                  updateStrategyDoc={updateStrategy}
+                  deleteStrategyDoc={deleteStrategy}
+                />
+              )}
+              {mode === 'strategy' && isPlayerMode && <PlayerModeSidebar />}
+              {mode === 'dev' && isAdmin && (
+                <DevPanel
+                  mapId={activeMapId}
+                  pins={pins}
+                  polygons={polygons}
+                  mousePos={mousePos}
+                  user={user}
+                />
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       <MapStyles />
-    </div>
+    </>
   )
 }
 
@@ -782,6 +783,35 @@ function TabButton({ active, onClick, children }) {
   )
 }
 
+/* Mobile full-bleed layout's floating pill — same role as TabButton
+   but sized/styled for sitting on a frosted-glass overlay card rather
+   than a solid header row. */
+function OverlayPill({ active, onClick, children }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        background: active ? 'var(--blue)' : 'rgba(13,21,40,0.85)',
+        color: active ? '#fff' : 'var(--text-primary)',
+        border: `1px solid ${active ? 'var(--blue)' : '#1B2A45'}`,
+        borderRadius: 8,
+        padding: '7px 12px',
+        fontFamily: 'DM Sans, sans-serif',
+        fontSize: 12,
+        fontWeight: 600,
+        cursor: 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        whiteSpace: 'nowrap',
+        transition: 'all 0.15s ease',
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
 /* ============================================================
    MAP PANEL — the Leaflet canvas
    ============================================================ */
@@ -793,6 +823,7 @@ function MapPanel({
   flyTarget, onFlyDone,
   onMouseMove, mode,
   strategyReadOnly,
+  fullBleed,
 }) {
   const mapRef = useRef(null)
   const strategyState = useStrategyStore()
@@ -813,8 +844,11 @@ function MapPanel({
          with page-level fixed overlays (nav drawers, modals) again. */
       zIndex: 0,
       background: 'var(--bg-elevated)',
-      border: '1px solid var(--border)',
-      borderRadius: 'var(--radius-lg)',
+      /* fullBleed (mobile full-bleed layout) drops the border/radius
+         entirely — the map is meant to run edge-to-edge under the
+         floating overlays, not sit in a bordered card. */
+      border: fullBleed ? 'none' : '1px solid var(--border)',
+      borderRadius: fullBleed ? 0 : 'var(--radius-lg)',
       overflow: 'hidden',
       height: '100%', width: '100%',
     }}>
@@ -960,9 +994,14 @@ function MapPanel({
         {mode === 'dev' && <DevDrawingLayer />}
       </MapContainer>
 
-      {/* Custom zoom controls (unchanged position — top-right, as before) */}
+      {/* Custom zoom controls. Desktop/tablet: top-right, unchanged.
+          fullBleed (mobile): moved to bottom-right — top-right is now
+          where the floating Tools/Layers panel lives, and these two
+          were never meant to share a corner. */}
       <div style={{
-        position: 'absolute', top: 10, right: 10, zIndex: 10,
+        position: 'absolute',
+        ...(fullBleed ? { bottom: 10, right: 10 } : { top: 10, right: 10 }),
+        zIndex: 10,
         display: 'flex', flexDirection: 'column', gap: 4,
       }}>
         <ZoomBtn onClick={() => mapRef.current?.zoomIn()}><Plus size={14} /></ZoomBtn>
@@ -975,12 +1014,16 @@ function MapPanel({
         }} title="Recenter"><Crosshair size={14} /></ZoomBtn>
       </div>
 
-      {/* Undo/Redo — Strategy Maker, Coach Mode only, bottom-right of
-          the canvas (mirrors the Actions card in the sidebar; mockup
-          shows both). */}
+      {/* Undo/Redo — Strategy Maker, Coach Mode only. Desktop/tablet:
+          bottom-right (mirrors the Actions card in the sidebar).
+          fullBleed: bottom-left, since bottom-right is now the zoom
+          controls' spot above. */}
       {mode === 'strategy' && !strategyReadOnly && (
         <div style={{
-          position: 'absolute', bottom: 10, right: 10, zIndex: 10,
+          position: 'absolute',
+          bottom: 10,
+          ...(fullBleed ? { left: 10 } : { right: 10 }),
+          zIndex: 10,
           display: 'flex', gap: 4,
         }}>
           <ZoomBtn onClick={undo} disabled={strategyState.history.length === 0} title="Undo (Ctrl+Z)"><Undo2 size={14} /></ZoomBtn>
@@ -2336,13 +2379,118 @@ function MapStyles() {
           padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 16px);
         }
       }
-      .strategy-mobile-drawer {
-        bottom: env(safe-area-inset-bottom, 0px);
+      /* ============================================================
+         MOBILE FULL-BLEED LAYOUT
+         ------------------------------------------------------------
+         The map is position:fixed and sized ONLY by the topbar/
+         bottom-nav — both fixed, known quantities (--app-topbar-height
+         is measured in Layout.jsx; the bottom-nav's 64px + safe-area
+         is a deterministic constant, not something that needs
+         measuring). Every control is a separate position:absolute
+         overlay floating on top of that fixed box. Nothing here is
+         sized by, or shares a flex/grid track with, anything else —
+         that absence of shared layout is what actually fixes the
+         "map split into strips" family of bugs, not a smarter height
+         calculation. isMobile in the component gates this whole
+         layout on; the desktop/tablet .mk-page structure above is
+         untouched by any of it.
+         ============================================================ */
+      .mk-mobile-root {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: var(--app-topbar-height, 64px);
+        bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+        overflow: hidden;
+        z-index: 1;
       }
-      @media (max-width: 768px) {
-        .strategy-mobile-drawer {
-          bottom: calc(64px + env(safe-area-inset-bottom, 0px));
-        }
+      .mk-map-fullbleed {
+        position: absolute;
+        inset: 0;
+      }
+      .mk-top-overlay {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 60vw;
+      }
+      .mk-top-overlay-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .mk-top-overlay-row::-webkit-scrollbar { display: none; }
+      .mk-top-overlay-bar {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        z-index: 10;
+        background: rgba(13, 21, 40, 0.92);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid #1B2A45;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      }
+      .mk-floating-panel {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 10;
+        background: rgba(13, 21, 40, 0.92);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid #1B2A45;
+        border-radius: 12px;
+        max-width: 240px;
+        width: calc(100vw - 24px);
+        max-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      }
+      .mk-floating-panel-collapsed {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-primary);
+        cursor: pointer;
+      }
+      .mk-floating-panel-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        padding: 12px 14px;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid #1B2A45;
+        cursor: pointer;
+        color: var(--text-primary);
+        font-family: 'Oxanium', sans-serif;
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        flex-shrink: 0;
+      }
+      .mk-floating-panel-body {
+        overflow-y: auto;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
       .mk-pin-detail { animation: mk-fade 0.22s ease; }
       @keyframes mk-fade {

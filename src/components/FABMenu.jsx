@@ -4,6 +4,7 @@ import { Plus, X, FileText, BarChart3, Timer, Save } from 'lucide-react'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { STORAGE_KEYS } from '../utils/constants.js'
 import { todayKey } from '../utils/helpers.js'
+import { getViewport } from '../utils/viewport.js'
 
 /**
  * Mobile-only floating action button. Hides on desktop and on /login.
@@ -19,8 +20,12 @@ export default function FABMenu() {
   const [mobile, setMobile] = useState(false)
 
   useEffect(() => {
+    /* Uses the same shortSide-based check as Sidebar/BottomNav so the
+       FAB agrees with the rest of the mobile chrome about what counts
+       as "mobile" — a plain width check let it (dis)appear out of
+       step with the sidebar/bottom-nav on a landscape phone. */
     function check() {
-      setMobile(window.innerWidth < 768)
+      setMobile(getViewport() === 'mobile')
     }
     check()
     window.addEventListener('resize', check)

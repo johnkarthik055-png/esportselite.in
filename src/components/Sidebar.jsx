@@ -13,6 +13,7 @@ import { getInitials } from '../utils/helpers.js'
 import { getDisplayName, clearAllUserData, setActiveUID } from '../utils/storage.js'
 import { getLevelName, XP_PER_LEVEL } from '../utils/db.js'
 import { useUserData } from '../hooks/useUserData.js'
+import { getViewport } from '../utils/viewport.js'
 import NotificationPanel from './NotificationPanel.jsx'
 
 const ADMIN_EMAILS = [
@@ -77,14 +78,6 @@ function clearLocalAppData() {
     }
     toRemove.forEach(k => window.localStorage.removeItem(k))
   } catch { /* ignore */ }
-}
-
-function getViewport() {
-  if (typeof window === 'undefined') return 'desktop'
-  const w = window.innerWidth
-  if (w < 768) return 'mobile'
-  if (w < 1024) return 'tablet'
-  return 'desktop'
 }
 
 export default function Sidebar({ collapsed, onToggle }) {

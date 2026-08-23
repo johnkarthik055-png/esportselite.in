@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useNotifications } from '../hooks/useNotifications.js'
 import { clearAllUserData, setActiveUID } from '../utils/storage.js'
+import { getViewport } from '../utils/viewport.js'
 
 const ADMIN_EMAILS = [
   'karthikreddyy2010@gmail.com',
@@ -52,6 +53,20 @@ export default function BottomNav() {
   const { user, logout: signOutFb } = useAuth()
   const { unreadCount } = useNotifications()
   const [drawerOpen, setDrawerOpen] = useState(false)
+  /* CSS used to gate visibility purely via `@media (max-width: 768px)`,
+     which hides this in landscape on a phone (innerWidth easily
+     exceeds 768 rotated) even though the sidebar is ALSO hidden there
+     (see Sidebar.jsx's shortSide-based check) — leaving the phone with
+     no navigation chrome at all. Mirroring that same shortSide check
+     here keeps the two in sync: whenever the icon sidebar is hidden,
+     this is the nav that replaces it, in every orientation. */
+  const [viewport, setViewport] = useState(getViewport())
+
+  useEffect(() => {
+    function check() { setViewport(getViewport()) }
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   const isAdmin = !!user?.email && ADMIN_EMAILS.includes(user.email)
 
@@ -80,6 +95,8 @@ export default function BottomNav() {
     setDrawerOpen(false)
     window.dispatchEvent(new Event('esports-elite:notifications-open'))
   }
+
+  if (viewport !== 'mobile') return null
 
   return (
     <>

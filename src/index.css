@@ -859,7 +859,14 @@ body.amoled {
    MOBILE — BOTTOM NAVIGATION
    ============================================================ */
 .bottom-nav {
-  display: none;
+  /* Visibility is fully JS-gated now (BottomNav.jsx returns null when
+     the shortSide-based viewport check isn't 'mobile') — this used to
+     also be gated by a `@media (max-width: 768px)` rule, which hid it
+     on a landscape phone (innerWidth easily exceeds 768 rotated) even
+     though the sidebar was ALSO hidden there, leaving no navigation
+     chrome at all. One source of truth instead of two disagreeing
+     ones. */
+  display: grid;
   position: fixed;
   bottom: 0; left: 0; right: 0;
   width: 100%;
@@ -1005,7 +1012,8 @@ body.amoled {
    MOBILE LAYOUT OVERRIDES (<=768px)
    ============================================================ */
 @media (max-width: 768px) {
-  .bottom-nav  { display: grid !important; }
+  /* .bottom-nav's visibility is JS-gated (see BottomNav.jsx) — no
+     display override needed here anymore. */
   /* 64px bottom nav + FAB resting height (56px) + its own bottom
      offset/gap above the nav — enough clearance that the last
      item in any scrollable page never sits under the FAB. */

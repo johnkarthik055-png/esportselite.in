@@ -9,6 +9,7 @@ import LevelUpModal from './LevelUpModal.jsx'
 import { readLS, writeLS } from '../hooks/useLocalStorage.js'
 import { STORAGE_KEYS } from '../utils/constants.js'
 import { bootTheme } from '../hooks/useTheme.js'
+import { getViewport } from '../utils/viewport.js'
 
 const PAGE_TITLES = {
   '/dashboard': 'Dashboard',
@@ -19,20 +20,14 @@ const PAGE_TITLES = {
   '/analytics': 'Analytics',
 }
 
-function getViewport() {
-  if (typeof window === 'undefined') return 'desktop'
-  const w = window.innerWidth
-  if (w < 768) return 'mobile'
-  if (w < 1024) return 'tablet'
-  return 'desktop'
-}
-
 export default function Layout() {
   const location = useLocation()
   const [collapsed, setCollapsed] = useState(false)
   const [toast, setToast] = useState('')
   const [viewport, setViewport] = useState(getViewport())
   const edgeRef = useRef({ x: 0, y: 0, active: false })
+  const topbarWrapRef = useRef(null)
+  const [topbarHeight, setTopbarHeight] = useState(64)
   const title = PAGE_TITLES[location.pathname] || 'Esports Elite'
 
   useEffect(() => { bootTheme() }, [])
@@ -41,6 +36,22 @@ export default function Layout() {
     function check() { setViewport(getViewport()) }
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
+  }, [])
+
+  /* Real measured TopBar height, exposed as --app-topbar-height below —
+     TopBar's content (trial badge, responsive padding) isn't a fixed
+     constant across breakpoints, so pages that need to know where it
+     ends (e.g. Map Knowledge's full-bleed mobile map) measure it here
+     once instead of guessing a px value that drifts out of sync. */
+  useEffect(() => {
+    const el = topbarWrapRef.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver((entries) => {
+      const h = entries[0]?.contentRect?.height
+      if (h) setTopbarHeight(h)
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
   }, [])
 
   useEffect(() => {
@@ -102,6 +113,11 @@ export default function Layout() {
            every page without each one re-deriving the same viewport
            breakpoint independently. */
         '--app-sidebar-width': `${mainMl}px`,
+        /* Mirrors --app-sidebar-width for TopBar's real measured
+           height — see the ResizeObserver above. Full-bleed mobile
+           layouts (e.g. Map Knowledge's Strategy Maker) size
+           themselves against this instead of a guessed 64px. */
+        '--app-topbar-height': `${topbarHeight}px`,
       }}
     >
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(v => !v)} />
@@ -134,7 +150,9 @@ export default function Layout() {
           transition: 'margin-left 0.25s ease, width 0.25s ease',
         }}
       >
-        <TopBar title={title} />
+        <div ref={topbarWrapRef}>
+          <TopBar title={title} />
+        </div>
         <main
           className="main-content"
           style={{
