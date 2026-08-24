@@ -40,10 +40,8 @@ import StrategyMakerPanel from '../components/strategy/StrategyMakerPanel.jsx'
 import StrategyDrawingLayer from '../components/strategy/StrategyDrawingLayer.jsx'
 import BottomToolBar from '../components/strategy/BottomToolBar.jsx'
 import FloatingToolsPanel from '../components/strategy/FloatingToolsPanel.jsx'
-import PlayerModeSidebar, { PlayerModeHeader } from '../components/strategy/PlayerModeView.jsx'
 import {
-  resetForMap, useStrategyStore, setViewMode, undo, redo,
-  toSaveableDoc, setStrategyDocId,
+  resetForMap, useStrategyStore, undo, redo,
 } from '../components/strategy/strategyStore.js'
 import { useConfirm } from '../hooks/useConfirm.js'
 import ConfirmModal from '../components/ConfirmModal.jsx'
@@ -423,7 +421,6 @@ export default function MapKnowledge() {
   const [pins, setPins] = useState([])
   const [polygons, setPolygons] = useState([])
   const [strategies, setStrategies] = useState([])
-  const [playerModeSaving, setPlayerModeSaving] = useState(false)
   /* Same shortSide-based check the app-wide sidebar/bottom-nav use
      (see utils/viewport.js) — a landscape phone has to land in the
      same "mobile" bucket as portrait, or it falls back to the
@@ -450,26 +447,8 @@ export default function MapKnowledge() {
     }
   }, [])
 
-  const strategyState = useStrategyStore()
-  const isPlayerMode = mode === 'strategy' && strategyState.viewMode === 'player'
-
   const activeMap = MAPS.find(m => m.id === activeMapId) || MAPS[0]
   const tileUrl = `/tiles/${activeMap.tileFolder}/{z}/{x}/{y}.png`
-
-  async function handlePlayerModeSave() {
-    if (!user?.uid || !strategyState.name.trim()) return
-    setPlayerModeSaving(true)
-    try {
-      if (strategyState.strategyDocId) {
-        await updateStrategy(activeMapId, strategyState.strategyDocId, toSaveableDoc())
-      } else {
-        const ref = await addStrategy(activeMapId, toSaveableDoc(), user.uid)
-        if (ref?.id) setStrategyDocId(ref.id)
-      }
-    } finally {
-      setPlayerModeSaving(false)
-    }
-  }
 
   /* Strategy Maker's object list is map-scoped (Issue 17) — reset
      it the moment the active map changes so Erangel objects never
@@ -561,42 +540,28 @@ export default function MapKnowledge() {
               onFlyDone={() => setFlyTarget(null)}
               onMouseMove={setMousePos}
               mode={mode}
-              strategyReadOnly={isPlayerMode}
               fullBleed
             />
           </div>
 
-          {isPlayerMode ? (
-            <div className="mk-top-overlay-bar">
-              <PlayerModeHeader
-                activeMap={activeMap}
-                mapList={MAPS}
-                onSelectMap={(id) => { setActiveMapId(id); setSelectedPin(null) }}
-                onBack={() => setViewMode('coach')}
-                onSave={handlePlayerModeSave}
-                saving={playerModeSaving}
-              />
+          <div className="mk-top-overlay">
+            <div className="mk-top-overlay-row">
+              {MAPS.map(m => (
+                <OverlayPill key={m.id} active={activeMapId === m.id} onClick={() => { setActiveMapId(m.id); setSelectedPin(null) }}>
+                  {m.name}
+                </OverlayPill>
+              ))}
             </div>
-          ) : (
-            <div className="mk-top-overlay">
-              <div className="mk-top-overlay-row">
-                {MAPS.map(m => (
-                  <OverlayPill key={m.id} active={activeMapId === m.id} onClick={() => { setActiveMapId(m.id); setSelectedPin(null) }}>
-                    {m.name}
-                  </OverlayPill>
-                ))}
-              </div>
-              <div className="mk-top-overlay-row">
-                <OverlayPill active={mode === 'view'} onClick={() => setMode('view')}>View Map</OverlayPill>
-                <OverlayPill active={mode === 'strategy'} onClick={() => setMode('strategy')}>Strategy</OverlayPill>
-                {isAdmin && (
-                  <OverlayPill active={mode === 'dev'} onClick={() => setMode('dev')}>
-                    <Shield size={12} /> Dev
-                  </OverlayPill>
-                )}
-              </div>
+            <div className="mk-top-overlay-row">
+              <OverlayPill active={mode === 'view'} onClick={() => setMode('view')}>View Map</OverlayPill>
+              <OverlayPill active={mode === 'strategy'} onClick={() => setMode('strategy')}>Strategy</OverlayPill>
+              {isAdmin && (
+                <OverlayPill active={mode === 'dev'} onClick={() => setMode('dev')}>
+                  <Shield size={12} /> Dev
+                </OverlayPill>
+              )}
             </div>
-          )}
+          </div>
 
           {mode === 'view' && (
             <FloatingToolsPanel title="Layers">
@@ -613,7 +578,7 @@ export default function MapKnowledge() {
               />
             </FloatingToolsPanel>
           )}
-          {mode === 'strategy' && !isPlayerMode && (
+          {mode === 'strategy' && (
             <FloatingToolsPanel title="Tools">
               <BottomToolBar />
               <StrategyMakerPanel
@@ -623,18 +588,6 @@ export default function MapKnowledge() {
                 updateStrategyDoc={updateStrategy}
                 deleteStrategyDoc={deleteStrategy}
               />
-            </FloatingToolsPanel>
-          )}
-          {mode === 'strategy' && isPlayerMode && (
-            <FloatingToolsPanel
-              title="Squad Briefing"
-              /* Player Mode's top bar spans the full width (back/map
-                 name/save/menu), unlike the map-selector pills used
-                 everywhere else — this panel has to sit below it
-                 instead of beside it, or the two would overlap. */
-              style={{ top: 'calc(var(--app-topbar-height, 64px) + 68px)' }}
-            >
-              <PlayerModeSidebar />
             </FloatingToolsPanel>
           )}
           {mode === 'dev' && isAdmin && (
@@ -652,41 +605,28 @@ export default function MapKnowledge() {
       ) : (
         <div className="mk-page">
           <div className="mk-header">
-            {isPlayerMode ? (
-              <PlayerModeHeader
-                activeMap={activeMap}
-                mapList={MAPS}
-                onSelectMap={(id) => { setActiveMapId(id); setSelectedPin(null) }}
-                onBack={() => setViewMode('coach')}
-                onSave={handlePlayerModeSave}
-                saving={playerModeSaving}
-              />
-            ) : (
-              <>
-                <div style={{ display: 'flex', gap: 4 }}>
-                  {MAPS.map(m => (
-                    <TabButton
-                      key={m.id}
-                      active={activeMapId === m.id}
-                      onClick={() => { setActiveMapId(m.id); setSelectedPin(null) }}
-                    >
-                      {m.name}
-                    </TabButton>
-                  ))}
-                </div>
-                <div style={{ display: 'flex', gap: 4 }}>
-                  <TabButton active={mode === 'view'} onClick={() => setMode('view')}>View Map</TabButton>
-                  <TabButton active={mode === 'strategy'} onClick={() => setMode('strategy')}>Strategy Maker</TabButton>
-                  {isAdmin && (
-                    <span className="mk-dev-tab" style={{ display: 'inline-flex' }}>
-                      <TabButton active={mode === 'dev'} onClick={() => setMode('dev')}>
-                        <Shield size={12} style={{ marginRight: 4 }} /> Dev Editor
-                      </TabButton>
-                    </span>
-                  )}
-                </div>
-              </>
-            )}
+            <div style={{ display: 'flex', gap: 4 }}>
+              {MAPS.map(m => (
+                <TabButton
+                  key={m.id}
+                  active={activeMapId === m.id}
+                  onClick={() => { setActiveMapId(m.id); setSelectedPin(null) }}
+                >
+                  {m.name}
+                </TabButton>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              <TabButton active={mode === 'view'} onClick={() => setMode('view')}>View Map</TabButton>
+              <TabButton active={mode === 'strategy'} onClick={() => setMode('strategy')}>Strategy Maker</TabButton>
+              {isAdmin && (
+                <span className="mk-dev-tab" style={{ display: 'inline-flex' }}>
+                  <TabButton active={mode === 'dev'} onClick={() => setMode('dev')}>
+                    <Shield size={12} style={{ marginRight: 4 }} /> Dev Editor
+                  </TabButton>
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="mk-body">
@@ -707,10 +647,9 @@ export default function MapKnowledge() {
                   onFlyDone={() => setFlyTarget(null)}
                   onMouseMove={setMousePos}
                   mode={mode}
-                  strategyReadOnly={isPlayerMode}
                 />
               </div>
-              {mode === 'strategy' && !isPlayerMode && <BottomToolBar />}
+              {mode === 'strategy' && <BottomToolBar />}
             </div>
 
             <div className="mk-side-col">
@@ -727,7 +666,7 @@ export default function MapKnowledge() {
                   mapId={activeMapId}
                 />
               )}
-              {mode === 'strategy' && !isPlayerMode && (
+              {mode === 'strategy' && (
                 <StrategyMakerPanel
                   mapId={activeMapId}
                   strategies={strategies}
@@ -736,7 +675,6 @@ export default function MapKnowledge() {
                   deleteStrategyDoc={deleteStrategy}
                 />
               )}
-              {mode === 'strategy' && isPlayerMode && <PlayerModeSidebar />}
               {mode === 'dev' && isAdmin && (
                 <DevPanel
                   mapId={activeMapId}
@@ -822,7 +760,6 @@ function MapPanel({
   selectedPin, onSelectPin,
   flyTarget, onFlyDone,
   onMouseMove, mode,
-  strategyReadOnly,
   fullBleed,
 }) {
   const mapRef = useRef(null)
@@ -988,7 +925,7 @@ function MapPanel({
           ))}
 
         {/* Strategy Maker overlay */}
-        {mode === 'strategy' && <StrategyDrawingLayer mapId={activeMap.id} readOnly={strategyReadOnly} />}
+        {mode === 'strategy' && <StrategyDrawingLayer mapId={activeMap.id} />}
 
         {/* Dev Editor overlay */}
         {mode === 'dev' && <DevDrawingLayer />}
@@ -1014,11 +951,11 @@ function MapPanel({
         }} title="Recenter"><Crosshair size={14} /></ZoomBtn>
       </div>
 
-      {/* Undo/Redo — Strategy Maker, Coach Mode only. Desktop/tablet:
-          bottom-right (mirrors the Actions card in the sidebar).
-          fullBleed: bottom-left, since bottom-right is now the zoom
-          controls' spot above. */}
-      {mode === 'strategy' && !strategyReadOnly && (
+      {/* Undo/Redo — Strategy Maker. Desktop/tablet: bottom-right
+          (mirrors the Actions card in the sidebar). fullBleed:
+          bottom-left, since bottom-right is now the zoom controls'
+          spot above. */}
+      {mode === 'strategy' && (
         <div style={{
           position: 'absolute',
           bottom: 10,

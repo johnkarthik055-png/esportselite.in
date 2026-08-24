@@ -8,7 +8,6 @@ import {
 import { isLegacyStrategyDoc, migrateLegacyStrategy } from '../../utils/strategyDataSchema.js'
 import { useConfirm } from '../../hooks/useConfirm.js'
 import ConfirmModal from '../ConfirmModal.jsx'
-import CoachPlayerModeToggle from './CoachPlayerModeToggle.jsx'
 import LayersPanel from './LayersPanel.jsx'
 import SelectedItemPanel from './SelectedItemPanel.jsx'
 import ToolPanel from './ToolPanel.jsx'
@@ -17,7 +16,7 @@ import QuickActions from './QuickActions.jsx'
 import SaveStrategyPanel from './SaveStrategyPanel.jsx'
 import MeasureReadout from './MeasureReadout.jsx'
 
-const SHORTCUT_TOOLS = { v: 'select', m: 'marker', r: 'rotation', c: 'combat', u: 'utility', z: 'zone', f: 'formation' }
+const SHORTCUT_TOOLS = { v: 'select', m: 'marker', r: 'rotation', z: 'zone', d: 'draw' }
 
 function useStrategyKeyboardShortcuts() {
   useEffect(() => {
@@ -96,37 +95,31 @@ export default function StrategyMakerPanel({ mapId, strategies, addStrategyDoc, 
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, height: '100%', overflowY: 'auto', paddingRight: 4 }}>
-      <CoachPlayerModeToggle />
+      <div className="card" style={{ display: 'flex', gap: 6 }}>
+        <button onClick={undo} disabled={st.history.length === 0} className="btn btn-secondary btn-sm" style={{ flex: 1 }} title="Undo (Ctrl+Z)">
+          <Undo2 size={12} /> Undo
+        </button>
+        <button onClick={redo} disabled={st.future.length === 0} className="btn btn-secondary btn-sm" style={{ flex: 1 }} title="Redo (Ctrl+Shift+Z)">
+          <Redo2 size={12} /> Redo
+        </button>
+        <button onClick={handleClearAll} className="btn btn-secondary btn-sm" title="Clear all">
+          <Trash2 size={12} />
+        </button>
+      </div>
 
-      {st.viewMode === 'coach' && (
-        <>
-          <div className="card" style={{ display: 'flex', gap: 6 }}>
-            <button onClick={undo} disabled={st.history.length === 0} className="btn btn-secondary btn-sm" style={{ flex: 1 }} title="Undo (Ctrl+Z)">
-              <Undo2 size={12} /> Undo
-            </button>
-            <button onClick={redo} disabled={st.future.length === 0} className="btn btn-secondary btn-sm" style={{ flex: 1 }} title="Redo (Ctrl+Shift+Z)">
-              <Redo2 size={12} /> Redo
-            </button>
-            <button onClick={handleClearAll} className="btn btn-secondary btn-sm" title="Clear all">
-              <Trash2 size={12} />
-            </button>
-          </div>
-
-          <LayersPanel mapId={mapId} />
-          <SelectedItemPanel />
-          {st.tool === 'measure' && <MeasureReadout mapId={mapId} />}
-          <ToolPanel />
-          <PhaseSelector />
-          <QuickActions />
-          <SaveStrategyPanel
-            strategies={strategies}
-            saving={saving}
-            onSave={handleSave}
-            onLoad={handleLoad}
-            onDelete={handleDelete}
-          />
-        </>
-      )}
+      <LayersPanel mapId={mapId} />
+      <SelectedItemPanel />
+      {st.tool === 'measure' && <MeasureReadout mapId={mapId} />}
+      <ToolPanel />
+      <PhaseSelector />
+      <QuickActions />
+      <SaveStrategyPanel
+        strategies={strategies}
+        saving={saving}
+        onSave={handleSave}
+        onLoad={handleLoad}
+        onDelete={handleDelete}
+      />
 
       <ConfirmModal {...confirmModalProps} />
     </div>

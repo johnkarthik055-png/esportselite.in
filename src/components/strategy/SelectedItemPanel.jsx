@@ -1,7 +1,9 @@
 import { Trash2 } from 'lucide-react'
-import { PHASES } from '../../utils/strategyDataSchema.js'
+import { PHASES, categoryColor, NEUTRAL_ROTATION_COLOR } from '../../utils/strategyDataSchema.js'
 import { useStrategyStore, updateObject, deleteSelected } from './strategyStore.js'
 import { SectionLabel, inputStyle } from './strategyUI.jsx'
+
+const VEHICLE_PICKUP_CATEGORIES = ['compound', 'loot_priority']
 
 /* Populates when an object is selected via the Select tool, clears
    (renders nothing) when nothing is selected — mirrors the mockup's
@@ -34,13 +36,37 @@ export default function SelectedItemPanel() {
           <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginBottom: 3 }}>Squad</div>
           <select
             value={obj.player || ''}
-            onChange={(e) => updateObject(obj.id, { player: e.target.value || null })}
+            onChange={(e) => {
+              const playerId = e.target.value || null
+              const player = st.players.find(p => p.id === playerId)
+              const patch = { player: playerId }
+              /* Color always tracks the current assignment — reassigning
+                 or clearing a player recolors immediately instead of
+                 leaving the object showing a stale player's color. */
+              if (obj.type === 'rotation') {
+                patch.color = player ? player.color : NEUTRAL_ROTATION_COLOR
+              } else if (obj.type === 'marker') {
+                patch.color = player ? player.color : categoryColor('marker', obj.category)
+              }
+              updateObject(obj.id, patch)
+            }}
             style={inputStyle}
           >
             <option value="">No player</option>
             {st.players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
+
+        {obj.type === 'marker' && VEHICLE_PICKUP_CATEGORIES.includes(obj.category) && (
+          <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--text-primary)', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={!!obj.vehiclePickup}
+              onChange={(e) => updateObject(obj.id, { vehiclePickup: e.target.checked })}
+            />
+            Vehicle pickup here
+          </label>
+        )}
 
         <div>
           <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginBottom: 3 }}>Notes</div>
@@ -72,27 +98,6 @@ export default function SelectedItemPanel() {
             {PHASES.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
-
-        {obj.type === 'vision' && (
-          <div style={{ display: 'flex', gap: 6 }}>
-            <label style={{ flex: 1, fontSize: 10, color: 'var(--text-subtle)' }}>
-              Spread
-              <input
-                type="number" min="10" max="180" value={Math.round(obj.spread)}
-                onChange={(e) => updateObject(obj.id, { spread: Number(e.target.value) })}
-                style={{ ...inputStyle, marginTop: 2 }}
-              />
-            </label>
-            <label style={{ flex: 1, fontSize: 10, color: 'var(--text-subtle)' }}>
-              Radius
-              <input
-                type="number" min="2" value={Math.round(obj.radius)}
-                onChange={(e) => updateObject(obj.id, { radius: Number(e.target.value) })}
-                style={{ ...inputStyle, marginTop: 2 }}
-              />
-            </label>
-          </div>
-        )}
 
         <button
           onClick={deleteSelected}

@@ -30,17 +30,12 @@ export const strategyStore = {
   activeType: {
     marker: 'player_position',
     rotation: 'safe_rotation',
-    combat: 'attack',
-    utility: 'smoke',
-    vision: 'line_of_sight',
     zone: 'zone',
-    vehicle: 'vehicle_pickup',
   },
-  activeFormationKey: null,
   activePlayerId: null,
+  activeFreehandColor: '#3B82F6',
+  activeVehiclePickup: false,
   activePhase: 'phase-1',
-  viewMode: 'coach', /* 'coach' | 'player' */
-  playerModeSelectedId: null,
   visibleLayerGroups: new Set(DEFAULT_VISIBLE_LAYER_GROUPS),
   showSpawnRefVehicle: false,
   showSpawnRefBoat: false,
@@ -130,27 +125,21 @@ export function setActiveType(tool, key) {
   strategyStore.activeType[tool] = key
   fire()
 }
-export function setActiveFormationKey(key) {
-  strategyStore.activeFormationKey = key
-  fire()
-}
 export function setActivePlayer(id) {
   strategyStore.activePlayerId = id
+  fire()
+}
+export function setActiveFreehandColor(color) {
+  strategyStore.activeFreehandColor = color
+  fire()
+}
+export function setActiveVehiclePickup(value) {
+  strategyStore.activeVehiclePickup = value
   fire()
 }
 export function setActivePhase(id) {
   strategyStore.activePhase = id
   strategyStore.selectedObjectId = null
-  fire()
-}
-export function setViewMode(mode) {
-  strategyStore.viewMode = mode
-  strategyStore.selectedObjectId = null
-  strategyStore.drafting = null
-  fire()
-}
-export function setPlayerModeSelectedId(id) {
-  strategyStore.playerModeSelectedId = id
   fire()
 }
 export function selectObject(id) {

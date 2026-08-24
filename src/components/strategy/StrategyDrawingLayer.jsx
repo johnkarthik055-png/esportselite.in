@@ -1,21 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
-import { Marker, Popup, Polyline, Polygon, Circle, useMapEvents } from 'react-leaflet'
+import { Marker, Popup, Polyline, Circle, useMap, useMapEvents } from 'react-leaflet'
 import {
-  MARKER_TYPES, ROTATION_TYPES, COMBAT_TYPES, UTILITY_TYPES,
-  VISION_TYPES, ZONE_TYPES, VEHICLE_ANNOTATION_TYPES, LAYER_GROUPS,
-  FORMATIONS, applyFormationOffsets, bearingBetween,
+  MARKER_TYPES, ROTATION_TYPES, ZONE_TYPES, LAYER_GROUPS, NEUTRAL_ROTATION_COLOR,
 } from '../../utils/strategyDataSchema.js'
 import { getSpawnReference } from '../../utils/spawnReferenceData.js'
 import {
-  strategyStore, useStrategyStore, addObject, addObjects, updateObject,
-  selectObject, setDrafting, setMeasurePoints, setTool,
+  useStrategyStore, addObject, updateObject,
+  selectObject, setDrafting, setMeasurePoints,
 } from './strategyStore.js'
 
 const ALL_TYPE_LOOKUPS = {
-  marker: MARKER_TYPES, rotation: ROTATION_TYPES, combat: COMBAT_TYPES,
-  utility: UTILITY_TYPES, vision: VISION_TYPES, zone: ZONE_TYPES,
-  vehicle: VEHICLE_ANNOTATION_TYPES,
+  marker: MARKER_TYPES, rotation: ROTATION_TYPES, zone: ZONE_TYPES,
 }
 
 function resolveColor(cssVarOrColor) {
@@ -77,7 +73,7 @@ function handleIcon() {
   }
   return _handleIconInstance
 }
-function playerLabelIcon(text, color) {
+function playerLabelIcon(text, color, vehiclePickup) {
   const safe = String(text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   return L.divIcon({
     className: 'strat-player-label',
@@ -85,35 +81,31 @@ function playerLabelIcon(text, color) {
       color:#fff; background:rgba(5,8,22,0.85); border:1px solid ${resolveColor(color)};
       padding:1px 6px; border-radius:4px; font-family:'DM Sans',sans-serif;
       font-size:10px; font-weight:600; white-space:nowrap; pointer-events:none;
-      margin-top:16px;
-    ">${safe}</div>`,
+      margin-top:16px; display:flex; align-items:center; gap:3px;
+    ">${safe}${vehiclePickup ? ' <span title="Vehicle pickup here">🚗</span>' : ''}</div>`,
     iconSize: [0, 0],
     iconAnchor: [0, 0],
   })
 }
 
-/* Compute a vision cone polygon from origin/angle/spread/radius,
-   all in [lat,lng] world-unit space. angle: degrees, 0=north,
-   clockwise (matches bearingBetween). radius: world units. */
-function coneVertices(origin, angle, spread, radius, steps = 16) {
-  const pts = [origin]
-  const startDeg = angle - spread / 2
-  const endDeg = angle + spread / 2
-  for (let i = 0; i <= steps; i++) {
-    const deg = startDeg + ((endDeg - startDeg) * i) / steps
-    const rad = (deg * Math.PI) / 180
-    pts.push([origin[0] + radius * Math.cos(rad), origin[1] + radius * Math.sin(rad)])
-  }
-  return pts
-}
-function pointAtBearing(origin, angleDeg, radius) {
-  const rad = (angleDeg * Math.PI) / 180
-  return [origin[0] + radius * Math.cos(rad), origin[1] + radius * Math.sin(rad)]
-}
-
-export default function StrategyDrawingLayer({ mapId, readOnly = false }) {
+export default function StrategyDrawingLayer({ mapId }) {
   const st = useStrategyStore()
   const [zoneDraftRadius, setZoneDraftRadius] = useState(0)
+  const [freehandDraft, setFreehandDraft] = useState(null)
+  const isFreehandDrawing = useRef(false)
+  const map = useMap()
+
+  /* Freehand strokes are captured by drag (mousedown -> mousemove ->
+     mouseup), unlike every other tool here which is click/click — so
+     Leaflet's own pan-by-drag has to be switched off for the duration
+     of the tool being active, or a drag would pan the map under the
+     stroke instead of drawing on it. Re-enabled the instant the tool
+     changes or the layer unmounts. */
+  useEffect(() => {
+    if (st.tool === 'draw') map.dragging.disable()
+    else map.dragging.enable()
+    return () => { map.dragging.enable() }
+  }, [st.tool, map])
 
   const activeGroupKeys = LAYER_GROUPS.filter(g => st.visibleLayerGroups.has(g.key))
   const visibleObjects = st.objects.filter(o => {
@@ -128,20 +120,18 @@ export default function StrategyDrawingLayer({ mapId, readOnly = false }) {
 
   useMapEvents({
     click: (e) => {
-      if (readOnly) return
       const { lat, lng } = e.latlng
       const pos = [lat, lng]
       const tool = st.tool
 
       if (tool === 'marker') {
         const info = typeInfo('marker', st.activeType.marker)
-        addObject({ type: 'marker', category: st.activeType.marker, position: pos, color: info.color, label: info.label })
-        return
-      }
-
-      if (tool === 'vehicle') {
-        const info = typeInfo('vehicle', st.activeType.vehicle)
-        addObject({ type: 'vehicle', category: st.activeType.vehicle, position: pos, color: info.color, label: info.label })
+        const player = st.players.find(p => p.id === st.activePlayerId)
+        addObject({
+          type: 'marker', category: st.activeType.marker, position: pos,
+          color: player?.color || info.color, label: info.label,
+          vehiclePickup: st.activeVehiclePickup,
+        })
         return
       }
 
@@ -150,30 +140,6 @@ export default function StrategyDrawingLayer({ mapId, readOnly = false }) {
           setDrafting({ kind: 'rotation', waypoints: [pos] })
         } else {
           setDrafting({ ...st.drafting, waypoints: [...st.drafting.waypoints, pos] })
-        }
-        return
-      }
-
-      if (tool === 'combat' || tool === 'utility') {
-        if (!st.drafting) {
-          setDrafting({ kind: tool, from: pos })
-        } else {
-          const info = typeInfo(tool, st.activeType[tool])
-          addObject({ type: tool, category: st.activeType[tool], position: st.drafting.from, target: pos, color: info.color, label: info.label })
-        }
-        return
-      }
-
-      if (tool === 'vision') {
-        if (!st.drafting) {
-          setDrafting({ kind: 'vision', origin: pos })
-        } else {
-          const angle = bearingBetween(st.drafting.origin, pos)
-          const info = typeInfo('vision', st.activeType.vision)
-          addObject({
-            type: 'vision', category: st.activeType.vision, position: st.drafting.origin,
-            angle, spread: 50, radius: 12, color: info.color, label: info.label,
-          })
         }
         return
       }
@@ -196,43 +162,65 @@ export default function StrategyDrawingLayer({ mapId, readOnly = false }) {
         else setMeasurePoints(st.measureFrom, pos)
         return
       }
-
-      if (tool === 'formation' && st.activeFormationKey) {
-        const formation = FORMATIONS.find(f => f.key === st.activeFormationKey)
-        if (!formation) return
-        const positions = applyFormationOffsets(pos, formation.offsets)
-        const players = st.players
-        addObjects(positions.map((p, i) => {
-          const player = players[i]
-          return {
-            type: 'marker', category: 'player_position', position: p,
-            player: player?.id ?? null, color: player?.color || '#3B82F6',
-            label: player?.name || `Player ${i + 1}`,
-          }
-        }))
-        setTool('select')
-      }
     },
-    dblclick: (e) => {
-      if (readOnly) return
+    dblclick: () => {
       if (st.tool === 'rotation' && st.drafting?.kind === 'rotation') {
         const waypoints = st.drafting.waypoints
         if (waypoints.length >= 2) {
           const info = typeInfo('rotation', st.activeType.rotation)
-          addObject({ type: 'rotation', category: st.activeType.rotation, waypoints, color: info.color, label: info.label })
+          const player = st.players.find(p => p.id === st.activePlayerId)
+          addObject({
+            type: 'rotation', category: st.activeType.rotation, waypoints,
+            color: player?.color || NEUTRAL_ROTATION_COLOR, label: info.label,
+          })
         } else {
           setDrafting(null)
         }
       }
     },
+    mousedown: (e) => {
+      if (st.tool !== 'draw') return
+      /* Disabled here too, not just in the useEffect above: a mousedown
+         that starts a stroke has to shut off Leaflet's own pan-by-drag
+         handler before its FIRST mousemove is processed, not after the
+         next render commits — otherwise Leaflet's native drag machinery
+         and this handler both react to the same gesture. */
+      map.dragging.disable()
+      isFreehandDrawing.current = true
+      setFreehandDraft([[e.latlng.lat, e.latlng.lng]])
+    },
     mousemove: (e) => {
-      if (readOnly || !st.drafting) return
+      if (st.tool === 'draw' && isFreehandDrawing.current) {
+        const { lat, lng } = e.latlng
+        setFreehandDraft(prev => {
+          if (!prev) return [[lat, lng]]
+          const [lastLat, lastLng] = prev[prev.length - 1]
+          /* Skip points closer than this to the last one so a fast
+             stroke doesn't balloon into thousands of near-duplicate
+             waypoints — imperceptible visually, meaningfully smaller
+             saved payload. */
+          if (Math.hypot(lat - lastLat, lng - lastLng) < 0.15) return prev
+          return [...prev, [lat, lng]]
+        })
+        return
+      }
+      if (!st.drafting) return
       const { lat, lng } = e.latlng
       if (st.drafting.kind === 'zone') {
         const dx = lat - st.drafting.center[0]
         const dy = lng - st.drafting.center[1]
         setZoneDraftRadius(Math.max(2, Math.hypot(dx, dy)))
       }
+    },
+    mouseup: () => {
+      if (st.tool !== 'draw' || !isFreehandDrawing.current) return
+      isFreehandDrawing.current = false
+      setFreehandDraft(current => {
+        if (current && current.length >= 2) {
+          addObject({ type: 'freehand', category: 'freehand', waypoints: current, color: st.activeFreehandColor, label: 'Freehand' })
+        }
+        return null
+      })
     },
   })
 
@@ -249,24 +237,25 @@ export default function StrategyDrawingLayer({ mapId, readOnly = false }) {
       {/* ---- committed objects ---- */}
       {visibleObjects.map(obj => (
         <StrategyObjectRender
-          key={obj.id} obj={obj} mapId={mapId} readOnly={readOnly}
-          isSelected={!readOnly && obj.id === st.selectedObjectId}
+          key={obj.id} obj={obj} players={st.players}
+          isSelected={obj.id === st.selectedObjectId}
         />
       ))}
 
-      {/* ---- in-progress drafts (never populated in read-only — the
-          click/dblclick handlers above bail out before setDrafting) ---- */}
+      {/* ---- in-progress freehand stroke ---- */}
+      {freehandDraft && freehandDraft.length >= 2 && (
+        <Polyline
+          positions={freehandDraft}
+          pathOptions={{ color: resolveColor(st.activeFreehandColor), weight: 3, opacity: 0.9 }}
+        />
+      )}
+
+      {/* ---- in-progress drafts ---- */}
       {st.drafting?.kind === 'rotation' && (
         <Polyline
           positions={st.drafting.waypoints}
           pathOptions={{ color: '#ffffff', weight: 2, opacity: 0.6, dashArray: '4 4' }}
         />
-      )}
-      {(st.drafting?.kind === 'combat' || st.drafting?.kind === 'utility') && (
-        <Marker position={st.drafting.from} icon={handleIcon()} interactive={false} />
-      )}
-      {st.drafting?.kind === 'vision' && (
-        <Marker position={st.drafting.origin} icon={handleIcon()} interactive={false} />
       )}
       {st.drafting?.kind === 'zone' && (
         <Circle
@@ -289,8 +278,8 @@ export default function StrategyDrawingLayer({ mapId, readOnly = false }) {
   )
 }
 
-function StrategyObjectRender({ obj, isSelected, mapId, readOnly }) {
-  const draggable = !readOnly
+function StrategyObjectRender({ obj, isSelected, players }) {
+  const draggable = true
 
   function commonMarkerProps(pos) {
     return {
@@ -304,19 +293,42 @@ function StrategyObjectRender({ obj, isSelected, mapId, readOnly }) {
     }
   }
 
+  /* 'vehicle' is a legacy object type from before the standalone
+     Vehicle tool was removed — still rendered (via the same branch as
+     marker) so old saved strategies don't lose data, just no longer
+     creatable. Any other now-removed type (combat/utility/vision/
+     formation) falls through to `return null` below: skipped
+     silently rather than crashing, per Prompt 2. */
   if (obj.type === 'marker' || obj.type === 'vehicle') {
+    const assignedPlayer = obj.player ? players.find(p => p.id === obj.player) : null
     return (
       <>
         <Marker {...commonMarkerProps(obj.position)}>
           <Popup>
             <div style={{ fontWeight: 700, fontSize: 13 }}>{obj.label}</div>
+            {assignedPlayer && <div style={{ fontSize: 12, marginTop: 2 }}>Assigned: {assignedPlayer.name}</div>}
+            {obj.vehiclePickup && <div style={{ fontSize: 12, marginTop: 2 }}>🚗 Vehicle pickup here</div>}
             {obj.description && <div style={{ fontSize: 12, marginTop: 2 }}>{obj.description}</div>}
           </Popup>
         </Marker>
-        {obj.player && (
-          <Marker position={obj.position} icon={playerLabelIcon(obj.label, obj.color)} interactive={false} />
+        {(assignedPlayer || obj.vehiclePickup) && (
+          <Marker
+            position={obj.position}
+            icon={playerLabelIcon(assignedPlayer ? assignedPlayer.name : obj.label, obj.color, obj.vehiclePickup)}
+            interactive={false}
+          />
         )}
       </>
+    )
+  }
+
+  if (obj.type === 'freehand') {
+    return (
+      <Polyline
+        positions={obj.waypoints}
+        pathOptions={{ color: resolveColor(obj.color), weight: isSelected ? 4 : 3, opacity: 0.9 }}
+        eventHandlers={{ click: () => selectObject(obj.id) }}
+      />
     )
   }
 
@@ -346,79 +358,6 @@ function StrategyObjectRender({ obj, isSelected, mapId, readOnly }) {
             }}
           />
         ))}
-      </>
-    )
-  }
-
-  if (obj.type === 'combat' || obj.type === 'utility') {
-    return (
-      <>
-        <Polyline
-          positions={[obj.position, obj.target]}
-          pathOptions={{
-            color: resolveColor(obj.color), weight: isSelected ? 4 : 3, opacity: 0.85,
-            dashArray: obj.type === 'utility' ? '5,5' : null,
-          }}
-          eventHandlers={{ click: () => selectObject(obj.id) }}
-        />
-        <Marker {...commonMarkerProps(obj.position)}>
-          <Popup>
-            <div style={{ fontWeight: 700, fontSize: 13 }}>{obj.label}</div>
-            {obj.description && <div style={{ fontSize: 12, marginTop: 2 }}>{obj.description}</div>}
-          </Popup>
-        </Marker>
-        {isSelected && (
-          <Marker
-            position={obj.target}
-            icon={handleIcon()}
-            draggable
-            eventHandlers={{
-              dragend: (e) => updateObject(obj.id, { target: [e.target.getLatLng().lat, e.target.getLatLng().lng] }),
-            }}
-          />
-        )}
-      </>
-    )
-  }
-
-  if (obj.type === 'vision') {
-    const verts = coneVertices(obj.position, obj.angle, obj.spread, obj.radius)
-    const handlePos = pointAtBearing(obj.position, obj.angle, obj.radius)
-    return (
-      <>
-        <Polygon
-          positions={verts}
-          pathOptions={{ color: resolveColor(obj.color), fillColor: resolveColor(obj.color), fillOpacity: 0.15, weight: isSelected ? 3 : 2 }}
-          eventHandlers={{ click: () => selectObject(obj.id) }}
-        />
-        <Marker {...commonMarkerProps(obj.position)} />
-        {isSelected && (
-          <Marker
-            position={handlePos}
-            icon={handleIcon()}
-            draggable
-            eventHandlers={{
-              /* Dragging the tip handle rotates (bearing from origin)
-                 AND resizes (distance from origin) the cone in one
-                 motion — this is the "rotatable and resizable" cone
-                 interaction Issue 7 calls for. */
-              drag: (e) => {
-                const p = e.target.getLatLng()
-                const newPos = [p.lat, p.lng]
-                const angle = bearingBetween(obj.position, newPos)
-                const radius = Math.max(2, Math.hypot(newPos[0] - obj.position[0], newPos[1] - obj.position[1]))
-                updateObject(obj.id, { angle, radius }, { silent: true })
-              },
-              dragend: (e) => {
-                const p = e.target.getLatLng()
-                const newPos = [p.lat, p.lng]
-                const angle = bearingBetween(obj.position, newPos)
-                const radius = Math.max(2, Math.hypot(newPos[0] - obj.position[0], newPos[1] - obj.position[1]))
-                updateObject(obj.id, { angle, radius })
-              },
-            }}
-          />
-        )}
       </>
     )
   }

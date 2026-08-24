@@ -7,33 +7,45 @@
      {
        id, type, category, player, phase, priority,
        position,      // [lat, lng] — single-point objects
-       waypoints,      // [[lat,lng], ...] — multi-point objects (rotations)
-       target,         // [lat, lng] — combat/utility target point
-       radius,         // circle-shaped objects (zone, vision cone range)
-       angle,          // vision cone facing, degrees (0 = north)
-       spread,         // vision cone width, degrees
-       color, description, createdAt,
+       waypoints,      // [[lat,lng], ...] — multi-point objects (rotations, freehand)
+       radius,         // circle-shaped objects (zone)
+       color, description, vehiclePickup, createdAt,
      }
 
    This is deliberately NOT a flattened drawing layer (a single
    array of generic shapes) — `type`/`category`/`player`/`phase`
    are first-class fields specifically so a future Coach AI pass
-   can query "every rotation in phase 3" or "every combat action
-   assigned to the IGL" without re-parsing SVG paths.
+   can query "every rotation in phase 3" or "every marker assigned
+   to the IGL" without re-parsing SVG paths.
+
+   Tool set simplified to Select/Marker/Rotation/Zone/Draw/Measure
+   (Prompt 2) — Formation/Combat/Utility/Vision and Coach/Player Mode
+   were removed entirely, not just hidden. Old saved objects of those
+   removed types don't crash on load; StrategyDrawingLayer just skips
+   rendering anything it no longer recognizes.
    ============================================================ */
 
 export const TOOLS = [
-  { key: 'select',    label: 'Select',    shortcut: 'V' },
-  { key: 'marker',    label: 'Marker',    shortcut: 'M' },
-  { key: 'rotation',  label: 'Rotation',  shortcut: 'R' },
-  { key: 'combat',    label: 'Combat',    shortcut: 'C' },
-  { key: 'utility',   label: 'Utility',   shortcut: 'U' },
-  { key: 'vision',    label: 'Vision',    shortcut: 'I' },
-  { key: 'zone',      label: 'Zone',      shortcut: 'Z' },
-  { key: 'vehicle',   label: 'Vehicle',   shortcut: 'H' },
-  { key: 'formation', label: 'Formation', shortcut: 'F' },
-  { key: 'measure',   label: 'Measure',   shortcut: 'N' },
-  { key: 'layers',    label: 'Layers',    shortcut: 'L' },
+  { key: 'select',   label: 'Select',   shortcut: 'V' },
+  { key: 'marker',   label: 'Marker',   shortcut: 'M' },
+  { key: 'rotation', label: 'Rotation', shortcut: 'R' },
+  { key: 'zone',     label: 'Zone',     shortcut: 'Z' },
+  { key: 'draw',     label: 'Draw',     shortcut: 'D' },
+  { key: 'measure',  label: 'Measure',  shortcut: 'N' },
+]
+
+/* Freehand Draw tool preset palette. Distinct from the structured-
+   tool category colors below — freehand strokes have no "type", so
+   the color IS the only classification, picked directly by whoever's
+   sketching rather than implied by a marker category. */
+export const FREEHAND_COLORS = [
+  { key: 'blue',   value: '#3B82F6' },
+  { key: 'cyan',   value: '#00D4FF' },
+  { key: 'amber',  value: '#F59E0B' },
+  { key: 'red',    value: '#EF4444' },
+  { key: 'green',  value: '#22C55E' },
+  { key: 'violet', value: '#7C3AED' },
+  { key: 'white',  value: '#FFFFFF' },
 ]
 
 export const MARKER_TYPES = [
@@ -59,38 +71,6 @@ export const ROTATION_TYPES = [
   { key: 'vehicle_rotation', label: 'Vehicle Rotation', color: 'var(--violet)', dash: null },
 ]
 
-export const COMBAT_TYPES = [
-  { key: 'attack',       label: 'Attack',       color: 'var(--danger)' },
-  { key: 'push',         label: 'Push',         color: '#FF2D44' },
-  { key: 'hold',         label: 'Hold',         color: 'var(--green)' },
-  { key: 'flank',        label: 'Flank',        color: 'var(--violet)' },
-  { key: 'split',        label: 'Split',        color: 'var(--cyan)' },
-  { key: 'collapse',     label: 'Collapse',     color: 'var(--amber)' },
-  { key: 'retreat',      label: 'Retreat',      color: 'var(--text-subtle)' },
-  { key: 'third_party',  label: 'Third Party',  color: '#A855F7' },
-  { key: 'crossfire',    label: 'Crossfire',    color: 'var(--gold)' },
-  { key: 'bait',         label: 'Bait',         color: 'var(--blue)' },
-  { key: 'trade',        label: 'Trade',        color: 'var(--danger)' },
-]
-
-export const UTILITY_TYPES = [
-  { key: 'smoke',     label: 'Smoke',            color: '#CBD5E1' },
-  { key: 'frag',      label: 'Frag',             color: 'var(--danger)' },
-  { key: 'molotov',   label: 'Molotov',          color: 'var(--amber)' },
-  { key: 'stun',      label: 'Stun',             color: 'var(--gold)' },
-  { key: 'airstrike', label: 'Airstrike / Danger', color: '#FF2D44' },
-]
-
-export const VISION_TYPES = [
-  { key: 'line_of_sight',        label: 'Line of Sight',        color: 'var(--blue)' },
-  { key: 'firing_line',          label: 'Firing Line',          color: 'var(--danger)' },
-  { key: 'scout_direction',      label: 'Scout Direction',      color: 'var(--cyan)' },
-  { key: 'watch_angle',          label: 'Watch Angle',          color: 'var(--green)' },
-  { key: 'blind_spot',           label: 'Blind Spot',           color: 'var(--text-subtle)' },
-  { key: 'crossfire_cone',       label: 'Crossfire Cone',       color: 'var(--gold)' },
-  { key: 'enemy_visibility_area', label: 'Enemy Visibility Area', color: 'var(--danger)' },
-]
-
 export const ZONE_TYPES = [
   { key: 'zone',            label: 'Zone',             color: 'var(--blue)' },
   { key: 'hard_cover',      label: 'Hard Cover Area',  color: 'var(--green)' },
@@ -99,20 +79,6 @@ export const ZONE_TYPES = [
   { key: 'priority_area',   label: 'Priority Area',    color: 'var(--gold)' },
   { key: 'end_game_area',   label: 'End Game Area',    color: 'var(--violet)' },
   { key: 'danger_area',     label: 'Danger Area',      color: 'var(--danger)' },
-]
-
-/* VEHICLE SPAWN is a reference to the real, verified static spawn
-   datasets (see mapVehicleDataAvailability below) — not a
-   user-placeable annotation. The other six are pure tactical
-   annotations the player places manually, available on every map
-   regardless of spawn-data availability (Issue 9). */
-export const VEHICLE_ANNOTATION_TYPES = [
-  { key: 'vehicle_pickup',   label: 'Vehicle Pickup',   color: 'var(--gold)' },
-  { key: 'vehicle_parking',  label: 'Vehicle Parking',  color: 'var(--blue)' },
-  { key: 'vehicle_rotation', label: 'Vehicle Rotation', color: 'var(--violet)' },
-  { key: 'vehicle_block',    label: 'Vehicle Block',    color: 'var(--danger)' },
-  { key: 'vehicle_crash',    label: 'Vehicle Crash Point', color: '#FF2D44' },
-  { key: 'vehicle_recovery', label: 'Vehicle Recovery', color: 'var(--green)' },
 ]
 
 /* Real, verified spawn datasets by map — see mapCoordinates.js and
@@ -143,60 +109,6 @@ export const VERIFIED_SPAWN_DATA = {
   rondo:   { vehicle: SPAWN_STATUS.VERIFIED, boat: SPAWN_STATUS.NOT_APPLICABLE },
 }
 
-export const FORMATIONS = [
-  {
-    key: '4man_tight', group: '4-Man', label: 'Tight',
-    offsets: [[0, 0], [0.4, 0.4], [-0.4, 0.4], [0, 0.8]],
-  },
-  {
-    key: '4man_wide', group: '4-Man', label: 'Wide',
-    offsets: [[-1.2, 0], [-0.4, 0], [0.4, 0], [1.2, 0]],
-  },
-  {
-    key: '4man_line', group: '4-Man', label: 'Line',
-    offsets: [[0, -1.2], [0, -0.4], [0, 0.4], [0, 1.2]],
-  },
-  {
-    key: '4man_diamond', group: '4-Man', label: 'Diamond',
-    offsets: [[0, -0.8], [-0.8, 0], [0.8, 0], [0, 0.8]],
-  },
-  {
-    key: '3man_triangle', group: '3-Man', label: 'Triangle',
-    offsets: [[0, -0.6], [-0.6, 0.5], [0.6, 0.5]],
-  },
-  {
-    key: '3man_2plus1', group: '3-Man', label: '2+1',
-    offsets: [[-0.5, 0.3], [0.5, 0.3], [0, -0.8]],
-  },
-  {
-    key: '2plus2_crossfire', group: '2+2', label: 'Crossfire',
-    offsets: [[-1, -0.6], [-1, 0.6], [1, -0.6], [1, 0.6]],
-  },
-  {
-    key: '2plus2_split', group: '2+2', label: 'Split',
-    offsets: [[-1.4, 0], [-0.6, 0], [0.6, 0], [1.4, 0]],
-  },
-  {
-    key: '1plus1plus2_scout', group: '1+1+2', label: 'Scout',
-    offsets: [[0, -1.4], [0, -0.5], [-0.5, 0.5], [0.5, 0.5]],
-  },
-  {
-    key: '1plus1plus2_igl_support', group: '1+1+2', label: 'IGL + Support',
-    offsets: [[-0.8, -0.6], [0.8, -0.6], [-0.4, 0.6], [0.4, 0.6]],
-  },
-  {
-    key: '1plus1plus2_entry_pair', group: '1+1+2', label: 'Entry Pair',
-    offsets: [[-1.2, -0.4], [1.2, -0.4], [-0.3, 0.6], [0.3, 0.6]],
-  },
-]
-
-/* Distance in Leaflet [lat,lng] "world units" (0..256) between an
-   offset pair and the formation anchor, converted to real map
-   units for placement — see applyFormationOffsets below. Offsets
-   above are expressed in a small abstract unit (~ "player spacing")
-   independent of any specific map's scale. */
-export const FORMATION_SPACING_WORLD_UNITS = 3
-
 export const PHASES = [
   { id: 'phase-1', name: 'DROP',        order: 1 },
   { id: 'phase-2', name: 'LOOT',        order: 2 },
@@ -222,27 +134,45 @@ export const DEFAULT_ROLES = [
 
 export const GAME_MODES = ['Scrim', 'Tournament', 'Ranked', 'Custom']
 
-/* Issue 12's eleven named layers don't map 1:1 onto object `type`
-   (several are sub-slices of `marker` by category) so each layer
-   is a predicate over an object rather than a plain type lookup.
+/* Each layer is a predicate over an object rather than a plain type
+   lookup, since several rows are sub-slices of `marker` by category.
    Any object that doesn't match ANY group here (e.g. a marker
-   category not called out by name, like Watch Point or Rally
-   Point) is always rendered rather than becoming permanently
-   hidden with no toggle able to reach it. */
+   category not called out by name, like Watch Point or Rally Point)
+   is always rendered rather than becoming permanently hidden with no
+   toggle able to reach it. 'vehicles' stays even though the standalone
+   Vehicle tool was removed (Prompt 2) — it's still how legacy
+   vehicle-type objects from before that removal get shown/hidden. */
 export const LAYER_GROUPS = [
   { key: 'squad',     label: 'Squad Positions',  match: o => o.type === 'marker' && o.category === 'player_position' },
   { key: 'enemy',     label: 'Enemy Positions',  match: o => o.type === 'marker' && o.category === 'enemy_position' },
   { key: 'rotations', label: 'Rotations',        match: o => o.type === 'rotation' },
-  { key: 'combat',    label: 'Combat',           match: o => o.type === 'combat' },
   { key: 'vehicles',  label: 'Vehicles',         match: o => o.type === 'vehicle' },
   { key: 'compounds', label: 'Compounds',        match: o => o.type === 'marker' && o.category === 'compound' },
-  { key: 'utilities', label: 'Utilities',        match: o => o.type === 'utility' },
-  { key: 'vision',    label: 'Vision',           match: o => o.type === 'vision' },
   { key: 'danger',    label: 'Danger Areas',     match: o => (o.type === 'marker' && o.category === 'danger') || (o.type === 'zone' && o.category === 'danger_area') },
   { key: 'loot',      label: 'Loot',             match: o => o.type === 'marker' && o.category === 'loot_priority' },
   { key: 'zones',     label: 'Zones',            match: o => o.type === 'zone' },
+  { key: 'freehand',  label: 'Freehand Drawings', match: o => o.type === 'freehand' },
 ]
 export const DEFAULT_VISIBLE_LAYER_GROUPS = LAYER_GROUPS.map(g => g.key)
+
+/* Rotations with no player assigned render in this fixed neutral
+   gray rather than falling back to the category's semantic color
+   (early/late/safe/risky/foot/vehicle) — unassigned rotations must be
+   visually distinct from every player color, and reusing a category
+   color risks coincidentally matching one. */
+export const NEUTRAL_ROTATION_COLOR = '#94A3B8'
+
+const TYPE_LOOKUP_BY_TOOL = {
+  marker: MARKER_TYPES, rotation: ROTATION_TYPES, zone: ZONE_TYPES,
+}
+
+/* Default color for a given (type, category) pair — used to restore
+   an object's category color when a player is unassigned from it
+   (SelectedItemPanel), so color always reflects current assignment
+   instead of drifting to whatever a prior player left behind. */
+export function categoryColor(type, category) {
+  return TYPE_LOOKUP_BY_TOOL[type]?.find(t => t.key === category)?.color ?? '#3B82F6'
+}
 
 export function createDefaultPlayers() {
   return DEFAULT_ROLES.map((r, i) => ({
@@ -274,13 +204,14 @@ export function createStrategyObject(partial) {
     priority: partial.priority ?? 'normal',
     position: partial.position ?? null,
     waypoints: partial.waypoints ?? null,
-    target: partial.target ?? null,
     radius: partial.radius ?? null,
-    angle: partial.angle ?? null,
-    spread: partial.spread ?? null,
     color: partial.color ?? '#3B82F6',
     label: partial.label ?? '',
     description: partial.description ?? '',
+    /* Compound/Loot Priority markers only — folds into the existing
+       marker object instead of a duplicate Vehicle annotation at the
+       same spot. Harmless no-op field on every other object type. */
+    vehiclePickup: partial.vehiclePickup ?? false,
     createdAt: partial.createdAt ?? Date.now(),
   }
 }
@@ -338,7 +269,7 @@ export function migrateLegacyStrategy(doc) {
 }
 
 /* ============================================================
-   GEOMETRY HELPERS (measure tool, formation placement)
+   GEOMETRY HELPERS (measure tool)
    ------------------------------------------------------------
    All in the map's own [lat, lng] world-unit space (0..256, see
    mapCoordinates.js) — MAP_WORLD_METERS converts that to real
@@ -380,16 +311,4 @@ const WALK_SPEED_MPS = 5.7
 export function estimateTravelSeconds(meters) {
   if (meters == null) return null
   return meters / WALK_SPEED_MPS
-}
-
-/* Place a formation's offsets around an anchor point, in the
-   map's [lat,lng] world-unit space. Offsets are small abstract
-   units (see FORMATIONS above); scaled by FORMATION_SPACING_WORLD_UNITS
-   so a formation always covers a sensible on-map footprint
-   regardless of current zoom. */
-export function applyFormationOffsets(anchor, offsets) {
-  return offsets.map(([dx, dy]) => [
-    anchor[0] + dy * FORMATION_SPACING_WORLD_UNITS,
-    anchor[1] + dx * FORMATION_SPACING_WORLD_UNITS,
-  ])
 }

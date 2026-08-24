@@ -1,30 +1,32 @@
 import {
-  MARKER_TYPES, ROTATION_TYPES, COMBAT_TYPES, UTILITY_TYPES,
-  VISION_TYPES, ZONE_TYPES, VEHICLE_ANNOTATION_TYPES, FORMATIONS,
+  MARKER_TYPES, ROTATION_TYPES, ZONE_TYPES, FREEHAND_COLORS,
 } from '../../utils/strategyDataSchema.js'
 import {
-  useStrategyStore, setActiveType, setActiveFormationKey, setActivePlayer,
+  useStrategyStore, setActiveType, setActivePlayer,
+  setActiveFreehandColor, setActiveVehiclePickup,
 } from './strategyStore.js'
-import { SectionLabel, PillButton, inputStyle } from './strategyUI.jsx'
+import { SectionLabel, PillButton, SwatchButton, inputStyle } from './strategyUI.jsx'
 
 const TYPE_LISTS = {
-  marker: MARKER_TYPES, rotation: ROTATION_TYPES, combat: COMBAT_TYPES,
-  utility: UTILITY_TYPES, vision: VISION_TYPES, zone: ZONE_TYPES, vehicle: VEHICLE_ANNOTATION_TYPES,
+  marker: MARKER_TYPES, rotation: ROTATION_TYPES, zone: ZONE_TYPES,
 }
+
+const VEHICLE_PICKUP_CATEGORIES = ['compound', 'loot_priority']
 
 /* Contextual options for whichever tool is active on the bottom
    tool bar (see BottomToolBar.jsx) — the bar itself just switches
    `st.tool`; this card is where the category/type, player
-   assignment, and formation preset get picked before the next map
+   assignment, and freehand color get picked before the next map
    click. Renders nothing for 'select' or 'measure', which have
    nothing to configure. */
 export default function ToolPanel() {
   const st = useStrategyStore()
   const hasTypeList = !!TYPE_LISTS[st.tool]
-  const showPlayerPicker = ['marker', 'combat', 'utility'].includes(st.tool)
-  const showFormationPicker = st.tool === 'formation'
+  const showPlayerPicker = ['marker', 'rotation'].includes(st.tool)
+  const showFreehandColorPicker = st.tool === 'draw'
+  const showVehiclePickupToggle = st.tool === 'marker' && VEHICLE_PICKUP_CATEGORIES.includes(st.activeType.marker)
 
-  if (!hasTypeList && !showFormationPicker) return null
+  if (!hasTypeList && !showFreehandColorPicker) return null
 
   return (
     <div className="card">
@@ -49,8 +51,47 @@ export default function ToolPanel() {
         </div>
       )}
 
+      {showVehiclePickupToggle && <VehiclePickupToggle />}
       {showPlayerPicker && <PlayerPicker />}
-      {showFormationPicker && <FormationPicker />}
+      {showFreehandColorPicker && <FreehandColorPicker />}
+    </div>
+  )
+}
+
+function VehiclePickupToggle() {
+  const st = useStrategyStore()
+  return (
+    <label style={{
+      display: 'flex', alignItems: 'center', gap: 7, marginTop: 10,
+      fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-primary)',
+      cursor: 'pointer',
+    }}>
+      <input
+        type="checkbox"
+        checked={st.activeVehiclePickup}
+        onChange={(e) => setActiveVehiclePickup(e.target.checked)}
+      />
+      Vehicle pickup here
+    </label>
+  )
+}
+
+function FreehandColorPicker() {
+  const st = useStrategyStore()
+  return (
+    <div>
+      <SectionLabel small>Color</SectionLabel>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        {FREEHAND_COLORS.map(c => (
+          <SwatchButton
+            key={c.key}
+            color={c.value}
+            title={c.key}
+            active={st.activeFreehandColor === c.value}
+            onClick={() => setActiveFreehandColor(c.value)}
+          />
+        ))}
+      </div>
     </div>
   )
 }
@@ -70,35 +111,6 @@ function PlayerPicker() {
           <option key={p.id} value={p.id}>{p.name}</option>
         ))}
       </select>
-    </div>
-  )
-}
-
-function FormationPicker() {
-  const st = useStrategyStore()
-  const groups = [...new Set(FORMATIONS.map(f => f.group))]
-  return (
-    <div style={{ marginTop: 10 }}>
-      <SectionLabel small>Preset</SectionLabel>
-      {groups.map(g => (
-        <div key={g} style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginBottom: 4 }}>{g}</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-            {FORMATIONS.filter(f => f.group === g).map(f => (
-              <PillButton
-                key={f.key} small
-                active={st.activeFormationKey === f.key}
-                onClick={() => setActiveFormationKey(f.key)}
-              >
-                {f.label}
-              </PillButton>
-            ))}
-          </div>
-        </div>
-      ))}
-      {!st.activeFormationKey && (
-        <div style={{ fontSize: 11, color: 'var(--amber)' }}>Pick a preset before clicking the map.</div>
-      )}
     </div>
   )
 }
