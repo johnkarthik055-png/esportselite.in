@@ -92,6 +92,7 @@ export default function StrategyDrawingLayer({ mapId }) {
   const st = useStrategyStore()
   const [zoneDraftRadius, setZoneDraftRadius] = useState(0)
   const [freehandDraft, setFreehandDraft] = useState(null)
+  const freehandDraftRef = useRef(null)
   const isFreehandDrawing = useRef(false)
   const map = useMap()
 
@@ -187,21 +188,28 @@ export default function StrategyDrawingLayer({ mapId }) {
          and this handler both react to the same gesture. */
       map.dragging.disable()
       isFreehandDrawing.current = true
-      setFreehandDraft([[e.latlng.lat, e.latlng.lng]])
+      const start = [[e.latlng.lat, e.latlng.lng]]
+      freehandDraftRef.current = start
+      setFreehandDraft(start)
     },
     mousemove: (e) => {
       if (st.tool === 'draw' && isFreehandDrawing.current) {
         const { lat, lng } = e.latlng
-        setFreehandDraft(prev => {
-          if (!prev) return [[lat, lng]]
+        const prev = freehandDraftRef.current
+        let next = prev
+        if (!prev) {
+          next = [[lat, lng]]
+        } else {
           const [lastLat, lastLng] = prev[prev.length - 1]
           /* Skip points closer than this to the last one so a fast
              stroke doesn't balloon into thousands of near-duplicate
              waypoints — imperceptible visually, meaningfully smaller
              saved payload. */
-          if (Math.hypot(lat - lastLat, lng - lastLng) < 0.15) return prev
-          return [...prev, [lat, lng]]
-        })
+          if (Math.hypot(lat - lastLat, lng - lastLng) < 0.15) return
+          next = [...prev, [lat, lng]]
+        }
+        freehandDraftRef.current = next
+        setFreehandDraft(next)
         return
       }
       if (!st.drafting) return
@@ -215,12 +223,25 @@ export default function StrategyDrawingLayer({ mapId }) {
     mouseup: () => {
       if (st.tool !== 'draw' || !isFreehandDrawing.current) return
       isFreehandDrawing.current = false
-      setFreehandDraft(current => {
-        if (current && current.length >= 2) {
-          addObject({ type: 'freehand', category: 'freehand', waypoints: current, color: st.activeFreehandColor, label: 'Freehand' })
-        }
-        return null
-      })
+      /* addObject() mutates the shared store and synchronously fires a
+         change event that every subscribed component (including MapPanel,
+         an ancestor of this one) re-renders from. Calling it from inside
+         a setState updater — as this used to do via
+         `setFreehandDraft(current => { addObject(...); return null })` —
+         runs that side effect during React's render phase, which is
+         invalid: React logs "Cannot update a component while rendering a
+         different component" and, under StrictMode, invokes the updater
+         twice, silently creating two freehand strokes per drag and
+         doubling the resulting re-render of every marker on the map.
+         Reading the finished stroke from a plain ref and calling
+         addObject() as an ordinary statement here — a real event handler,
+         not a render-phase callback — avoids both problems. */
+      const current = freehandDraftRef.current
+      freehandDraftRef.current = null
+      setFreehandDraft(null)
+      if (current && current.length >= 2) {
+        addObject({ type: 'freehand', category: 'freehand', waypoints: current, color: st.activeFreehandColor, label: 'Freehand' })
+      }
     },
   })
 
