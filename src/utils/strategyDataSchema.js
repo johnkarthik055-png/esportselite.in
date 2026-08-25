@@ -1,44 +1,72 @@
 /* ============================================================
    STRATEGY MAKER — DATA SCHEMA
    ------------------------------------------------------------
-   Every tactical object placed on the map is stored with the
-   same structured shape, regardless of tool:
+   Every drawn object shares one generic shape, regardless of tool:
 
      {
-       id, type, category, player, phase, priority,
-       position,      // [lat, lng] — single-point objects
-       waypoints,      // [[lat,lng], ...] — multi-point objects (rotations, freehand)
-       radius,         // circle-shaped objects (zone)
-       color, description, vehiclePickup, createdAt,
+       id, type,      // 'pencil'|'line'|'arrow'|'polygon'|'rectangle'|'circle'|'text'
+       points,         // [[lat,lng], ...] — meaning depends on type:
+                        //   pencil/line/arrow/polygon: the full path/outline
+                        //   rectangle: [corner1, corner2] (opposite corners)
+                        //   circle: [center]
+                        //   text:   [position]
+       radius,         // circle only, world units
+       text,           // text tool only, the typed label
+       color, thickness, opacity,
+       phase, createdAt,
      }
 
-   This is deliberately NOT a flattened drawing layer (a single
-   array of generic shapes) — `type`/`category`/`player`/`phase`
-   are first-class fields specifically so a future Coach AI pass
-   can query "every rotation in phase 3" or "every marker assigned
-   to the IGL" without re-parsing SVG paths.
+   This replaces the previous tool-specific schema (Marker with
+   player assignment, Rotation with player color-coding, Zone,
+   old freehand-only Draw) with one uniform drawing-object shape,
+   so Undo/Redo/Delete/Clear/color-thickness-opacity editing work
+   identically across every tool instead of needing per-type logic.
 
-   Tool set simplified to Select/Marker/Rotation/Zone/Draw/Measure
-   (Prompt 2) — Formation/Combat/Utility/Vision and Coach/Player Mode
-   were removed entirely, not just hidden. Old saved objects of those
-   removed types don't crash on load; StrategyDrawingLayer just skips
-   rendering anything it no longer recognizes.
+   Old saved objects of the removed types (marker/rotation/zone/
+   vehicle/freehand) don't crash on load — DrawingCanvas renders
+   them best-effort (freehand/rotation/zone map onto a visually
+   equivalent new shape; marker/vehicle are skipped) via
+   renderLegacyObject(), but the toolkit no longer exposes any UI
+   to create new ones.
    ============================================================ */
 
-export const TOOLS = [
-  { key: 'select',   label: 'Select',   shortcut: 'V' },
-  { key: 'marker',   label: 'Marker',   shortcut: 'M' },
-  { key: 'rotation', label: 'Rotation', shortcut: 'R' },
-  { key: 'zone',     label: 'Zone',     shortcut: 'Z' },
-  { key: 'draw',     label: 'Draw',     shortcut: 'D' },
-  { key: 'measure',  label: 'Measure',  shortcut: 'N' },
+export const DRAW_TOOLS = [
+  { key: 'select',    label: 'Select',    shortcut: 'V' },
+  { key: 'pencil',    label: 'Pencil',    shortcut: 'P' },
+  { key: 'line',      label: 'Line',      shortcut: 'L' },
+  { key: 'arrow',     label: 'Arrow',     shortcut: 'A' },
+  { key: 'polygon',   label: 'Polygon',   shortcut: 'G' },
+  { key: 'rectangle', label: 'Rectangle', shortcut: 'R' },
+  { key: 'circle',    label: 'Circle',    shortcut: 'C' },
+  { key: 'text',      label: 'Text',      shortcut: 'T' },
+  { key: 'measure',   label: 'Measure',   shortcut: 'M' },
 ]
 
-/* Freehand Draw tool preset palette. Distinct from the structured-
-   tool category colors below — freehand strokes have no "type", so
-   the color IS the only classification, picked directly by whoever's
-   sketching rather than implied by a marker category. */
-export const FREEHAND_COLORS = [
+/* Tools whose interaction is a drag gesture (mousedown -> move ->
+   mouseup) rather than discrete clicks — these are the ones whose
+   live preview is built with beginDrag/updateDrag/endDrag in
+   DrawingCanvas.jsx. Polygon is deliberately NOT in this list (it's
+   click-to-place-a-vertex, not a drag). */
+export const DRAG_DRAW_TOOLS = ['pencil', 'line', 'arrow', 'rectangle', 'circle']
+
+/* Tools that fight with a touchscreen's native pan/pinch-zoom/scroll
+   gesture and so need it locked out while active. This is
+   DRAG_DRAW_TOOLS plus Polygon: polygon isn't a drag gesture, but
+   placing several vertices with quick successive taps is still
+   double-tap-zoom-prone, so it gets the same touch-action:none /
+   disabled map-gesture treatment even though it never calls
+   beginDrag(). This single list drives both which tools get map
+   dragging/tap/pinch-zoom disabled (DrawingCanvas.jsx) and which get
+   touch-action:none applied to the Leaflet container (MapKnowledge.jsx
+   toggles the .mk-drawing-active class) — kept in sync by construction
+   instead of two independently-maintained lists. */
+export const PAN_LOCKING_TOOLS = [...DRAG_DRAW_TOOLS, 'polygon']
+
+/* Preset palette for the "current pen" color picker — used by every
+   tool, since these shapes have no semantic type (unlike the old
+   marker categories), so color is the only classification, picked
+   directly by whoever's drawing. */
+export const DRAW_COLORS = [
   { key: 'blue',   value: '#3B82F6' },
   { key: 'cyan',   value: '#00D4FF' },
   { key: 'amber',  value: '#F59E0B' },
@@ -48,38 +76,40 @@ export const FREEHAND_COLORS = [
   { key: 'white',  value: '#FFFFFF' },
 ]
 
-export const MARKER_TYPES = [
-  { key: 'player_position', label: 'Player Position', color: 'var(--blue)' },
-  { key: 'enemy_position',  label: 'Enemy Position',  color: 'var(--danger)' },
-  { key: 'drop_spot',       label: 'Drop Spot',       color: 'var(--gold)' },
-  { key: 'loot_priority',   label: 'Loot Priority',   color: 'var(--amber)' },
-  { key: 'compound',        label: 'Compound',        color: 'var(--cyan)' },
-  { key: 'watch_point',     label: 'Watch Point',     color: 'var(--violet)' },
-  { key: 'hold_point',      label: 'Hold Point',      color: 'var(--green)' },
-  { key: 'rally_point',     label: 'Rally Point',     color: 'var(--blue)' },
-  { key: 'danger',          label: 'Danger',          color: 'var(--danger)' },
-  { key: 'knock_finish',    label: 'Knock / Finish',  color: '#FF2D44' },
-  { key: 'scout_point',     label: 'Scout Point',     color: 'var(--cyan)' },
+export const THICKNESS_PRESETS = [
+  { key: 'thin',   label: 'Thin',   value: 2 },
+  { key: 'medium', label: 'Medium', value: 4 },
+  { key: 'thick',  label: 'Thick',  value: 7 },
 ]
 
-export const ROTATION_TYPES = [
-  { key: 'early_rotation', label: 'Early Rotation', color: 'var(--green)',  dash: null },
-  { key: 'late_rotation',  label: 'Late Rotation',  color: 'var(--amber)',  dash: null },
-  { key: 'safe_rotation',  label: 'Safe Rotation',  color: 'var(--blue)',   dash: null },
-  { key: 'risky_rotation', label: 'Risky Rotation', color: 'var(--danger)', dash: '6,4' },
-  { key: 'foot_rotation',  label: 'Foot Rotation',  color: 'var(--cyan)',   dash: '2,4' },
-  { key: 'vehicle_rotation', label: 'Vehicle Rotation', color: 'var(--violet)', dash: null },
+export const OPACITY_PRESETS = [
+  { key: 'faint',  label: '30%',  value: 0.3 },
+  { key: 'medium', label: '55%',  value: 0.55 },
+  { key: 'strong', label: '80%',  value: 0.8 },
+  { key: 'solid',  label: '100%', value: 1 },
 ]
 
-export const ZONE_TYPES = [
-  { key: 'zone',            label: 'Zone',             color: 'var(--blue)' },
-  { key: 'hard_cover',      label: 'Hard Cover Area',  color: 'var(--green)' },
-  { key: 'soft_cover',      label: 'Soft Cover Area',  color: 'var(--cyan)' },
-  { key: 'dead_zone',       label: 'Dead Zone',        color: 'var(--text-subtle)' },
-  { key: 'priority_area',   label: 'Priority Area',    color: 'var(--gold)' },
-  { key: 'end_game_area',   label: 'End Game Area',    color: 'var(--violet)' },
-  { key: 'danger_area',     label: 'Danger Area',      color: 'var(--danger)' },
+export const DEFAULT_DRAW_COLOR = '#3B82F6'
+export const DEFAULT_THICKNESS = 4
+export const DEFAULT_OPACITY = 0.8
+
+/* Each layer is a predicate over an object rather than a plain type
+   lookup — kept for forward-compatibility even though every group
+   here is currently a 1:1 type match, so a future sub-classification
+   (e.g. splitting polygons by fill) doesn't need a LayersPanel.jsx
+   change. Any object that doesn't match ANY group (legacy types from
+   the previous toolkit generation) is always rendered rather than
+   becoming permanently hidden with no toggle able to reach it. */
+export const LAYER_GROUPS = [
+  { key: 'pencil',    label: 'Pencil / Freehand', match: o => o.type === 'pencil' },
+  { key: 'line',      label: 'Lines',             match: o => o.type === 'line' },
+  { key: 'arrow',     label: 'Arrows',            match: o => o.type === 'arrow' },
+  { key: 'polygon',   label: 'Polygons',          match: o => o.type === 'polygon' },
+  { key: 'rectangle', label: 'Rectangles',        match: o => o.type === 'rectangle' },
+  { key: 'circle',    label: 'Circles',           match: o => o.type === 'circle' },
+  { key: 'text',      label: 'Text',              match: o => o.type === 'text' },
 ]
+export const DEFAULT_VISIBLE_LAYER_GROUPS = LAYER_GROUPS.map(g => g.key)
 
 /* Real, verified spawn datasets by map — see mapCoordinates.js and
    erangel_vehicle_boat_spawns.json / miramar_boat_spawns.json for
@@ -123,7 +153,10 @@ export const PHASES = [
    request verbatim — this app's --red token was rebranded to alias
    --blue (see index.css), so using it for IGL would make IGL and
    Assaulter 1 the same color. --danger is the app's one remaining
-   true red, so IGL uses that instead; the rest map straightforwardly. */
+   true red, so IGL uses that instead; the rest map straightforwardly.
+   The squad roster (players/roles) is independent of the drawing
+   toolkit — it's still used by SaveStrategyPanel to name a strategy's
+   squad, just no longer linked to any specific drawn object. */
 export const DEFAULT_ROLES = [
   { key: 'igl',        label: 'IGL',              color: 'var(--danger)' },
   { key: 'assaulter1', label: 'Assaulter 1',      color: 'var(--blue)' },
@@ -133,46 +166,6 @@ export const DEFAULT_ROLES = [
 ]
 
 export const GAME_MODES = ['Scrim', 'Tournament', 'Ranked', 'Custom']
-
-/* Each layer is a predicate over an object rather than a plain type
-   lookup, since several rows are sub-slices of `marker` by category.
-   Any object that doesn't match ANY group here (e.g. a marker
-   category not called out by name, like Watch Point or Rally Point)
-   is always rendered rather than becoming permanently hidden with no
-   toggle able to reach it. 'vehicles' stays even though the standalone
-   Vehicle tool was removed (Prompt 2) — it's still how legacy
-   vehicle-type objects from before that removal get shown/hidden. */
-export const LAYER_GROUPS = [
-  { key: 'squad',     label: 'Squad Positions',  match: o => o.type === 'marker' && o.category === 'player_position' },
-  { key: 'enemy',     label: 'Enemy Positions',  match: o => o.type === 'marker' && o.category === 'enemy_position' },
-  { key: 'rotations', label: 'Rotations',        match: o => o.type === 'rotation' },
-  { key: 'vehicles',  label: 'Vehicles',         match: o => o.type === 'vehicle' },
-  { key: 'compounds', label: 'Compounds',        match: o => o.type === 'marker' && o.category === 'compound' },
-  { key: 'danger',    label: 'Danger Areas',     match: o => (o.type === 'marker' && o.category === 'danger') || (o.type === 'zone' && o.category === 'danger_area') },
-  { key: 'loot',      label: 'Loot',             match: o => o.type === 'marker' && o.category === 'loot_priority' },
-  { key: 'zones',     label: 'Zones',            match: o => o.type === 'zone' },
-  { key: 'freehand',  label: 'Freehand Drawings', match: o => o.type === 'freehand' },
-]
-export const DEFAULT_VISIBLE_LAYER_GROUPS = LAYER_GROUPS.map(g => g.key)
-
-/* Rotations with no player assigned render in this fixed neutral
-   gray rather than falling back to the category's semantic color
-   (early/late/safe/risky/foot/vehicle) — unassigned rotations must be
-   visually distinct from every player color, and reusing a category
-   color risks coincidentally matching one. */
-export const NEUTRAL_ROTATION_COLOR = '#94A3B8'
-
-const TYPE_LOOKUP_BY_TOOL = {
-  marker: MARKER_TYPES, rotation: ROTATION_TYPES, zone: ZONE_TYPES,
-}
-
-/* Default color for a given (type, category) pair — used to restore
-   an object's category color when a player is unassigned from it
-   (SelectedItemPanel), so color always reflects current assignment
-   instead of drifting to whatever a prior player left behind. */
-export function categoryColor(type, category) {
-  return TYPE_LOOKUP_BY_TOOL[type]?.find(t => t.key === category)?.color ?? '#3B82F6'
-}
 
 export function createDefaultPlayers() {
   return DEFAULT_ROLES.map((r, i) => ({
@@ -198,20 +191,13 @@ export function createStrategyObject(partial) {
   return {
     id: partial.id || `obj-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
     type: partial.type,
-    category: partial.category,
-    player: partial.player ?? null,
-    phase: partial.phase ?? 'phase-1',
-    priority: partial.priority ?? 'normal',
-    position: partial.position ?? null,
-    waypoints: partial.waypoints ?? null,
+    points: partial.points ?? [],
     radius: partial.radius ?? null,
-    color: partial.color ?? '#3B82F6',
-    label: partial.label ?? '',
-    description: partial.description ?? '',
-    /* Compound/Loot Priority markers only — folds into the existing
-       marker object instead of a duplicate Vehicle annotation at the
-       same spot. Harmless no-op field on every other object type. */
-    vehiclePickup: partial.vehiclePickup ?? false,
+    text: partial.text ?? '',
+    color: partial.color ?? DEFAULT_DRAW_COLOR,
+    thickness: partial.thickness ?? DEFAULT_THICKNESS,
+    opacity: partial.opacity ?? DEFAULT_OPACITY,
+    phase: partial.phase ?? 'phase-1',
     createdAt: partial.createdAt ?? Date.now(),
   }
 }
@@ -219,12 +205,15 @@ export function createStrategyObject(partial) {
 /* ============================================================
    BACKWARD COMPATIBILITY
    ------------------------------------------------------------
-   Strategies saved before this rebuild used a flat
+   Strategies saved before the very first rebuild used a flat
    { pins, arrows, zones } shape (no phases/players/structured
    metadata). Loading one of those must not crash or silently
-   drop the user's saved work — convert it into the new object
-   schema on load instead. New saves always use the new shape;
-   this only ever runs on read.
+   drop the user's saved work — convert it into the current object
+   schema on load instead. New saves always use the current shape;
+   this only ever runs on read. Old pins have no equivalent shape
+   in the new toolkit (no more point-marker tool), so they migrate
+   to a Text object using the pin's name as the label; arrows/zones
+   map onto Arrow/Circle directly.
    ============================================================ */
 export function isLegacyStrategyDoc(doc) {
   return doc && !Array.isArray(doc.objects) && (
@@ -236,23 +225,18 @@ export function migrateLegacyStrategy(doc) {
   const objects = []
   ;(doc.pins || []).forEach(p => {
     objects.push(createStrategyObject({
-      id: p.id, type: 'marker', category: 'player_position',
-      position: [p.lat, p.lng], color: p.color, label: p.name,
-      description: p.name,
+      id: p.id, type: 'text', points: [[p.lat, p.lng]],
+      text: p.name || '', color: p.color,
     }))
   })
   ;(doc.arrows || []).forEach(a => {
     objects.push(createStrategyObject({
-      id: a.id, type: 'rotation', category: 'safe_rotation',
-      waypoints: [a.from, a.to], color: a.color, label: a.label,
-      description: a.label,
+      id: a.id, type: 'arrow', points: [a.from, a.to], color: a.color,
     }))
   })
   ;(doc.zones || []).forEach(z => {
     objects.push(createStrategyObject({
-      id: z.id, type: 'zone', category: 'zone',
-      position: z.center, radius: z.radius, color: z.color, label: z.label,
-      description: z.label,
+      id: z.id, type: 'circle', points: [z.center], radius: z.radius, color: z.color,
     }))
   })
   return {
@@ -269,7 +253,7 @@ export function migrateLegacyStrategy(doc) {
 }
 
 /* ============================================================
-   GEOMETRY HELPERS (measure tool)
+   GEOMETRY HELPERS (measure tool, arrow heading)
    ------------------------------------------------------------
    All in the map's own [lat, lng] world-unit space (0..256, see
    mapCoordinates.js) — MAP_WORLD_METERS converts that to real

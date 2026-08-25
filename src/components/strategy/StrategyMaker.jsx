@@ -1,22 +1,22 @@
 import { useEffect, useState } from 'react'
-import { Undo2, Redo2, Trash2 } from 'lucide-react'
-import { useAuth } from '../../context/AuthContext.jsx'
-import {
-  useStrategyStore, undo, redo, deleteSelected, clearAllObjects,
-  toSaveableDoc, loadStrategyData, setStrategyDocId, setTool,
-} from './strategyStore.js'
 import { isLegacyStrategyDoc, migrateLegacyStrategy } from '../../utils/strategyDataSchema.js'
+import {
+  useStrategyStore, undo, redo, deleteSelected, setTool, setDrafting,
+  toSaveableDoc, loadStrategyData, setStrategyDocId,
+} from './strategyStore.js'
+import { useAuth } from '../../context/AuthContext.jsx'
 import { useConfirm } from '../../hooks/useConfirm.js'
 import ConfirmModal from '../ConfirmModal.jsx'
 import LayersPanel from './LayersPanel.jsx'
-import SelectedItemPanel from './SelectedItemPanel.jsx'
 import ToolPanel from './ToolPanel.jsx'
 import PhaseSelector from './PhaseSelector.jsx'
-import QuickActions from './QuickActions.jsx'
 import SaveStrategyPanel from './SaveStrategyPanel.jsx'
 import MeasureReadout from './MeasureReadout.jsx'
 
-const SHORTCUT_TOOLS = { v: 'select', m: 'marker', r: 'rotation', z: 'zone', d: 'draw' }
+const SHORTCUT_TOOLS = {
+  v: 'select', p: 'pencil', l: 'line', a: 'arrow',
+  g: 'polygon', r: 'rectangle', c: 'circle', t: 'text', m: 'measure',
+}
 
 function useStrategyKeyboardShortcuts() {
   useEffect(() => {
@@ -35,6 +35,10 @@ function useStrategyKeyboardShortcuts() {
         deleteSelected()
         return
       }
+      if (key === 'escape') {
+        setDrafting(null)
+        return
+      }
       if (SHORTCUT_TOOLS[key]) {
         setTool(SHORTCUT_TOOLS[key])
       }
@@ -44,7 +48,12 @@ function useStrategyKeyboardShortcuts() {
   }, [])
 }
 
-export default function StrategyMakerPanel({ mapId, strategies, addStrategyDoc, updateStrategyDoc, deleteStrategyDoc }) {
+/* Content of Strategy Maker's always-floating tools panel (see Issue
+   2 in the commit this landed in) — the caller (MapKnowledge.jsx)
+   wraps this in <FloatingToolsPanel> unconditionally, on desktop AND
+   mobile, so there is exactly one layout path instead of a desktop
+   side-column vs. mobile-floating-panel branch. */
+export default function StrategyMaker({ mapId, strategies, addStrategyDoc, updateStrategyDoc, deleteStrategyDoc }) {
   const st = useStrategyStore()
   const { user } = useAuth()
   const [saving, setSaving] = useState(false)
@@ -83,36 +92,17 @@ export default function StrategyMakerPanel({ mapId, strategies, addStrategyDoc, 
   }
 
   async function handleDelete(doc) {
-    if (!await confirm(`Delete strategy "${doc.name}"?`)) return
+    if (!await confirm(`Delete strategy "${doc.name}"?`, { title: 'Delete strategy' })) return
     try { await deleteStrategyDoc(mapId, doc.id) }
     catch (e) { alert('Delete failed: ' + (e?.message || e)) }
   }
 
-  async function handleClearAll() {
-    if (!await confirm('Clear every object in this phase\'s plan? This cannot be undone with Undo once other actions follow.')) return
-    clearAllObjects()
-  }
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, height: '100%', overflowY: 'auto', paddingRight: 4 }}>
-      <div className="card" style={{ display: 'flex', gap: 6 }}>
-        <button onClick={undo} disabled={st.history.length === 0} className="btn btn-secondary btn-sm" style={{ flex: 1 }} title="Undo (Ctrl+Z)">
-          <Undo2 size={12} /> Undo
-        </button>
-        <button onClick={redo} disabled={st.future.length === 0} className="btn btn-secondary btn-sm" style={{ flex: 1 }} title="Redo (Ctrl+Shift+Z)">
-          <Redo2 size={12} /> Redo
-        </button>
-        <button onClick={handleClearAll} className="btn btn-secondary btn-sm" title="Clear all">
-          <Trash2 size={12} />
-        </button>
-      </div>
-
-      <LayersPanel mapId={mapId} />
-      <SelectedItemPanel />
-      {st.tool === 'measure' && <MeasureReadout mapId={mapId} />}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, height: '100%' }}>
       <ToolPanel />
+      <LayersPanel mapId={mapId} />
+      {st.tool === 'measure' && <MeasureReadout mapId={mapId} />}
       <PhaseSelector />
-      <QuickActions />
       <SaveStrategyPanel
         strategies={strategies}
         saving={saving}
@@ -120,7 +110,6 @@ export default function StrategyMakerPanel({ mapId, strategies, addStrategyDoc, 
         onLoad={handleLoad}
         onDelete={handleDelete}
       />
-
       <ConfirmModal {...confirmModalProps} />
     </div>
   )

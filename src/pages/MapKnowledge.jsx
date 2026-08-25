@@ -27,7 +27,7 @@ import {
   X, MapPin, MousePointer2, ArrowUpRight, Circle as CircleIcon,
   Eraser, Save, Trash2, Search, Plus, Minus, ChevronDown,
   Loader2, PencilLine, Info, Edit, ArrowRight, Shield,
-  Undo2, Redo2, Crosshair,
+  Crosshair,
 } from 'lucide-react'
 import { db } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -36,13 +36,13 @@ import {
   MIRAMAR_VEHICLE_POSITIONS, MIRAMAR_BOAT_POSITIONS,
   RONDO_VEHICLE_POSITIONS,
 } from '../utils/spawnReferenceData.js'
-import StrategyMakerPanel from '../components/strategy/StrategyMakerPanel.jsx'
-import StrategyDrawingLayer from '../components/strategy/StrategyDrawingLayer.jsx'
-import BottomToolBar from '../components/strategy/BottomToolBar.jsx'
+import StrategyMaker from '../components/strategy/StrategyMaker.jsx'
+import DrawingCanvas from '../components/strategy/DrawingCanvas.jsx'
 import FloatingToolsPanel from '../components/strategy/FloatingToolsPanel.jsx'
 import {
-  resetForMap, useStrategyStore, undo, redo,
+  resetForMap, useStrategyStore,
 } from '../components/strategy/strategyStore.js'
+import { PAN_LOCKING_TOOLS } from '../utils/strategyDataSchema.js'
 import { useConfirm } from '../hooks/useConfirm.js'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import { getViewport } from '../utils/viewport.js'
@@ -540,6 +540,10 @@ export default function MapKnowledge() {
               onFlyDone={() => setFlyTarget(null)}
               onMouseMove={setMousePos}
               mode={mode}
+              strategies={strategies}
+              addStrategyDoc={addStrategy}
+              updateStrategyDoc={updateStrategy}
+              deleteStrategyDoc={deleteStrategy}
               fullBleed
             />
           </div>
@@ -575,18 +579,6 @@ export default function MapKnowledge() {
                 onFlyTo={setFlyTarget}
                 isAdmin={isAdmin}
                 mapId={activeMapId}
-              />
-            </FloatingToolsPanel>
-          )}
-          {mode === 'strategy' && (
-            <FloatingToolsPanel title="Tools">
-              <BottomToolBar />
-              <StrategyMakerPanel
-                mapId={activeMapId}
-                strategies={strategies}
-                addStrategyDoc={addStrategy}
-                updateStrategyDoc={updateStrategy}
-                deleteStrategyDoc={deleteStrategy}
               />
             </FloatingToolsPanel>
           )}
@@ -647,44 +639,47 @@ export default function MapKnowledge() {
                   onFlyDone={() => setFlyTarget(null)}
                   onMouseMove={setMousePos}
                   mode={mode}
-                />
-              </div>
-              {mode === 'strategy' && <BottomToolBar />}
-            </div>
-
-            <div className="mk-side-col">
-              {mode === 'view' && (
-                <ViewPanel
-                  activeMap={activeMap}
-                  pins={pins}
-                  visibleLayers={visibleLayers}
-                  onToggleLayer={toggleLayer}
-                  selectedPin={selectedPin}
-                  onSelectPin={setSelectedPin}
-                  onFlyTo={setFlyTarget}
-                  isAdmin={isAdmin}
-                  mapId={activeMapId}
-                />
-              )}
-              {mode === 'strategy' && (
-                <StrategyMakerPanel
-                  mapId={activeMapId}
                   strategies={strategies}
                   addStrategyDoc={addStrategy}
                   updateStrategyDoc={updateStrategy}
                   deleteStrategyDoc={deleteStrategy}
                 />
-              )}
-              {mode === 'dev' && isAdmin && (
-                <DevPanel
-                  mapId={activeMapId}
-                  pins={pins}
-                  polygons={polygons}
-                  mousePos={mousePos}
-                  user={user}
-                />
-              )}
+              </div>
             </div>
+
+            {/* Strategy Maker's tools now always float over the map
+                (see MapPanel) instead of living in this side column —
+                Issue 2: one layout mode for the tools panel, not a
+                desktop-side-column-vs-mobile-floating-panel branch. So
+                this column only renders (and only takes up width) for
+                View Map / Dev Editor, which still use the classic
+                sidebar layout. */}
+            {mode !== 'strategy' && (
+              <div className="mk-side-col">
+                {mode === 'view' && (
+                  <ViewPanel
+                    activeMap={activeMap}
+                    pins={pins}
+                    visibleLayers={visibleLayers}
+                    onToggleLayer={toggleLayer}
+                    selectedPin={selectedPin}
+                    onSelectPin={setSelectedPin}
+                    onFlyTo={setFlyTarget}
+                    isAdmin={isAdmin}
+                    mapId={activeMapId}
+                  />
+                )}
+                {mode === 'dev' && isAdmin && (
+                  <DevPanel
+                    mapId={activeMapId}
+                    pins={pins}
+                    polygons={polygons}
+                    mousePos={mousePos}
+                    user={user}
+                  />
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -760,6 +755,7 @@ function MapPanel({
   selectedPin, onSelectPin,
   flyTarget, onFlyDone,
   onMouseMove, mode,
+  strategies, addStrategyDoc, updateStrategyDoc, deleteStrategyDoc,
   fullBleed,
 }) {
   const mapRef = useRef(null)
@@ -772,8 +768,17 @@ function MapPanel({
 
   const showLabels = zoom >= LABEL_ZOOM
 
+  /* Issue 3.1: touch-action:none has to reach the actual Leaflet
+     container while a drag-based (or double-tap-prone) draw tool is
+     active, or the browser's own scroll/pinch-zoom keeps fighting the
+     draw gesture underneath Leaflet's handling of it — see the
+     PAN_LOCKING_TOOLS comment in strategyDataSchema.js for why this
+     exact tool list. Re-enables the instant Select/Measure/Text (or
+     View Map / Dev Editor mode) is active. */
+  const drawingActive = mode === 'strategy' && PAN_LOCKING_TOOLS.includes(strategyState.tool)
+
   return (
-    <div className="mk-canvas" style={{
+    <div className={`mk-canvas${drawingActive ? ' mk-drawing-active' : ''}`} style={{
       position: 'relative',
       /* zIndex here (any value, not just a high one) turns this
          into its own stacking context, so the custom zoom buttons'
@@ -925,19 +930,20 @@ function MapPanel({
           ))}
 
         {/* Strategy Maker overlay */}
-        {mode === 'strategy' && <StrategyDrawingLayer mapId={activeMap.id} />}
+        {mode === 'strategy' && <DrawingCanvas mapId={activeMap.id} />}
 
         {/* Dev Editor overlay */}
         {mode === 'dev' && <DevDrawingLayer />}
       </MapContainer>
 
-      {/* Custom zoom controls. Desktop/tablet: top-right, unchanged.
-          fullBleed (mobile): moved to bottom-right — top-right is now
-          where the floating Tools/Layers panel lives, and these two
-          were never meant to share a corner. */}
+      {/* Custom zoom controls. Strategy Maker or fullBleed (mobile):
+          bottom-right — top-right is where the floating Tools/Layers
+          panel lives (see below), and the two were never meant to
+          share a corner. View Map / Dev Editor on desktop: top-right,
+          unchanged, since neither of those has a floating panel there. */}
       <div style={{
         position: 'absolute',
-        ...(fullBleed ? { bottom: 10, right: 10 } : { top: 10, right: 10 }),
+        ...(fullBleed || mode === 'strategy' ? { bottom: 10, right: 10 } : { top: 10, right: 10 }),
         zIndex: 10,
         display: 'flex', flexDirection: 'column', gap: 4,
       }}>
@@ -951,21 +957,22 @@ function MapPanel({
         }} title="Recenter"><Crosshair size={14} /></ZoomBtn>
       </div>
 
-      {/* Undo/Redo — Strategy Maker. Desktop/tablet: bottom-right
-          (mirrors the Actions card in the sidebar). fullBleed:
-          bottom-left, since bottom-right is now the zoom controls'
-          spot above. */}
+      {/* Strategy Maker's tools ALWAYS float over the map — on
+          desktop AND mobile, in or out of fullBleed — exactly one
+          layout mode, per Issue 2. Rendered here (inside .mk-canvas,
+          which is already its own positioned stacking context) rather
+          than by the caller, so there's a single code path instead of
+          a mobile-only vs. desktop-side-column branch. */}
       {mode === 'strategy' && (
-        <div style={{
-          position: 'absolute',
-          bottom: 10,
-          ...(fullBleed ? { left: 10 } : { right: 10 }),
-          zIndex: 10,
-          display: 'flex', gap: 4,
-        }}>
-          <ZoomBtn onClick={undo} disabled={strategyState.history.length === 0} title="Undo (Ctrl+Z)"><Undo2 size={14} /></ZoomBtn>
-          <ZoomBtn onClick={redo} disabled={strategyState.future.length === 0} title="Redo (Ctrl+Shift+Z)"><Redo2 size={14} /></ZoomBtn>
-        </div>
+        <FloatingToolsPanel title="Tools">
+          <StrategyMaker
+            mapId={activeMap.id}
+            strategies={strategies}
+            addStrategyDoc={addStrategyDoc}
+            updateStrategyDoc={updateStrategyDoc}
+            deleteStrategyDoc={deleteStrategyDoc}
+          />
+        </FloatingToolsPanel>
       )}
     </div>
   )
@@ -2353,7 +2360,19 @@ function MapStyles() {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        max-width: 60vw;
+        /* Both this and .mk-floating-panel are position:absolute
+           against the same box (.mk-mobile-root / .mk-canvas, which
+           fill each other via inset:0), .mk-top-overlay from the left
+           and .mk-floating-panel from the right (12px + up to 240px
+           wide) — on a narrow phone, 60vw from the left alone reached
+           past where the panel starts, so the panel visually covered
+           the map/mode pills underneath it and they became untappable
+           (confirmed: "Strategy" and "Dev" were unreachable on a real
+           390px-wide viewport). Reserving the panel's full width here
+           guarantees the two can never overlap regardless of viewport
+           size; each pill row already scrolls horizontally
+           (.mk-top-overlay-row) if it doesn't fit the remaining space. */
+        max-width: min(60vw, calc(100vw - 264px));
       }
       .mk-top-overlay-row {
         display: flex;

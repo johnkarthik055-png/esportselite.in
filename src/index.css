@@ -835,6 +835,33 @@ body.amoled {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
 }
+/* Strategy Maker drag-to-draw tools (Pencil/Line/Arrow/Polygon/
+   Rectangle/Circle — see PAN_LOCKING_TOOLS in strategyDataSchema.js)
+   toggle .mk-drawing-active on the map's wrapper while active. Without
+   this, the browser's own touch scroll/pinch-zoom/pull-to-refresh
+   gesture keeps trying to start alongside Leaflet's handling of the
+   same touch input, which is what caused the mobile "screen shakes
+   while drawing" bug — disabling map dragging/tap/pinch-zoom in
+   DrawingCanvas.jsx stops LEAFLET's gestures, but only touch-action:
+   none stops the BROWSER's native ones. */
+.mk-drawing-active .leaflet-container {
+  touch-action: none;
+}
+/* Text tool's inline draft input — a real <input> inside a Leaflet
+   divIcon (see TextDraftLayer in DrawingCanvas.jsx), styled to match
+   the app's dark theme instead of the browser's default white box. */
+.strat-text-draft-input {
+  width: 176px;
+  padding: 5px 8px;
+  background: rgba(5, 8, 22, 0.95);
+  border: 1px solid var(--blue);
+  border-radius: 4px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
 
 /* ============================================================
    SPAWN MARKER BADGES — Vehicle/Boat dense point-cloud layers

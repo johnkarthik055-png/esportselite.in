@@ -17,6 +17,7 @@
 import { useEffect, useState } from 'react'
 import {
   createEmptyStrategy, createStrategyObject, PHASES, DEFAULT_VISIBLE_LAYER_GROUPS,
+  DEFAULT_DRAW_COLOR, DEFAULT_THICKNESS, DEFAULT_OPACITY,
 } from '../../utils/strategyDataSchema.js'
 
 const bus = new EventTarget()
@@ -27,14 +28,14 @@ const MAX_HISTORY = 50
 export const strategyStore = {
   mapId: null,
   tool: 'select',
-  activeType: {
-    marker: 'player_position',
-    rotation: 'safe_rotation',
-    zone: 'zone',
-  },
-  activePlayerId: null,
-  activeFreehandColor: '#3B82F6',
-  activeVehiclePickup: false,
+
+  /* "Current pen" settings — applied to every newly-created object,
+     and also applied retroactively to the selected object (if any)
+     by setDrawColor/setDrawThickness/setDrawOpacity below. */
+  drawColor: DEFAULT_DRAW_COLOR,
+  drawThickness: DEFAULT_THICKNESS,
+  drawOpacity: DEFAULT_OPACITY,
+
   activePhase: 'phase-1',
   visibleLayerGroups: new Set(DEFAULT_VISIBLE_LAYER_GROUPS),
   showSpawnRefVehicle: false,
@@ -42,7 +43,13 @@ export const strategyStore = {
   selectedObjectId: null,
   measureFrom: null,
   measureTo: null,
-  drafting: null, /* in-progress multi-click placement */
+  /* In-progress multi-step placement: { kind: 'polygon', points }
+     while placing polygon vertices, or { kind: 'text', latlng }
+     while the inline text input is open. Drag-based tools (pencil/
+     line/arrow/rectangle/circle) never touch this — their live
+     preview is drawn with a raw Leaflet layer outside React state
+     (see DrawingCanvas.jsx) so a fast drag never re-renders React. */
+  drafting: null,
 
   strategyDocId: null,
   name: '',
@@ -121,27 +128,6 @@ export function setTool(tool) {
   if (tool !== 'measure') { strategyStore.measureFrom = null; strategyStore.measureTo = null }
   fire()
 }
-export function setActiveType(tool, key) {
-  strategyStore.activeType[tool] = key
-  fire()
-}
-export function setActivePlayer(id) {
-  strategyStore.activePlayerId = id
-  fire()
-}
-export function setActiveFreehandColor(color) {
-  strategyStore.activeFreehandColor = color
-  fire()
-}
-export function setActiveVehiclePickup(value) {
-  strategyStore.activeVehiclePickup = value
-  fire()
-}
-export function setActivePhase(id) {
-  strategyStore.activePhase = id
-  strategyStore.selectedObjectId = null
-  fire()
-}
 export function selectObject(id) {
   strategyStore.selectedObjectId = id
   fire()
@@ -168,31 +154,41 @@ export function toggleSpawnRef(kind) {
   fire()
 }
 
+/* ---- current pen settings ----
+   Each setter always updates the "current pen" default (so the NEXT
+   new drawing uses it), and — if something is currently selected via
+   the Select tool — ALSO applies the same change retroactively to
+   that object, in the same action. updateObject() already pushes its
+   own history entry and fires the change event, so these don't need
+   to call fire() themselves in that branch. */
+export function setDrawColor(color) {
+  strategyStore.drawColor = color
+  if (strategyStore.selectedObjectId) updateObject(strategyStore.selectedObjectId, { color })
+  else fire()
+}
+export function setDrawThickness(value) {
+  strategyStore.drawThickness = value
+  if (strategyStore.selectedObjectId) updateObject(strategyStore.selectedObjectId, { thickness: value })
+  else fire()
+}
+export function setDrawOpacity(value) {
+  strategyStore.drawOpacity = value
+  if (strategyStore.selectedObjectId) updateObject(strategyStore.selectedObjectId, { opacity: value })
+  else fire()
+}
+
 /* ---- object CRUD ---- */
 export function addObject(partial) {
   pushHistory()
   const obj = createStrategyObject({
     ...partial,
-    player: partial.player ?? strategyStore.activePlayerId,
     phase: partial.phase ?? strategyStore.activePhase,
-    color: partial.color,
   })
   strategyStore.objects = [...strategyStore.objects, obj]
   strategyStore.selectedObjectId = obj.id
   strategyStore.drafting = null
   fire()
   return obj
-}
-export function addObjects(partials) {
-  pushHistory()
-  const created = partials.map(p => createStrategyObject({
-    ...p,
-    player: p.player ?? strategyStore.activePlayerId,
-    phase: p.phase ?? strategyStore.activePhase,
-  }))
-  strategyStore.objects = [...strategyStore.objects, ...created]
-  fire()
-  return created
 }
 export function updateObject(id, patch, { silent } = {}) {
   if (!silent) pushHistory()
@@ -216,6 +212,23 @@ export function clearAllObjects() {
   fire()
 }
 
+/* ---- polygon multi-click placement ---- */
+export function finishPolygonDraft() {
+  if (strategyStore.drafting?.kind !== 'polygon') return
+  const points = strategyStore.drafting.points
+  strategyStore.drafting = null
+  if (points.length >= 3) {
+    addObject({
+      type: 'polygon', points,
+      color: strategyStore.drawColor,
+      thickness: strategyStore.drawThickness,
+      opacity: strategyStore.drawOpacity,
+    })
+  } else {
+    fire()
+  }
+}
+
 /* ---- players / metadata ---- */
 export function setPlayers(players) { strategyStore.players = players; fire() }
 export function setName(name) { strategyStore.name = name; fire() }
@@ -223,6 +236,11 @@ export function setDescription(description) { strategyStore.description = descri
 export function setGameMode(mode) { strategyStore.gameMode = mode; fire() }
 export function setTags(tags) { strategyStore.tags = tags; fire() }
 export function setStrategyDocId(id) { strategyStore.strategyDocId = id; fire() }
+export function setActivePhase(id) {
+  strategyStore.activePhase = id
+  strategyStore.selectedObjectId = null
+  fire()
+}
 
 /* ---- save / load ---- */
 export function toSaveableDoc() {

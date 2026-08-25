@@ -29,26 +29,6 @@ export function SectionLabel({ children, small }) {
   )
 }
 
-export function PillButton({ active, onClick, children, title, small }) {
-  return (
-    <button
-      onClick={onClick}
-      title={title}
-      className="btn btn-sm"
-      style={{
-        background: active ? 'var(--blue)' : 'var(--bg-elevated)',
-        border: `1px solid ${active ? 'var(--blue)' : 'var(--border)'}`,
-        color: active ? '#fff' : 'var(--text-primary)',
-        justifyContent: 'flex-start',
-        fontSize: small ? 11 : 12,
-        padding: small ? '5px 8px' : '7px 10px',
-      }}
-    >
-      {children}
-    </button>
-  )
-}
-
 export function SwatchButton({ active, color, onClick, title }) {
   return (
     <button
