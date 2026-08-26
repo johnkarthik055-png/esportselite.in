@@ -45,7 +45,7 @@ import {
 import { PAN_LOCKING_TOOLS } from '../utils/strategyDataSchema.js'
 import { useConfirm } from '../hooks/useConfirm.js'
 import ConfirmModal from '../components/ConfirmModal.jsx'
-import { getViewport } from '../utils/viewport.js'
+import { useViewport } from '../utils/viewport.js'
 
 /* ============================================================
    LEAFLET DEFAULT ICON FIX
@@ -435,17 +435,8 @@ export default function MapKnowledge() {
      bottom-nav, both fixed and known) with all controls floating on
      top of it — nothing ever competes with the map for space, so
      there's nothing left to measure or calculate. */
-  const [isMobile, setIsMobile] = useState(() => getViewport() === 'mobile')
-
-  useEffect(() => {
-    function check() { setIsMobile(getViewport() === 'mobile') }
-    window.addEventListener('resize', check)
-    window.addEventListener('orientationchange', check)
-    return () => {
-      window.removeEventListener('resize', check)
-      window.removeEventListener('orientationchange', check)
-    }
-  }, [])
+  const mkViewport = useViewport()
+  const isMobile = mkViewport === 'mobile'
 
   const activeMap = MAPS.find(m => m.id === activeMapId) || MAPS[0]
   const tileUrl = `/tiles/${activeMap.tileFolder}/{z}/{x}/{y}.png`
@@ -2435,8 +2426,21 @@ function MapStyles() {
         -webkit-backdrop-filter: blur(12px);
         border: 1px solid #1B2A45;
         border-radius: 12px;
-        max-width: 240px;
-        width: calc(100vw - 24px);
+        /* min(), not a separate max-width plus a vw-based width: the
+           old width: calc(100vw - 24px) sized this against the FULL
+           BROWSER VIEWPORT, not against .mk-canvas (its actual
+           positioned ancestor here) — on a desktop window narrow
+           enough that the sidebar + page padding left .mk-canvas
+           itself narrower than ~264px, the panel (anchored via
+           right:12px) rendered wider than its own container and the
+           overhanging LEFT portion got clipped by .mk-canvas's
+           overflow:hidden (the "ct it, then" / "ss/opacity" cut-off
+           text). The 100% below resolves against the actual
+           containing block instead — .mk-canvas on desktop, the
+           viewport itself for the position:fixed mobile override
+           below — so the panel can never be wider than the space it's
+           actually anchored in, on any window size. */
+        width: min(240px, calc(100% - 24px));
         max-height: 70vh;
         display: flex;
         flex-direction: column;

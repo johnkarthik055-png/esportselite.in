@@ -13,7 +13,7 @@ import { getInitials } from '../utils/helpers.js'
 import { getDisplayName, clearAllUserData, setActiveUID } from '../utils/storage.js'
 import { getLevelName, XP_PER_LEVEL } from '../utils/db.js'
 import { useUserData } from '../hooks/useUserData.js'
-import { getViewport } from '../utils/viewport.js'
+import { useViewport } from '../utils/viewport.js'
 import NotificationPanel from './NotificationPanel.jsx'
 
 const ADMIN_EMAILS = [
@@ -85,7 +85,7 @@ export default function Sidebar({ collapsed, onToggle }) {
   const location = useLocation()
   const { user: authUser, logout: signOutFb } = useAuth()
   const isAdmin = !!authUser?.email && ADMIN_EMAILS.includes(authUser.email)
-  const [viewport, setViewport] = useState(getViewport())
+  const viewport = useViewport()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [panelOpen, setPanelOpen] = useState(false)
   const [logoFailed, setLogoFailed] = useState(false)
@@ -99,12 +99,6 @@ export default function Sidebar({ collapsed, onToggle }) {
   const ceil  = XP_PER_LEVEL[levelNum + 1] ?? floor
   const xpPct = ceil > floor ? Math.round(Math.min(1, (xp - floor) / (ceil - floor)) * 100) : 100
   const initials = getInitials(displayName)
-
-  useEffect(() => {
-    function check() { setViewport(getViewport()) }
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
 
   useEffect(() => {
     function onOpen()      { setMobileOpen(true) }

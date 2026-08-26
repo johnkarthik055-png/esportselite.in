@@ -4,7 +4,7 @@ import { Plus, X, FileText, BarChart3, Timer, Save } from 'lucide-react'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { STORAGE_KEYS } from '../utils/constants.js'
 import { todayKey } from '../utils/helpers.js'
-import { getViewport } from '../utils/viewport.js'
+import { useViewport } from '../utils/viewport.js'
 
 /**
  * Mobile-only floating action button. Hides on desktop and on /login.
@@ -17,20 +17,12 @@ export default function FABMenu() {
   const [noteOpen, setNoteOpen] = useState(false)
   const [noteText, setNoteText] = useState('')
   const [daily, setDaily] = useLocalStorage(STORAGE_KEYS.DAILY_SESSIONS, {})
-  const [mobile, setMobile] = useState(false)
-
-  useEffect(() => {
-    /* Uses the same shortSide-based check as Sidebar/BottomNav so the
-       FAB agrees with the rest of the mobile chrome about what counts
-       as "mobile" — a plain width check let it (dis)appear out of
-       step with the sidebar/bottom-nav on a landscape phone. */
-    function check() {
-      setMobile(getViewport() === 'mobile')
-    }
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
+  /* Shared with Sidebar/BottomNav/MapKnowledge so the FAB agrees with
+     the rest of the mobile chrome about what counts as "mobile" — a
+     plain width (or even shortSide) check let it (dis)appear out of
+     step with the sidebar/bottom-nav, e.g. on a narrowed desktop
+     window, which isn't a touch device no matter how narrow it gets. */
+  const mobile = useViewport() === 'mobile'
 
   /* Close the radial menu on route change. */
   useEffect(() => {

@@ -9,7 +9,7 @@ import LevelUpModal from './LevelUpModal.jsx'
 import { readLS, writeLS } from '../hooks/useLocalStorage.js'
 import { STORAGE_KEYS } from '../utils/constants.js'
 import { bootTheme } from '../hooks/useTheme.js'
-import { getViewport } from '../utils/viewport.js'
+import { useViewport } from '../utils/viewport.js'
 
 const PAGE_TITLES = {
   '/dashboard': 'Dashboard',
@@ -24,19 +24,13 @@ export default function Layout() {
   const location = useLocation()
   const [collapsed, setCollapsed] = useState(false)
   const [toast, setToast] = useState('')
-  const [viewport, setViewport] = useState(getViewport())
+  const viewport = useViewport()
   const edgeRef = useRef({ x: 0, y: 0, active: false })
   const topbarWrapRef = useRef(null)
   const [topbarHeight, setTopbarHeight] = useState(64)
   const title = PAGE_TITLES[location.pathname] || 'Esports Elite'
 
   useEffect(() => { bootTheme() }, [])
-
-  useEffect(() => {
-    function check() { setViewport(getViewport()) }
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
 
   /* Real measured TopBar height, exposed as --app-topbar-height below —
      TopBar's content (trial badge, responsive padding) isn't a fixed

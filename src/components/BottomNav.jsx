@@ -8,7 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useNotifications } from '../hooks/useNotifications.js'
 import { clearAllUserData, setActiveUID } from '../utils/storage.js'
-import { getViewport } from '../utils/viewport.js'
+import { useViewport } from '../utils/viewport.js'
 
 const ADMIN_EMAILS = [
   'karthikreddyy2010@gmail.com',
@@ -60,13 +60,7 @@ export default function BottomNav() {
      no navigation chrome at all. Mirroring that same shortSide check
      here keeps the two in sync: whenever the icon sidebar is hidden,
      this is the nav that replaces it, in every orientation. */
-  const [viewport, setViewport] = useState(getViewport())
-
-  useEffect(() => {
-    function check() { setViewport(getViewport()) }
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
+  const viewport = useViewport()
 
   const isAdmin = !!user?.email && ADMIN_EMAILS.includes(user.email)
 
