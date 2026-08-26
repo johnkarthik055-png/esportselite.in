@@ -1,11 +1,39 @@
 import { useEffect, useMemo, useRef } from 'react'
 import L from 'leaflet'
 import { Marker, Polyline, Polygon, Rectangle, Circle, useMap, useMapEvents } from 'react-leaflet'
-import { PAN_LOCKING_TOOLS, DRAG_DRAW_TOOLS, bearingBetween, DEFAULT_THICKNESS, DEFAULT_OPACITY, DEFAULT_DRAW_COLOR } from '../../utils/strategyDataSchema.js'
+import { LAYER_GROUPS, PAN_LOCKING_TOOLS, DRAG_DRAW_TOOLS, bearingBetween, DEFAULT_THICKNESS, DEFAULT_OPACITY, DEFAULT_DRAW_COLOR } from '../../utils/strategyDataSchema.js'
+import { TACTICAL_TOOLS_BY_KEY, TACTICAL_PATH_TOOLS, TACTICAL_POINT_TOOLS, TACTICAL_CIRCLE_TOOLS } from '../../utils/tacticalToolsSchema.js'
 import { getSpawnReference } from '../../utils/spawnReferenceData.js'
 import {
   useStrategyStore, addObject, selectObject, setDrafting, setMeasurePoints,
+  startTacticalPathPoint, startTacticalPointForm, startTacticalCircleForm, finishTacticalPathDraft,
 } from './strategyStore.js'
+
+const PATH_DASH_ARRAY = {
+  teamRotation: null,
+  attackPath: null,
+  retreatPath: '6 4',
+  scoutPath: '2 6',
+}
+
+const DANGER_FILL_OPACITY = { Low: 0.08, Medium: 0.16, High: 0.26, Critical: 0.4 }
+
+function tacticalBadgeIcon(tool, obj, isSelected) {
+  const color = obj.color || tool.defaultColor
+  return L.divIcon({
+    className: 'strat-tactical-badge',
+    html: `<div style="
+      display:flex; align-items:center; justify-content:center;
+      min-width:22px; height:22px; padding:0 4px; box-sizing:border-box;
+      background:${color}; opacity:${obj.opacity ?? DEFAULT_OPACITY};
+      border-radius:5px; border:2px solid ${isSelected ? '#fff' : 'rgba(255,255,255,0.5)'};
+      color:#fff; font-family:'DM Sans',sans-serif; font-weight:800; font-size:9px;
+      white-space:nowrap; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,0.6);
+    ">${tool.badge}</div>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+  })
+}
 
 /* Every interactive vector shape below sets bubblingMouseEvents:false —
    Leaflet's Path layers bubble their click up into the map's own
@@ -173,6 +201,51 @@ function ObjectRender({ obj, isSelected, tool }) {
     )
   }
 
+  const tacticalTool = TACTICAL_TOOLS_BY_KEY[obj.type]
+  if (tacticalTool) {
+    if (tacticalTool.geometry === 'point') {
+      return (
+        <Marker
+          position={obj.points[0]}
+          icon={tacticalBadgeIcon(tacticalTool, obj, isSelected)}
+          eventHandlers={{ click: select }}
+        />
+      )
+    }
+    if (tacticalTool.geometry === 'path') {
+      const pts = obj.points
+      const hitOptions = { ...NO_BUBBLE, color: obj.color, weight: Math.max(obj.thickness + 14, 18), opacity: 0 }
+      const last = pts[pts.length - 1]
+      const prev = pts[pts.length - 2]
+      const bearing = prev ? bearingBetween(prev, last) : 0
+      const headSize = Math.max(10, obj.thickness * 3)
+      return (
+        <>
+          {isSelected && <Polyline positions={pts} pathOptions={{ ...haloOptions, weight: obj.thickness + 5 }} />}
+          <Polyline positions={pts} pathOptions={{ color: obj.color, weight: obj.thickness, opacity: obj.opacity, dashArray: PATH_DASH_ARRAY[obj.type] || undefined, interactive: false }} />
+          <Polyline positions={pts} pathOptions={hitOptions} eventHandlers={{ click: select }} />
+          <Marker position={last} icon={arrowHeadIcon(obj.color, bearing, headSize, obj.opacity)} interactive={false} />
+        </>
+      )
+    }
+    if (tacticalTool.geometry === 'circle') {
+      const fillOpacity = DANGER_FILL_OPACITY[obj.fields?.dangerLevel] ?? Math.max(obj.opacity * 0.18, 0.04)
+      return (
+        <>
+          <Circle
+            center={obj.points[0]} radius={obj.radius || 1}
+            pathOptions={{
+              ...NO_BUBBLE, color: obj.color, weight: obj.thickness, opacity: obj.opacity,
+              fillColor: obj.color, fillOpacity,
+            }}
+            eventHandlers={{ click: select }}
+          />
+          {isSelected && <Circle center={obj.points[0]} radius={obj.radius || 1} pathOptions={{ ...haloOptions, weight: obj.thickness + 3 }} />}
+        </>
+      )
+    }
+  }
+
   return renderLegacyObject(obj, isSelected)
 }
 
@@ -321,7 +394,7 @@ export default function DrawingCanvas({ mapId }) {
     } else if (st.tool === 'rectangle') {
       draftRef.current = [start, start]
       draftLayerRef.current = L.rectangle(draftRef.current, { ...style, fillOpacity: 0.05 }).addTo(map)
-    } else if (st.tool === 'circle') {
+    } else if (st.tool === 'circle' || TACTICAL_CIRCLE_TOOLS.includes(st.tool)) {
       draftRef.current = { center: start, radius: 0.0001 }
       draftLayerRef.current = L.circle(start, { ...style, radius: 0.0001, fillOpacity: 0.05 }).addTo(map)
     }
@@ -346,7 +419,7 @@ export default function DrawingCanvas({ mapId }) {
     } else if (st.tool === 'rectangle') {
       draftRef.current[1] = cur
       draftLayerRef.current.setBounds(draftRef.current)
-    } else if (st.tool === 'circle') {
+    } else if (st.tool === 'circle' || TACTICAL_CIRCLE_TOOLS.includes(st.tool)) {
       const { center } = draftRef.current
       const r = Math.max(0.5, Math.hypot(cur[0] - center[0], cur[1] - center[1]))
       draftRef.current.radius = r
@@ -376,15 +449,20 @@ export default function DrawingCanvas({ mapId }) {
       }
     } else if (tool === 'circle' && finished && finished.radius > 0.5) {
       addObject({ type: 'circle', points: [finished.center], radius: finished.radius, color: st.drawColor, thickness: st.drawThickness, opacity: st.drawOpacity })
+    } else if (TACTICAL_CIRCLE_TOOLS.includes(tool) && finished && finished.radius > 0.5) {
+      startTacticalCircleForm(tool, finished.center, finished.radius)
     }
   }
 
   const activeGroupKeys = st.visibleLayerGroups
   const visibleObjects = st.objects.filter(o => {
     if (o.phase !== st.activePhase) return false
-    if (o.type === 'pencil' || o.type === 'line' || o.type === 'arrow' || o.type === 'polygon' || o.type === 'rectangle' || o.type === 'circle' || o.type === 'text') {
-      return activeGroupKeys.has(o.type)
-    }
+    /* Matched by predicate, not a key===type lookup — entryMarker and
+       exitMarker are two distinct types that share one layer group
+       ("Entry/Exit Markers", key 'entryExit'), so a plain key===type
+       check would never find their group. */
+    const group = LAYER_GROUPS.find(g => g.match(o))
+    if (group) return activeGroupKeys.has(group.key)
     return true /* legacy types — no toggle can reach them, always show */
   })
 
@@ -414,6 +492,16 @@ export default function DrawingCanvas({ mapId }) {
         else setMeasurePoints(st.measureFrom, pos)
         return
       }
+
+      if (TACTICAL_POINT_TOOLS.includes(tool)) {
+        startTacticalPointForm(tool, pos)
+        return
+      }
+
+      if (TACTICAL_PATH_TOOLS.includes(tool)) {
+        startTacticalPathPoint(tool, pos)
+        return
+      }
     },
     dblclick: () => {
       if (st.tool === 'polygon' && st.drafting?.kind === 'polygon') {
@@ -423,6 +511,9 @@ export default function DrawingCanvas({ mapId }) {
         } else {
           setDrafting(null)
         }
+      }
+      if (TACTICAL_PATH_TOOLS.includes(st.tool) && st.drafting?.kind === 'tactical-path') {
+        finishTacticalPathDraft()
       }
     },
     mousedown: (e) => {
@@ -465,6 +556,14 @@ export default function DrawingCanvas({ mapId }) {
 
       {/* ---- in-progress polygon ---- */}
       {st.drafting?.kind === 'polygon' && (
+        <Polyline
+          positions={st.drafting.points}
+          pathOptions={{ color: st.drawColor, weight: 2, opacity: 0.7, dashArray: '4 4', interactive: false }}
+        />
+      )}
+
+      {/* ---- in-progress tactical path ---- */}
+      {st.drafting?.kind === 'tactical-path' && (
         <Polyline
           positions={st.drafting.points}
           pathOptions={{ color: st.drawColor, weight: 2, opacity: 0.7, dashArray: '4 4', interactive: false }}

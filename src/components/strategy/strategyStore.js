@@ -229,6 +229,98 @@ export function finishPolygonDraft() {
   }
 }
 
+/* ---- tactical tools (Team Drop, Rotation, Attack Path, etc.) ----
+   Placement is a two-step flow for every tactical tool:
+     1. geometry is captured (a single click for 'point' tools, a
+        click-to-place-vertex sequence + Finish for 'path' tools —
+        reusing the polygon draft pattern — or a drag for 'circle'
+        tools, reusing the circle drag in DrawingCanvas.jsx), which
+        transitions `drafting` to kind:'tactical-form'.
+     2. TacticalPropertyPanel renders a form for that geometry's
+        tool-specific fields; submitting it calls commitTacticalForm,
+        which is the only place addObject() is actually called for
+        these tools.
+   Editing an already-placed tactical object (via Select -> Edit
+   Details) skips step 1 and goes straight to a `tactical-edit`
+   drafting state carrying the existing object's id. */
+export function startTacticalPathPoint(toolKey, pos) {
+  const cur = strategyStore.drafting?.kind === 'tactical-path' && strategyStore.drafting.toolKey === toolKey
+    ? strategyStore.drafting.points
+    : []
+  strategyStore.drafting = { kind: 'tactical-path', toolKey, points: [...cur, pos] }
+  fire()
+}
+export function finishTacticalPathDraft() {
+  if (strategyStore.drafting?.kind !== 'tactical-path') return
+  const { toolKey, points } = strategyStore.drafting
+  if (points.length < 2) { fire(); return }
+  strategyStore.drafting = { kind: 'tactical-form', toolKey, geometry: { points } }
+  fire()
+}
+export function startTacticalPointForm(toolKey, pos) {
+  strategyStore.drafting = { kind: 'tactical-form', toolKey, geometry: { points: [pos] } }
+  fire()
+}
+export function startTacticalCircleForm(toolKey, center, radius) {
+  strategyStore.drafting = { kind: 'tactical-form', toolKey, geometry: { points: [center], radius } }
+  fire()
+}
+export function startTacticalEdit(toolKey, objectId) {
+  strategyStore.drafting = { kind: 'tactical-edit', toolKey, objectId }
+  fire()
+}
+export function cancelTacticalDraft() {
+  strategyStore.drafting = null
+  fire()
+}
+export function commitTacticalForm(fieldValues) {
+  const d = strategyStore.drafting
+  if (!d || d.kind !== 'tactical-form') return
+  addObject({
+    type: d.toolKey,
+    points: d.geometry.points,
+    radius: d.geometry.radius ?? null,
+    color: strategyStore.drawColor,
+    thickness: strategyStore.drawThickness,
+    opacity: strategyStore.drawOpacity,
+    fields: fieldValues,
+  })
+}
+export function commitTacticalEdit(fieldValues) {
+  const d = strategyStore.drafting
+  if (!d || d.kind !== 'tactical-edit') return
+  updateObject(d.objectId, { fields: fieldValues })
+  strategyStore.drafting = null
+  fire()
+}
+
+/* ---- duplicate ----
+   Generic — applies to any selected object, old drawing tools or new
+   tactical ones alike, so parity with Select/Delete/Undo holds for
+   both. Offsets the geometry slightly so the copy is visibly
+   distinct from the original rather than sitting exactly on top. */
+const DUPLICATE_OFFSET = 3
+function offsetPoints(points) {
+  return (points || []).map(([lat, lng]) => [lat + DUPLICATE_OFFSET, lng + DUPLICATE_OFFSET])
+}
+export function duplicateSelected() {
+  const id = strategyStore.selectedObjectId
+  if (!id) return
+  const src = strategyStore.objects.find(o => o.id === id)
+  if (!src) return
+  pushHistory()
+  const copy = createStrategyObject({
+    ...src,
+    id: undefined,
+    createdAt: undefined,
+    points: offsetPoints(src.points),
+    fields: src.fields ? { ...src.fields } : {},
+  })
+  strategyStore.objects = [...strategyStore.objects, copy]
+  strategyStore.selectedObjectId = copy.id
+  fire()
+}
+
 /* ---- players / metadata ---- */
 export function setPlayers(players) { strategyStore.players = players; fire() }
 export function setName(name) { strategyStore.name = name; fire() }

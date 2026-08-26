@@ -1,7 +1,10 @@
-import { LAYER_GROUPS, VERIFIED_SPAWN_DATA, SPAWN_STATUS } from '../../utils/strategyDataSchema.js'
+import { LAYER_GROUPS, BASE_LAYER_GROUP_KEYS, VERIFIED_SPAWN_DATA, SPAWN_STATUS } from '../../utils/strategyDataSchema.js'
 import { getSpawnReference } from '../../utils/spawnReferenceData.js'
 import { useStrategyStore, toggleLayerGroup, toggleSpawnRef } from './strategyStore.js'
 import { SectionLabel } from './strategyUI.jsx'
+
+const BASE_LAYER_GROUPS = LAYER_GROUPS.filter(g => BASE_LAYER_GROUP_KEYS.includes(g.key))
+const TACTICAL_LAYER_GROUP_LIST = LAYER_GROUPS.filter(g => !BASE_LAYER_GROUP_KEYS.includes(g.key))
 
 export default function LayersPanel({ mapId }) {
   const st = useStrategyStore()
@@ -14,7 +17,18 @@ export default function LayersPanel({ mapId }) {
     <div className="card">
       <SectionLabel>Layers</SectionLabel>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 12 }}>
-        {LAYER_GROUPS.map(g => {
+        {BASE_LAYER_GROUPS.map(g => {
+          const count = st.objects.filter(o => o.phase === st.activePhase && g.match(o)).length
+          const active = st.visibleLayerGroups.has(g.key)
+          return (
+            <LayerRow key={g.key} active={active} onClick={() => toggleLayerGroup(g.key)} label={g.label} count={count} />
+          )
+        })}
+      </div>
+
+      <SectionLabel small>Tactical Layers</SectionLabel>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 12 }}>
+        {TACTICAL_LAYER_GROUP_LIST.map(g => {
           const count = st.objects.filter(o => o.phase === st.activePhase && g.match(o)).length
           const active = st.visibleLayerGroups.has(g.key)
           return (

@@ -29,6 +29,7 @@
    renderLegacyObject(), but the toolkit no longer exposes any UI
    to create new ones.
    ============================================================ */
+import { TACTICAL_LAYER_GROUPS, TACTICAL_DRAG_TOOLS, TACTICAL_PATH_TOOLS } from './tacticalToolsSchema.js'
 
 export const DRAW_TOOLS = [
   { key: 'select',    label: 'Select',    shortcut: 'V' },
@@ -47,7 +48,7 @@ export const DRAW_TOOLS = [
    live preview is built with beginDrag/updateDrag/endDrag in
    DrawingCanvas.jsx. Polygon is deliberately NOT in this list (it's
    click-to-place-a-vertex, not a drag). */
-export const DRAG_DRAW_TOOLS = ['pencil', 'line', 'arrow', 'rectangle', 'circle']
+export const DRAG_DRAW_TOOLS = ['pencil', 'line', 'arrow', 'rectangle', 'circle', ...TACTICAL_DRAG_TOOLS]
 
 /* Tools that fight with a touchscreen's native pan/pinch-zoom/scroll
    gesture and so need it locked out while active. This is
@@ -60,7 +61,7 @@ export const DRAG_DRAW_TOOLS = ['pencil', 'line', 'arrow', 'rectangle', 'circle'
    touch-action:none applied to the Leaflet container (MapKnowledge.jsx
    toggles the .mk-drawing-active class) — kept in sync by construction
    instead of two independently-maintained lists. */
-export const PAN_LOCKING_TOOLS = [...DRAG_DRAW_TOOLS, 'polygon']
+export const PAN_LOCKING_TOOLS = [...DRAG_DRAW_TOOLS, 'polygon', ...TACTICAL_PATH_TOOLS]
 
 /* Preset palette for the "current pen" color picker — used by every
    tool, since these shapes have no semantic type (unlike the old
@@ -108,7 +109,9 @@ export const LAYER_GROUPS = [
   { key: 'rectangle', label: 'Rectangles',        match: o => o.type === 'rectangle' },
   { key: 'circle',    label: 'Circles',           match: o => o.type === 'circle' },
   { key: 'text',      label: 'Text',              match: o => o.type === 'text' },
+  ...TACTICAL_LAYER_GROUPS,
 ]
+export const BASE_LAYER_GROUP_KEYS = ['pencil', 'line', 'arrow', 'polygon', 'rectangle', 'circle', 'text']
 export const DEFAULT_VISIBLE_LAYER_GROUPS = LAYER_GROUPS.map(g => g.key)
 
 /* Real, verified spawn datasets by map — see mapCoordinates.js and
@@ -199,6 +202,12 @@ export function createStrategyObject(partial) {
     opacity: partial.opacity ?? DEFAULT_OPACITY,
     phase: partial.phase ?? 'phase-1',
     createdAt: partial.createdAt ?? Date.now(),
+    /* Tactical tools' tool-specific data (team, priority, notes,
+       etc.) — nested so it never collides with the base keys above.
+       Every value the property panel writes here is a defined
+       string/number (never undefined), since Firestore rejects
+       undefined field values. */
+    fields: partial.fields ?? {},
   }
 }
 
