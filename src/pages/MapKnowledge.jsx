@@ -812,7 +812,19 @@ function MapPanel({
         maxBoundsViscosity={1.0}
         zoomControl={false}
         attributionControl={false}
-        style={{ height: '100%', width: '100%', minHeight: 300 }}
+        /* minHeight:300 is a floor for the desktop card layout, where
+           .mk-canvas's own height can in principle come from a
+           shrink-to-fit flex context before content settles. It's the
+           wrong floor for fullBleed (mobile): there, .mk-canvas's
+           height is ALWAYS the full space between the fixed topbar
+           and bottom nav — on a landscape phone that's genuinely
+           under 300px (as little as ~254px in an 844x390 viewport),
+           so forcing 300px there made the map taller than its own
+           .mk-canvas box and get silently clipped at the bottom by
+           .mk-canvas's overflow:hidden (part of "map compressed into
+           a smaller boxed area"). fullBleed's height is never in
+           doubt, so it needs no floor at all. */
+        style={{ height: '100%', width: '100%', minHeight: fullBleed ? 0 : 300 }}
         ref={mapRef}
       >
         {/* Tile URLs offset by TILE_ZOOM_OFFSET so Leaflet zoom N
@@ -2353,25 +2365,34 @@ function MapStyles() {
         inset: 0;
       }
       .mk-top-overlay {
-        position: absolute;
-        top: 12px;
+        /* position:fixed (viewport-relative), not absolute against
+           .mk-mobile-root — see the .mk-mobile-root .mk-floating-panel
+           rule below for why: an absolutely-positioned box nested
+           inside .mk-mobile-root/.mk-canvas (both overflow:hidden, to
+           correctly clip map tiles) gets CLIPPED the instant its own
+           content is taller than that box, which is exactly what
+           happened to the tools panel in landscape. This element
+           never actually grows past its container today, but it's
+           pinned to position:fixed anyway so both mobile overlays
+           share one positioning scheme instead of two that can drift
+           apart again later. */
+        position: fixed;
+        top: calc(var(--app-topbar-height, 64px) + 12px);
         left: 12px;
         z-index: 10;
         display: flex;
         flex-direction: column;
         gap: 8px;
-        /* Both this and .mk-floating-panel are position:absolute
-           against the same box (.mk-mobile-root / .mk-canvas, which
-           fill each other via inset:0), .mk-top-overlay from the left
-           and .mk-floating-panel from the right (12px + up to 240px
-           wide) — on a narrow phone, 60vw from the left alone reached
-           past where the panel starts, so the panel visually covered
-           the map/mode pills underneath it and they became untappable
-           (confirmed: "Strategy" and "Dev" were unreachable on a real
-           390px-wide viewport). Reserving the panel's full width here
-           guarantees the two can never overlap regardless of viewport
-           size; each pill row already scrolls horizontally
-           (.mk-top-overlay-row) if it doesn't fit the remaining space. */
+        /* .mk-top-overlay (from the left) and .mk-floating-panel (from
+           the right, up to 240px wide) share the same row on a narrow
+           phone — 60vw from the left alone reached past where the
+           panel starts, so the panel visually covered the map/mode
+           pills underneath it and they became untappable (confirmed:
+           "Strategy" and "Dev" were unreachable on a real 390px-wide
+           viewport). Reserving the panel's full width here guarantees
+           the two can never overlap regardless of viewport size; each
+           pill row already scrolls horizontally (.mk-top-overlay-row)
+           if it doesn't fit the remaining space. */
         max-width: min(60vw, calc(100vw - 264px));
       }
       .mk-top-overlay-row {
@@ -2397,6 +2418,14 @@ function MapStyles() {
         box-shadow: 0 8px 32px rgba(0,0,0,0.5);
       }
       .mk-floating-panel {
+        /* Desktop default: position:absolute against .mk-canvas. On
+           desktop, .mk-canvas already sits below the app TopBar AND
+           this page's own .mk-header tab row via normal document
+           flow, and is always comfortably taller than this panel's
+           content (confirmed — never reported clipped), so anchoring
+           to it directly is correct and simplest here. Mobile
+           overrides this to position:fixed below — see that rule for
+           why absolute isn't safe there. */
         position: absolute;
         top: 12px;
         right: 12px;
@@ -2412,6 +2441,44 @@ function MapStyles() {
         display: flex;
         flex-direction: column;
         box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      }
+      /* Mobile full-bleed layout ONLY (this selector can never match
+         on desktop — .mk-mobile-root doesn't exist in that DOM tree
+         at all, it's the other branch of the isMobile ? ... : ...
+         in MapKnowledge()) — override to position:fixed against the
+         VIEWPORT instead of .mk-canvas/.mk-mobile-root.
+
+         Root cause this fixes: .mk-canvas and .mk-mobile-root both
+         set overflow:hidden (required so map tiles never bleed past
+         their box) — position:absolute against either of them means
+         anything inside genuinely gets CLIPPED the moment its content
+         is taller than the box, which is exactly what a landscape
+         phone's short ~250-300px full-bleed height did to this panel
+         (confirmed via computed styles: panel height 273px vs. a
+         254px-tall .mk-canvas in an 844x390 emulated viewport —
+         Arrow/Rectangle/Text visible, everything past the clipped
+         edge invisible). position:fixed escapes that clipping
+         entirely: a fixed element's containing block is the viewport,
+         not any ancestor's box, REGARDLESS of that ancestor's overflow
+         — so this can never be clipped by the map's own box again, in
+         any orientation, without needing separate portrait/landscape
+         logic (the whole point: one CSS-only implementation that
+         adapts via calc(), not two branching code paths that can
+         drift out of sync, which is what "two different sizes work,
+         two don't" bugs like this one actually are).
+
+         100dvh, not 100vh, in max-height: 100vh on iOS Safari includes
+         the area UNDER its collapsing address bar, so a height built
+         from 100vh can be taller than what's actually visible right
+         now — exactly the class of bug that reproduces on a real
+         phone but not in a fixed-size DevTools emulation window. This
+         codebase already made the same fix for the same reason in
+         Sidebar.jsx (height: 100dvh). */
+      .mk-mobile-root .mk-floating-panel {
+        position: fixed;
+        top: calc(var(--app-topbar-height, 64px) + 12px);
+        right: 12px;
+        max-height: calc(100dvh - var(--app-topbar-height, 64px) - 64px - env(safe-area-inset-bottom, 0px) - 24px);
       }
       .mk-floating-panel-collapsed {
         width: 40px;
