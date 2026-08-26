@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext.jsx'
 import { useConfirm } from '../../hooks/useConfirm.js'
 import ConfirmModal from '../ConfirmModal.jsx'
 import LayersPanel from './LayersPanel.jsx'
-import ToolPanel from './ToolPanel.jsx'
+import AssistiveToolButton from './AssistiveToolButton.jsx'
 import PhaseSelector from './PhaseSelector.jsx'
 import SaveStrategyPanel from './SaveStrategyPanel.jsx'
 import MeasureReadout from './MeasureReadout.jsx'
@@ -48,11 +48,20 @@ function useStrategyKeyboardShortcuts() {
   }, [])
 }
 
-/* Content of Strategy Maker's always-floating tools panel (see Issue
-   2 in the commit this landed in) — the caller (MapKnowledge.jsx)
-   wraps this in <FloatingToolsPanel> unconditionally, on desktop AND
-   mobile, so there is exactly one layout path instead of a desktop
-   side-column vs. mobile-floating-panel branch. */
+/* The caller (MapKnowledge.jsx) still wraps this in
+   <FloatingToolsPanel title="Tools"> for Layers/Phase/Save — those
+   remain a docked panel, unaffected by this change. Tool SELECTION
+   (previously ToolPanel, docked inside that same panel) is now
+   AssistiveToolButton: a draggable position:fixed button + popup that
+   escapes the docked panel's box entirely (position:fixed's
+   containing block is the viewport, not whatever DOM box it happens
+   to render inside, as long as no ancestor sets a CSS transform —
+   FloatingToolsPanel doesn't), so it renders correctly regardless of
+   where in this tree it's mounted. This is what replaces the old
+   ToolPanel.jsx, which repeatedly broke across desktop/mobile/
+   orientation because its sizing and position were derived from
+   viewport width and sidebar state — AssistiveToolButton has no such
+   inputs to get out of sync in the first place. */
 export default function StrategyMaker({ mapId, strategies, addStrategyDoc, updateStrategyDoc, deleteStrategyDoc }) {
   const st = useStrategyStore()
   const { user } = useAuth()
@@ -99,7 +108,6 @@ export default function StrategyMaker({ mapId, strategies, addStrategyDoc, updat
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, height: '100%' }}>
-      <ToolPanel />
       <LayersPanel mapId={mapId} />
       {st.tool === 'measure' && <MeasureReadout mapId={mapId} />}
       <PhaseSelector />
@@ -111,6 +119,10 @@ export default function StrategyMaker({ mapId, strategies, addStrategyDoc, updat
         onDelete={handleDelete}
       />
       <ConfirmModal {...confirmModalProps} />
+
+      {/* position:fixed — renders at a plain screen-pixel position
+          independent of this panel's own box, see the comment above. */}
+      <AssistiveToolButton />
     </div>
   )
 }

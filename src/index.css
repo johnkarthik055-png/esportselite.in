@@ -1075,3 +1075,72 @@ body.amoled {
 @media (max-width: 768px) {
   input, select, textarea { font-size: 16px !important; }
 }
+
+/* ============================================================
+   STRATEGY MAKER — ASSISTIVETOUCH-STYLE FLOATING TOOL BUTTON
+   ------------------------------------------------------------
+   Replaces the previous docked/floating tools panel, which kept
+   breaking across desktop/mobile/orientation combinations because
+   its sizing and position were derived from viewport width and
+   sidebar state. This button's position is plain screen pixels set
+   directly by AssistiveToolButton.jsx (position:fixed, top/left
+   driven by drag state) — it has no breakpoint, container-width, or
+   device-type logic to get out of sync in the first place.
+   ============================================================ */
+.at-button {
+  position: fixed;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(13, 21, 40, 0.85);
+  border: 1.5px solid var(--blue);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  z-index: 10000;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.at-button:active { cursor: grabbing; }
+.at-button.at-dragging {
+  transition: none;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.65), 0 0 0 4px rgba(59, 130, 246, 0.25);
+}
+.at-button:not(.at-dragging) {
+  transition: left 0.22s ease, top 0.22s ease, box-shadow 0.15s ease;
+}
+
+.at-popup {
+  position: fixed;
+  z-index: 10001;
+  background: rgba(13, 21, 40, 0.96);
+  border: 1px solid #1B2A45;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.at-popup-scroll {
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.at-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #1B2A45;
+  flex-shrink: 0;
+}

@@ -5,8 +5,8 @@
    Attack/Retreat/Scout Path, Hold/Push Position, Enemy Position,
    Danger Zone, Vehicle Marker, Choke Point, Entry/Exit Markers,
    Sniper Position, Head-glitch Position) are defined here as DATA
-   rather than as 14 hand-written tools, so ToolPanel/DrawingCanvas/
-   LayersPanel/strategyStore each need only ONE generic code path
+   rather than as 14 hand-written tools, so AssistiveToolButton/
+   DrawingCanvas/LayersPanel/strategyStore each need only ONE generic code path
    that reads this config, instead of 14 near-duplicate branches.
 
    Every tactical object still uses the exact same base object shape
