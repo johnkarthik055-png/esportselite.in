@@ -36,13 +36,12 @@ import {
   MIRAMAR_VEHICLE_POSITIONS, MIRAMAR_BOAT_POSITIONS,
   RONDO_VEHICLE_POSITIONS,
 } from '../utils/spawnReferenceData.js'
+import FloatingToolsPanel from '../components/strategy/FloatingToolsPanel.jsx'
 import StrategyMaker from '../components/strategy/StrategyMaker.jsx'
 import DrawingCanvas from '../components/strategy/DrawingCanvas.jsx'
-import FloatingToolsPanel from '../components/strategy/FloatingToolsPanel.jsx'
 import {
-  resetForMap, useStrategyStore,
-} from '../components/strategy/strategyStore.js'
-import { PAN_LOCKING_TOOLS } from '../utils/strategyDataSchema.js'
+  useStrategyStore, resetForMap, requestLeaveWithUnsavedCheck, openSaveModal,
+} from '../utils/strategyDataSchema.js'
 import { useConfirm } from '../hooks/useConfirm.js'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import { useViewport } from '../utils/viewport.js'
@@ -141,23 +140,6 @@ const TIER_COLORS = {
   safe:   '#00C96E',
 }
 
-const STRATEGY_TYPES = [
-  { key: 'drop',     label: 'Drop Zone' },
-  { key: 'rotation', label: 'Rotation'  },
-  { key: 'attack',   label: 'Attack'    },
-  { key: 'defend',   label: 'Defend'    },
-  { key: 'note',     label: 'Note'      },
-]
-
-const COLOR_PRESETS = [
-  { key: 'red',    value: '#E8001C' },
-  { key: 'blue',   value: '#4A9EFF' },
-  { key: 'green',  value: '#00C96E' },
-  { key: 'amber',  value: '#F59E0B' },
-  { key: 'purple', value: '#A855F7' },
-  { key: 'white',  value: '#E2E2EC' },
-]
-
 const POLYGON_TYPES = [
   { key: 'compound_boundary', label: 'Compound' },
   { key: 'zone',              label: 'Zone' },
@@ -165,9 +147,7 @@ const POLYGON_TYPES = [
   { key: 'rotation_path',     label: 'Rotation Path' },
 ]
 
-/* Colour choices in the "Name this compound" modal. Kept separate
-   from COLOR_PRESETS so the modal picker (5 options, white default)
-   matches the mock even if the strategy-maker palette drifts. */
+/* Colour choices in the "Name this compound" modal (Dev Editor). */
 const MODAL_COLORS = [
   { key: 'white', value: '#FFFFFF' },
   { key: 'red',   value: '#E8001C' },
@@ -225,11 +205,8 @@ async function addStrategy(mapId, data, uid) {
     createdAt: serverTimestamp(),
   })
 }
-async function deleteStrategy(mapId, id) {
-  return deleteDoc(doc(db, 'mapData', mapId, 'strategies', id))
-}
 async function updateStrategy(mapId, id, data) {
-  return updateDoc(doc(db, 'mapData', mapId, 'strategies', id), data)
+  return updateDoc(doc(db, 'mapData', mapId, 'strategies', id), { ...data, updatedAt: serverTimestamp() })
 }
 
 /* ============================================================
@@ -286,10 +263,7 @@ function createPinIcon(type, tier) {
    is available and its own world-size constant has been verified
    the same way Erangel's and Miramar's were (see mapCoordinates.js).
    ============================================================ */
-/* Computed once in spawnReferenceData.js and imported from there —
-   Strategy Maker's reference-layer toggle uses the exact same
-   values, so there's one source of truth instead of two datasets
-   that could quietly drift apart. */
+/* Computed once in spawnReferenceData.js and imported from there. */
 
 /* ============================================================
    SPAWN MARKER ICONS — small colored badge + glyph, zoom-scaled
@@ -421,6 +395,21 @@ export default function MapKnowledge() {
   const [pins, setPins] = useState([])
   const [polygons, setPolygons] = useState([])
   const [strategies, setStrategies] = useState([])
+  const strategyState = useStrategyStore()
+
+  /* Every map/mode switch that would leave Strategy Maker goes
+     through this instead of calling setActiveMapId/setMode directly
+     — requestLeaveWithUnsavedCheck runs the switch immediately if
+     nothing is dirty, or holds it until the user resolves the
+     Save/Discard/Cancel prompt StrategyMaker renders (dirty is only
+     ever true while mode === 'strategy', since that's the only mode
+     with editable content). */
+  function switchMap(id) {
+    requestLeaveWithUnsavedCheck(() => { setActiveMapId(id); setSelectedPin(null) })
+  }
+  function switchMode(next) {
+    requestLeaveWithUnsavedCheck(() => setMode(next))
+  }
   /* Same shortSide-based check the app-wide sidebar/bottom-nav use
      (see utils/viewport.js) — a landscape phone has to land in the
      same "mobile" bucket as portrait, or it falls back to the
@@ -440,13 +429,6 @@ export default function MapKnowledge() {
 
   const activeMap = MAPS.find(m => m.id === activeMapId) || MAPS[0]
   const tileUrl = `/tiles/${activeMap.tileFolder}/{z}/{x}/{y}.png`
-
-  /* Strategy Maker's object list is map-scoped (Issue 17) — reset
-     it the moment the active map changes so Erangel objects never
-     carry over onto Miramar/Rondo. resetForMap is a no-op if the
-     store is already tracking this map, so this is safe to call on
-     every render of this effect regardless of which tab is open. */
-  useEffect(() => { resetForMap(activeMapId) }, [activeMapId])
 
   /* Real-time pins subscription + auto-seed on empty */
   useEffect(() => {
@@ -477,15 +459,18 @@ export default function MapKnowledge() {
     return unsub
   }, [activeMapId])
 
+  /* Strategy Maker's object list is map-scoped — reset it the moment
+     the active map changes so Erangel objects never carry over onto
+     Miramar/Rondo. resetForMap is a no-op if the store is already
+     tracking this map. */
+  useEffect(() => { resetForMap(activeMapId) }, [activeMapId])
+
   useEffect(() => {
     if (!user?.uid) { setStrategies([]); return }
     const unsub = onSnapshot(
       query(strategiesCol(activeMapId), where('createdBy', '==', user.uid)),
       (snap) => setStrategies(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
-      () => {
-        /* If the where filter fails (rules), silently drop to empty. */
-        setStrategies([])
-      }
+      () => setStrategies([]),
     )
     return unsub
   }, [activeMapId, user?.uid])
@@ -534,7 +519,7 @@ export default function MapKnowledge() {
               strategies={strategies}
               addStrategyDoc={addStrategy}
               updateStrategyDoc={updateStrategy}
-              deleteStrategyDoc={deleteStrategy}
+              user={user}
               fullBleed
             />
           </div>
@@ -542,17 +527,22 @@ export default function MapKnowledge() {
           <div className="mk-top-overlay">
             <div className="mk-top-overlay-row">
               {MAPS.map(m => (
-                <OverlayPill key={m.id} active={activeMapId === m.id} onClick={() => { setActiveMapId(m.id); setSelectedPin(null) }}>
+                <OverlayPill key={m.id} active={activeMapId === m.id} onClick={() => switchMap(m.id)}>
                   {m.name}
                 </OverlayPill>
               ))}
             </div>
             <div className="mk-top-overlay-row">
-              <OverlayPill active={mode === 'view'} onClick={() => setMode('view')}>View Map</OverlayPill>
-              <OverlayPill active={mode === 'strategy'} onClick={() => setMode('strategy')}>Strategy</OverlayPill>
+              <OverlayPill active={mode === 'view'} onClick={() => switchMode('view')}>View Map</OverlayPill>
+              <OverlayPill active={mode === 'strategy'} onClick={() => switchMode('strategy')}>Strategy</OverlayPill>
               {isAdmin && (
-                <OverlayPill active={mode === 'dev'} onClick={() => setMode('dev')}>
+                <OverlayPill active={mode === 'dev'} onClick={() => switchMode('dev')}>
                   <Shield size={12} /> Dev
+                </OverlayPill>
+              )}
+              {mode === 'strategy' && (
+                <OverlayPill onClick={openSaveModal}>
+                  <Save size={12} /> Save{strategyState.dirty ? ' •' : ''}
                 </OverlayPill>
               )}
             </div>
@@ -593,21 +583,31 @@ export default function MapKnowledge() {
                 <TabButton
                   key={m.id}
                   active={activeMapId === m.id}
-                  onClick={() => { setActiveMapId(m.id); setSelectedPin(null) }}
+                  onClick={() => switchMap(m.id)}
                 >
                   {m.name}
                 </TabButton>
               ))}
             </div>
-            <div style={{ display: 'flex', gap: 4 }}>
-              <TabButton active={mode === 'view'} onClick={() => setMode('view')}>View Map</TabButton>
-              <TabButton active={mode === 'strategy'} onClick={() => setMode('strategy')}>Strategy Maker</TabButton>
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+              <TabButton active={mode === 'view'} onClick={() => switchMode('view')}>View Map</TabButton>
+              <TabButton active={mode === 'strategy'} onClick={() => switchMode('strategy')}>Strategy Maker</TabButton>
               {isAdmin && (
                 <span className="mk-dev-tab" style={{ display: 'inline-flex' }}>
-                  <TabButton active={mode === 'dev'} onClick={() => setMode('dev')}>
+                  <TabButton active={mode === 'dev'} onClick={() => switchMode('dev')}>
                     <Shield size={12} style={{ marginRight: 4 }} /> Dev Editor
                   </TabButton>
                 </span>
+              )}
+              {mode === 'strategy' && (
+                <button
+                  onClick={openSaveModal}
+                  className="btn btn-primary btn-sm"
+                  style={{ marginLeft: 4 }}
+                  title={strategyState.dirty ? 'Unsaved changes' : 'Save Strategy'}
+                >
+                  <Save size={13} /> Save Strategy{strategyState.dirty ? ' •' : ''}
+                </button>
               )}
             </div>
           </div>
@@ -633,43 +633,41 @@ export default function MapKnowledge() {
                   strategies={strategies}
                   addStrategyDoc={addStrategy}
                   updateStrategyDoc={updateStrategy}
-                  deleteStrategyDoc={deleteStrategy}
+                  user={user}
                 />
               </div>
             </div>
 
-            {/* Strategy Maker's tools now always float over the map
-                (see MapPanel) instead of living in this side column —
-                Issue 2: one layout mode for the tools panel, not a
-                desktop-side-column-vs-mobile-floating-panel branch. So
-                this column only renders (and only takes up width) for
+            {/* Strategy Maker's tools always float over the map (see
+                MapPanel) instead of living in this side column — so
+                this column only renders (and takes up width) for
                 View Map / Dev Editor, which still use the classic
                 sidebar layout. */}
             {mode !== 'strategy' && (
-              <div className="mk-side-col">
-                {mode === 'view' && (
-                  <ViewPanel
-                    activeMap={activeMap}
-                    pins={pins}
-                    visibleLayers={visibleLayers}
-                    onToggleLayer={toggleLayer}
-                    selectedPin={selectedPin}
-                    onSelectPin={setSelectedPin}
-                    onFlyTo={setFlyTarget}
-                    isAdmin={isAdmin}
-                    mapId={activeMapId}
-                  />
-                )}
-                {mode === 'dev' && isAdmin && (
-                  <DevPanel
-                    mapId={activeMapId}
-                    pins={pins}
-                    polygons={polygons}
-                    mousePos={mousePos}
-                    user={user}
-                  />
-                )}
-              </div>
+            <div className="mk-side-col">
+              {mode === 'view' && (
+                <ViewPanel
+                  activeMap={activeMap}
+                  pins={pins}
+                  visibleLayers={visibleLayers}
+                  onToggleLayer={toggleLayer}
+                  selectedPin={selectedPin}
+                  onSelectPin={setSelectedPin}
+                  onFlyTo={setFlyTarget}
+                  isAdmin={isAdmin}
+                  mapId={activeMapId}
+                />
+              )}
+              {mode === 'dev' && isAdmin && (
+                <DevPanel
+                  mapId={activeMapId}
+                  pins={pins}
+                  polygons={polygons}
+                  mousePos={mousePos}
+                  user={user}
+                />
+              )}
+            </div>
             )}
           </div>
         </div>
@@ -746,30 +744,15 @@ function MapPanel({
   selectedPin, onSelectPin,
   flyTarget, onFlyDone,
   onMouseMove, mode,
-  strategies, addStrategyDoc, updateStrategyDoc, deleteStrategyDoc,
+  strategies, addStrategyDoc, updateStrategyDoc, user,
   fullBleed,
 }) {
   const mapRef = useRef(null)
-  const strategyState = useStrategyStore()
-
-  /* Strategy Maker and Dev Editor push their own layers onto the
-     canvas via context (children of MapContainer that we render
-     via lookups). To keep interaction paths clean we let those
-     panels drive drawings through window custom events. */
 
   const showLabels = zoom >= LABEL_ZOOM
 
-  /* Issue 3.1: touch-action:none has to reach the actual Leaflet
-     container while a drag-based (or double-tap-prone) draw tool is
-     active, or the browser's own scroll/pinch-zoom keeps fighting the
-     draw gesture underneath Leaflet's handling of it — see the
-     PAN_LOCKING_TOOLS comment in strategyDataSchema.js for why this
-     exact tool list. Re-enables the instant Select/Measure/Text (or
-     View Map / Dev Editor mode) is active. */
-  const drawingActive = mode === 'strategy' && PAN_LOCKING_TOOLS.includes(strategyState.tool)
-
   return (
-    <div className={`mk-canvas${drawingActive ? ' mk-drawing-active' : ''}`} style={{
+    <div className="mk-canvas" style={{
       position: 'relative',
       /* zIndex here (any value, not just a high one) turns this
          into its own stacking context, so the custom zoom buttons'
@@ -932,50 +915,53 @@ function MapPanel({
             </Marker>
           ))}
 
-        {/* Strategy Maker overlay */}
-        {mode === 'strategy' && <DrawingCanvas mapId={activeMap.id} />}
-
         {/* Dev Editor overlay */}
         {mode === 'dev' && <DevDrawingLayer />}
+
+        {/* Strategy Maker drawing layer — mounts INSIDE <MapContainer>
+            so it can use useMap()/useMapEvents(); the floating tool
+            UI mounts as a sibling below (outside the map). */}
+        {mode === 'strategy' && <DrawingCanvas mapId={activeMap.id} />}
       </MapContainer>
 
-      {/* Custom zoom controls. Strategy Maker or fullBleed (mobile):
-          bottom-right — top-right is where the floating Tools/Layers
-          panel lives (see below), and the two were never meant to
-          share a corner. View Map / Dev Editor on desktop: top-right,
-          unchanged, since neither of those has a floating panel there. */}
-      <div style={{
-        position: 'absolute',
-        ...(fullBleed || mode === 'strategy' ? { bottom: 10, right: 10 } : { top: 10, right: 10 }),
-        zIndex: 10,
-        display: 'flex', flexDirection: 'column', gap: 4,
-      }}>
-        <ZoomBtn onClick={() => mapRef.current?.zoomIn()}><Plus size={14} /></ZoomBtn>
-        <ZoomBtn onClick={() => mapRef.current?.zoomOut()}><Minus size={14} /></ZoomBtn>
-        <ZoomBtn onClick={() => {
-          const map = mapRef.current
-          if (!map) return
-          const coverZoom = map.getBoundsZoom(BOUNDS, true)
-          map.flyTo(CENTER, Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, coverZoom)), { duration: 0.4 })
-        }} title="Recenter"><Crosshair size={14} /></ZoomBtn>
-      </div>
+      {/* Custom zoom controls. fullBleed (mobile): bottom-right — the
+          floating Layers/Dev Editor panel occupies top-right there
+          (see below), and the two were never meant to share a corner.
+          Desktop: top-right, unchanged, since the side-column layout
+          doesn't have a floating panel in that corner. Strategy Maker
+          brings its own MapControls cluster (see StrategyMaker), so
+          this default one is suppressed there to avoid two stacks in
+          the same corner. */}
+      {mode !== 'strategy' && (
+        <div style={{
+          position: 'absolute',
+          ...(fullBleed ? { bottom: 10, right: 10 } : { top: 10, right: 10 }),
+          zIndex: 10,
+          display: 'flex', flexDirection: 'column', gap: 4,
+        }}>
+          <ZoomBtn onClick={() => mapRef.current?.zoomIn()}><Plus size={14} /></ZoomBtn>
+          <ZoomBtn onClick={() => mapRef.current?.zoomOut()}><Minus size={14} /></ZoomBtn>
+          <ZoomBtn onClick={() => {
+            const map = mapRef.current
+            if (!map) return
+            const coverZoom = map.getBoundsZoom(BOUNDS, true)
+            map.flyTo(CENTER, Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, coverZoom)), { duration: 0.4 })
+          }} title="Recenter"><Crosshair size={14} /></ZoomBtn>
+        </div>
+      )}
 
-      {/* Strategy Maker's tools ALWAYS float over the map — on
-          desktop AND mobile, in or out of fullBleed — exactly one
-          layout mode, per Issue 2. Rendered here (inside .mk-canvas,
-          which is already its own positioned stacking context) rather
-          than by the caller, so there's a single code path instead of
-          a mobile-only vs. desktop-side-column branch. */}
+      {/* Strategy Maker floating tool UI — FloatingToolbar (left),
+          ContextToolbar (top), MapControls (right), ZoneSelector (top),
+          plus the Save / unsaved-changes modals. Sibling of the map,
+          not a child, so it overlays without competing for layout. */}
       {mode === 'strategy' && (
-        <FloatingToolsPanel title="Tools">
-          <StrategyMaker
-            mapId={activeMap.id}
-            strategies={strategies}
-            addStrategyDoc={addStrategyDoc}
-            updateStrategyDoc={updateStrategyDoc}
-            deleteStrategyDoc={deleteStrategyDoc}
-          />
-        </FloatingToolsPanel>
+        <StrategyMaker
+          mapId={activeMap.id}
+          strategies={strategies}
+          addStrategyDoc={addStrategyDoc}
+          updateStrategyDoc={updateStrategyDoc}
+          user={user}
+        />
       )}
     </div>
   )
@@ -1060,9 +1046,9 @@ function FitToContainer() {
     /* Window 'resize' only fires for viewport changes — it says
        nothing about THIS container's own box, which can also change
        size for reasons the window never sees at all (the sidebar
-       collapsing/expanding at the tablet breakpoint, the Strategy
-       Maker mobile drawer opening, a tab switch that changes which
-       sibling elements are mounted next to the map). Observing the
+       collapsing/expanding at the tablet breakpoint, a tab switch
+       that changes which sibling elements are mounted next to the
+       map). Observing the
        container directly catches all of those without needing to
        know about each one individually — this is what actually
        fixes the "map renders at a stale/incorrect size" family of

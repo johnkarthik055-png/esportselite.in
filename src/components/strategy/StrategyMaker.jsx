@@ -1,78 +1,88 @@
-import { useEffect, useState } from 'react'
-import { isLegacyStrategyDoc, migrateLegacyStrategy } from '../../utils/strategyDataSchema.js'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
-  useStrategyStore, undo, redo, deleteSelected, setTool, setDrafting,
-  toSaveableDoc, loadStrategyData, setStrategyDocId,
-} from './strategyStore.js'
-import { useAuth } from '../../context/AuthContext.jsx'
-import { useConfirm } from '../../hooks/useConfirm.js'
-import ConfirmModal from '../ConfirmModal.jsx'
-import LayersPanel from './LayersPanel.jsx'
-import AssistiveToolButton from './AssistiveToolButton.jsx'
-import PhaseSelector from './PhaseSelector.jsx'
-import SaveStrategyPanel from './SaveStrategyPanel.jsx'
-import MeasureReadout from './MeasureReadout.jsx'
-
-const SHORTCUT_TOOLS = {
-  v: 'select', p: 'pencil', l: 'line', a: 'arrow',
-  g: 'polygon', r: 'rectangle', c: 'circle', t: 'text', m: 'measure',
-}
+  useStrategyStore, undo, redo, deleteSelected, setDrafting,
+  toSaveableDoc, loadStrategyData, setStrategyDocId, setName, setDescription,
+  markSaved, closeSaveModal, resolveUnsavedPrompt,
+} from '../../utils/strategyDataSchema.js'
+import FloatingToolbar from './FloatingToolbar.jsx'
+import ContextToolbar from './ContextToolbar.jsx'
+import MapControls from './MapControls.jsx'
+import ZoneSelector from './ZoneSelector.jsx'
+import SaveStrategyModal, { UnsavedChangesModal } from './SaveStrategyModal.jsx'
 
 function useStrategyKeyboardShortcuts() {
   useEffect(() => {
     function onKeyDown(e) {
       const tag = document.activeElement?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
-
       const key = e.key.toLowerCase()
       if ((e.ctrlKey || e.metaKey) && key === 'z') {
         e.preventDefault()
         if (e.shiftKey) redo(); else undo()
         return
       }
-      if (key === 'delete' || key === 'backspace') {
-        e.preventDefault()
-        deleteSelected()
-        return
-      }
-      if (key === 'escape') {
-        setDrafting(null)
-        return
-      }
-      if (SHORTCUT_TOOLS[key]) {
-        setTool(SHORTCUT_TOOLS[key])
-      }
+      if (key === 'delete' || key === 'backspace') { e.preventDefault(); deleteSelected(); return }
+      if (key === 'escape') { setDrafting(null); return }
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [])
 }
 
-/* The caller (MapKnowledge.jsx) still wraps this in
-   <FloatingToolsPanel title="Tools"> for Layers/Phase/Save — those
-   remain a docked panel, unaffected by this change. Tool SELECTION
-   (previously ToolPanel, docked inside that same panel) is now
-   AssistiveToolButton: a draggable position:fixed button + popup that
-   escapes the docked panel's box entirely (position:fixed's
-   containing block is the viewport, not whatever DOM box it happens
-   to render inside, as long as no ancestor sets a CSS transform —
-   FloatingToolsPanel doesn't), so it renders correctly regardless of
-   where in this tree it's mounted. This is what replaces the old
-   ToolPanel.jsx, which repeatedly broke across desktop/mobile/
-   orientation because its sizing and position were derived from
-   viewport width and sidebar state — AssistiveToolButton has no such
-   inputs to get out of sync in the first place. */
-export default function StrategyMaker({ mapId, strategies, addStrategyDoc, updateStrategyDoc, deleteStrategyDoc }) {
+/* Warn on an actual browser tab close / refresh / external navigation
+   while dirty — this is the one case where a fully custom in-app
+   modal is technically impossible (the browser owns that dialog), so
+   the native beforeunload prompt is a deliberate, unavoidable
+   exception to "never a native browser confirm". Every in-app leave
+   path (switching map/mode within Map Knowledge) instead goes through
+   requestLeaveWithUnsavedCheck() -> UnsavedChangesModal below, which
+   IS the app's own modal. */
+function useBeforeUnloadGuard(dirty) {
+  useEffect(() => {
+    function onBeforeUnload(e) {
+      if (!dirty) return
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', onBeforeUnload)
+    return () => window.removeEventListener('beforeunload', onBeforeUnload)
+  }, [dirty])
+}
+
+/* Floating overlay stack for Strategy Maker — FloatingToolbar (left),
+   ContextToolbar (top, tool-dependent), MapControls (right),
+   ZoneSelector (top, zone-mode-only), plus the Save modal and the
+   unsaved-changes-on-leave prompt. Mounted as a sibling of
+   <DrawingCanvas> (which lives inside <MapContainer>, owned by
+   MapKnowledge.jsx's MapPanel) rather than a parent of it — see the
+   comment in strategyDataSchema.js about why this is a plain module
+   store instead of React Context. */
+export default function StrategyMaker({ mapId, strategies, addStrategyDoc, updateStrategyDoc, user }) {
   const st = useStrategyStore()
-  const { user } = useAuth()
   const [saving, setSaving] = useState(false)
-  const { confirm, confirmModalProps } = useConfirm()
+  const loadedForMapRef = useRef(null)
 
   useStrategyKeyboardShortcuts()
+  useBeforeUnloadGuard(st.dirty)
+
+  /* Auto-load the current user's existing strategy for this map (if
+     any) the first time it becomes available — this is what makes a
+     saved strategy "fully reloadable", without a separate load-picker
+     UI that wasn't part of this rebuild's spec. Picks the most
+     recently created entry if more than one exists. */
+  useEffect(() => {
+    if (loadedForMapRef.current === mapId) return
+    if (!Array.isArray(strategies)) return
+    if (strategies.length === 0) { loadedForMapRef.current = mapId; return }
+    const latest = [...strategies].sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0))[0]
+    loadStrategyData({ ...latest, strategyId: latest.id })
+    loadedForMapRef.current = mapId
+  }, [strategies, mapId])
 
   async function handleSave() {
     if (!user?.uid) { alert('Sign in to save strategies.'); return }
-    if (!st.name.trim()) { alert('Give this strategy a name first.'); return }
+    if (!st.name.trim()) return
     setSaving(true)
     try {
       if (st.strategyDocId) {
@@ -81,7 +91,8 @@ export default function StrategyMaker({ mapId, strategies, addStrategyDoc, updat
         const ref = await addStrategyDoc(mapId, toSaveableDoc(), user.uid)
         if (ref?.id) setStrategyDocId(ref.id)
       }
-      alert('Strategy saved.')
+      markSaved()
+      closeSaveModal()
     } catch (e) {
       alert('Save failed: ' + (e?.message || e))
     } finally {
@@ -89,40 +100,51 @@ export default function StrategyMaker({ mapId, strategies, addStrategyDoc, updat
     }
   }
 
-  function handleLoad(doc) {
-    /* Strategies saved before this rebuild used a flat
-       {pins, arrows, zones} shape — migrate on read so old saved
-       work still loads instead of coming back empty or crashing. */
-    if (isLegacyStrategyDoc(doc)) {
-      loadStrategyData(migrateLegacyStrategy(doc))
-    } else {
-      loadStrategyData({ ...doc, strategyId: doc.id })
+  async function handleSaveFromUnsavedPrompt() {
+    if (!st.name.trim()) {
+      /* No name yet — fall back to the full Save modal instead of
+         silently failing the save. */
+      resolveUnsavedPrompt('cancel')
+      return
     }
-  }
-
-  async function handleDelete(doc) {
-    if (!await confirm(`Delete strategy "${doc.name}"?`, { title: 'Delete strategy' })) return
-    try { await deleteStrategyDoc(mapId, doc.id) }
-    catch (e) { alert('Delete failed: ' + (e?.message || e)) }
+    await handleSave()
+    resolveUnsavedPrompt('discard') /* run the pending navigation now that it's saved */
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, height: '100%' }}>
-      <LayersPanel mapId={mapId} />
-      {st.tool === 'measure' && <MeasureReadout mapId={mapId} />}
-      <PhaseSelector />
-      <SaveStrategyPanel
-        strategies={strategies}
-        saving={saving}
-        onSave={handleSave}
-        onLoad={handleLoad}
-        onDelete={handleDelete}
-      />
-      <ConfirmModal {...confirmModalProps} />
+    <>
+      {/* Floating tool UI — stays inside MapPanel's .mk-canvas so it
+          positions over the map and is clipped to the map area. */}
+      <FloatingToolbar />
+      <ContextToolbar />
+      <MapControls />
+      <ZoneSelector />
 
-      {/* position:fixed — renders at a plain screen-pixel position
-          independent of this panel's own box, see the comment above. */}
-      <AssistiveToolButton />
-    </div>
+      {/* Modals are portalled to <body>: .mk-canvas is a z-index:0
+          stacking context (see MapKnowledge.jsx), so a modal rendered
+          in-place here would be trapped BEHIND the app sidebar/nav
+          (z-index 50+). document.body escapes that entirely. */}
+      {createPortal(
+        <>
+          <SaveStrategyModal
+            open={st.saveModalOpen}
+            name={st.name}
+            description={st.description}
+            onNameChange={setName}
+            onDescriptionChange={setDescription}
+            onSave={handleSave}
+            onClose={closeSaveModal}
+            saving={saving}
+          />
+          <UnsavedChangesModal
+            open={st.unsavedPromptOpen}
+            onSave={handleSaveFromUnsavedPrompt}
+            onDiscard={() => resolveUnsavedPrompt('discard')}
+            onCancel={() => resolveUnsavedPrompt('cancel')}
+          />
+        </>,
+        document.body,
+      )}
+    </>
   )
 }
