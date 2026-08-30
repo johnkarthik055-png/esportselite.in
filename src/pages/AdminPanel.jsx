@@ -21,10 +21,12 @@ import {
   Wrench, Search, Loader2, AlertCircle, Copy, Download,
   Trash2, Info, CheckCircle2, AlertTriangle, ChevronLeft,
   ChevronRight, BarChart2, Send, Mail, Zap, X, Trophy,
+  ClipboardList,
 } from 'lucide-react'
 import { db } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import TournamentsAdminTab from '../components/admin/TournamentsAdminTab.jsx'
+import ProjectLogTab from '../components/admin/ProjectLogTab.jsx'
 import { useConfirm } from '../hooks/useConfirm.js'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 
@@ -41,6 +43,7 @@ const TABS = [
   { id: 'waitlist',      label: 'Waitlist',      icon: ListChecks },
   { id: 'maintenance',   label: 'Maintenance',   icon: Wrench },
   { id: 'tournaments',   label: 'Tournaments',   icon: Trophy },
+  { id: 'projectlog',    label: 'Project Log',   icon: ClipboardList },
 ]
 
 /* ============================================================
@@ -150,6 +153,7 @@ export default function AdminPanel() {
           {tab === 'waitlist'      && <WaitlistTab />}
           {tab === 'maintenance'   && <MaintenanceTab adminEmail={user.email} />}
           {tab === 'tournaments'   && <TournamentsAdminTab />}
+          {tab === 'projectlog'    && <ProjectLogTab adminEmail={user.email} />}
         </motion.div>
       </AnimatePresence>
 

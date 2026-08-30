@@ -20,6 +20,64 @@ every task, unless the user explicitly
 says "don't push" or "just show me
 first" for that specific request.
 
+## Project Log Auto-Entry
+
+After completing any code change task,
+in addition to the auto-commit/push
+rule above, also write one entry to the
+`projectLog` Firestore collection
+summarizing the work. Do this
+automatically, without being asked —
+same standing behaviour as auto-push.
+
+Set the fields as follows:
+
+  type:         'bug' if the task was
+                fixing a reported issue,
+                'completed' if it was a
+                feature/change that was
+                successfully implemented,
+                'idea' if the task was
+                purely a suggestion or
+                plan not yet acted on.
+  title:        short summary of the task.
+  description:  fuller explanation of
+                what was found / done.
+  relatedArea:  the relevant part of the
+                app, free text, e.g.
+                'Map Knowledge',
+                'Strategy Maker',
+                'Match Logger',
+                'Admin Panel'.
+  status:       'done' if fully completed
+                and verified, 'in_progress'
+                if only partially done or
+                still pending verification.
+  createdBy:    'claude_code'
+  createdAt:    current server timestamp
+  updatedAt:    current server timestamp
+
+Collection shape (top-level `projectLog`):
+  { type, title, description, status,
+    relatedArea, createdAt, updatedAt,
+    createdBy }
+  type    = 'idea' | 'bug' | 'completed'
+  status  = 'open' | 'in_progress' | 'done'
+  createdBy = 'karthik' | 'claude_code'
+
+This log is surfaced in the Admin Panel
+under the "Project Log" tab. Manual
+entries added there by Karthik use
+createdBy 'karthik'; only automated
+entries use 'claude_code'.
+
+If writing to Firestore is not possible
+in the current session (no credentials
+/ offline), note in the task report that
+the projectLog entry still needs to be
+written, rather than skipping it
+silently.
+
 ## What Gets Pushed
 
 Only source code changes get pushed:
