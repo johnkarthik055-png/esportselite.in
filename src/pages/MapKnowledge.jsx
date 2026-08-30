@@ -25,7 +25,7 @@ import {
 } from 'firebase/firestore'
 import {
   X, MapPin, MousePointer2, ArrowUpRight, Circle as CircleIcon,
-  Eraser, Save, Trash2, Search, Plus, Minus, ChevronDown,
+  Eraser, Save, Trash2, Search, Plus, Minus, ChevronDown, ChevronUp,
   Loader2, PencilLine, Info, Edit, ArrowRight, Shield,
   Crosshair,
 } from 'lucide-react'
@@ -386,6 +386,10 @@ export default function MapKnowledge() {
 
   const [activeMapId, setActiveMapId] = useState('erangel')
   const [mode, setMode] = useState('view') /* 'view' | 'strategy' | 'dev' */
+  /* Desktop only: the Erangel/Miramar/Rondo + View/Strategy/Dev/Save
+     row is collapsible to free vertical map space. Session-only —
+     resets on reload, same as the tool strip / context toolbar. */
+  const [headerCollapsed, setHeaderCollapsed] = useState(false)
   const [selectedPin, setSelectedPin] = useState(null)
   const [visibleLayers, setVisibleLayers] = useState(new Set(DEFAULT_VISIBLE_LAYERS))
   const [zoom, setZoom] = useState(DEFAULT_ZOOM)
@@ -576,41 +580,63 @@ export default function MapKnowledge() {
           )}
         </div>
       ) : (
-        <div className="mk-page">
-          <div className="mk-header">
-            <div style={{ display: 'flex', gap: 4 }}>
-              {MAPS.map(m => (
-                <TabButton
-                  key={m.id}
-                  active={activeMapId === m.id}
-                  onClick={() => switchMap(m.id)}
-                >
-                  {m.name}
-                </TabButton>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-              <TabButton active={mode === 'view'} onClick={() => switchMode('view')}>View Map</TabButton>
-              <TabButton active={mode === 'strategy'} onClick={() => switchMode('strategy')}>Strategy Maker</TabButton>
-              {isAdmin && (
-                <span className="mk-dev-tab" style={{ display: 'inline-flex' }}>
-                  <TabButton active={mode === 'dev'} onClick={() => switchMode('dev')}>
-                    <Shield size={12} style={{ marginRight: 4 }} /> Dev Editor
+        <div className={`mk-page${headerCollapsed ? ' mk-page-hc' : ''}`}>
+          {headerCollapsed ? (
+            <button
+              type="button"
+              className="mk-header-handle"
+              onClick={() => setHeaderCollapsed(false)}
+              title="Show maps & tabs"
+              aria-label="Show maps & tabs"
+            >
+              <ChevronDown size={13} />
+              <span>Maps &amp; tabs</span>
+            </button>
+          ) : (
+            <div className="mk-header">
+              <div style={{ display: 'flex', gap: 4 }}>
+                {MAPS.map(m => (
+                  <TabButton
+                    key={m.id}
+                    active={activeMapId === m.id}
+                    onClick={() => switchMap(m.id)}
+                  >
+                    {m.name}
                   </TabButton>
-                </span>
-              )}
-              {mode === 'strategy' && (
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                <TabButton active={mode === 'view'} onClick={() => switchMode('view')}>View Map</TabButton>
+                <TabButton active={mode === 'strategy'} onClick={() => switchMode('strategy')}>Strategy Maker</TabButton>
+                {isAdmin && (
+                  <span className="mk-dev-tab" style={{ display: 'inline-flex' }}>
+                    <TabButton active={mode === 'dev'} onClick={() => switchMode('dev')}>
+                      <Shield size={12} style={{ marginRight: 4 }} /> Dev Editor
+                    </TabButton>
+                  </span>
+                )}
+                {mode === 'strategy' && (
+                  <button
+                    onClick={openSaveModal}
+                    className="btn btn-primary btn-sm"
+                    style={{ marginLeft: 4 }}
+                    title={strategyState.dirty ? 'Unsaved changes' : 'Save Strategy'}
+                  >
+                    <Save size={13} /> Save Strategy{strategyState.dirty ? ' •' : ''}
+                  </button>
+                )}
                 <button
-                  onClick={openSaveModal}
-                  className="btn btn-primary btn-sm"
-                  style={{ marginLeft: 4 }}
-                  title={strategyState.dirty ? 'Unsaved changes' : 'Save Strategy'}
+                  type="button"
+                  className="mk-header-collapse"
+                  onClick={() => setHeaderCollapsed(true)}
+                  title="Hide maps & tabs"
+                  aria-label="Hide maps & tabs"
                 >
-                  <Save size={13} /> Save Strategy{strategyState.dirty ? ' •' : ''}
+                  <ChevronUp size={14} />
                 </button>
-              )}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mk-body">
             <div className="mk-map-col" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -2249,6 +2275,9 @@ function MapStyles() {
         height: calc(100vh - 120px);
         min-height: 500px;
       }
+      /* header collapsed -> tighten the gap so the thin handle frees
+         real vertical space for the map, not just a token amount */
+      .mk-page.mk-page-hc { gap: 5px; }
       .mk-header {
         display: flex;
         justify-content: space-between;
@@ -2256,6 +2285,44 @@ function MapStyles() {
         gap: 12px;
         flex-wrap: wrap;
       }
+      /* collapse the whole maps/tabs row to a small handle to free
+         vertical space — same idea as the tool strip's collapse arrow */
+      .mk-header-collapse {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        margin-left: 6px;
+        flex-shrink: 0;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text-subtle);
+        cursor: pointer;
+        transition: color 0.15s ease, border-color 0.15s ease;
+      }
+      .mk-header-collapse:hover { color: var(--text-primary); border-color: var(--blue); }
+      .mk-header-handle {
+        align-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 2px 12px;
+        min-height: 0;
+        line-height: 1;
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        color: var(--text-subtle);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        transition: color 0.15s ease, border-color 0.15s ease;
+      }
+      .mk-header-handle:hover { color: var(--text-primary); border-color: var(--blue); }
       .mk-body {
         display: flex;
         gap: 12px;

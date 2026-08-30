@@ -1169,6 +1169,34 @@ body.amoled {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
+/* collapse chevron (leading edge) + the collapsed handle it shrinks to */
+.sct-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-subtle);
+  cursor: pointer;
+}
+.sct-collapse-btn:hover { color: var(--text-primary); border-color: var(--blue); }
+.sct-panel.sct-collapsed {
+  right: auto;
+  margin: 0;
+  width: auto;
+  max-width: none;
+  flex-wrap: nowrap;
+  gap: 5px;
+  padding: 7px 10px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.sct-panel.sct-collapsed:hover { border-color: var(--blue); }
+
 .sct-field { display: flex; align-items: center; gap: 7px; }
 .sct-field-label {
   font-family: 'Inter', sans-serif;
@@ -1334,6 +1362,12 @@ body.amoled {
   flex-wrap: nowrap;
   justify-content: flex-start;
   overflow-x: auto;
+}
+/* collapsed handle stays a fixed small size, never stretched */
+.mk-mobile-root .sct-panel.sct-collapsed {
+  right: auto;
+  width: auto;
+  overflow: visible;
 }
 
 /* ---- drawn-object icon layers (DrawingCanvas divIcons) ----

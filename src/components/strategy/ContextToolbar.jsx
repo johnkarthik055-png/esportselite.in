@@ -1,4 +1,5 @@
-import { Bold, Undo2 } from 'lucide-react'
+import { useState } from 'react'
+import { Bold, Undo2, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react'
 import {
   DRAW_COLORS, THICKNESS_PRESETS, PATH_TACTICAL_TYPES, POINT_TACTICAL_TYPES,
 } from '../../utils/strategyDataSchema.js'
@@ -30,12 +31,22 @@ function Field({ label, children }) {
 const SHAPE_TOOLS = ['rectangle', 'circle', 'polygon']
 const LINEAR_TOOLS = ['pencil', 'line']
 
+/* Session-scoped memo (NOT React state) so the collapsed/expanded
+   choice survives the component unmounting — which it does every time
+   the user switches to Select or Zone. Resets on a full page reload,
+   which the spec explicitly allows. */
+let collapsedMemo = false
+
 /* Small floating toolbar near the top of the map, showing ONLY the
    controls relevant to the currently active tool — never a permanent
-   panel, and nothing at all for Select (per spec). */
+   panel, and nothing at all for Select (per spec). A chevron at the
+   leading edge collapses it to a small handle; the active tool stays
+   active and usable the whole time. */
 export default function ContextToolbar() {
   const st = useStrategyStore()
   const tool = st.tool
+  const [collapsed, setCollapsedRaw] = useState(collapsedMemo)
+  const setCollapsed = (v) => { collapsedMemo = v; setCollapsedRaw(v) }
 
   if (tool === 'select') return null
   if (tool === 'zone') return null /* ZoneSelector owns this tool's UI */
@@ -48,6 +59,35 @@ export default function ContextToolbar() {
   const isPointTactical = POINT_TACTICAL_TYPES.includes(tool)
 
   if (!isShape && !isLinear && !isArrow && !isText && !isPathTactical && !isPointTactical) return null
+
+  /* Collapsed: just a handle to bring the controls back. The tool is
+     untouched — collapsing only hides the color/thickness/opacity UI. */
+  if (collapsed) {
+    return (
+      <button
+        type="button"
+        className="sct-panel sct-collapsed"
+        onClick={() => setCollapsed(false)}
+        title="Show tool options"
+        aria-label="Show tool options"
+      >
+        <SlidersHorizontal size={13} />
+        <ChevronRight size={13} />
+      </button>
+    )
+  }
+
+  const collapseBtn = (
+    <button
+      type="button"
+      className="sct-collapse-btn"
+      onClick={() => setCollapsed(true)}
+      title="Hide tool options"
+      aria-label="Hide tool options"
+    >
+      <ChevronLeft size={13} />
+    </button>
+  )
 
   const colorField = (
     <Field label="Color">
@@ -84,6 +124,8 @@ export default function ContextToolbar() {
 
   return (
     <div className="sct-panel">
+      {collapseBtn}
+
       {colorField}
 
       {(isLinear || isPathTactical) && (
