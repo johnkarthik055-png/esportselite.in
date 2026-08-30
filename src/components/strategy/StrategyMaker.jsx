@@ -9,6 +9,7 @@ import FloatingToolbar from './FloatingToolbar.jsx'
 import ContextToolbar from './ContextToolbar.jsx'
 import MapControls from './MapControls.jsx'
 import ZoneSelector from './ZoneSelector.jsx'
+import LayersPanel from './LayersPanel.jsx'
 import SaveStrategyModal, { UnsavedChangesModal } from './SaveStrategyModal.jsx'
 
 function useStrategyKeyboardShortcuts() {
@@ -119,6 +120,7 @@ export default function StrategyMaker({ mapId, strategies, addStrategyDoc, updat
       <ContextToolbar />
       <MapControls />
       <ZoneSelector />
+      <LayersPanel />
 
       {/* Modals are portalled to <body>: .mk-canvas is a z-index:0
           stacking context (see MapKnowledge.jsx), so a modal rendered

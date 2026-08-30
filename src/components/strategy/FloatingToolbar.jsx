@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   MousePointer2, Pencil, Minus, ArrowUpRight, Square, Circle as CircleIcon, Type, Eraser,
-  Route, Flag, Shapes, Wrench, Layers, LayoutGrid, Eye, Plane,
+  Route, Flag, Shapes, Wrench, Layers, LayoutGrid, Eye, Plane, Boxes, MoreHorizontal,
   Undo2, Redo2, Trash2, ChevronLeft, ChevronRight,
 } from 'lucide-react'
 import {
@@ -14,10 +14,12 @@ import {
 } from '../../utils/strategyDataSchema.js'
 import { useConfirm } from '../../hooks/useConfirm.js'
 import ConfirmModal from '../ConfirmModal.jsx'
+import { useViewport } from '../../utils/viewport.js'
+import { toggleLayersPanel, useLayersStore } from './LayersPanel.jsx'
 
 const ICONS = {
   MousePointer2, Pencil, Minus, ArrowUpRight, Square, CircleIcon, Type, Eraser,
-  Route, Flag, Shapes, Wrench, Layers, LayoutGrid, Eye, Plane,
+  Route, Flag, Shapes, Wrench, Layers, LayoutGrid, Eye, Plane, Boxes, MoreHorizontal,
   Undo2, Redo2, Trash2,
 }
 
@@ -36,26 +38,29 @@ function Row({ icon, label, active, onClick, collapsed }) {
   )
 }
 
-/* Compact floating LEFT-side tool palette — sized to its content, not
-   a permanent full-height sidebar. Collapses to an icon-only rail via
-   local state (no persistence needed per spec). Every row is a small
-   tappable button with a native title= tooltip, grouped exactly per
-   spec: Drawing / Tactical / Zones / Edit. */
+/* ============================================================
+   FLOATING TOOLBAR
+   ------------------------------------------------------------
+   Desktop / tablet: the original compact palette (collapsible
+   to an icon rail) — untouched. Mobile: a dedicated compact
+   icon-only strip that fits on screen without scrolling (see
+   <MobileToolbar>).
+   ============================================================ */
 export default function FloatingToolbar() {
+  const viewport = useViewport()
+  if (viewport === 'mobile') return <MobileToolbar />
+  return <DesktopToolbar />
+}
+
+function DesktopToolbar() {
   const st = useStrategyStore()
+  const ls = useLayersStore()
   const { confirm, confirmModalProps } = useConfirm()
-  /* Start collapsed on real touch devices / very narrow viewports so
-     the toolbar never dominates a phone screen — matchMedia, not width
-     alone, per the mobile lessons in the spec. Desktop starts expanded. */
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return false
     return window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 720
   })
 
-  /* On touch devices the toolbar and the context/zone toolbars share
-     the top band of a small screen — collapse the toolbar back to its
-     icon rail once a tool is chosen so the two never overlap. Desktop
-     has the width to keep it open. */
   const isCoarse = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches
   function pickTool(key) {
     setTool(key)
@@ -99,9 +104,6 @@ export default function FloatingToolbar() {
           <Row key={t.key} icon={t.icon} label={t.label} collapsed={collapsed}
             active={st.tool === t.key} onClick={() => pickTool(t.key)} />
         ))}
-        {/* Eraser — click any drawn object to remove it (undo-able).
-            Kept in the schema-free layer here so strategyDataSchema.js
-            stays untouched this pass; DrawingCanvas keys off tool==='eraser'. */}
         <Row key="eraser" icon="Eraser" label="Eraser" collapsed={collapsed}
           active={st.tool === 'eraser'} onClick={() => pickTool('eraser')} />
 
@@ -116,6 +118,8 @@ export default function FloatingToolbar() {
           <Row key={entry.key} icon={entry.icon} label={entry.label} collapsed={collapsed}
             active={isZoneEntryActive(entry)} onClick={() => handleZoneGroupClick(entry)} />
         ))}
+        <Row key="layers" icon="Boxes" label="Layers" collapsed={collapsed}
+          active={ls.open} onClick={toggleLayersPanel} />
 
         {!collapsed && <div className="sft-group-label">Edit</div>}
         <Row icon="Undo2" label="Undo" collapsed={collapsed} active={false} onClick={undo} />
@@ -123,8 +127,85 @@ export default function FloatingToolbar() {
         <Row icon="Trash2" label="Clear All" collapsed={collapsed} active={false} onClick={handleClearAll} />
       </div>
 
-      {/* Portalled to <body> — same stacking-context reasoning as the
-          modals in StrategyMaker.jsx. */}
+      {createPortal(<ConfirmModal {...confirmModalProps} />, document.body)}
+    </div>
+  )
+}
+
+/* ---- mobile: compact icon-only strip, no scroll ---- */
+function MiniBtn({ icon, label, active, onClick }) {
+  const Icon = ICONS[icon]
+  return (
+    <button
+      className={`sftm-btn${active ? ' sftm-btn-active' : ''}`}
+      onClick={onClick}
+      title={label}
+      aria-label={label}
+    >
+      <Icon size={16} />
+    </button>
+  )
+}
+
+function MobileToolbar() {
+  const st = useStrategyStore()
+  const ls = useLayersStore()
+  const { confirm, confirmModalProps } = useConfirm()
+  const [more, setMore] = useState(false)
+
+  async function handleClearAll() {
+    if (st.objects.length === 0) { setMore(false); return }
+    if (!await confirm('Clear every drawing on this map?', { title: 'Clear all drawings' })) return
+    clearAllObjects()
+  }
+
+  /* Everything the user reaches most often — a single non-scrolling
+     column. The rarer tactical/zone/flight toggles live behind "More"
+     so even a short landscape phone never needs a scroll. */
+  const PRIMARY = [
+    { key: 'select', label: 'Select', icon: 'MousePointer2' },
+    { key: 'pencil', label: 'Pencil', icon: 'Pencil' },
+    { key: 'line', label: 'Line', icon: 'Minus' },
+    { key: 'arrow', label: 'Arrow', icon: 'ArrowUpRight' },
+    { key: 'rectangle', label: 'Rectangle', icon: 'Square' },
+    { key: 'circle', label: 'Circle', icon: 'CircleIcon' },
+    { key: 'text', label: 'Text', icon: 'Type' },
+    { key: 'eraser', label: 'Eraser', icon: 'Eraser' },
+    { key: 'teamRotation', label: 'Team Rotation', icon: 'Route' },
+    { key: 'teamDrop', label: 'Team Drop', icon: 'Flag' },
+  ]
+
+  return (
+    <div className="sftm-panel">
+      <div className="sftm-strip">
+        {PRIMARY.map(t => (
+          <MiniBtn key={t.key} icon={t.icon} label={t.label}
+            active={st.tool === t.key} onClick={() => setTool(t.key)} />
+        ))}
+        <MiniBtn icon="Boxes" label="Layers" active={ls.open} onClick={toggleLayersPanel} />
+        <MiniBtn icon="Undo2" label="Undo" onClick={undo} />
+        <MiniBtn icon="Redo2" label="Redo" onClick={redo} />
+        <MiniBtn icon="Trash2" label="Clear All" onClick={handleClearAll} />
+        <MiniBtn icon="MoreHorizontal" label="More tools" active={more} onClick={() => setMore(v => !v)} />
+      </div>
+
+      {more && (
+        <div className="sftm-strip sftm-more">
+          <MiniBtn icon="Shapes" label="Draw Path & Zone"
+            active={st.tool === 'pathZone'} onClick={() => { setTool('pathZone'); setMore(false) }} />
+          <MiniBtn icon="Wrench" label="Utility Markers"
+            active={st.tool === 'utilityMarker'} onClick={() => { setTool('utilityMarker'); setMore(false) }} />
+          <MiniBtn icon="Layers" label="Zone 1–8"
+            active={st.tool === 'zone' && st.selectedZone !== 'all'}
+            onClick={() => { setTool('zone'); setSelectedZone(st.selectedZone === 'all' || st.selectedZone == null ? 1 : st.selectedZone); setMore(false) }} />
+          <MiniBtn icon="LayoutGrid" label="All Zones"
+            active={st.tool === 'zone' && st.selectedZone === 'all'}
+            onClick={() => { setTool('zone'); setSelectedZone('all'); setMore(false) }} />
+          <MiniBtn icon="Eye" label="Show Paths" active={st.showPaths} onClick={toggleShowPaths} />
+          <MiniBtn icon="Plane" label="Flight Path" active={st.flightPathVisible} onClick={toggleFlightPath} />
+        </div>
+      )}
+
       {createPortal(<ConfirmModal {...confirmModalProps} />, document.body)}
     </div>
   )

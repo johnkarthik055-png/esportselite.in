@@ -1336,8 +1336,51 @@ body.amoled {
   overflow-x: auto;
 }
 
-/* ---- drawn-object icon layers (DrawingCanvas divIcons) ---- */
-.strat-arrowhead, .strat-text-obj, .strat-tactical-badge, .strat-edit-handle { background: transparent; border: none; }
+/* ---- drawn-object icon layers (DrawingCanvas divIcons) ----
+   Every drawn object renders as a clean, sharp line/shape — NO
+   filter: drop-shadow, NO wide translucent halo. The only "outline"
+   on anything is a crisp 1px hard edge on text so it stays legible
+   over the satellite tiles (that is not a glow). */
+.strat-arrowhead, .strat-text-obj, .strat-tactical-badge,
+.strat-edit-handle, .strat-edit-badge { background: transparent; border: none; }
+.leaflet-overlay-pane svg path { filter: none; }
+
+.strat-text-inner {
+  display: inline-block;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+/* selection overlay for a Text object — a same-size transparent copy
+   with a crisp dashed box, rendered as its own marker so the real
+   text element is never swapped out (which would break double-click). */
+.strat-text-inner.strat-text-sel {
+  color: transparent !important;
+  text-shadow: none;
+  pointer-events: none;
+  outline: 1.5px dashed rgba(255, 255, 255, 0.9);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* small "edit text" affordance shown next to a selected Text object */
+.strat-edit-badge-inner {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+/* live eraser brush outline — a plain crisp ring, no glow */
+.strat-erase-cursor { pointer-events: none; filter: none; }
+
 .strat-text-draft-icon { background: transparent; border: none; overflow: visible; }
 .strat-text-draft-input {
   width: 176px;
@@ -1383,3 +1426,180 @@ body.amoled {
 .strat-ctx-menu button:hover { background: rgba(59, 130, 246, 0.14); }
 .strat-ctx-menu button.strat-ctx-danger { color: var(--danger); }
 .strat-ctx-menu button.strat-ctx-danger:hover { background: rgba(239, 68, 68, 0.14); }
+
+/* ============================================================
+   STRATEGY MAKER — LAYERS PANEL
+   (checkbox + label + count, dark navy card — matches View Map)
+   ============================================================ */
+.slp-panel {
+  position: absolute;
+  top: 12px;
+  right: 56px;
+  z-index: 1250;
+  width: min(232px, calc(100vw - 80px));
+  max-height: calc(100% - 24px);
+  display: flex;
+  flex-direction: column;
+  background: rgba(13, 21, 40, 0.96);
+  border: 1px solid #1B2A45;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+.slp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 10px 9px 12px;
+  border-bottom: 1px solid #1B2A45;
+}
+.slp-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+.slp-close {
+  display: flex;
+  background: transparent;
+  border: none;
+  color: var(--text-subtle);
+  cursor: pointer;
+  padding: 2px;
+}
+.slp-close:hover { color: var(--text-primary); }
+.slp-body {
+  overflow-y: auto;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.slp-empty {
+  padding: 12px 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-subtle);
+}
+.slp-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.slp-row:hover { background: rgba(59, 130, 246, 0.1); }
+.slp-check {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+}
+.slp-check-on { background: var(--blue); border-color: var(--blue); }
+.slp-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.slp-label { flex: 1; }
+.slp-count {
+  font-size: 11px;
+  color: var(--text-subtle);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+.slp-foot {
+  padding: 7px 12px;
+  border-top: 1px solid #1B2A45;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--text-subtle);
+}
+
+/* ============================================================
+   STRATEGY MAKER — MOBILE TOOLBAR (mobile viewport only)
+   ------------------------------------------------------------
+   Compact icon-only vertical strip that fits on screen with no
+   scroll. Rarer tools live behind the "More" toggle. Desktop
+   keeps the original .sft-panel toolbar untouched.
+   ============================================================ */
+.sftm-panel {
+  position: absolute;
+  top: 96px;      /* clears the .mk-top-overlay pill block */
+  left: 10px;
+  /* above the context toolbar (1250) so the "More" fly-out strip is
+     never covered by it */
+  z-index: 1300;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.sftm-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px;
+  background: rgba(13, 21, 40, 0.94);
+  border: 1px solid #1B2A45;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.sftm-more { animation: sftm-fade 0.12s ease; }
+@keyframes sftm-fade { from { opacity: 0; transform: translateX(-4px); } to { opacity: 1; transform: none; } }
+.sftm-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.sftm-btn:active { background: rgba(59, 130, 246, 0.16); }
+.sftm-btn-active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+/* Landscape phones are very short — allow the primary strip to
+   scroll internally as an absolute last resort so it is never
+   clipped by .mk-canvas's overflow:hidden. On a portrait phone the
+   full strip fits well inside this budget and never scrolls. */
+.mk-mobile-root .sftm-strip {
+  max-height: calc(100dvh - 250px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.mk-mobile-root .slp-panel {
+  top: 150px;   /* sits below the top overlay + any context toolbar */
+  right: 12px;
+  left: auto;
+  width: min(232px, calc(100vw - 24px));
+  max-height: calc(100% - 164px);
+}

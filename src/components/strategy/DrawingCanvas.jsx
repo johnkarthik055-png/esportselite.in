@@ -6,13 +6,14 @@ import { createPortal } from 'react-dom'
 import {
   DRAG_DRAW_TOOLS, VERTEX_TOOLS, PAN_LOCKING_TOOLS,
   TACTICAL_TOOLS_BY_KEY, PATH_TACTICAL_TYPES, POINT_TACTICAL_TYPES,
-  DEFAULT_OPACITY, mapInstanceRef,
+  DEFAULT_OPACITY, mapInstanceRef, strategyStore,
   bearingBetween, schematicZoneCircle, schematicFlightPath, ZONE_NUMBERS,
 } from '../../utils/strategyDataSchema.js'
 import {
   useStrategyStore, addObject, updateObject, selectObject, setDrafting,
   addDraftPoint, finishDraft, duplicateObject, deleteObject,
 } from '../../utils/strategyDataSchema.js'
+import { useLayersStore, isTypeHidden, resetLayerVisibility } from './LayersPanel.jsx'
 
 /* bubblingMouseEvents:false — stop a press/click on an object (or its
    resize handle) from ALSO reaching the map as a Leaflet map event.
@@ -23,6 +24,7 @@ import {
 const NO_BUBBLE = { bubblingMouseEvents: false }
 const LONG_PRESS_MS = 500
 const TAP_MOVE_THRESHOLD = 8 /* px — beyond this a touch is a drag, not a long-press */
+const ERASE_RADIUS_PX = 20   /* eraser "brush" radius in screen pixels */
 
 /* ---- icon factories ---- */
 function arrowHeadIcon(color, bearingDeg, size, opacity) {
@@ -40,19 +42,45 @@ function arrowHeadIcon(color, bearingDeg, size, opacity) {
     iconAnchor: [size / 2, size],
   })
 }
-function textIcon(text, color, opacity, bold, fontSize, isSelected) {
+/* IMPORTANT: this icon must NOT depend on selection state. If it did,
+   selecting the text would swap out the underlying DOM element, and a
+   double-click (which requires both clicks to land on the SAME
+   element) would never register. Selection is shown by a separate
+   overlay (textSelIcon) + the edit badge instead. */
+function textIcon(text, color, opacity, bold, fontSize) {
   const safe = String(text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   return L.divIcon({
     className: 'strat-text-obj',
-    html: `<div style="
-      display:inline-block; color:${color}; opacity:${opacity};
-      font-family:'DM Sans',sans-serif; font-weight:${bold ? 800 : 600}; font-size:${fontSize}px;
-      white-space:nowrap; cursor:pointer;
-      text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;
-      ${isSelected ? 'outline:2px dashed #fff; outline-offset:3px; padding:2px 4px; border-radius:3px;' : ''}
+    html: `<div class="strat-text-inner" style="
+      color:${color}; opacity:${opacity};
+      font-weight:${bold ? 800 : 600}; font-size:${fontSize}px;
     ">${safe}</div>`,
     iconSize: [0, 0],
     iconAnchor: [0, 0],
+  })
+}
+/* A same-metrics, transparent copy of the text with a dashed outline —
+   rendered as its own non-interactive marker while the text is
+   selected so the real text element stays untouched. */
+function textSelIcon(text, bold, fontSize) {
+  const safe = String(text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  return L.divIcon({
+    className: 'strat-text-obj',
+    html: `<div class="strat-text-inner strat-text-sel" style="
+      font-weight:${bold ? 800 : 600}; font-size:${fontSize}px;
+    ">${safe}</div>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
+  })
+}
+function editBadgeIcon() {
+  return L.divIcon({
+    className: 'strat-edit-badge',
+    html: `<div class="strat-edit-badge-inner" title="Edit text">
+      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    </div>`,
+    iconSize: [22, 22],
+    iconAnchor: [26, 24],
   })
 }
 function tacticalBadgeIcon(tool, obj, isSelected) {
@@ -64,9 +92,9 @@ function tacticalBadgeIcon(tool, obj, isSelected) {
       display:flex; align-items:center; justify-content:center;
       min-width:22px; height:22px; padding:0 4px; box-sizing:border-box;
       background:${color}; opacity:${obj.opacity ?? DEFAULT_OPACITY};
-      border-radius:5px; border:2px solid ${isSelected ? '#fff' : 'rgba(255,255,255,0.5)'};
+      border-radius:5px; border:2px solid ${isSelected ? '#fff' : 'rgba(255,255,255,0.55)'};
       color:#fff; font-family:'DM Sans',sans-serif; font-weight:800; font-size:9px;
-      white-space:nowrap; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,0.6);
+      white-space:nowrap; cursor:pointer;
     ">${badge}</div>`,
     iconSize: [22, 22],
     iconAnchor: [11, 11],
@@ -81,7 +109,7 @@ function handleIconFor(cursor) {
     className: 'strat-edit-handle',
     html: `<div style="
       width:12px; height:12px; background:#fff; border:2px solid #3B82F6;
-      border-radius:50%; box-shadow:0 1px 3px rgba(0,0,0,0.7); cursor:${cursor};
+      border-radius:50%; cursor:${cursor};
     "></div>`,
     iconSize: [12, 12],
     iconAnchor: [6, 6],
@@ -100,6 +128,17 @@ function killDomEvent(e) {
   if (oe.stopPropagation) oe.stopPropagation()
   if (oe.stopImmediatePropagation) oe.stopImmediatePropagation()
   L.DomEvent.stopPropagation(e)
+}
+
+/* px distance from point p to segment a-b (all L.Point). */
+function distPointToSeg(p, a, b) {
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  const len2 = dx * dx + dy * dy
+  if (len2 === 0) return p.distanceTo(a)
+  let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / len2
+  t = Math.max(0, Math.min(1, t))
+  return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy))
 }
 
 /* ---- right-click / long-press context menu (Edit / Duplicate / Delete) ---- */
@@ -131,27 +170,26 @@ function ContextMenu({ x, y, onEdit, onDuplicate, onDelete, onClose }) {
    panes (.leaflet-map-pane etc.) are CSS-transformed for panning, and
    a transformed ancestor creates a new containing block that breaks
    position:fixed (it would resolve relative to that transformed pane
-   instead of the viewport, the same clipping-adjacent class of bug
-   this app has hit before). Rendering into document.body via a real
-   React portal — not a second manually-managed root — sidesteps that
-   entirely while staying part of the normal React tree (event
-   bubbling, automatic unmount, no extra reconciler instance). */
+   instead of the viewport). Rendering into document.body via a real
+   React portal sidesteps that entirely while staying part of the
+   normal React tree (event bubbling, automatic unmount). */
 function ContextMenuPortal(props) {
   return createPortal(<ContextMenu {...props} />, document.body)
 }
 
-function ObjectRender({ obj, isSelected, tool, onSelect, onBeginMove, onBeginHandle, onContextMenu, onErase }) {
-  const haloOptions = { ...NO_BUBBLE, color: '#fff', opacity: 0.85, fill: false, dashArray: '6 4', interactive: false }
+function ObjectRender({ obj, isSelected, tool, onSelect, onBeginMove, onBeginHandle, onContextMenu, onEditText }) {
   const selectable = tool === 'select'
-  const erasing = tool === 'eraser'
+  /* Stable across selection changes (see textIcon comment). */
+  const stableTextIcon = useMemo(
+    () => (obj.type === 'text' ? textIcon(obj.text, obj.color, obj.opacity, obj.bold, obj.fontSize) : null),
+    [obj.type, obj.text, obj.color, obj.opacity, obj.bold, obj.fontSize],
+  )
 
   function select(e) {
-    if (erasing) { killDomEvent(e); onErase(obj.id); return }
     if (!selectable) return
     onSelect(obj.id)
   }
   function bodyDown(e) {
-    if (erasing) { killDomEvent(e); return } /* eraser acts on click, not on a drag */
     if (!selectable) return
     onSelect(obj.id)
     onBeginMove(e, obj)
@@ -175,18 +213,18 @@ function ObjectRender({ obj, isSelected, tool, onSelect, onBeginMove, onBeginHan
       const headSize = Math.max(10, obj.thickness * 3)
       head = <Marker position={last} icon={arrowHeadIcon(obj.color, bearing, headSize, obj.opacity)} interactive={false} />
     }
-    const dashArray = obj.type === 'arrow' && obj.arrowStyle === 'dashed' ? '8 6'
+    /* Selection feedback = the stroke itself goes dashed + a touch
+       thicker. NO wide translucent halo (that read as a glow). */
+    const ownDash = obj.type === 'arrow' && obj.arrowStyle === 'dashed' ? '8 6'
       : tacticalTool?.key === 'pathZone' ? '3 7' : undefined
+    const dashArray = isSelected ? '9 7' : ownDash
+    const weight = isSelected ? obj.thickness + 2 : obj.thickness
     return (
       <>
         {tacticalTool?.key === 'pathZone' && pts.length >= 3 && (
           <Polygon positions={pts} pathOptions={{ ...NO_BUBBLE, color: obj.color, weight: 0, fillColor: obj.color, fillOpacity: Math.max(obj.opacity * 0.15, 0.05), interactive: false }} />
         )}
-        {/* Selection feedback is a dashed halo only — NO per-point
-            vertex dots for Pencil / Line / Arrow / Team Rotation /
-            Draw Path & Zone. These move as a whole (drag the body). */}
-        {isSelected && <Polyline positions={pts} pathOptions={{ ...haloOptions, weight: obj.thickness + 5 }} />}
-        <Polyline positions={pts} pathOptions={{ color: obj.color, weight: obj.thickness, opacity: obj.opacity, dashArray, interactive: false }} />
+        <Polyline positions={pts} pathOptions={{ color: obj.color, weight, opacity: obj.opacity, dashArray, lineCap: 'round', lineJoin: 'round', interactive: false }} />
         <Polyline positions={pts} pathOptions={hitOptions} eventHandlers={{ mousedown: bodyDown, click: select, contextmenu: ctxMenu }} />
         {head}
       </>
@@ -198,17 +236,15 @@ function ObjectRender({ obj, isSelected, tool, onSelect, onBeginMove, onBeginHan
      break on load. No vertex handles, no way to create new ones. */
   if (obj.type === 'polygon') {
     return (
-      <>
-        <Polygon
-          positions={obj.points}
-          pathOptions={{
-            ...NO_BUBBLE, color: obj.color, weight: obj.thickness, opacity: obj.opacity,
-            fillColor: obj.color, fillOpacity: obj.fill ? Math.max(obj.opacity * 0.2, 0.05) : 0,
-          }}
-          eventHandlers={{ mousedown: bodyDown, click: select, contextmenu: ctxMenu }}
-        />
-        {isSelected && <Polygon positions={obj.points} pathOptions={{ ...haloOptions, weight: obj.thickness + 3 }} />}
-      </>
+      <Polygon
+        positions={obj.points}
+        pathOptions={{
+          ...NO_BUBBLE, color: obj.color, weight: isSelected ? obj.thickness + 1 : obj.thickness,
+          opacity: obj.opacity, dashArray: isSelected ? '8 5' : undefined,
+          fillColor: obj.color, fillOpacity: obj.fill ? Math.max(obj.opacity * 0.2, 0.05) : 0,
+        }}
+        eventHandlers={{ mousedown: bodyDown, click: select, contextmenu: ctxMenu }}
+      />
     )
   }
 
@@ -218,12 +254,12 @@ function ObjectRender({ obj, isSelected, tool, onSelect, onBeginMove, onBeginHan
         <Rectangle
           bounds={obj.points}
           pathOptions={{
-            ...NO_BUBBLE, color: obj.color, weight: obj.thickness, opacity: obj.opacity,
+            ...NO_BUBBLE, color: obj.color, weight: isSelected ? obj.thickness + 1 : obj.thickness,
+            opacity: obj.opacity, dashArray: isSelected ? '8 5' : undefined,
             fillColor: obj.color, fillOpacity: obj.fill ? Math.max(obj.opacity * 0.2, 0.05) : 0,
           }}
           eventHandlers={{ mousedown: bodyDown, click: select, contextmenu: ctxMenu }}
         />
-        {isSelected && <Rectangle bounds={obj.points} pathOptions={{ ...haloOptions, weight: obj.thickness + 3 }} />}
         {isSelected && obj.points.map((p, i) => (
           <Marker key={i} position={p} icon={handleIconFor('nwse-resize')} bubblingMouseEvents={false}
             eventHandlers={{ mousedown: (e) => onBeginHandle(e, obj, i) }} />
@@ -240,12 +276,12 @@ function ObjectRender({ obj, isSelected, tool, onSelect, onBeginMove, onBeginHan
         <Circle
           center={center} radius={obj.radius || 1}
           pathOptions={{
-            ...NO_BUBBLE, color: obj.color, weight: obj.thickness, opacity: obj.opacity,
+            ...NO_BUBBLE, color: obj.color, weight: isSelected ? obj.thickness + 1 : obj.thickness,
+            opacity: obj.opacity, dashArray: isSelected ? '8 5' : undefined,
             fillColor: obj.color, fillOpacity: obj.fill ? Math.max(obj.opacity * 0.2, 0.05) : 0,
           }}
           eventHandlers={{ mousedown: bodyDown, click: select, contextmenu: ctxMenu }}
         />
-        {isSelected && <Circle center={center} radius={obj.radius || 1} pathOptions={{ ...haloOptions, weight: obj.thickness + 3 }} />}
         {isSelected && (
           <Marker position={radiusHandlePos} icon={handleIconFor('ns-resize')} bubblingMouseEvents={false}
             eventHandlers={{ mousedown: (e) => onBeginHandle(e, obj, 'radius') }} />
@@ -256,12 +292,37 @@ function ObjectRender({ obj, isSelected, tool, onSelect, onBeginMove, onBeginHan
 
   if (obj.type === 'text') {
     return (
-      <Marker
-        position={obj.points[0]}
-        icon={textIcon(obj.text, obj.color, obj.opacity, obj.bold, obj.fontSize, isSelected)}
-        bubblingMouseEvents={false}
-        eventHandlers={{ mousedown: bodyDown, click: select, contextmenu: ctxMenu }}
-      />
+      <>
+        <Marker
+          position={obj.points[0]}
+          icon={stableTextIcon}
+          bubblingMouseEvents={false}
+          eventHandlers={{
+            mousedown: bodyDown,
+            click: select,
+            dblclick: () => { if (selectable) onEditText(obj) },
+            contextmenu: ctxMenu,
+          }}
+        />
+        {isSelected && selectable && (
+          <Marker
+            position={obj.points[0]}
+            icon={textSelIcon(obj.text, obj.bold, obj.fontSize)}
+            interactive={false}
+          />
+        )}
+        {isSelected && selectable && (
+          <Marker
+            position={obj.points[0]}
+            icon={editBadgeIcon()}
+            bubblingMouseEvents={false}
+            eventHandlers={{
+              mousedown: (e) => killDomEvent(e),
+              click: (e) => { killDomEvent(e); onEditText(obj) },
+            }}
+          />
+        )}
+      </>
     )
   }
 
@@ -281,19 +342,9 @@ function ObjectRender({ obj, isSelected, tool, onSelect, onBeginMove, onBeginHan
 
 /* Inline text-entry input — a real <input> inside a Leaflet divIcon,
    wired with vanilla DOM listeners on Leaflet's own 'add' event.
-
    Entering/leaving edit mode is a clean idempotent transition:
-     - commit()/cancel() are single-shot (committedRef latch),
-     - both ALWAYS call onFinishEdit() so the parent's editingTextObj
-       state is cleared — the missing half of this was the actual
-       "text gets stuck / invisible on the 2nd edit" bug: the existing-
-       object branch reset `drafting` but never told the parent to stop
-       hiding + editing the object, so it stayed filtered out of the
-       render forever and its dead input sat inert on the map.
-     - the committed latch resets on every fresh session (new draft, or
-       a different existing object id),
-     - a Marker 'remove' fires a deferred safety commit if the layer is
-       torn down some other way (tool switch, etc.) without a blur. */
+   commit()/cancel() are single-shot and ALWAYS call onFinishEdit()
+   so the parent's editingTextObj state is cleared. */
 function TextDraftLayer({ draft, st, editingObj, onFinishEdit }) {
   const committedRef = useRef(false)
   const inputElRef = useRef(null)
@@ -311,9 +362,6 @@ function TextDraftLayer({ draft, st, editingObj, onFinishEdit }) {
     iconAnchor: [0, 15],
   }), [])
 
-  /* apiRef keeps commit/cancel stable for the vanilla DOM listeners
-     and the unmount safety net while still closing over the current
-     session's values on every render. */
   const apiRef = useRef({})
   apiRef.current.commit = (value) => {
     if (committedRef.current) return
@@ -382,35 +430,28 @@ function TextDraftLayer({ draft, st, editingObj, onFinishEdit }) {
 
 export default function DrawingCanvas({ mapId }) {
   const st = useStrategyStore()
+  useLayersStore() /* re-render this canvas when per-type visibility changes */
   const map = useMap()
 
-  /* Expose the live Leaflet map instance to MapControls.jsx, which
-     renders as a floating panel OUTSIDE <MapContainer> and so has no
-     other way to reach it (see mapInstanceRef's own comment). */
   useEffect(() => {
     mapInstanceRef.current = map
     return () => { if (mapInstanceRef.current === map) mapInstanceRef.current = null }
   }, [map])
 
+  /* New map -> clear any per-layer hides carried over from the last one. */
+  useEffect(() => { resetLayerVisibility() }, [mapId])
+
   const isDrawingRef = useRef(false)
   const draftRef = useRef(null)
   const draftLayerRef = useRef(null)
+  const eraseRef = useRef(null) /* { pts: [[lat,lng]...], cursor: L.Layer } */
 
-  /* Select-tool move/handle-drag state — separate ref from the
-     drag-draw draft above since these two interactions never overlap
-     (mutually exclusive tools) but share the same map-level mousemove/
-     mouseup wiring below. */
-  const editDragRef = useRef(null) /* { obj, mode:'move'|'vertex'|'radius', handleIndex, startLatLng, originalPoints, originalRadius } */
-
-  /* "Am I currently moving/resizing an object?" — the second layer of
-     the anti-pan fix requested in the bug report. The map's own
-     mousedown handler bails early when this is set, and map.dragging is
-     disabled outright for the duration of the gesture. */
+  const editDragRef = useRef(null)
   const manipulatingRef = useRef(false)
 
-  const [ctxMenu, setCtxMenuState] = useState(null) /* { x, y, obj } */
+  const [ctxMenu, setCtxMenuState] = useState(null)
   const [editingTextObj, setEditingTextObj] = useState(null)
-  const longPressRef = useRef(null) /* { obj, startX, startY, timer } */
+  const longPressRef = useRef(null)
 
   function removeDraftLayer() {
     if (draftLayerRef.current) {
@@ -418,18 +459,25 @@ export default function DrawingCanvas({ mapId }) {
       draftLayerRef.current = null
     }
   }
+  function removeEraseCursor() {
+    if (eraseRef.current?.cursor) {
+      map.removeLayer(eraseRef.current.cursor)
+    }
+  }
   useEffect(() => {
-    return () => { isDrawingRef.current = false; removeDraftLayer() }
+    return () => { isDrawingRef.current = false; removeDraftLayer(); removeEraseCursor() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [st.tool, mapId])
 
-  /* Switching tools always closes any open text editor so it can never
-     strand the object hidden-and-uneditable (see TextDraftLayer). The
-     input's blur commits its value first in every normal flow. */
+  /* Switching tools always closes any open text editor. */
   useEffect(() => { setEditingTextObj(null) }, [st.tool])
 
+  /* Pan / native-gesture lock. Same set as before PLUS the eraser —
+     while dragging the eraser the map must not pan and the browser
+     must not steal the touchmoves (touch-action:none via the
+     .strat-draw-locked class). */
   useEffect(() => {
-    const locked = PAN_LOCKING_TOOLS.includes(st.tool)
+    const locked = PAN_LOCKING_TOOLS.includes(st.tool) || st.tool === 'eraser'
     const container = map.getContainer()
     if (locked) {
       map.dragging.disable(); map.touchZoom.disable(); map.doubleClickZoom.disable(); map.tap?.disable()
@@ -444,6 +492,57 @@ export default function DrawingCanvas({ mapId }) {
     }
   }, [st.tool, map])
 
+  /* ---- drag-to-draw (Pencil/Line/Arrow/Rectangle/Circle) + Eraser ----
+     Driven by POINTER events on the map container, not Leaflet's map
+     mousedown/mousemove/mouseup — Leaflet does not synthesise those
+     from touch, which is exactly why every drag-based tool silently
+     did nothing on mobile. Pointer events fire for mouse AND touch, so
+     this one path serves both. */
+  useEffect(() => {
+    const drawTool = DRAG_DRAW_TOOLS.includes(st.tool)
+    const eraseTool = st.tool === 'eraser'
+    if (!drawTool && !eraseTool) return
+    const container = map.getContainer()
+    let active = false
+
+    const toLatLng = (ev) => map.mouseEventToLatLng(ev)
+    function onMove(ev) {
+      if (!active) return
+      if (ev.cancelable) ev.preventDefault()
+      const ll = toLatLng(ev)
+      if (eraseTool) updateErase(ll); else updateDrag(ll)
+    }
+    function onUp() {
+      if (!active) return
+      active = false
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
+      if (eraseTool) endErase(); else endDrag()
+    }
+    function onDown(ev) {
+      if (ev.pointerType === 'mouse' && ev.button !== 0) return
+      if (manipulatingRef.current || editDragRef.current) return
+      /* ignore presses that land on a marker / handle / floating control */
+      if (ev.target?.closest?.('.leaflet-marker-pane, .strat-ctx-menu, .leaflet-control, .leaflet-popup')) return
+      active = true
+      if (ev.cancelable) ev.preventDefault()
+      const ll = toLatLng(ev)
+      if (eraseTool) beginErase(ll); else beginDrag(ll)
+      window.addEventListener('pointermove', onMove, { passive: false })
+      window.addEventListener('pointerup', onUp)
+      window.addEventListener('pointercancel', onUp)
+    }
+    container.addEventListener('pointerdown', onDown, { passive: false })
+    return () => {
+      container.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
+      if (active) { if (eraseTool) endErase(); else endDrag() }
+    }
+  }, [st.tool, map])
+
   function beginDrag(latlng) {
     isDrawingRef.current = true
     removeDraftLayer()
@@ -451,7 +550,7 @@ export default function DrawingCanvas({ mapId }) {
     const style = { color: st.drawColor, weight: st.drawThickness, opacity: st.drawOpacity, interactive: false }
     if (st.tool === 'pencil') {
       draftRef.current = [start]
-      draftLayerRef.current = L.polyline(draftRef.current, style).addTo(map)
+      draftLayerRef.current = L.polyline(draftRef.current, { ...style, lineCap: 'round', lineJoin: 'round' }).addTo(map)
     } else if (st.tool === 'line' || st.tool === 'arrow') {
       draftRef.current = [start, start]
       draftLayerRef.current = L.polyline(draftRef.current, style).addTo(map)
@@ -469,7 +568,7 @@ export default function DrawingCanvas({ mapId }) {
     if (st.tool === 'pencil') {
       const pts = draftRef.current
       const [lastLat, lastLng] = pts[pts.length - 1]
-      if (Math.hypot(cur[0] - lastLat, cur[1] - lastLng) < 0.15) return
+      if (Math.hypot(cur[0] - lastLat, cur[1] - lastLng) < 0.12) return
       pts.push(cur)
       draftLayerRef.current.setLatLngs(pts)
     } else if (st.tool === 'line' || st.tool === 'arrow') {
@@ -507,26 +606,111 @@ export default function DrawingCanvas({ mapId }) {
     }
   }
 
-  /* ---- select-tool move / handle drag (imperative, same reasoning
-     as beginDrag/updateDrag above: pushing every intermediate point
-     into React state would repaint the whole tree on every pixel of
-     movement — instead we mutate the target Leaflet layer directly
-     via the object's own React-rendered layer through re-render only
-     at 60fps-cheap granularity using a local ref, and commit ONE
-     store update on release. ---- */
+  /* ---- eraser (a real eraser) ----
+     Freehand strokes are erased in PART — the points the brush passes
+     over are cut and the stroke splits into the surviving runs. Every
+     other object type (line/arrow/shape/text/marker) is deleted whole
+     when the brush touches it. The whole drag commits as ONE undo
+     step. */
+  function beginErase(latlng) {
+    removeEraseCursor()
+    eraseRef.current = {
+      pts: [[latlng.lat, latlng.lng]],
+      cursor: L.circleMarker(latlng, {
+        radius: ERASE_RADIUS_PX, color: '#fff', weight: 1.5, opacity: 0.9,
+        fillColor: '#fff', fillOpacity: 0.12, interactive: false, className: 'strat-erase-cursor',
+      }).addTo(map),
+    }
+  }
+  function updateErase(latlng) {
+    const er = eraseRef.current
+    if (!er) return
+    er.pts.push([latlng.lat, latlng.lng])
+    er.cursor?.setLatLng(latlng)
+  }
+  function endErase() {
+    const er = eraseRef.current
+    eraseRef.current = null
+    if (er?.cursor) map.removeLayer(er.cursor)
+    if (er) applyErase(er.pts)
+  }
+  function applyErase(eraserPts) {
+    const objs = strategyStore.objects
+    if (!objs.length || !eraserPts.length) return
+    const toCP = (pt) => map.latLngToContainerPoint(L.latLng(pt[0], pt[1]))
+    const eraserCP = eraserPts.map(p => toCP(p))
+    const R = ERASE_RADIUS_PX
+    const nearPt = (cp) => eraserCP.some(ep => ep.distanceTo(cp) <= R)
+    const nearSeg = (a, b) => eraserCP.some(ep => distPointToSeg(ep, a, b) <= R)
+
+    let changed = false
+    const next = []
+
+    for (const o of objs) {
+      if (o.type === 'pencil') {
+        const cps = o.points.map(toCP)
+        const keep = cps.map(cp => !nearPt(cp))
+        for (let i = 0; i < cps.length - 1; i++) {
+          if (keep[i] && keep[i + 1] && nearSeg(cps[i], cps[i + 1])) { keep[i] = false; keep[i + 1] = false }
+        }
+        if (keep.every(Boolean)) { next.push(o); continue }
+        changed = true
+        let run = []
+        const runs = []
+        for (let i = 0; i < o.points.length; i++) {
+          if (keep[i]) run.push(o.points[i])
+          else { if (run.length >= 2) runs.push(run); run = [] }
+        }
+        if (run.length >= 2) runs.push(run)
+        runs.forEach((r, idx) => {
+          next.push(idx === 0
+            ? { ...o, points: r }
+            : { ...o, id: `obj-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}-${idx}`, points: r })
+        })
+        continue
+      }
+
+      let hit = false
+      if (o.type === 'line' || o.type === 'arrow' || o.type === 'teamRotation' || o.type === 'pathZone' || o.type === 'polygon') {
+        const cps = o.points.map(toCP)
+        hit = cps.some(nearPt)
+        for (let i = 0; i < cps.length - 1 && !hit; i++) hit = nearSeg(cps[i], cps[i + 1])
+      } else if (o.type === 'rectangle') {
+        const [a, b] = o.points.map(toCP)
+        const minX = Math.min(a.x, b.x) - R, maxX = Math.max(a.x, b.x) + R
+        const minY = Math.min(a.y, b.y) - R, maxY = Math.max(a.y, b.y) + R
+        hit = eraserCP.some(ep => ep.x >= minX && ep.x <= maxX && ep.y >= minY && ep.y <= maxY)
+      } else if (o.type === 'circle') {
+        const c = toCP(o.points[0])
+        const edge = toCP([o.points[0][0], o.points[0][1] + (o.radius || 1)])
+        const rPx = c.distanceTo(edge)
+        hit = eraserCP.some(ep => ep.distanceTo(c) <= rPx + R)
+      } else if (o.type === 'text' || TACTICAL_TOOLS_BY_KEY[o.type]?.geometry === 'point') {
+        const c = toCP(o.points[0])
+        hit = eraserCP.some(ep => ep.distanceTo(c) <= R + 10)
+      }
+
+      if (hit) { changed = true; continue }
+      next.push(o)
+    }
+
+    if (!changed) return
+    /* ONE undo step: push a history baseline via a no-op update (which
+       snapshots the pre-erase objects), then swap in the new list. */
+    updateObject(objs[0].id, {}, { silent: false })
+    strategyStore.objects = next
+    strategyStore.dirty = true
+    selectObject(null) /* fires a re-render + clears any selection */
+  }
+
+  /* ---- select-tool move / resize drag (unchanged desktop path) ---- */
   function startManipulation(e) {
-    /* Kill the DOM event so Leaflet's pan-drag (L.Draggable on the map
-       container) never sees this press, AND disable map dragging for
-       the whole gesture as an explicit second guard. Re-enabled in
-       endObjectManipulation(). */
     killDomEvent(e)
     manipulatingRef.current = true
     if (map.dragging.enabled()) map.dragging.disable()
   }
   function endObjectManipulation() {
     manipulatingRef.current = false
-    /* Object manipulation only ever starts under the Select tool, which
-       always wants panning available again once the gesture ends. */
     if (st.tool === 'select' && !map.dragging.enabled()) map.dragging.enable()
   }
 
@@ -538,13 +722,6 @@ export default function DrawingCanvas({ mapId }) {
       startLatLng: [e.latlng.lat, e.latlng.lng],
       originalPoints: obj.points.map(p => [...p]),
     }
-
-    /* Touch: a press-and-hold should open the context menu (Edit/
-       Duplicate/Delete) rather than silently start moving the shape.
-       Arm a timer alongside the move above; if the pointer moves past
-       TAP_MOVE_THRESHOLD before the timer fires (see updateObjectDrag),
-       it's cancelled and the gesture continues as a normal move —
-       exactly like a real long-press-vs-drag disambiguation. */
     const isTouch = e.originalEvent?.pointerType === 'touch' || e.originalEvent?.touches
     if (isTouch) {
       const clientX = e.originalEvent.touches?.[0]?.clientX ?? e.originalEvent.clientX
@@ -578,9 +755,6 @@ export default function DrawingCanvas({ mapId }) {
     const dLat = cur[0] - d.startLatLng[0]
     const dLng = cur[1] - d.startLatLng[1]
     if (longPressRef.current) {
-      /* Real pixel distance (not a lat/lng-unit approximation, which
-         would drift with zoom level) — a long-press must tolerate a
-         little finger jitter without misfiring as a drag. */
       const p1 = map.latLngToContainerPoint(L.latLng(d.startLatLng[0], d.startLatLng[1]))
       const p2 = map.latLngToContainerPoint(L.latLng(cur[0], cur[1]))
       if (p1.distanceTo(p2) > TAP_MOVE_THRESHOLD) {
@@ -588,12 +762,6 @@ export default function DrawingCanvas({ mapId }) {
         longPressRef.current = null
       }
     }
-    /* Push the ONE history entry (pre-drag snapshot) lazily, on the
-       first pixel of actual movement — not in begin*() above, which
-       fires on every mousedown including a plain click-to-select that
-       never turns into a drag. That would otherwise create a no-op
-       history entry (and mark the strategy dirty) just from selecting
-       something. */
     if (!d.historyPushed) {
       d.historyPushed = true
       updateObject(d.obj.id, {}, { silent: false })
@@ -611,35 +779,25 @@ export default function DrawingCanvas({ mapId }) {
     }
   }
   function endObjectDrag() {
-    const d = editDragRef.current
     if (longPressRef.current) {
       clearTimeout(longPressRef.current.timer)
       longPressRef.current = null
     }
+    const d = editDragRef.current
     editDragRef.current = null
     if (d) endObjectManipulation()
-
-    /* A press on a text object that never turned into a drag = the
-       user wants to (re)edit it. Open its inline editor with the
-       current text pre-filled. Dragging it instead (historyPushed)
-       just moves it, same as any other object. */
-    if (d && d.mode === 'move' && !d.historyPushed && d.obj?.type === 'text' && st.tool === 'select') {
-      const latest = st.objects.find(o => o.id === d.obj.id) || d.obj
-      setEditingTextObj(latest)
-    }
   }
 
-  /* Safety net: if the pointer is released (or cancelled) outside the
-     map container, Leaflet's map-level 'mouseup' never fires — without
-     this the drag state and the disabled map.dragging would both stay
-     stuck. Handlers are re-read via refs so they never go stale. */
+  /* Safety net for a release outside the map container. */
   const liveRef = useRef({})
-  liveRef.current.endDrag = endDrag
   liveRef.current.endObjectDrag = endObjectDrag
+  liveRef.current.endDrag = endDrag
+  liveRef.current.endErase = endErase
   useEffect(() => {
     function onUp() {
       liveRef.current.endObjectDrag()
       liveRef.current.endDrag()
+      if (eraseRef.current) liveRef.current.endErase()
     }
     window.addEventListener('pointerup', onUp)
     window.addEventListener('pointercancel', onUp)
@@ -650,8 +808,9 @@ export default function DrawingCanvas({ mapId }) {
   }, [])
 
   const visibleObjects = st.objects.filter(o => {
+    if (isTypeHidden(o.type)) return false
     if (PATH_TACTICAL_TYPES.includes(o.type) && !st.showPaths) return false
-    if (editingTextObj && o.id === editingTextObj.id) return false /* stands in via TextDraftLayer instead */
+    if (editingTextObj && o.id === editingTextObj.id) return false
     return true
   })
 
@@ -660,7 +819,6 @@ export default function DrawingCanvas({ mapId }) {
       const tool = st.tool
       const pos = [e.latlng.lat, e.latlng.lng]
       if (tool === 'select') { selectObject(null); return }
-      if (tool === 'eraser') return /* eraser only acts on objects, not empty map */
       if (tool === 'text') { setDrafting({ kind: 'text', latlng: pos }); return }
       if (POINT_TACTICAL_TYPES.includes(tool)) {
         addObject({ type: tool, points: [pos], color: st.drawColor, thickness: st.drawThickness, opacity: st.drawOpacity })
@@ -672,31 +830,16 @@ export default function DrawingCanvas({ mapId }) {
       if (VERTEX_TOOLS.includes(st.tool) && st.drafting?.kind === 'path') finishDraft()
     },
     contextmenu: (e) => { e.originalEvent?.preventDefault?.() },
-    mousedown: (e) => {
-      if (manipulatingRef.current || editDragRef.current) return
-      if (DRAG_DRAW_TOOLS.includes(st.tool)) {
-        e.originalEvent?.preventDefault?.()
-        beginDrag(e.latlng)
-      }
-    },
     mousemove: (e) => {
-      if (isDrawingRef.current) { e.originalEvent?.preventDefault?.(); updateDrag(e.latlng); return }
       if (editDragRef.current) { e.originalEvent?.preventDefault?.(); updateObjectDrag(e.latlng) }
     },
-    mouseup: () => {
-      endDrag()
-      endObjectDrag()
-    },
+    mouseup: () => { endObjectDrag() },
   })
 
   function openContextMenu(nativeEvent, obj) {
     if (st.tool !== 'select') return
     selectObject(obj.id)
     setCtxMenuState({ x: nativeEvent.clientX, y: nativeEvent.clientY, obj })
-  }
-
-  function eraseObject(id) {
-    deleteObject(id) /* pushes history → Undo restores it, same as Select+Delete */
   }
 
   return (
@@ -711,7 +854,7 @@ export default function DrawingCanvas({ mapId }) {
           onBeginMove={beginObjectMove}
           onBeginHandle={beginObjectHandle}
           onContextMenu={openContextMenu}
-          onErase={eraseObject}
+          onEditText={setEditingTextObj}
         />
       ))}
 
