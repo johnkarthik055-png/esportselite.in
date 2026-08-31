@@ -20,63 +20,102 @@ every task, unless the user explicitly
 says "don't push" or "just show me
 first" for that specific request.
 
-## Project Log Auto-Entry
+## Project Log Entry
+
+### Why this is a report block, not an auto-write
+
+Claude Code has **no way to write to the
+`projectLog` Firestore collection** from
+its session:
+
+  - No Firebase Admin SDK service-account
+    key, no GOOGLE_APPLICATION_CREDENTIALS,
+    no `gcloud` / application-default
+    credentials in the environment.
+  - The `firebase` CLI is logged in, but
+    firebase-tools exposes no command to
+    write an arbitrary Firestore document
+    (there is no `firestore:set`).
+  - The `projectLog` security rule requires
+    `request.auth.token.email` to be an
+    admin email — that is a Firebase Auth
+    ID token from a browser sign-in, which
+    a CLI session does not have.
+  - Nothing server-side (no Cloud Function)
+    writes `projectLog` either — the app
+    only writes it from an authenticated
+    admin browser session (ProjectLogTab).
+
+The old version of this rule told Claude to
+"write one entry to the `projectLog`
+Firestore collection automatically." That
+was never executable, so entries silently
+never landed. Corrected process below.
+
+### What Claude does now
 
 After completing any code change task,
-in addition to the auto-commit/push
-rule above, also write one entry to the
-`projectLog` Firestore collection
-summarizing the work. Do this
-automatically, without being asked —
-same standing behaviour as auto-push.
+**end the task report with a
+copy-paste-ready PROJECT LOG ENTRY block**
+in exactly this format:
 
-Set the fields as follows:
+  ---
+  PROJECT LOG ENTRY
+  type:        idea | bug | completed
+  title:       <short summary of the task>
+  description: <fuller explanation of what
+               was found / done>
+  relatedArea: <e.g. Map Knowledge,
+               Strategy Maker, Match Logger,
+               Admin Panel, AI Coach>
+  status:      open | in_progress | done
+  ---
 
-  type:         'bug' if the task was
-                fixing a reported issue,
-                'completed' if it was a
-                feature/change that was
-                successfully implemented,
-                'idea' if the task was
-                purely a suggestion or
-                plan not yet acted on.
-  title:        short summary of the task.
-  description:  fuller explanation of
-                what was found / done.
-  relatedArea:  the relevant part of the
-                app, free text, e.g.
-                'Map Knowledge',
-                'Strategy Maker',
-                'Match Logger',
-                'Admin Panel'.
-  status:       'done' if fully completed
-                and verified, 'in_progress'
-                if only partially done or
-                still pending verification.
-  createdBy:    'claude_code'
-  createdAt:    current server timestamp
-  updatedAt:    current server timestamp
+Field meanings:
 
-Collection shape (top-level `projectLog`):
+  type   = 'bug' (fixing a reported issue),
+           'completed' (feature/change
+           successfully implemented),
+           'idea' (suggestion/plan not yet
+           acted on).
+  status = 'done' (fully completed and
+           verified), 'in_progress' (partly
+           done or pending verification),
+           'open' (not started).
+
+Karthik pastes this into **Admin Panel →
+Project Log → "+ Add Entry"**. Entries
+added that way are tagged
+`createdBy: 'karthik'` by the form; that
+is expected — there is currently no
+`claude_code` write path.
+
+If a task produced no code change (pure
+investigation / advice), still emit the
+block with `type: idea` or `type: bug` so
+the decision is logged.
+
+### Optional future upgrade (not set up)
+
+To make this a true auto-write, add the
+Firebase Admin SDK to a small local
+tooling script with a **gitignored**
+service-account key
+(`serviceAccountKey.json`), or deploy an
+admin-only callable Cloud Function
+(`logProjectEntry`) once the Functions
+project is live on Blaze, and have Claude
+call it. Until one of those exists, use
+the report block above.
+
+Collection shape (top-level `projectLog`),
+for reference:
   { type, title, description, status,
     relatedArea, createdAt, updatedAt,
     createdBy }
   type    = 'idea' | 'bug' | 'completed'
   status  = 'open' | 'in_progress' | 'done'
   createdBy = 'karthik' | 'claude_code'
-
-This log is surfaced in the Admin Panel
-under the "Project Log" tab. Manual
-entries added there by Karthik use
-createdBy 'karthik'; only automated
-entries use 'claude_code'.
-
-If writing to Firestore is not possible
-in the current session (no credentials
-/ offline), note in the task report that
-the projectLog entry still needs to be
-written, rather than skipping it
-silently.
 
 ## What Gets Pushed
 
