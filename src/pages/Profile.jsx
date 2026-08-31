@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useRef } from 'react'
 import {
   Pencil, Save, X, User, Mail, Phone, Crosshair, Hash, Moon, Settings,
-  Trophy, Camera, Download, Upload, RotateCcw,
+  Trophy, Camera, Download, Upload, RotateCcw, Plus,
 } from 'lucide-react'
 import { updateProfile } from 'firebase/auth'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
@@ -25,11 +25,21 @@ const FIELDS = [
   { key: 'username', label: 'Username', icon: User, placeholder: 'Your display name' },
   { key: 'email', label: 'Email', icon: Mail, placeholder: 'you@example.com', type: 'email' },
   { key: 'phone', label: 'Phone number', icon: Phone, placeholder: '+91 98765 43210', type: 'tel' },
-  { key: 'ign', label: 'IGN (In-game name)', icon: Crosshair, placeholder: 'Your in-game name' },
   { key: 'igId', label: 'IG ID (BGMI UID)', icon: Hash, placeholder: 'Your unique BGMI ID' },
 ]
 
-const DEFAULT_PROFILE = { username: 'Player', email: '', phone: '', ign: '', igId: '' }
+const DEFAULT_PROFILE = { username: 'Player', email: '', phone: '', ign: '', igId: '', igns: [] }
+const MAX_IGNS = 3
+
+/* Players use several in-game names across matches. `igns` is the
+   source of truth (1–3 entries); legacy single `ign` is kept in sync
+   as igns[0] so older screens keep working. */
+function normalizeIgns(p) {
+  const arr = Array.isArray(p?.igns) ? p.igns : []
+  const cleaned = arr.map(s => String(s || '').trim()).filter(Boolean)
+  if (cleaned.length) return cleaned.slice(0, MAX_IGNS)
+  return p?.ign ? [String(p.ign).trim()] : []
+}
 
 function longestStreakFrom(daily) {
   if (!daily || typeof daily !== 'object') return 0
@@ -74,14 +84,52 @@ export default function Profile() {
     return () => { cancelled = true }
   }, [authUser?.uid])
 
-  useEffect(() => { if (!editing) setDraft(profile) }, [editing, profile])
+  useEffect(() => {
+    if (!editing) {
+      const seeded = normalizeIgns(profile)
+      setDraft({ ...profile, igns: seeded.length ? seeded : [''] })
+    }
+  }, [editing, profile])
+
+  /* draft.igns is a RAW array while editing (may hold blank rows);
+     it's only trimmed/filtered on save. */
+  const draftIgns = Array.isArray(draft.igns) ? draft.igns : ['']
+  const ignList = editing
+    ? draftIgns.map(s => String(s || '').trim()).filter(Boolean)
+    : normalizeIgns(profile)
+
+  function setIgnAt(i, val) {
+    setDraft(d => {
+      const igns = [...(Array.isArray(d.igns) ? d.igns : [''])]
+      igns[i] = val
+      return { ...d, igns }
+    })
+  }
+  function addIgn() {
+    setDraft(d => {
+      const igns = Array.isArray(d.igns) ? d.igns : ['']
+      if (igns.length >= MAX_IGNS) return d
+      return { ...d, igns: [...igns, ''] }
+    })
+  }
+  function removeIgnAt(i) {
+    setDraft(d => {
+      const igns = (Array.isArray(d.igns) ? d.igns : ['']).filter((_, idx) => idx !== i)
+      return { ...d, igns: igns.length ? igns : [''] }
+    })
+  }
 
   async function save() {
+    const igns = (Array.isArray(draft.igns) ? draft.igns : [])
+      .map(s => String(s || '').trim())
+      .filter(Boolean)
+      .slice(0, MAX_IGNS)
     const cleaned = {
       username: (draft.username || '').trim() || 'Player',
       email: (draft.email || '').trim(),
       phone: (draft.phone || '').trim(),
-      ign: (draft.ign || '').trim(),
+      igns,
+      ign: igns[0] || '',
       igId: (draft.igId || '').trim(),
     }
     setProfile(cleaned)
@@ -208,9 +256,9 @@ export default function Profile() {
           <AvatarUploader username={displayName} onToast={showToast} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="heading" style={{ fontSize: 18 }}>{displayName}</div>
-            {profile?.ign && (
+            {ignList.length > 0 && (
               <div className="mono" style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-                IGN: {profile.ign}
+                IGN: {ignList.join(' · ')}
               </div>
             )}
             <div style={{ fontSize: 12, color: 'var(--text-subtle)', marginTop: 2 }}>
@@ -267,6 +315,66 @@ export default function Profile() {
               </div>
             )
           })}
+        </div>
+
+        {/* In-game names (IGNs) — up to 3. Used by AI features to identify
+            which player in a screenshot is you. */}
+        <div style={{ marginTop: 16 }}>
+          <label className="label" style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <Crosshair size={11} /> In-game names (IGNs) — up to {MAX_IGNS}
+          </label>
+
+          {editing ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {draftIgns.map((val, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    value={val}
+                    onChange={e => setIgnAt(i, e.target.value)}
+                    placeholder={i === 0 ? 'Primary in-game name' : `Alternate name ${i + 1}`}
+                    className="input"
+                    style={{ flex: 1 }}
+                  />
+                  {draftIgns.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeIgnAt(i)}
+                      className="btn btn-secondary btn-sm"
+                      aria-label={`Remove IGN ${i + 1}`}
+                    >
+                      <X size={13} />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addIgn}
+                disabled={draftIgns.length >= MAX_IGNS}
+                className="btn btn-secondary btn-sm"
+                style={{ alignSelf: 'flex-start' }}
+              >
+                <Plus size={13} /> Add IGN
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {ignList.length ? (
+                ignList.map((name, i) => (
+                  <span
+                    key={i}
+                    className="badge"
+                    style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
+                  >
+                    {name}
+                  </span>
+                ))
+              ) : (
+                <span style={{ fontSize: 13, color: 'var(--text-subtle)', fontStyle: 'italic' }}>Not set</span>
+              )}
+            </div>
+          )}
         </div>
 
         {editing && (

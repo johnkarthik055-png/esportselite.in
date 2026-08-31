@@ -9,6 +9,7 @@ import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Training from './pages/Training.jsx'
 import TrainingPlan from './pages/TrainingPlan.jsx'
+import AICoach from './pages/AICoach.jsx'
 import Profile from './pages/Profile.jsx'
 import Weapons from './pages/Weapons.jsx'
 import MapKnowledge from './pages/MapKnowledge.jsx'
@@ -91,6 +92,7 @@ function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/training" element={<Training />} />
           <Route path="/training-plan" element={<TrainingPlan />} />
+          <Route path="/ai-coach" element={<AICoach />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/weapons" element={<Weapons />} />
           <Route path="/map-knowledge" element={<MapKnowledge />} />

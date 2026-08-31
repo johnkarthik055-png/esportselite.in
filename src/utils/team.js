@@ -75,6 +75,9 @@ export async function createTeam(uid, userData, teamData) {
   const memberPayload = {
     uid,
     ign: (userData.ign || '').trim(),
+    igns: (Array.isArray(userData.igns) && userData.igns.length
+      ? userData.igns
+      : [userData.ign]).map(s => String(s || '').trim()).filter(Boolean).slice(0, 3),
     bgmiUid: (userData.bgmiUid || '').trim(),
     role: 'owner',
     inGameRole: userData.inGameRole || 'All-rounder',
@@ -127,6 +130,9 @@ export async function joinTeamByCode(uid, userData, inviteCode) {
   const memberPayload = {
     uid,
     ign: (userData.ign || '').trim(),
+    igns: (Array.isArray(userData.igns) && userData.igns.length
+      ? userData.igns
+      : [userData.ign]).map(s => String(s || '').trim()).filter(Boolean).slice(0, 3),
     bgmiUid: (userData.bgmiUid || '').trim(),
     role: 'player',
     inGameRole: userData.inGameRole || 'All-rounder',
@@ -178,6 +184,19 @@ export async function updateTeam(teamId, data) {
 export async function updateMember(teamId, uid, data) {
   if (!teamId || !uid) throw new Error('Missing teamId/uid')
   await updateDoc(doc(db, 'teams', teamId, 'members', uid), data)
+}
+
+/* A roster member's in-game names (1–3). Needed so Tournament screenshot
+   extraction can attribute per-player kills to the right registered
+   teammate. A member edits only their own entry. */
+export async function updateMemberIgns(teamId, uid, igns) {
+  const cleaned = (Array.isArray(igns) ? igns : [])
+    .map(s => String(s || '').trim())
+    .filter(Boolean)
+    .slice(0, 3)
+  const payload = { igns: cleaned }
+  if (cleaned[0]) payload.ign = cleaned[0] /* keep legacy single field in sync */
+  await updateMember(teamId, uid, payload)
 }
 
 export async function removeMember(teamId, uid, currentUserRole) {

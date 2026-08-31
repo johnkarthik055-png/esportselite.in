@@ -4,7 +4,7 @@ import {
   Home, Target, User, ChevronLeft, ChevronRight,
   LogOut, Crosshair, X, ClipboardList, BarChart2, Bell, Shield,
   Users, Map, Trophy, CalendarClock, BookOpen, ChevronDown, Settings,
-  Award,
+  Award, Bot,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useAvatar } from '../hooks/useAvatar.js'
@@ -32,6 +32,7 @@ const NAV_SECTIONS = [
     title: 'Training',
     items: [
       { to: '/training',      label: 'Training Center', icon: Target },
+      { to: '/ai-coach',      label: 'AI Coach',        icon: Bot },
       { to: '/scheduler',     label: 'Scheduler',       icon: CalendarClock },
       { to: '/analytics',     label: 'Analytics',       icon: BarChart2 },
       { to: '/training-plan', label: 'Training Plan',   icon: BookOpen },

@@ -8,7 +8,7 @@
  *   • Session banner + End Match Session modal
  */
 
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   Swords,
   Crosshair,
@@ -22,9 +22,11 @@ import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { useSuggestions } from '../hooks/useSuggestions.js'
 import { useSwipeGesture } from '../hooks/useSwipeGesture.js'
 import { useUserData } from '../hooks/useUserData.js'
+import { useUserTeamId, useTeam } from '../hooks/useTeam.js'
 import { isTrialExpired } from '../utils/trial.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { addMatch } from '../utils/db.js'
+import ScreenshotImport from './matchlogger/ScreenshotImport.jsx'
 import {
   STORAGE_KEYS,
   MAPS_CLASSIC,
@@ -60,7 +62,7 @@ const EMPTY_FORM = {
   },
   Tournament: {
     tournamentName: '', stage: 'Group Stage', map: 'Erangel',
-    teamPosition: '', teamKills: '', individualKills: '',
+    teamPosition: '', teamKills: '', individualKills: '', playerKills: [],
     weakestPoints: [], strongestPoints: [], notes: '', weaponUsed: '',
   },
 }
@@ -94,6 +96,26 @@ export default function MatchLogger() {
   const { user: authUser } = useAuth()
   const trialExpired = isTrialExpired(authUser?.uid)
 
+  const [userProfile] = useLocalStorage(STORAGE_KEYS.USER, {})
+  const userIgns = useMemo(() => {
+    const arr = Array.isArray(userProfile?.igns) ? userProfile.igns : []
+    const cleaned = arr.map(s => String(s || '').trim()).filter(Boolean)
+    if (cleaned.length) return cleaned.slice(0, 3)
+    return userProfile?.ign ? [String(userProfile.ign).trim()] : []
+  }, [userProfile])
+
+  const { teamId } = useUserTeamId()
+  const { members } = useTeam(teamId)
+  const rosterIgns = useMemo(
+    () => (members || []).map(m => ({
+      uid: m.uid,
+      ign: m.ign || '',
+      igns: (Array.isArray(m.igns) && m.igns.length ? m.igns : [m.ign])
+        .map(s => String(s || '').trim()).filter(Boolean),
+    })),
+    [members],
+  )
+
   const SUB_ORDER = ['Classic', 'Scrims', 'Tournament', 'Performance']
   const subSwipe = useSwipeGesture({
     onSwipeLeft:  () => { const i = SUB_ORDER.indexOf(activeType); if (i >= 0 && i < SUB_ORDER.length - 1) setActiveType(SUB_ORDER[i + 1]) },
@@ -113,6 +135,17 @@ export default function MatchLogger() {
     setForms(prev => ({ ...prev, [activeType]: { ...prev[activeType], [field]: value } }))
   }
 
+  /* Screenshot import → pre-fill the current form. Never auto-saves;
+     the user still has to click "Log Match". */
+  function applyExtracted(fieldsObj) {
+    setForms(prev => ({ ...prev, [activeType]: { ...prev[activeType], ...fieldsObj } }))
+  }
+  function applyExtractedPlayers(arr) {
+    setForms(prev => ({ ...prev, Tournament: { ...prev.Tournament, playerKills: arr } }))
+  }
+  /* Classic maps individual-vs-team kills onto the same `kills` field. */
+  const classicSubMode = forms.Classic.teamSize
+
   async function logMatch() {
     if (trialExpired) {
       setToast('Free trial ended — premium plan coming soon.')
@@ -128,6 +161,16 @@ export default function MatchLogger() {
       entry.teamPosition    = form.teamPosition    ? Number(form.teamPosition)    : null
       entry.teamKills       = form.teamKills       ? Number(form.teamKills)       : 0
       entry.individualKills = form.individualKills ? Number(form.individualKills) : 0
+    }
+    if (activeType === 'Tournament') {
+      entry.playerKills = (Array.isArray(form.playerKills) ? form.playerKills : [])
+        .filter(r => (r.name || '').trim() || r.uid)
+        .map(r => ({
+          uid: r.uid || null,
+          name: (r.name || '').trim(),
+          kills: r.kills === '' || r.kills == null ? null : Number(r.kills),
+          unmatched: !!r.unmatched && !r.uid,
+        }))
     }
 
     /* Dual-write: localStorage (immediate UI) + Firestore (persistence) */
@@ -185,6 +228,16 @@ export default function MatchLogger() {
               <h3 className="heading text-xl text-white tracking-wide">Log {activeType} Match</h3>
               <span className="pill pill-red text-xs mono">{activeType.toUpperCase()}</span>
             </div>
+
+            <ScreenshotImport
+              key={activeType + (activeType === 'Classic' ? classicSubMode : '')}
+              matchType={activeType}
+              subMode={activeType === 'Classic' ? classicSubMode : ''}
+              userIgns={userIgns}
+              rosterIgns={rosterIgns}
+              onApply={applyExtracted}
+              onApplyPlayers={applyExtractedPlayers}
+            />
 
             {activeType === 'Classic'    && <ClassicForm    form={form} update={update} />}
             {activeType === 'Scrims'     && <ScrimsForm     form={form} update={update} />}
@@ -464,6 +517,14 @@ function TournamentForm({ form, update }) {
           onChange={e => update('individualKills', e.target.value)} className="input-field" placeholder="e.g. 5" />
       </FormField>
       <div />
+
+      <FormField label="Per-player Kills" className="md:col-span-2">
+        <PlayerKillsEditor
+          value={Array.isArray(form.playerKills) ? form.playerKills : []}
+          onChange={rows => update('playerKills', rows)}
+        />
+      </FormField>
+
       <FormField label="Weakest Points">
         <SuggestionDropdown value={form.weakestPoints} onChange={ids => update('weakestPoints', ids)} placeholder="Pick or type a weakness…" />
       </FormField>
@@ -474,6 +535,96 @@ function TournamentForm({ form, update }) {
         <textarea value={form.notes} onChange={e => update('notes', e.target.value)} rows={3}
           className="input-field resize-none" placeholder="Bracket details, opponents, key moments..." />
       </FormField>
+    </div>
+  )
+}
+
+/* Per-player kills for a tournament match. Rows can come from a
+   screenshot import (some flagged "unmatched") or be added manually.
+   Inline styles here rather than .input-field so the ign + kills
+   inputs sit side-by-side instead of each taking a full row. */
+const pkInput = {
+  background: 'var(--bg-elevated)',
+  border: '1px solid var(--border)',
+  color: 'var(--text-primary)',
+  borderRadius: 'var(--radius-sm)',
+  fontFamily: 'var(--font-body)',
+  fontSize: 13,
+  padding: '8px 10px',
+}
+function PlayerKillsEditor({ value, onChange }) {
+  const rows = Array.isArray(value) ? value : []
+  function setRow(i, patch) {
+    onChange(rows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)))
+  }
+  function addRow() {
+    onChange([...rows, { uid: null, name: '', kills: '', unmatched: false, manual: true }])
+  }
+  function removeRow(i) {
+    onChange(rows.filter((_, idx) => idx !== i))
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {rows.length === 0 && (
+        <p style={{ fontSize: 12, color: 'var(--text-subtle)', margin: 0 }}>
+          Optional. Import a screenshot to auto-fill, or add rows manually.
+        </p>
+      )}
+      {rows.map((r, i) => {
+        const flagged = (r.unmatched || !r.uid) && !r.manual
+        return (
+          <div
+            key={i}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
+              padding: 8, borderRadius: 'var(--radius-sm)',
+              background: 'var(--bg-elevated)',
+              border: `1px solid ${flagged ? 'rgba(245,158,11,0.5)' : 'var(--border)'}`,
+            }}
+          >
+            <input
+              style={{ ...pkInput, flex: 1, minWidth: 130 }}
+              value={r.name || ''}
+              onChange={e => setRow(i, { name: e.target.value })}
+              placeholder="Player IGN"
+            />
+            <input
+              style={{ ...pkInput, width: 72 }}
+              value={r.kills ?? ''}
+              onChange={e => setRow(i, { kills: e.target.value })}
+              placeholder="kills"
+              inputMode="numeric"
+            />
+            {flagged && (
+              <span
+                style={{
+                  fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em',
+                  padding: '3px 7px', borderRadius: 4,
+                  background: 'var(--amber-tint)', color: 'var(--amber)',
+                }}
+                title="This name did not match a registered roster IGN"
+              >
+                Unmatched
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => removeRow(i)}
+              style={{
+                display: 'inline-flex', padding: 6, borderRadius: 6,
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                color: 'var(--text-subtle)',
+              }}
+              aria-label="Remove player row"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        )
+      })}
+      <button type="button" onClick={addRow} className="btn btn-secondary btn-sm" style={{ alignSelf: 'flex-start' }}>
+        + Add player
+      </button>
     </div>
   )
 }

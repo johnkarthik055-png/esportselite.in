@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import {
   Copy, RefreshCw, Share2, ShieldCheck, ShieldOff, UserMinus,
-  Crown, Loader2, AlertCircle, Check,
+  Crown, Loader2, AlertCircle, Check, Plus, X,
 } from 'lucide-react'
 import {
   assignIGL, removeIGL, removeMember, regenerateInviteCode,
-  transferOwnership, updateMember,
+  transferOwnership, updateMember, updateMemberIgns,
 } from '../../utils/team.js'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useConfirm } from '../../hooks/useConfirm.js'
@@ -270,6 +270,11 @@ function MemberCard({
         </div>
       </div>
 
+      {/* In-game names (IGNs) — a member manages their own 1–3 names.
+          Tournament screenshot extraction matches these against the
+          names it reads on screen. */}
+      <IgnSlot m={m} teamId={teamId} isSelf={isSelf} />
+
       {/* In-game role row — dropdown for owner/IGL, coloured badge for
           players. Sits above the other stats so squad composition is
           the first thing the eye lands on. */}
@@ -333,6 +338,149 @@ function MemberCard({
         .animate-spin { animation: ee-roster-spin 0.9s linear infinite; }
         @keyframes ee-roster-spin { to { transform: rotate(360deg); } }
       `}</style>
+    </div>
+  )
+}
+
+/* ============================================================
+   IGN SLOT — a member's 1–3 in-game names.
+   Editable only by that member (isSelf); everyone else sees chips.
+   ============================================================ */
+const MAX_MEMBER_IGNS = 3
+function memberIgns(m) {
+  const arr = Array.isArray(m?.igns) ? m.igns : []
+  const cleaned = arr.map(s => String(s || '').trim()).filter(Boolean)
+  if (cleaned.length) return cleaned.slice(0, MAX_MEMBER_IGNS)
+  return m?.ign ? [String(m.ign).trim()] : []
+}
+
+function IgnSlot({ m, teamId, isSelf }) {
+  const stored = memberIgns(m)
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(stored.length ? stored : [''])
+  const [saving, setSaving] = useState(false)
+  const [savedAt, setSavedAt] = useState(0)
+  const [err, setErr] = useState('')
+
+  function open() {
+    setDraft(stored.length ? stored : [''])
+    setErr('')
+    setEditing(true)
+  }
+  async function save() {
+    setSaving(true); setErr('')
+    try {
+      await updateMemberIgns(teamId, m.uid, draft)
+      setSavedAt(Date.now())
+      setEditing(false)
+      setTimeout(() => setSavedAt(prev => (Date.now() - prev >= 1500 ? 0 : prev)), 1600)
+    } catch (e) {
+      setErr(e?.message || 'Could not save')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const wrapStyle = {
+    background: 'var(--bg-elevated)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius-sm)',
+    padding: '8px 10px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+  }
+
+  if (!isSelf || !editing) {
+    return (
+      <div style={wrapStyle}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+          <span className="label" style={{ fontSize: 10 }}>In-game names</span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            {savedAt > 0 && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 10, color: 'var(--green)', fontWeight: 600 }}>
+                <Check size={10} /> Saved
+              </span>
+            )}
+            {isSelf && (
+              <button
+                type="button"
+                onClick={open}
+                className="btn btn-ghost btn-sm"
+                style={{ padding: '2px 8px', fontSize: 11 }}
+              >
+                Edit
+              </button>
+            )}
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {stored.length ? stored.map((name, i) => (
+            <span key={i} className="badge" style={{ fontSize: 11 }}>{name}</span>
+          )) : (
+            <span style={{ fontSize: 12, color: 'var(--text-subtle)', fontStyle: 'italic' }}>
+              {isSelf ? 'Add your in-game names' : 'Not set'}
+            </span>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={wrapStyle}>
+      <span className="label" style={{ fontSize: 10 }}>In-game names — up to {MAX_MEMBER_IGNS}</span>
+      {(draft.length ? draft : ['']).map((val, i) => (
+        <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="text"
+            value={val}
+            onChange={e => setDraft(d => { const n = [...d]; n[i] = e.target.value; return n })}
+            placeholder={i === 0 ? 'Primary IGN' : `Alternate ${i + 1}`}
+            style={{
+              flex: 1,
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--text-primary)',
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 12,
+              padding: '5px 8px',
+            }}
+          />
+          {draft.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setDraft(d => d.filter((_, idx) => idx !== i))}
+              className="btn btn-ghost btn-sm"
+              style={{ padding: '4px 6px' }}
+              aria-label={`Remove IGN ${i + 1}`}
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+      ))}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+        <button
+          type="button"
+          onClick={() => setDraft(d => (d.length >= MAX_MEMBER_IGNS ? d : [...d, '']))}
+          disabled={draft.length >= MAX_MEMBER_IGNS}
+          className="btn btn-secondary btn-sm"
+          style={{ padding: '4px 8px', fontSize: 11 }}
+        >
+          <Plus size={11} /> Add
+        </button>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+          <button type="button" onClick={() => setEditing(false)} className="btn btn-ghost btn-sm" style={{ padding: '4px 10px', fontSize: 11 }}>
+            Cancel
+          </button>
+          <button type="button" onClick={save} disabled={saving} className="btn btn-primary btn-sm" style={{ padding: '4px 10px', fontSize: 11 }}>
+            {saving ? <><Loader2 size={11} className="animate-spin" /> Saving…</> : 'Save'}
+          </button>
+        </div>
+      </div>
+      {err && <span style={{ fontSize: 10, color: 'var(--red)' }}>{err}</span>}
     </div>
   )
 }
