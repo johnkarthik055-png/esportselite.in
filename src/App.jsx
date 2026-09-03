@@ -10,6 +10,8 @@ import Dashboard from './pages/Dashboard.jsx'
 import Training from './pages/Training.jsx'
 import TrainingPlan from './pages/TrainingPlan.jsx'
 import AICoach from './pages/AICoach.jsx'
+import Roadmap from './pages/Roadmap.jsx'
+import RoadmapStage from './pages/RoadmapStage.jsx'
 import Profile from './pages/Profile.jsx'
 import Weapons from './pages/Weapons.jsx'
 import MapKnowledge from './pages/MapKnowledge.jsx'
@@ -90,6 +92,8 @@ function AppRoutes() {
           }
         >
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/roadmap" element={<Roadmap />} />
+          <Route path="/roadmap/:stageId" element={<RoadmapStage />} />
           <Route path="/training" element={<Training />} />
           <Route path="/training-plan" element={<TrainingPlan />} />
           <Route path="/ai-coach" element={<AICoach />} />

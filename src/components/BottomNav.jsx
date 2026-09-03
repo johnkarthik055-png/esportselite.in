@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Swords, Users, Map, Menu,
-  BarChart3, ClipboardList, Crosshair,
+  BarChart3, ClipboardList, Crosshair, Compass,
   User, Shield, Bell, LogOut, X,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -26,6 +26,7 @@ const PRIMARY = [
    5-slot bottom bar. Order matches the sidebar so returning users
    find things where they expect. */
 const DRAWER_ITEMS = [
+  { to: '/roadmap',       label: 'Roadmap',        icon: Compass },
   { to: '/analytics',     label: 'Analytics',      icon: BarChart3 },
   { to: '/training-plan', label: 'Training Plan',  icon: ClipboardList },
   { to: '/weapons',       label: 'Weapons Guide',  icon: Crosshair },
