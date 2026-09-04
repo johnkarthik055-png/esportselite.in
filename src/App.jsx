@@ -10,8 +10,19 @@ import Dashboard from './pages/Dashboard.jsx'
 import Training from './pages/Training.jsx'
 import TrainingPlan from './pages/TrainingPlan.jsx'
 import AICoach from './pages/AICoach.jsx'
-import Roadmap from './pages/Roadmap.jsx'
-import RoadmapStage from './pages/RoadmapStage.jsx'
+import Roadmap from './pages/roadmap/RoadmapOverview.jsx'
+import RoadmapStage from './pages/roadmap/RoadmapStage.jsx'
+import RoleList from './pages/roadmap/roles/RoleList.jsx'
+import RoleDiscovery from './pages/roadmap/roles/RoleDiscovery.jsx'
+import RoleDetail from './pages/roadmap/roles/RoleDetail.jsx'
+import RoleComparison from './pages/roadmap/roles/RoleComparison.jsx'
+import RoleInteractionDiagram from './pages/roadmap/roles/RoleInteractionDiagram.jsx'
+import RoleReadiness from './pages/roadmap/roles/RoleReadiness.jsx'
+import ProgressReport from './pages/roadmap/ProgressReport.jsx'
+import GameplayReview from './pages/roadmap/GameplayReview.jsx'
+import ScrimPreparation from './pages/roadmap/ScrimPreparation.jsx'
+import CompetitionReadiness from './pages/roadmap/CompetitionReadiness.jsx'
+import FinalReassessment from './pages/roadmap/FinalReassessment.jsx'
 import Profile from './pages/Profile.jsx'
 import Weapons from './pages/Weapons.jsx'
 import MapKnowledge from './pages/MapKnowledge.jsx'
@@ -93,6 +104,18 @@ function AppRoutes() {
         >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/roadmap" element={<Roadmap />} />
+          {/* Static roadmap sub-routes must precede the :stageId param route */}
+          <Route path="/roadmap/roles" element={<RoleList />} />
+          <Route path="/roadmap/roles/discover" element={<RoleDiscovery />} />
+          <Route path="/roadmap/roles/compare" element={<RoleComparison />} />
+          <Route path="/roadmap/roles/map" element={<RoleInteractionDiagram />} />
+          <Route path="/roadmap/roles/:roleId" element={<RoleDetail />} />
+          <Route path="/roadmap/roles/:roleId/readiness" element={<RoleReadiness />} />
+          <Route path="/roadmap/progress-report" element={<ProgressReport />} />
+          <Route path="/roadmap/gameplay-review" element={<GameplayReview />} />
+          <Route path="/roadmap/scrim-prep" element={<ScrimPreparation />} />
+          <Route path="/roadmap/competition-readiness" element={<CompetitionReadiness />} />
+          <Route path="/roadmap/final-reassessment" element={<FinalReassessment />} />
           <Route path="/roadmap/:stageId" element={<RoadmapStage />} />
           <Route path="/training" element={<Training />} />
           <Route path="/training-plan" element={<TrainingPlan />} />

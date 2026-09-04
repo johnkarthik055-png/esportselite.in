@@ -13,7 +13,7 @@ import { useViewport } from '../utils/viewport.js'
 
 const PAGE_TITLES = {
   '/dashboard': 'Dashboard',
-  '/roadmap': 'Career Roadmap',
+  '/roadmap': 'The Road to Esports',
   '/training': 'Training Center',
   '/training-plan': 'Training Plan',
   '/profile': 'My Profile',
