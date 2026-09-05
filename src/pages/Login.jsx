@@ -99,6 +99,13 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
   const [mode, setMode] = useState(location.state?.signup ? 'signup' : 'signin')
+
+  /* Resolve a safe post-login redirect. Only accepts relative paths (starting
+     with /) to prevent open-redirect to external sites. */
+  const nextUrl = (() => {
+    const raw = new URLSearchParams(location.search).get('next') || ''
+    return raw.startsWith('/') ? raw : '/dashboard'
+  })()
   useEffect(() => { if (location.state?.signup) setMode('signup') }, [location.state])
 
   const [username, setUsername]   = useState('')
@@ -173,7 +180,7 @@ export default function Login() {
          Firebase user before the dashboard mounts. Prevents the
          race where /dashboard sees a stale user=null on the tick
          after successful sign-in. */
-      window.location.href = '/dashboard'
+      window.location.href = nextUrl
     } catch (err) {
       const mapped = mapSignInError(err); setFieldError(mapped.field, mapped.message)
     } finally { setSubmitting(false) }
@@ -206,7 +213,7 @@ export default function Login() {
          Firebase user before the dashboard mounts. Prevents the
          race where /dashboard sees a stale user=null on the tick
          after successful sign-in. */
-      window.location.href = '/dashboard'
+      window.location.href = nextUrl
     } catch (err) {
       const mapped = mapSignUpError(err); setFieldError(mapped.field, mapped.message)
     } finally { setSubmitting(false) }
@@ -233,7 +240,7 @@ export default function Login() {
          Firebase user before the dashboard mounts. Prevents the
          race where /dashboard sees a stale user=null on the tick
          after successful sign-in. */
-      window.location.href = '/dashboard'
+      window.location.href = nextUrl
     } catch (error) {
       if (error?.code !== 'auth/popup-closed-by-user') setFieldError('form', 'Google sign in failed. Try again.')
     } finally { setSubmitting(false) }

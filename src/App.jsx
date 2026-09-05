@@ -38,6 +38,7 @@ import Tournaments from './pages/Tournaments.jsx'
 import TournamentDetail from './pages/TournamentDetail.jsx'
 import Scheduler from './pages/Scheduler.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
+import Checkout from './pages/Checkout.jsx'
 import Layout from './components/Layout.jsx'
 import AuthGuard from './components/AuthGuard.jsx'
 import { useAuth } from './context/AuthContext.jsx'
@@ -94,6 +95,9 @@ function AppRoutes() {
         {/* Password reset */}
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/__/auth/action" element={<ResetPassword />} />
+
+        {/* Checkout — handles its own auth redirect */}
+        <Route path="/checkout" element={<Checkout />} />
 
         <Route
           element={

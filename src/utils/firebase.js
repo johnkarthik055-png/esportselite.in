@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app'
 import { getAnalytics, isSupported as isAnalyticsSupported, logEvent } from 'firebase/analytics'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
+import { getFunctions, httpsCallable } from 'firebase/functions'
 
 /**
  * Firebase web-SDK config. The `apiKey` and project IDs are *not* secrets —
@@ -52,6 +53,9 @@ export const googleProvider = new GoogleAuthProvider()
  *   }
  */
 export const db = getFirestore(firebaseApp)
+
+export const functions = getFunctions(firebaseApp, 'us-central1')
+export { httpsCallable }
 
 /**
  * Analytics is mutable: it's `null` until `isSupported()` resolves and the
