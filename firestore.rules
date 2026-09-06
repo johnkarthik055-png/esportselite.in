@@ -34,6 +34,24 @@ service cloud.firestore {
         allow read, write: if request.auth != null;
       }
     }
+    match /squads/{squadId} {
+      /* Owner can read/write. Members (tracked in memberUids array) can read.
+         memberUids is populated on create with any UIDs already known, and
+         extended via arrayUnion each time a member pays. */
+      allow read: if request.auth != null && (
+        resource.data.ownerId == request.auth.uid ||
+        request.auth.uid in resource.data.memberUids ||
+        isAdmin()
+      );
+      /* Any authenticated user may create a squad (they become the owner). */
+      allow create: if request.auth != null &&
+        request.resource.data.ownerId == request.auth.uid;
+      /* Only the owner or an admin may update or delete. */
+      allow update: if request.auth != null && (
+        resource.data.ownerId == request.auth.uid || isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
     match /waitlist/{doc} {
       allow read, write: if isAdmin();
       allow create: if true;
