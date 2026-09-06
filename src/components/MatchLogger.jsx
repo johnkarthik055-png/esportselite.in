@@ -54,10 +54,12 @@ const TYPE_TABS = [
 const EMPTY_FORM = {
   Classic: {
     teamSize: 'Squad', map: 'Erangel', position: '', kills: '',
+    damage: '', survivalTime: '', matchType: '',
     weakestPoints: [], strongestPoints: [], notes: '', weaponUsed: '',
   },
   Scrims: {
     map: 'Erangel', teamPosition: '', teamKills: '', individualKills: '',
+    damage: '', placement_points: '',
     weakestPoints: [], strongestPoints: [], notes: '', weaponUsed: '',
   },
   Tournament: {
@@ -138,7 +140,13 @@ export default function MatchLogger() {
   /* Screenshot import → pre-fill the current form. Never auto-saves;
      the user still has to click "Log Match". */
   function applyExtracted(fieldsObj) {
-    setForms(prev => ({ ...prev, [activeType]: { ...prev[activeType], ...fieldsObj } }))
+    let merged = { ...fieldsObj }
+    // Map extracted matchType (Solo/Duo/Squad) → teamSize selector for Classic
+    if (activeType === 'Classic' && merged.matchType) {
+      const MODE_MAP = { Solo: 'Solo', Duo: 'Duo', Squad: 'Squad' }
+      if (MODE_MAP[merged.matchType]) merged.teamSize = MODE_MAP[merged.matchType]
+    }
+    setForms(prev => ({ ...prev, [activeType]: { ...prev[activeType], ...merged } }))
   }
   function applyExtractedPlayers(arr) {
     setForms(prev => ({ ...prev, Tournament: { ...prev.Tournament, playerKills: arr } }))
@@ -155,12 +163,18 @@ export default function MatchLogger() {
 
     const entry = { id: uid(), type: activeType, timestamp: Date.now(), ...form }
     if (activeType === 'Classic') {
-      entry.position = form.position ? Number(form.position) : null
-      entry.kills    = form.kills    ? Number(form.kills)    : 0
+      entry.position     = form.position     ? Number(form.position)     : null
+      entry.kills        = form.kills        ? Number(form.kills)        : 0
+      entry.damage       = form.damage       ? Number(form.damage)       : null
+      entry.survivalTime = form.survivalTime || null
     } else {
       entry.teamPosition    = form.teamPosition    ? Number(form.teamPosition)    : null
       entry.teamKills       = form.teamKills       ? Number(form.teamKills)       : 0
       entry.individualKills = form.individualKills ? Number(form.individualKills) : 0
+      if (activeType === 'Scrims') {
+        entry.damage           = form.damage           ? Number(form.damage)           : null
+        entry.placement_points = form.placement_points ? Number(form.placement_points) : null
+      }
     }
     if (activeType === 'Tournament') {
       entry.playerKills = (Array.isArray(form.playerKills) ? form.playerKills : [])
@@ -428,6 +442,14 @@ function ClassicForm({ form, update }) {
         <input type="number" min="0" value={form.kills}
           onChange={e => update('kills', e.target.value)} className="input-field" placeholder="e.g. 6" />
       </FormField>
+      <FormField label="Damage Dealt">
+        <input type="number" min="0" value={form.damage ?? ''}
+          onChange={e => update('damage', e.target.value)} className="input-field" placeholder="e.g. 850" />
+      </FormField>
+      <FormField label="Survival Time">
+        <input type="text" value={form.survivalTime ?? ''}
+          onChange={e => update('survivalTime', e.target.value)} className="input-field" placeholder="e.g. 24:30" />
+      </FormField>
       <FormField label="Weakest Points">
         <SuggestionDropdown value={form.weakestPoints} onChange={ids => update('weakestPoints', ids)} placeholder="Pick or type a weakness…" />
       </FormField>
@@ -468,6 +490,14 @@ function ScrimsForm({ form, update }) {
       <FormField label="Individual Kills">
         <input type="number" min="0" value={form.individualKills}
           onChange={e => update('individualKills', e.target.value)} className="input-field" placeholder="e.g. 4" />
+      </FormField>
+      <FormField label="Damage Dealt">
+        <input type="number" min="0" value={form.damage ?? ''}
+          onChange={e => update('damage', e.target.value)} className="input-field" placeholder="e.g. 1200" />
+      </FormField>
+      <FormField label="Placement Points">
+        <input type="number" min="0" value={form.placement_points ?? ''}
+          onChange={e => update('placement_points', e.target.value)} className="input-field" placeholder="e.g. 12" />
       </FormField>
       <div />
       <FormField label="Weakest Points">

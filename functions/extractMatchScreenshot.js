@@ -32,11 +32,10 @@ const CLASSIC_SUBMODES = ['Solo', 'Duo', 'Squad', 'solo_vs_squad']
 /* ------------------------------------------------------------------ */
 
 const IGNORE_RULE =
-  'Ignore every other on-screen element: the mode label ("Classic", "TDM", etc.), ' +
-  'season / tier / rank-point text, XP and BP rewards, mission popups, buttons, ' +
-  'watermarks, ads, player level, survival time, damage, assists, revives, and ' +
-  'anything not explicitly requested below. Return numbers only (no "#", "x", "kills", ' +
-  'or "m" suffixes). If a value is not clearly visible, use null.'
+  'Ignore every other on-screen element — season/tier/rank-point text, XP and BP rewards, ' +
+  'mission popups, buttons, watermarks, ads, player level, assists, revives, and ' +
+  'anything not listed above. Return numbers as plain numbers (no "#", "x", "kills", or "m" suffixes). ' +
+  'If a value is not clearly visible, use null.'
 
 function classicPrompt(subMode, userIgns) {
   const individual = subMode === 'Solo' || subMode === 'solo_vs_squad'
@@ -52,8 +51,11 @@ function classicPrompt(subMode, userIgns) {
     '- map: the map name (Erangel, Miramar, Sanhok, Vikendi, Livik, Rondo, Nusa, Karakin) or null.',
     '- position: the final placement / rank for this match as a number (1 = winner / "WINNER WINNER CHICKEN DINNER").',
     `- ${killsDesc.split(':')[0]}: ${killsDesc.split(':').slice(1).join(':').trim()}`,
+    '- damage: the total damage dealt by the user\'s player in this match as a number, or null.',
+    '- survivalTime: the user\'s survival time as a string in "MM:SS" format, or null. Keep the colon — do not convert to a plain number.',
+    '- matchType: the detected game sub-mode shown on screen: "Solo", "Duo", or "Squad" — or null if not clearly visible.',
     IGNORE_RULE,
-    'Respond with a JSON object: { "map": string|null, "position": number|null, "kills": number|null }.',
+    'Respond with a JSON object: { "map": string|null, "position": number|null, "kills": number|null, "damage": number|null, "survivalTime": string|null, "matchType": string|null }.',
   ].filter(Boolean).join('\n')
 }
 
@@ -61,15 +63,17 @@ function scrimsPrompt(userIgns) {
   return [
     'This is a BGMI custom-room / scrims squad end-of-match result screen.',
     userIgns.length
-      ? `The user plays under one of these in-game names: ${userIgns.join(', ')}. If the user's own row is visible, also read their individual kills.`
+      ? `The user plays under one of these in-game names: ${userIgns.join(', ')}. If the user's own row is visible, also read their individual kills and damage.`
       : '',
     'Extract EXACTLY these fields as JSON:',
-    '- map: the map name or null.',
+    '- map: the map name (Erangel, Miramar, Sanhok, Vikendi, Livik, Rondo, Nusa, Karakin) or null.',
     '- teamPosition: the squad\'s final placement in the lobby as a number.',
     '- teamKills: the squad\'s total kills for this match.',
     '- individualKills: the user\'s own kills if their row is identifiable, else null.',
+    '- damage: the total damage dealt by the user\'s player in this match as a number, or null.',
+    '- placement_points: the placement points awarded for the team\'s finishing position as a number, or null.',
     IGNORE_RULE,
-    'Respond with a JSON object: { "map": string|null, "teamPosition": number|null, "teamKills": number|null, "individualKills": number|null }.',
+    'Respond with a JSON object: { "map": string|null, "teamPosition": number|null, "teamKills": number|null, "individualKills": number|null, "damage": number|null, "placement_points": number|null }.',
   ].filter(Boolean).join('\n')
 }
 
@@ -84,6 +88,7 @@ function tournamentPrompt(rosterIgns) {
   return [
     'This is a BGMI tournament / scrims match result screen showing a full squad breakdown.',
     'Extract EXACTLY these fields as JSON:',
+    '- map: the map name (Erangel, Miramar, Sanhok, Vikendi, Livik, Rondo, Nusa, Karakin) or null.',
     '- teamPosition: the squad\'s final placement in the lobby as a number.',
     '- teamKills: the squad\'s total kills for this match.',
     '- players: an array with ONE entry per visible player of the user\'s own squad, each ' +
@@ -95,7 +100,7 @@ function tournamentPrompt(rosterIgns) {
         'Do NOT invent roster names.'
       : '',
     IGNORE_RULE,
-    'Respond with a JSON object: { "teamPosition": number|null, "teamKills": number|null, ' +
+    'Respond with a JSON object: { "map": string|null, "teamPosition": number|null, "teamKills": number|null, ' +
       '"players": [{ "name": string, "kills": number|null, "matchedName": string|null }] }.',
   ].filter(Boolean).join('\n')
 }
@@ -258,6 +263,9 @@ export const extractMatchScreenshot = onCall(
         map: modelJson.map || '',
         position: num(modelJson.position),
         kills: num(modelJson.kills),
+        damage: num(modelJson.damage),
+        survivalTime: modelJson.survivalTime || null,
+        matchType: modelJson.matchType || null,
       }
     } else if (matchType === 'Scrims') {
       fields = {
@@ -265,9 +273,12 @@ export const extractMatchScreenshot = onCall(
         teamPosition: num(modelJson.teamPosition),
         teamKills: num(modelJson.teamKills),
         individualKills: num(modelJson.individualKills),
+        damage: num(modelJson.damage),
+        placement_points: num(modelJson.placement_points),
       }
     } else {
       fields = {
+        map: modelJson.map || '',
         teamPosition: num(modelJson.teamPosition),
         teamKills: num(modelJson.teamKills),
       }
