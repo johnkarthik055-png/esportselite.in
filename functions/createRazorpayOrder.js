@@ -68,6 +68,7 @@ export const createRazorpayOrder = onCall(
     }
 
     /* --- create Razorpay subscription -------------------------------------- */
+    console.log('[createRazorpayOrder] planId value:', JSON.stringify(planId), 'length:', planId?.length)
     const rzp = new Razorpay({ key_id: keyId, key_secret: keySecret })
 
     let subscription
