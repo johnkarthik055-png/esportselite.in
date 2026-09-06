@@ -35,12 +35,16 @@ export default function Checkout() {
   const [errorMsg, setErrorMsg] = useState('')
   const started = useRef(false)
 
-  /* Redirect to login if not authenticated after auth resolves */
+  /* Redirect to login with ?next= pointing back at this checkout URL.
+     Using navigate() (React Router) instead of window.location.href so the
+     Login page receives the ?next= param through the router without a hard
+     reload — this prevents the race where Login's location.search is stale
+     for one render tick. */
   useEffect(() => {
     if (authLoading) return
     if (!user) {
       const next = encodeURIComponent(window.location.pathname + window.location.search)
-      window.location.href = `/login?next=${next}`
+      navigate(`/login?next=${next}`, { replace: true })
     }
   }, [user, authLoading])
 
@@ -106,7 +110,6 @@ export default function Checkout() {
   function retry() {
     started.current = false
     setPhase('idle')
-    /* Re-trigger via the effect */
     if (user) {
       started.current = true
       startCheckout()
