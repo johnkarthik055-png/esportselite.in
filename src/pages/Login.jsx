@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react'
+import { Eye, EyeOff, ArrowLeft, Loader } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Reveal from '../components/motion/Reveal.jsx'
 import { StaggerGroup, StaggerItem } from '../components/motion/Stagger.jsx'
@@ -102,7 +102,7 @@ export default function Login() {
   useEffect(() => { if (location.state?.signup) setMode('signup') }, [location.state])
 
   /* The app uses HashRouter so the URL looks like:
-       /#/login?next=%2Fcheckout
+     /#/login?next=%2Fcheckout
      window.location.search is always empty in HashRouter — the ?next= param
      lives inside window.location.hash after the route path.
      Extract it with a regex on the hash string. Only accept relative paths
@@ -128,41 +128,72 @@ export default function Login() {
   const [showSuPass, setShowSuPass]       = useState(false)
   const [showSuConfirm, setShowSuConfirm] = useState(false)
 
-  const [errors, setErrors]       = useState({})
+  const [errors, setErrors]         = useState({})
   const [submitting, setSubmitting] = useState(false)
-  const [forgotLoading, setForgotLoading]   = useState(false)
-  const [forgotSuccess, setForgotSuccess]   = useState(false)
-  const [logoFailed, setLogoFailed]         = useState(false)
+  const [forgotLoading, setForgotLoading] = useState(false)
+  const [forgotSuccess, setForgotSuccess] = useState(false)
+  const [forgotError,   setForgotError]   = useState('')
+  const [logoFailed, setLogoFailed]       = useState(false)
 
   function setFieldError(field, message) { setErrors(prev => ({ ...prev, [field]: message })) }
   function clearFieldError(field) { setErrors(prev => { const n = { ...prev }; delete n[field]; return n }) }
   function clearAllErrors() { setErrors({}) }
 
-  function switchToSignUp() { clearAllErrors(); setForgotSuccess(false); setMode('signup') }
-  function switchToSignIn()  { clearAllErrors(); setForgotSuccess(false); setMode('signin') }
+  function switchToSignUp() {
+    clearAllErrors()
+    setForgotSuccess(false)
+    setForgotError('')
+    setMode('signup')
+  }
+  function switchToSignIn() {
+    clearAllErrors()
+    setForgotSuccess(false)
+    setForgotError('')
+    setMode('signin')
+  }
 
-  async function handleForgotPassword() {
-    const emailValue = (username || '').trim()
-    if (!emailValue) { setFieldError('email', 'Enter your email address first.'); emailInputRef.current?.focus(); return }
-    if (!EMAIL_RE.test(emailValue)) { setFieldError('email', 'Enter a valid email address.'); emailInputRef.current?.focus(); return }
-    clearFieldError('email'); setForgotLoading(true); setForgotSuccess(false)
+  /* Accepts the email to send the reset to (from the inline form input). */
+  async function handleForgotPassword(emailParam) {
+    const emailValue = (emailParam || '').trim()
+    if (!emailValue) {
+      setForgotError('Enter your email address.')
+      return
+    }
+    if (!EMAIL_RE.test(emailValue)) {
+      setForgotError('Enter a valid email address.')
+      return
+    }
+    setForgotError('')
+    setForgotLoading(true)
+    setForgotSuccess(false)
     try {
       await sendPasswordResetEmail(auth, emailValue)
       setForgotSuccess(true)
     } catch (error) {
       switch (error.code) {
         case 'auth/user-not-found':
-        case 'auth/invalid-credential': setFieldError('email', 'No account found with this email.'); break
-        case 'auth/invalid-email': setFieldError('email', 'Enter a valid email address.'); break
-        case 'auth/too-many-requests': setFieldError('email', 'Too many attempts. Wait a few minutes.'); break
-        case 'auth/network-request-failed': setFieldError('email', 'No internet. Check your connection.'); break
-        default: setFieldError('email', 'Could not send reset email. Try again.')
+        case 'auth/invalid-credential':
+          setForgotError('No account found with that email.')
+          break
+        case 'auth/invalid-email':
+          setForgotError('Enter a valid email address.')
+          break
+        case 'auth/too-many-requests':
+          setForgotError('Too many attempts. Wait a few minutes.')
+          break
+        case 'auth/network-request-failed':
+          setForgotError('No internet. Check your connection.')
+          break
+        default:
+          setForgotError('Could not send reset email. Try again.')
       }
-    } finally { setForgotLoading(false) }
+    } finally {
+      setForgotLoading(false)
+    }
   }
 
   async function handleSignIn(e) {
-    e.preventDefault(); clearAllErrors(); setForgotSuccess(false)
+    e.preventDefault(); clearAllErrors(); setForgotSuccess(false); setForgotError('')
     const email = username.trim(), pw = password.trim()
     if (!email) { setFieldError('email', 'Email is required.'); return }
     if (!pw)    { setFieldError('password', 'Password is required.'); return }
@@ -316,7 +347,11 @@ export default function Login() {
                       remember={remember} setRemember={setRemember}
                       errors={errors} clearFieldError={clearFieldError}
                       submitting={submitting}
-                      forgotLoading={forgotLoading} forgotSuccess={forgotSuccess}
+                      forgotLoading={forgotLoading}
+                      forgotSuccess={forgotSuccess}
+                      forgotError={forgotError}
+                      setForgotError={setForgotError}
+                      setForgotSuccess={setForgotSuccess}
                       emailInputRef={emailInputRef}
                       onSubmit={handleSignIn}
                       onForgot={handleForgotPassword}
@@ -397,9 +432,27 @@ function SignInView({
   username, setUsername, password, setPassword,
   showPass, setShowPass, remember, setRemember,
   errors, clearFieldError, submitting,
-  forgotLoading, forgotSuccess, emailInputRef,
+  forgotLoading, forgotSuccess, forgotError, setForgotError, setForgotSuccess,
+  emailInputRef,
   onSubmit, onForgot, onGetStarted, onGoogleSignIn,
 }) {
+  const [showForgotForm, setShowForgotForm] = useState(false)
+  const [forgotEmail, setForgotEmail]       = useState('')
+
+  function openForgotForm() {
+    setForgotEmail(username.trim())
+    setForgotError('')
+    setForgotSuccess(false)
+    setShowForgotForm(true)
+  }
+
+  function closeForgotForm() {
+    setShowForgotForm(false)
+    setForgotEmail('')
+    setForgotError('')
+    setForgotSuccess(false)
+  }
+
   return (
     <>
       <div style={{ marginBottom: 22, textAlign: 'center' }}>
@@ -408,6 +461,7 @@ function SignInView({
       </div>
 
       <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {/* Email field */}
         <div>
           <label className="label" style={{ display: 'block', marginBottom: 6 }}>Username / Email</label>
           <input
@@ -416,16 +470,12 @@ function SignInView({
             onChange={e => { setUsername(e.target.value); clearFieldError('email') }}
             className="input" placeholder="Enter your email" autoComplete="username"
           />
-          {errors.email && !forgotSuccess && (
+          {errors.email && (
             <div style={{ color: 'var(--red)', fontSize: 12, marginTop: 4 }}>{errors.email}</div>
-          )}
-          {forgotSuccess && (
-            <div style={{ color: 'var(--green)', fontSize: 12, marginTop: 4 }}>
-              Reset link sent. Check your inbox.
-            </div>
           )}
         </div>
 
+        {/* Password field */}
         <div>
           <label className="label" style={{ display: 'block', marginBottom: 6 }}>Password</label>
           <div style={{ position: 'relative' }}>
@@ -451,6 +501,122 @@ function SignInView({
           {errors.password && (
             <div style={{ color: 'var(--red)', fontSize: 12, marginTop: 4 }}>{errors.password}</div>
           )}
+
+          {/* Forgot password link — right-aligned, below the password input */}
+          {!showForgotForm && !forgotSuccess && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
+              <button
+                type="button"
+                onClick={openForgotForm}
+                style={{
+                  background: 'none', border: 'none', padding: 0,
+                  cursor: 'pointer', color: '#3B82F6',
+                  fontFamily: 'Inter, DM Sans, sans-serif',
+                  fontWeight: 400, fontSize: 13,
+                  textDecoration: 'none',
+                }}
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
+
+          {/* Inline forgot password form */}
+          <AnimatePresence>
+            {showForgotForm && !forgotSuccess && (
+              <motion.div
+                key="forgot-form"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                style={{
+                  marginTop: 10,
+                  padding: '14px 14px 12px',
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 10,
+                }}
+              >
+                <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.5 }}>
+                  Enter your account email and we'll send a reset link.
+                </p>
+                <input
+                  type="email"
+                  value={forgotEmail}
+                  onChange={e => { setForgotEmail(e.target.value); setForgotError('') }}
+                  className="input"
+                  placeholder="your@email.com"
+                  autoComplete="email"
+                  style={{ marginBottom: forgotError ? 6 : 10 }}
+                />
+                {forgotError && (
+                  <div style={{ color: 'var(--red)', fontSize: 12, marginBottom: 10 }}>
+                    {forgotError}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => onForgot(forgotEmail)}
+                    disabled={forgotLoading}
+                    className="btn btn-primary"
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                  >
+                    {forgotLoading
+                      ? <><Loader size={13} style={{ animation: 'spin 1s linear infinite' }} /> Sending…</>
+                      : 'Send Reset Link'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeForgotForm}
+                    disabled={forgotLoading}
+                    className="btn btn-secondary"
+                    style={{ padding: '0 14px' }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+                <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Success message — replaces the form after send */}
+          <AnimatePresence>
+            {forgotSuccess && (
+              <motion.div
+                key="forgot-success"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                style={{
+                  marginTop: 10,
+                  padding: '12px 14px',
+                  background: 'rgba(34,197,94,0.08)',
+                  border: '1px solid rgba(34,197,94,0.25)',
+                  borderRadius: 10,
+                  fontSize: 13,
+                  color: 'var(--green)',
+                  lineHeight: 1.5,
+                }}
+              >
+                Reset link sent to <strong>{forgotEmail}</strong>. Check your inbox.
+                <button
+                  type="button"
+                  onClick={closeForgotForm}
+                  style={{
+                    display: 'block', marginTop: 6,
+                    background: 'none', border: 'none', padding: 0,
+                    color: 'var(--text-muted)', fontSize: 12, cursor: 'pointer',
+                  }}
+                >
+                  Dismiss
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <ErrorBox>{errors.form}</ErrorBox>
@@ -464,15 +630,6 @@ function SignInView({
             />
             Remember me
           </label>
-          <button
-            type="button" onClick={onForgot} disabled={forgotLoading}
-            style={{
-              background: 'transparent', border: 'none', cursor: 'pointer',
-              color: 'var(--text-muted)', fontSize: 12, padding: 0,
-            }}
-          >
-            {forgotLoading ? 'Sending…' : 'Forgot password?'}
-          </button>
         </div>
 
         <button type="submit" disabled={submitting} className="btn btn-primary btn-lg" style={{ width: '100%' }}>
