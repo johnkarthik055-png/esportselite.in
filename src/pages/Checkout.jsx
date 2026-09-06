@@ -82,8 +82,19 @@ export default function Checkout() {
         subscription_id: data.subscriptionId,
         name: 'Esports Elite',
         description: data.amountDisplay || planLabel(plan, members),
-        handler() {
-          setPhase('success')
+        handler(response) {
+          const baseAmount = plan === 'individual' ? 149 : (SQUAD_PRICE_PER_PLAYER[members] ?? 89) * members
+          const planName = plan === 'individual' ? 'Individual Elite' : `Squad Elite (${members})`
+          const successParams = new URLSearchParams({
+            payment: 'success',
+            plan: planName,
+            amount: baseAmount,
+            pid: response.razorpay_payment_id || '',
+            sid: response.razorpay_subscription_id || '',
+            name: user.displayName || user.email || '',
+            ts: new Date().toISOString(),
+          })
+          window.location.href = `https://esportselite.in/pricing?${successParams.toString()}`
         },
         prefill: data.prefill || {},
         theme: { color: '#3B82F6' },
