@@ -1,20 +1,17 @@
 /**
  * createRazorpayOrder — Firebase Callable (v2)
  *
- * Creates a Razorpay SUBSCRIPTION for the chosen plan (individual or squad),
- * server-side, tied to the authenticated Firebase user. The client never marks
- * itself subscribed — activation happens exclusively via razorpayWebhook.js on
- * `subscription.activated`.
+ * Creates a Razorpay SUBSCRIPTION server-side, tied to the authenticated
+ * Firebase user. The client never marks itself subscribed — activation
+ * happens exclusively via razorpayWebhook.js on `subscription.activated`.
  *
  * Secrets (set once via `firebase functions:secrets:set <NAME>`):
  *   RAZORPAY_KEY_ID      — Razorpay publishable Key ID (safe to return to browser)
  *   RAZORPAY_KEY_SECRET  — Razorpay API secret (NEVER returned to browser)
- *   RAZORPAY_PLAN_IDS    — JSON string mapping plan keys → Razorpay plan IDs, e.g.
- *                          '{"individual":"plan_xxx","squad_2":"plan_yyy",...}'
- *                          Keys: individual, squad_2, squad_3, squad_4, squad_5, squad_6
+ *   RAZORPAY_PLAN_IDS    — the Razorpay plan ID as a plain string, e.g. plan_Abcd1234
  *
  * Input from client:
- *   { plan: 'individual' | 'squad', members?: 2-6, email?, name?, contact? }
+ *   { email?, name?, contact? }
  *
  * Returns to client (everything Checkout.js needs):
  *   { subscriptionId, keyId, prefill, amountDisplay, currency }
@@ -31,13 +28,9 @@ const RAZORPAY_PLAN_IDS   = defineSecret('RAZORPAY_PLAN_IDS')
 
 setGlobalOptions({ region: 'us-central1', maxInstances: 10 })
 
-/* Per-player prices (GST-inclusive, INR). Keep in sync with Pricing.jsx. */
-const SQUAD_PRICE_PER_PLAYER = { 2: 129, 3: 119, 4: 109, 5: 99, 6: 89 }
-const INDIVIDUAL_PRICE = 149
 const CURRENCY = 'INR'
 /* ~10 years of monthly renewals; Razorpay marks the subscription "completed"
-   after this many cycles. Keeps recurring billing alive indefinitely in
-   practice. */
+   after this many cycles. Keeps recurring billing alive indefinitely in practice. */
 const TOTAL_BILLING_CYCLES = 120
 
 export const createRazorpayOrder = onCall(
@@ -53,48 +46,25 @@ export const createRazorpayOrder = onCall(
       throw new HttpsError('unauthenticated', 'Log in with your Esports Elite account to subscribe.')
     }
 
-    /* --- parse & validate input ----------------------------------------- */
-    const plan    = String(req.data?.plan || 'individual')
-    const members = parseInt(req.data?.members || 0, 10)
+    /* --- read caller info -------------------------------------------------- */
     const email   = String(req.data?.email   || req.auth?.token?.email || '').slice(0, 200)
     const name    = String(req.data?.name    || req.auth?.token?.name  || '').slice(0, 120)
     const contact = String(req.data?.contact || '').replace(/[^\d+]/g, '').slice(0, 20)
 
-    if (plan !== 'individual' && plan !== 'squad') {
-      throw new HttpsError('invalid-argument', `Unknown plan "${plan}".`)
-    }
-    if (plan === 'squad' && !SQUAD_PRICE_PER_PLAYER[members]) {
-      throw new HttpsError('invalid-argument', `Squad plan requires 2–6 members; got ${members}.`)
-    }
-
-    /* --- resolve plan key & display amount -------------------------------- */
-    const planKey = plan === 'individual' ? 'individual' : `squad_${members}`
-    const amountDisplay = plan === 'individual'
-      ? `₹${INDIVIDUAL_PRICE}/month`
-      : `₹${SQUAD_PRICE_PER_PLAYER[members] * members}/month (${members} × ₹${SQUAD_PRICE_PER_PLAYER[members]})`
-
     /* --- load secrets ------------------------------------------------------ */
-    const keyId    = RAZORPAY_KEY_ID.value()
+    const keyId     = RAZORPAY_KEY_ID.value()
     const keySecret = RAZORPAY_KEY_SECRET.value()
-    const planIdsRaw = RAZORPAY_PLAN_IDS.value()
+    /* RAZORPAY_PLAN_IDS is stored as a plain plan ID string (e.g. plan_Abcd1234),
+       not JSON. Read and trim it directly — no parsing needed. */
+    const planId    = (RAZORPAY_PLAN_IDS.value() || '').trim()
 
-    if (!keyId || !keySecret || !planIdsRaw) {
-      console.error('[createRazorpayOrder] missing Razorpay secrets')
+    if (!keyId || !keySecret) {
+      console.error('[createRazorpayOrder] missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET')
       throw new HttpsError('failed-precondition', 'Payments are not configured yet. Contact support.')
     }
-
-    let planIds
-    try {
-      planIds = JSON.parse(planIdsRaw)
-    } catch {
-      console.error('[createRazorpayOrder] RAZORPAY_PLAN_IDS is not valid JSON')
-      throw new HttpsError('failed-precondition', 'Payment plan configuration is invalid. Contact support.')
-    }
-
-    const razorpayPlanId = planIds[planKey]
-    if (!razorpayPlanId) {
-      console.error(`[createRazorpayOrder] no plan ID for key="${planKey}"`)
-      throw new HttpsError('failed-precondition', `No payment plan configured for "${planKey}". Contact support.`)
+    if (!planId) {
+      console.error('[createRazorpayOrder] RAZORPAY_PLAN_IDS secret is empty')
+      throw new HttpsError('failed-precondition', 'Plan ID not configured. Contact support.')
     }
 
     /* --- create Razorpay subscription -------------------------------------- */
@@ -103,15 +73,13 @@ export const createRazorpayOrder = onCall(
     let subscription
     try {
       subscription = await rzp.subscriptions.create({
-        plan_id: razorpayPlanId,
+        plan_id: planId,
         total_count: TOTAL_BILLING_CYCLES,
-        quantity: plan === 'squad' ? members : 1,
+        quantity: 1,
         customer_notify: 1,
         /* firebase_uid in notes is how razorpayWebhook.js maps back to the user. */
         notes: {
           firebase_uid: uid,
-          plan,
-          members: plan === 'squad' ? members : 1,
           email,
           source: 'esportselite.in/pricing',
         },
@@ -129,13 +97,13 @@ export const createRazorpayOrder = onCall(
       throw new HttpsError('internal', 'Razorpay did not return a subscription id.')
     }
 
-    console.log(`[createRazorpayOrder] uid=${uid} plan=${planKey} sub=${subscription.id} status=${subscription.status}`)
+    console.log(`[createRazorpayOrder] uid=${uid} plan=${planId} sub=${subscription.id} status=${subscription.status}`)
 
     return {
       subscriptionId: subscription.id,
       keyId,
       currency: CURRENCY,
-      amountDisplay,
+      amountDisplay: '₹149/month',
       prefill: { name, email, contact },
     }
   },
