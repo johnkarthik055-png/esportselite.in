@@ -35,16 +35,18 @@ export default function Checkout() {
   const [errorMsg, setErrorMsg] = useState('')
   const started = useRef(false)
 
-  /* Redirect to login with ?next= pointing back at this checkout URL.
-     Using navigate() (React Router) instead of window.location.href so the
-     Login page receives the ?next= param through the router without a hard
-     reload — this prevents the race where Login's location.search is stale
-     for one render tick. */
+  /* Redirect unauthenticated visitors to login, passing back the full hash
+     path so Login can return here after a successful sign-in.
+     Uses window.location.href (hard redirect) so the hash is set correctly
+     for HashRouter — React Router's navigate() would not produce the
+     /#/login prefix that the browser needs to interpret as a hash route. */
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      const next = encodeURIComponent(window.location.pathname + window.location.search)
-      navigate(`/login?next=${next}`, { replace: true })
+      /* window.location.hash = '#/checkout' or '#/checkout?plan=individual'
+         Slice off the leading '#' to get the internal path for the next param. */
+      const hashPath = window.location.hash.slice(1) || '/checkout'
+      window.location.href = `/#/login?next=${encodeURIComponent(hashPath)}`
     }
   }, [user, authLoading])
 

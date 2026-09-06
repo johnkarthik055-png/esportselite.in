@@ -101,12 +101,16 @@ export default function Login() {
   const [mode, setMode] = useState(location.state?.signup ? 'signup' : 'signin')
   useEffect(() => { if (location.state?.signup) setMode('signup') }, [location.state])
 
-  /* Read ?next= from the actual browser URL (window.location.search) rather than
-     React Router's location.search to avoid any stale-location race on hard
-     redirects. Only accepts relative paths (starts with /) as a guard against
-     open-redirect to external sites. */
+  /* The app uses HashRouter so the URL looks like:
+       /#/login?next=%2Fcheckout
+     window.location.search is always empty in HashRouter — the ?next= param
+     lives inside window.location.hash after the route path.
+     Extract it with a regex on the hash string. Only accept relative paths
+     (starting with /) as a guard against open-redirect to external sites. */
   const nextUrl = (() => {
-    const raw = new URLSearchParams(window.location.search).get('next') || ''
+    const hash = window.location.hash  // e.g. '#/login?next=%2Fcheckout'
+    const m = hash.match(/[?&]next=([^&]*)/)
+    const raw = m ? decodeURIComponent(m[1]) : ''
     return raw.startsWith('/') ? raw : '/dashboard'
   })()
 
@@ -177,11 +181,11 @@ export default function Login() {
       upsertLocalUser(localUser); setLocalSession(localUser)
       writeLS(STORAGE_KEYS.USER, { username: localUser.username, email, phone: localUser.phone, ign: '', igId: '' })
       if (fbUser) await setupUserProfile(fbUser)
-      /* Hard redirect instead of navigate(): forces a full page
-         reload so AuthContext re-initialises with the fresh
-         Firebase user before the destination mounts. Prevents the
-         race where the target page sees a stale user=null. */
-      window.location.href = nextUrl
+      /* navigate() (React Router) — no page reload needed here because
+         Firebase's onAuthStateChanged has already updated AuthContext with
+         the fresh user by the time we reach this line. The destination page
+         will see user as truthy on its first render. */
+      navigate(nextUrl, { replace: true })
     } catch (err) {
       const mapped = mapSignInError(err); setFieldError(mapped.field, mapped.message)
     } finally { setSubmitting(false) }
@@ -209,8 +213,7 @@ export default function Login() {
       upsertLocalUser(localUser); setLocalSession(localUser)
       writeLS(STORAGE_KEYS.USER, { username: u, email: em, phone: ph, ign: '', igId: '' })
       if (fbUser) await setupUserProfile(fbUser)
-      /* Hard redirect — same reasoning as handleSignIn above. */
-      window.location.href = nextUrl
+      navigate(nextUrl, { replace: true })
     } catch (err) {
       const mapped = mapSignUpError(err); setFieldError(mapped.field, mapped.message)
     } finally { setSubmitting(false) }
@@ -232,8 +235,7 @@ export default function Login() {
         writeLS(STORAGE_KEYS.USER, { username: localUser.username, email: localUser.email, phone: localUser.phone, ign: '', igId: '' })
         await setupUserProfile(fbUser)
       }
-      /* Hard redirect — same reasoning as handleSignIn above. */
-      window.location.href = nextUrl
+      navigate(nextUrl, { replace: true })
     } catch (error) {
       if (error?.code !== 'auth/popup-closed-by-user') setFieldError('form', 'Google sign in failed. Try again.')
     } finally { setSubmitting(false) }
