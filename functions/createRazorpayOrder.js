@@ -54,16 +54,22 @@ export const createRazorpayOrder = onCall(
     /* --- load secrets ------------------------------------------------------ */
     const keyId     = RAZORPAY_KEY_ID.value()
     const keySecret = RAZORPAY_KEY_SECRET.value()
-    /* RAZORPAY_PLAN_IDS is stored as a plain plan ID string (e.g. plan_Abcd1234),
-       not JSON. Read and trim it directly — no parsing needed. */
-    const planId    = (RAZORPAY_PLAN_IDS.value() || '').trim()
+    /* RAZORPAY_PLAN_IDS is stored as JSON, e.g. {"individual":"plan_Abcd1234"}.
+       Parse it and extract the plan ID for the requested tier. */
+    const planIdsRaw = (RAZORPAY_PLAN_IDS.value() || '').trim()
+    let planIds
+    try { planIds = JSON.parse(planIdsRaw) } catch {
+      console.error('[createRazorpayOrder] RAZORPAY_PLAN_IDS is not valid JSON:', planIdsRaw)
+      throw new HttpsError('failed-precondition', 'Plan ID not configured correctly. Contact support.')
+    }
+    const planId = planIds['individual']
 
     if (!keyId || !keySecret) {
       console.error('[createRazorpayOrder] missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET')
       throw new HttpsError('failed-precondition', 'Payments are not configured yet. Contact support.')
     }
-    if (!planId) {
-      console.error('[createRazorpayOrder] RAZORPAY_PLAN_IDS secret is empty')
+    if (!planId || planId.length !== 19) {
+      console.error('[createRazorpayOrder] invalid planId:', planId)
       throw new HttpsError('failed-precondition', 'Plan ID not configured. Contact support.')
     }
 
