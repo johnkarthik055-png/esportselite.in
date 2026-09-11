@@ -7,7 +7,6 @@ import {
   getModules,
   getAllDailySessions,
   getAllDailyMatches,
-  getTrialStatus,
   getNotifications,
   saveXP,
   XP_PER_LEVEL,
@@ -30,7 +29,6 @@ const EMPTY_DATA = {
   modules: [],
   dailySessions: {},
   dailyMatches: {},
-  trial: null,
   notifications: [],
   streak: null,
 }
@@ -77,7 +75,6 @@ export function useUserData() {
         modules,
         dailySessions,
         dailyMatches,
-        trial,
         notifications,
       ] = await Promise.all([
         getProfile(user.uid),
@@ -86,7 +83,6 @@ export function useUserData() {
         getModules(user.uid),
         getAllDailySessions(user.uid),
         getAllDailyMatches(user.uid),
-        getTrialStatus(user.uid),
         getNotifications(user.uid),
       ])
 
@@ -108,7 +104,6 @@ export function useUserData() {
         modules:       modules       || [],
         dailySessions: dailySessions || {},
         dailyMatches:  dailyMatches  || {},
-        trial:         trial         || null,
         notifications: notifications || [],
         streak:        profile?.streak || null,
       })
@@ -164,7 +159,6 @@ export function useUserData() {
     generateDailyNotifications(user.uid, {
       streak: data.streak,
       sessions: data.sessions,
-      trial: data.trial,
     }).catch(err => console.warn('[useUserData] notif gen failed:', err))
 
     cleanOldNotifications(user.uid)

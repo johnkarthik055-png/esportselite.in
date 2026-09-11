@@ -34,7 +34,7 @@ export default function Layout() {
   useEffect(() => { bootTheme() }, [])
 
   /* Real measured TopBar height, exposed as --app-topbar-height below —
-     TopBar's content (trial badge, responsive padding) isn't a fixed
+     TopBar's content (avatar, responsive padding) isn't a fixed
      constant across breakpoints, so pages that need to know where it
      ends (e.g. Map Knowledge's full-bleed mobile map) measure it here
      once instead of guessing a px value that drifts out of sync. */

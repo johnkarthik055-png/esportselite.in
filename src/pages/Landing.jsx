@@ -36,7 +36,7 @@ const FEATURES = [
 ]
 
 const STEPS = [
-  { icon: UserPlus,   num: '01', title: 'Create account',    desc: 'Free 90-day access. No credit card required.' },
+  { icon: UserPlus,   num: '01', title: 'Create account',    desc: 'Free access. No credit card required.' },
   { icon: Target,     num: '02', title: 'Start training',    desc: 'Pick a module, set your weapons, run the drill timer.' },
   { icon: TrendingUp, num: '03', title: 'Analyse & improve', desc: 'See your weaknesses, follow Coach AI tips, climb the ranks.' },
 ]
@@ -351,7 +351,7 @@ function Hero({ goSignup, scrollTo }) {
         <StaggerItem>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 28, flexWrap: 'wrap' }}>
             <MagneticButton onClick={goSignup} className="btn btn-primary btn-lg">
-              Start Free — 90 days <ArrowRight size={14} />
+              Start Free <ArrowRight size={14} />
             </MagneticButton>
             <button onClick={() => scrollTo('how-it-works')} className="btn btn-secondary btn-lg">
               See how it works
@@ -371,7 +371,7 @@ function Hero({ goSignup, scrollTo }) {
               <Check size={12} style={{ color: 'var(--green)' }} /> No credit card
             </span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <Check size={12} style={{ color: 'var(--green)' }} /> Free for 90 days
+              <Check size={12} style={{ color: 'var(--green)' }} /> Free to use
             </span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <Check size={12} style={{ color: 'var(--green)' }} /> Cancel anytime
@@ -420,7 +420,6 @@ function StatsBar() {
   const cells = [
     { value: counts?.drills ?? 0,  label: 'Sessions tracked' },
     { value: counts?.players ?? 0, label: 'Players' },
-    { value: 90,                   label: 'Trial days', force: '90' },
     { value: 7,                    label: 'Levels',     force: '7'  },
   ]
 
@@ -1039,7 +1038,7 @@ function Pricing({ goSignup }) {
                 color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em',
               }}
             >
-              <Gift size={14} /> Free trial
+              <Gift size={14} /> Free plan
             </div>
             <div
               style={{
@@ -1052,7 +1051,7 @@ function Pricing({ goSignup }) {
               ₹0
             </div>
             <div style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 4 }}>
-              90 days. No credit card. Cancel anytime.
+              No credit card. Cancel anytime.
             </div>
 
             <ul style={{ listStyle: 'none', padding: 0, margin: '20px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1136,11 +1135,11 @@ function FinalCTA({ goSignup }) {
           Ready to train like a pro?
         </h2>
         <p style={{ fontFamily: 'DM Sans, sans-serif', color: 'var(--text-muted)', fontSize: 14, marginBottom: 24 }}>
-          Free for 90 days. No credit card.
+          Free to use. No credit card.
         </p>
         {/* Plain button — magnetic budget (2) already spent on hero + pricing CTAs. */}
         <button onClick={goSignup} className="btn btn-primary btn-lg">
-          Start free — 90 days <ArrowRight size={14} />
+          Start free <ArrowRight size={14} />
         </button>
       </section>
     </Reveal>

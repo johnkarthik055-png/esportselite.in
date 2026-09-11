@@ -13,7 +13,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { getXP, getLevelFor } from '../utils/xp.js'
 import { formatPracticeTime } from '../utils/helpers.js'
 import { getDisplayName } from '../utils/storage.js'
-import { getTrialStatus, formatTrialDate } from '../utils/trial.js'
+import { useSubscription } from '../hooks/useSubscription.js'
 import { getLevelName } from '../utils/db.js'
 import { auth } from '../utils/firebase.js'
 import AvatarUploader from '../components/AvatarUploader.jsx'
@@ -72,17 +72,7 @@ export default function Profile() {
   const [toast, setToast] = useState('')
   const { user: authUser, refreshUser } = useAuth()
   const displayName = getDisplayName()
-
-  const [trial, setTrial] = useState(null)
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      if (!authUser?.uid) { if (!cancelled) setTrial(null); return }
-      const status = await getTrialStatus(authUser.uid)
-      if (!cancelled) setTrial(status)
-    })()
-    return () => { cancelled = true }
-  }, [authUser?.uid])
+  const { plan, isActive, expiresAt } = useSubscription()
 
   useEffect(() => {
     if (!editing) {
@@ -576,21 +566,13 @@ export default function Profile() {
       <div className="card" style={{ maxWidth: 600, width: '100%', alignSelf: 'center' }}>
         <div className="card-header"><div className="card-title">Subscription</div></div>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <SubRow label="Plan" value="Free Trial" />
-          <SubRow label="Started" value={formatTrialDate(trial?.startDate)} />
-          <SubRow label="Expires" value={formatTrialDate(trial?.endDate)} />
-          <SubRow label="Days left" value={trial?.startDate ? `${trial.daysLeft} day${trial.daysLeft === 1 ? '' : 's'}` : '—'} />
+          <SubRow label="Plan" value={plan === 'pro' ? 'Pro' : 'Free'} />
+          {isActive && <SubRow label="Renews" value={formatSubDate(expiresAt)} />}
           <SubRow
             label="Status"
             value={
-              <span
-                className={
-                  trial?.active ? 'badge badge-green' :
-                  trial?.startDate ? 'badge badge-red' :
-                  'badge'
-                }
-              >
-                {trial?.active ? 'Active' : trial?.startDate ? 'Expired' : 'Not started'}
+              <span className={isActive ? 'badge badge-green' : 'badge'}>
+                {isActive ? 'Active' : 'Free'}
               </span>
             }
           />
@@ -740,6 +722,15 @@ function Summary({ label, value }) {
       <div className="stat-label">{label}</div>
     </div>
   )
+}
+
+function formatSubDate(d) {
+  if (!d) return '—'
+  try {
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  } catch {
+    return '—'
+  }
 }
 
 function SubRow({ label, value }) {

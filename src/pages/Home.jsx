@@ -525,7 +525,7 @@ export default function Home() {
               style={{ animationDelay: '0.48s' }}
             >
               <span className="flex items-center gap-2">
-                <CheckCircle2 size={16} className="text-success" /> Free 90-day trial
+                <CheckCircle2 size={16} className="text-success" /> Free to use
               </span>
               <span className="flex items-center gap-2">
                 <CheckCircle2 size={16} className="text-success" /> No credit card needed

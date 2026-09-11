@@ -7,7 +7,6 @@ import {
 } from 'firebase/auth'
 import { auth } from '../utils/firebase.js'
 import { setActiveUID, migrateOldData } from '../utils/storage.js'
-import { initTrial } from '../utils/trial.js'
 import SplashScreen from '../components/SplashScreen.jsx'
 
 const AuthContext = createContext({
@@ -44,7 +43,6 @@ export function AuthProvider({ children }) {
              correct UID-scoped keys from the very first re-render. */
           setActiveUID(u.uid)
           migrateOldData(u.uid)
-          initTrial(u.uid)
           navigate('/dashboard', { replace: true })
         }
       })
@@ -65,7 +63,6 @@ export function AuthProvider({ children }) {
           setActiveUID(uid)
           if (uid) {
             migrateOldData(uid)
-            initTrial(uid)
           }
           setUser(firebaseUser ?? null)
         })

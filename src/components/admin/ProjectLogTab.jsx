@@ -140,7 +140,7 @@ export default function ProjectLogTab({ adminEmail }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      {/* Filter sub-tabs — same .seg pattern as the Trials tab */}
+      {/* Filter sub-tabs — same .seg pattern as other admin tabs */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
         <div className="seg">
           {FILTERS.map(f => (

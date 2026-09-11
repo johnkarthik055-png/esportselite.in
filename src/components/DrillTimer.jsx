@@ -42,7 +42,6 @@ import {
   todayKey,
   normalizeSessions,
 } from '../utils/helpers.js'
-import { isTrialExpired } from '../utils/trial.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { addSession, getProfile, saveStreak } from '../utils/db.js'
 import { useUserData } from '../hooks/useUserData.js'
@@ -74,7 +73,6 @@ export default function DrillTimer({
 
   const [sessionsRaw, setSessions] = useLocalStorage(STORAGE_KEYS.SESSIONS, [])
   const { user: authUser } = useAuth()
-  const trialExpired = isTrialExpired(authUser?.uid)
   const { updateXP } = useUserData()
 
   /* Today's most-recent session for this exact drill. */
@@ -166,7 +164,6 @@ export default function DrillTimer({
   /* ===== COMPLETE ===== */
   function complete() {
     setRunning(false)
-    if (trialExpired) return
 
     /*
      * Duration resolution — manual ALWAYS wins over the live timer.
@@ -423,8 +420,7 @@ export default function DrillTimer({
           <span className="ml-auto relative inline-flex">
             <button
               onClick={complete}
-              disabled={trialExpired}
-              title={trialExpired ? 'Free trial ended — premium plan coming soon' : 'Complete drill (use timer or enter minutes above)'}
+              title="Complete drill (use timer or enter minutes above)"
               className="px-3.5 py-2 rounded-md text-xs uppercase tracking-widest flex items-center gap-1.5 bg-success/15 border border-success/40 text-success heading font-semibold hover:bg-success/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <CheckCircle2 size={14} /> Complete

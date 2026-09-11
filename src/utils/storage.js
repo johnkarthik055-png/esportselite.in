@@ -3,12 +3,12 @@ import { setCurrentUid } from '../hooks/useLocalStorage.js'
 
 /**
  * Direct (non-React) UID-scoped localStorage helpers. The base key here
- * is just the suffix (e.g. 'sessions', 'trial') — UID prefixing happens
+ * is just the suffix (e.g. 'sessions', 'matches') — UID prefixing happens
  * inside getKey().
  *
  * For React state-aware reads in components, prefer useLocalStorage from
  * hooks/useLocalStorage.js. These helpers are for non-hook call sites
- * (initTrial, clear-on-logout, ad-hoc utilities).
+ * (clear-on-logout, ad-hoc utilities).
  */
 const ROOT = 'esportselite'
 
@@ -98,7 +98,7 @@ export function migrateOldData(uid) {
     'streak', 'daily_sessions', 'daily_matches',
     'notifications', 'user_avatar', 'tournament_stages',
     'custom_modules', 'weakness_strength_suggestions',
-    'trial', 'pb_longest_drill', 'migration_v2_done',
+    'pb_longest_drill', 'migration_v2_done',
     'notif_initialized',
   ]
 

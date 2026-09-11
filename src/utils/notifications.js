@@ -44,7 +44,7 @@ import { db } from './firebase.js'
 /* ───────────────────────────────────────────────────────────── */
 /* Insert a notification only if no doc with the same `key` exists.
    `key` should encode anything that makes the notification "the
-   same" so retries are silent (e.g. "streak_7", "trial_expiry_3",
+   same" so retries are silent (e.g. "streak_7",
    "session_reminder_2026-06-05", "welcome_first_login").          */
 export const addUniqueNotification = async (uid, notif) => {
   if (!uid || !notif?.key) return
@@ -78,7 +78,7 @@ export const generateDailyNotifications = async (uid, userData) => {
 
   const today = new Date().toISOString().split('T')[0]
 
-  const { streak, sessions, trial } = userData || {}
+  const { streak, sessions } = userData || {}
 
   /* ── Streak milestones — only fire when the streak EQUALS the
         milestone, and only once per milestone per account. ── */
@@ -94,17 +94,6 @@ export const generateDailyNotifications = async (uid, userData) => {
         message: `You have been grinding for ${milestone} days straight. Keep it up!`,
       })
     }
-  }
-
-  /* ── Trial expiry warning — bucket by remaining days so we get
-        at most one warning per (uid, daysLeft) pair. ── */
-  if (trial?.daysLeft <= 7 && trial?.daysLeft > 0) {
-    await addUniqueNotification(uid, {
-      key: `trial_expiry_${Math.floor(trial.daysLeft)}`,
-      type: 'warning',
-      title: 'Trial Expiring Soon ⚠',
-      message: `Your free trial expires in ${trial.daysLeft} days.`,
-    })
   }
 
   /* ── Welcome — ever-only. ── */

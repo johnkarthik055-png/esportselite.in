@@ -16,7 +16,6 @@ import { STORAGE_KEYS } from '../utils/constants.js'
 import { writeLS } from '../hooks/useLocalStorage.js'
 import { uid } from '../utils/helpers.js'
 import { auth, googleProvider } from '../utils/firebase.js'
-import { initTrial } from '../utils/trial.js'
 import { setActiveUID, migrateOldData } from '../utils/storage.js'
 import { getProfile, saveProfile } from '../utils/db.js'
 
@@ -77,7 +76,6 @@ async function setupUserProfile(fbUser) {
   const uidVal = fbUser.uid
   setActiveUID(uidVal)
   migrateOldData(uidVal)
-  initTrial(uidVal)
   try {
     const existing = await getProfile(uidVal)
     if (!existing) {

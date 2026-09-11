@@ -23,8 +23,6 @@ import { useSuggestions } from '../hooks/useSuggestions.js'
 import { useSwipeGesture } from '../hooks/useSwipeGesture.js'
 import { useUserData } from '../hooks/useUserData.js'
 import { useUserTeamId, useTeam } from '../hooks/useTeam.js'
-import { isTrialExpired } from '../utils/trial.js'
-import { useAuth } from '../context/AuthContext.jsx'
 import { addMatch } from '../utils/db.js'
 import ScreenshotImport from './matchlogger/ScreenshotImport.jsx'
 import {
@@ -95,9 +93,6 @@ export default function MatchLogger() {
   const { getById } = useSuggestions()
   const { updateXP } = useUserData()
   const formRef = useRef(null)
-  const { user: authUser } = useAuth()
-  const trialExpired = isTrialExpired(authUser?.uid)
-
   const [userProfile] = useLocalStorage(STORAGE_KEYS.USER, {})
   const userIgns = useMemo(() => {
     const arr = Array.isArray(userProfile?.igns) ? userProfile.igns : []
@@ -155,12 +150,6 @@ export default function MatchLogger() {
   const classicSubMode = forms.Classic.teamSize
 
   async function logMatch() {
-    if (trialExpired) {
-      setToast('Free trial ended — premium plan coming soon.')
-      setTimeout(() => setToast(''), 2500)
-      return
-    }
-
     const entry = { id: uid(), type: activeType, timestamp: Date.now(), ...form }
     if (activeType === 'Classic') {
       entry.position     = form.position     ? Number(form.position)     : null
@@ -260,8 +249,6 @@ export default function MatchLogger() {
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <button
                 onClick={logMatch}
-                disabled={trialExpired}
-                title={trialExpired ? 'Free trial ended — premium plan coming soon' : undefined}
                 className="btn-red px-6 py-3 rounded-md text-sm uppercase tracking-[0.15em] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save size={16} /> Log Match

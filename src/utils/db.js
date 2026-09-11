@@ -2,7 +2,7 @@
  * db.js — Firestore CRUD helpers for Esports Elite.
  *
  * Firestore data model:
- *   users/{uid}                — profile + xp + level + streak + trial (merged)
+ *   users/{uid}                — profile + xp + level + streak (merged)
  *   users/{uid}/sessions/      — subcollection, one doc per drill session
  *   users/{uid}/matches/       — subcollection, one doc per match
  *   users/{uid}/daily_sessions/{date}  — training-day status document
@@ -271,52 +271,6 @@ export async function saveStreak(uid, streak) {
   } catch (err) {
     console.warn('[db] saveStreak failed:', err)
   }
-}
-
-/* ─── TRIAL ─────────────────────────────────────────────────── */
-
-export const initTrial = async (uid) => {
-  if (!uid) return
-  const snap = await getDoc(doc(db, 'users', uid))
-  if (snap.exists() && snap.data().trial) return
-  const startDate = new Date()
-  const endDate = new Date()
-  endDate.setDate(endDate.getDate() + 90)
-  await setDoc(doc(db, 'users', uid), {
-    trial: {
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      plan: 'free_trial',
-      daysTotal: 90
-    }
-  }, { merge: true })
-}
-
-export const getTrialStatus = async (uid) => {
-  if (!uid) return { active: false, daysLeft: 0, expired: true }
-  const snap = await getDoc(doc(db, 'users', uid))
-  if (!snap.exists() || !snap.data().trial) return { active: false, daysLeft: 0, expired: true }
-  const trial = snap.data().trial
-  const now = new Date()
-  const endDate = new Date(trial.endDate)
-  const daysLeft = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24))
-  return {
-    active: daysLeft > 0,
-    daysLeft: Math.max(0, daysLeft),
-    expired: daysLeft <= 0,
-    startDate: trial.startDate,
-    endDate: trial.endDate,
-    plan: trial.plan || 'free_trial'
-  }
-}
-
-export async function saveTrialData(trialData, uid) {
-  const id = uid || getUID()
-  if (!id) return
-  try { localStorage.setItem(`esportselite_${id}_trial`, JSON.stringify(trialData)) }
-  catch { /* ignore */ }
-  try { await setDoc(doc(db, 'users', id), { trial: trialData }, { merge: true }) }
-  catch { /* ignore */ }
 }
 
 /* ─── NOTIFICATIONS ──────────────────────────────────────────── */

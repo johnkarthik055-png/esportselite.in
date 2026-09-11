@@ -11,16 +11,16 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  collection, collectionGroup, getDocs, doc, updateDoc,
+  collection, collectionGroup, getDocs, doc,
   deleteDoc, addDoc, setDoc, getDoc, query, orderBy,
   getCountFromServer, where, limit, Timestamp,
 } from 'firebase/firestore'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Shield, Users as UsersIcon, Clock, Bell, ListChecks,
+  Shield, Users as UsersIcon, Bell, ListChecks,
   Wrench, Search, Loader2, AlertCircle, Copy, Download,
   Trash2, Info, CheckCircle2, AlertTriangle, ChevronLeft,
-  ChevronRight, BarChart2, Send, Mail, Zap, X, Trophy,
+  ChevronRight, BarChart2, Send, Mail, Zap, Trophy,
   ClipboardList,
 } from 'lucide-react'
 import { db } from '../utils/firebase.js'
@@ -38,7 +38,6 @@ const ADMIN_EMAILS = [
 const TABS = [
   { id: 'overview',      label: 'Overview',      icon: BarChart2 },
   { id: 'users',         label: 'Users',         icon: UsersIcon },
-  { id: 'trials',        label: 'Trials',        icon: Clock },
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'waitlist',      label: 'Waitlist',      icon: ListChecks },
   { id: 'maintenance',   label: 'Maintenance',   icon: Wrench },
@@ -148,7 +147,6 @@ export default function AdminPanel() {
         >
           {tab === 'overview'      && <OverviewTab />}
           {tab === 'users'         && <UsersTab />}
-          {tab === 'trials'        && <TrialsTab />}
           {tab === 'notifications' && <NotificationsTab />}
           {tab === 'waitlist'      && <WaitlistTab />}
           {tab === 'maintenance'   && <MaintenanceTab adminEmail={user.email} />}
@@ -189,24 +187,10 @@ function OverviewTab() {
           getDocs(usersRef),
         ])
 
-        /* Compute trial counts + build recent list from full users snapshot */
-        const now = new Date()
-        let activeTrials = 0
-        let expiredTrials = 0
+        /* Build recent list from full users snapshot */
         const users = []
         allUsers.forEach(u => {
           const data = u.data() || {}
-          const trial = data.trial || null
-          let daysLeft = 0, expired = true, active = false
-          if (trial?.endDate) {
-            const end = new Date(trial.endDate)
-            daysLeft = Math.ceil((end - now) / 86400000)
-            active = daysLeft > 0
-            expired = daysLeft <= 0
-          }
-          if (active) activeTrials++
-          else expiredTrials++
-
           users.push({
             uid: u.id,
             email: data.email || '',
@@ -214,7 +198,6 @@ function OverviewTab() {
             createdAt: data.createdAt || null,
             level: data.level ?? 1,
             xp: data.xp ?? 0,
-            trial: { ...trial, daysLeft, active, expired },
           })
         })
 
@@ -225,8 +208,6 @@ function OverviewTab() {
         if (!cancelled) {
           setStats({
             users: usersSnap.data().count,
-            activeTrials,
-            expiredTrials,
             sessions: sessionsCount.data().count,
             matches: matchesCount.data().count,
             waitlist: waitlistCount.data().count,
@@ -257,8 +238,6 @@ function OverviewTab() {
         }}
       >
         <StatTile icon={<UsersIcon size={18} />} value={stats.users} label="Total Users" />
-        <StatTile icon={<CheckCircle2 size={18} />} value={stats.activeTrials} label="Active Trials" />
-        <StatTile icon={<AlertTriangle size={18} />} value={stats.expiredTrials} label="Expired Trials" />
         <StatTile icon={<Zap size={18} />} value={stats.sessions} label="Total Sessions" />
         <StatTile icon={<BarChart2 size={18} />} value={stats.matches} label="Total Matches" />
         <StatTile icon={<ListChecks size={18} />} value={stats.waitlist} label="Waitlist Signups" />
@@ -280,7 +259,6 @@ function OverviewTab() {
                   <th>Name</th>
                   <th>Email</th>
                   <th>Signed up</th>
-                  <th style={{ textAlign: 'right' }}>Trial days left</th>
                 </tr>
               </thead>
               <tbody>
@@ -290,9 +268,6 @@ function OverviewTab() {
                     <td>{u.username}</td>
                     <td style={{ color: 'var(--text-muted)' }}>{u.email}</td>
                     <td style={{ color: 'var(--text-muted)' }}>{formatDate(u.createdAt)}</td>
-                    <td className="mono" style={{ textAlign: 'right', color: 'var(--text-primary)' }}>
-                      {Math.max(0, u.trial.daysLeft)}
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -314,7 +289,6 @@ function UsersTab() {
   const [error, setError] = useState('')
   const [searchQ, setSearchQ] = useState('')
   const [page, setPage] = useState(0)
-  const [extendFor, setExtendFor] = useState(null)  /* uid or null */
   const PER_PAGE = 20
 
   useEffect(() => { load() }, [])
@@ -327,18 +301,9 @@ function UsersTab() {
         /* Some users may lack createdAt — fall back to unordered fetch */
         return getDocs(collection(db, 'users'))
       })
-      const now = new Date()
       const list = []
       snap.forEach(u => {
         const data = u.data() || {}
-        const trial = data.trial || null
-        let daysLeft = 0, expired = true, active = false
-        if (trial?.endDate) {
-          const end = new Date(trial.endDate)
-          daysLeft = Math.ceil((end - now) / 86400000)
-          active = daysLeft > 0
-          expired = daysLeft <= 0
-        }
         list.push({
           uid: u.id,
           email: data.email || '',
@@ -346,7 +311,6 @@ function UsersTab() {
           createdAt: data.createdAt || null,
           level: data.level ?? 1,
           xp: data.xp ?? 0,
-          trial: { ...trial, daysLeft, active, expired },
         })
       })
       setUsers(list)
@@ -370,41 +334,6 @@ function UsersTab() {
   const pageCount = Math.max(1, Math.ceil(filtered.length / PER_PAGE))
   const currentPage = Math.min(page, pageCount - 1)
   const pageUsers = filtered.slice(currentPage * PER_PAGE, (currentPage + 1) * PER_PAGE)
-
-  async function extendTrial(uid, days) {
-    const target = users.find(u => u.uid === uid)
-    if (!target) return
-    const currentEnd = target.trial?.endDate ? new Date(target.trial.endDate) : new Date()
-    if (currentEnd < new Date()) currentEnd.setTime(Date.now())
-    const newEnd = new Date(currentEnd.getTime() + days * 86400000)
-    try {
-      await updateDoc(doc(db, 'users', uid), {
-        'trial.endDate': newEnd.toISOString(),
-        'trial.active': true,
-        'trial.expired': false,
-      })
-      setExtendFor(null)
-      await load()
-    } catch (err) {
-      console.error('[Admin] extendTrial failed:', err)
-      alert('Could not extend trial: ' + (err?.message || err))
-    }
-  }
-
-  async function revokeTrial(uid) {
-    if (!await confirm('Revoke this user\'s trial? They will lose access immediately.')) return
-    try {
-      await updateDoc(doc(db, 'users', uid), {
-        'trial.active': false,
-        'trial.expired': true,
-        'trial.daysLeft': 0,
-        'trial.endDate': new Date().toISOString(),
-      })
-      await load()
-    } catch (err) {
-      alert('Could not revoke trial: ' + (err?.message || err))
-    }
-  }
 
   async function deleteUser(uid, email) {
     const confirmMsg =
@@ -467,8 +396,6 @@ function UsersTab() {
                   <th>Email</th>
                   <th>Level</th>
                   <th>XP</th>
-                  <th>Trial</th>
-                  <th>Days left</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
@@ -477,10 +404,6 @@ function UsersTab() {
                   <UserRow
                     key={u.uid}
                     u={u}
-                    extendOpen={extendFor === u.uid}
-                    onExtendToggle={() => setExtendFor(extendFor === u.uid ? null : u.uid)}
-                    onExtendConfirm={(days) => extendTrial(u.uid, days)}
-                    onRevoke={() => revokeTrial(u.uid)}
                     onDelete={() => deleteUser(u.uid, u.email)}
                   />
                 ))}
@@ -518,257 +441,20 @@ function UsersTab() {
   )
 }
 
-function UserRow({ u, extendOpen, onExtendToggle, onExtendConfirm, onRevoke, onDelete }) {
-  const [customDays, setCustomDays] = useState(30)
-
-  const badge =
-    u.trial.active && u.trial.daysLeft > 7
-      ? <span className="badge badge-green">Active</span>
-      : u.trial.active && u.trial.daysLeft <= 7
-      ? <span className="badge badge-amber">Expiring</span>
-      : <span className="badge badge-red">Expired</span>
-
+function UserRow({ u, onDelete }) {
   return (
-    <>
-      <tr>
-        <td style={{ width: 40 }}><Avatar name={u.username} /></td>
-        <td style={{ fontWeight: 500 }}>{u.username}</td>
-        <td style={{ color: 'var(--text-muted)' }}>{u.email}</td>
-        <td><span className="badge">L{u.level}</span></td>
-        <td className="mono" style={{ color: 'var(--text-muted)' }}>{Number(u.xp).toLocaleString()}</td>
-        <td>{badge}</td>
-        <td className="mono" style={{ color: 'var(--text-muted)' }}>
-          {Math.max(0, u.trial.daysLeft)}
-        </td>
-        <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-          <div style={{ display: 'inline-flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-            <button onClick={onExtendToggle} className="btn btn-secondary btn-sm">
-              Extend
-            </button>
-            <DangerBtn onClick={onRevoke} label="Revoke" />
-            <DangerBtn onClick={onDelete} label="Delete" />
-          </div>
-        </td>
-      </tr>
-      {extendOpen && (
-        <tr>
-          <td colSpan={8} style={{ background: 'var(--bg-elevated)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', padding: '6px 0' }}>
-              <span className="label">Extend by:</span>
-              <button className="btn btn-secondary btn-sm" onClick={() => onExtendConfirm(7)}>+7 days</button>
-              <button className="btn btn-secondary btn-sm" onClick={() => onExtendConfirm(30)}>+30 days</button>
-              <button className="btn btn-secondary btn-sm" onClick={() => onExtendConfirm(90)}>+90 days</button>
-              <span style={{ color: 'var(--text-subtle)', fontSize: 12 }}>or custom:</span>
-              <input
-                type="number"
-                min="1"
-                max="3650"
-                value={customDays}
-                onChange={e => setCustomDays(e.target.value)}
-                className="input-field"
-                style={{ width: 90 }}
-              />
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={() => onExtendConfirm(Math.max(1, Number(customDays) || 1))}
-              >
-                Apply
-              </button>
-              <button
-                className="btn btn-ghost btn-sm"
-                onClick={onExtendToggle}
-                style={{ marginLeft: 'auto' }}
-              >
-                <X size={13} />
-              </button>
-            </div>
-          </td>
-        </tr>
-      )}
-    </>
-  )
-}
-
-/* ============================================================
-   TRIALS TAB
-   ============================================================ */
-function TrialsTab() {
-  const { confirm, confirmModalProps } = useConfirm()
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [sub, setSub] = useState('active')  /* active | expiring | expired */
-  const [bulkRunning, setBulkRunning] = useState(false)
-
-  useEffect(() => { load() }, [])
-
-  async function load() {
-    setLoading(true); setError('')
-    try {
-      const snap = await getDocs(collection(db, 'users'))
-      const now = new Date()
-      const list = []
-      snap.forEach(u => {
-        const data = u.data() || {}
-        const trial = data.trial || {}
-        let daysLeft = 0, expired = true, active = false
-        if (trial?.endDate) {
-          const end = new Date(trial.endDate)
-          daysLeft = Math.ceil((end - now) / 86400000)
-          active = daysLeft > 0
-          expired = daysLeft <= 0
-        }
-        list.push({
-          uid: u.id,
-          email: data.email || '',
-          username: data.username || 'Player',
-          trial: { ...trial, daysLeft, active, expired },
-        })
-      })
-      setUsers(list)
-    } catch (err) {
-      setError(err?.message || 'Failed to load trials.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const bySub = useMemo(() => {
-    const active   = users.filter(u => u.trial.active  && u.trial.daysLeft > 7)
-    const expiring = users.filter(u => u.trial.active  && u.trial.daysLeft <= 7 && u.trial.daysLeft > 0)
-    const expired  = users.filter(u => u.trial.expired || u.trial.daysLeft <= 0)
-    return { active, expiring, expired }
-  }, [users])
-
-  async function extendOne(uid, days) {
-    const target = users.find(u => u.uid === uid)
-    if (!target) return
-    const currentEnd = target.trial?.endDate ? new Date(target.trial.endDate) : new Date()
-    if (currentEnd < new Date()) currentEnd.setTime(Date.now())
-    const newEnd = new Date(currentEnd.getTime() + days * 86400000)
-    try {
-      await updateDoc(doc(db, 'users', uid), {
-        'trial.endDate': newEnd.toISOString(),
-        'trial.active': true,
-        'trial.expired': false,
-      })
-    } catch (err) {
-      console.warn('[Admin] extendOne failed', uid, err)
-    }
-  }
-
-  async function bulkExtend(list, days = 30) {
-    if (list.length === 0) return
-    if (!await confirm(`Extend trials for ${list.length} user${list.length === 1 ? '' : 's'} by ${days} days?`)) return
-    setBulkRunning(true)
-    for (const u of list) {
-      await extendOne(u.uid, days)
-    }
-    setBulkRunning(false)
-    await load()
-  }
-
-  if (loading) return <LoadingBlock />
-  if (error) return <ErrorBlock error={error} />
-
-  const SUB_TABS = [
-    { id: 'active',   label: 'Active',        count: bySub.active.length },
-    { id: 'expiring', label: 'Expiring Soon', count: bySub.expiring.length },
-    { id: 'expired',  label: 'Expired',       count: bySub.expired.length },
-  ]
-
-  const list =
-    sub === 'active'   ? bySub.active :
-    sub === 'expiring' ? bySub.expiring :
-    bySub.expired
-
-  return (
-    <>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div className="seg">
-        {SUB_TABS.map(s => (
-          <button
-            key={s.id}
-            onClick={() => setSub(s.id)}
-            className={`seg-btn ${sub === s.id ? 'active' : ''}`}
-          >
-            {s.label} · {s.count}
-          </button>
-        ))}
-      </div>
-
-      <div className="card" style={{ padding: 0 }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '14px 16px',
-            borderBottom: '1px solid var(--border)',
-            gap: 10,
-            flexWrap: 'wrap',
-          }}
-        >
-          <div className="label">
-            {list.length} {sub === 'expiring' ? 'expiring soon' : sub}
-          </div>
-          <button
-            className="btn btn-secondary btn-sm"
-            disabled={list.length === 0 || bulkRunning}
-            onClick={() => bulkExtend(list, 30)}
-          >
-            {bulkRunning ? <><Loader2 size={13} className="animate-spin" /> Extending…</> : 'Extend all by 30 days'}
-          </button>
+    <tr>
+      <td style={{ width: 40 }}><Avatar name={u.username} /></td>
+      <td style={{ fontWeight: 500 }}>{u.username}</td>
+      <td style={{ color: 'var(--text-muted)' }}>{u.email}</td>
+      <td><span className="badge">L{u.level}</span></td>
+      <td className="mono" style={{ color: 'var(--text-muted)' }}>{Number(u.xp).toLocaleString()}</td>
+      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'inline-flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+          <DangerBtn onClick={onDelete} label="Delete" />
         </div>
-
-        {list.length === 0 ? (
-          <div style={{ padding: 20 }}>
-            <EmptyBlock title="Nothing here" desc="No users in this bucket." />
-          </div>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Start</th>
-                  <th>End</th>
-                  <th>Days left</th>
-                  <th style={{ textAlign: 'right' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {list.map(u => (
-                  <tr
-                    key={u.uid}
-                    style={sub === 'expiring' ? { background: 'rgba(245,158,11,0.05)' } : undefined}
-                  >
-                    <td style={{ fontWeight: 500 }}>{u.username}</td>
-                    <td style={{ color: 'var(--text-muted)' }}>{u.email}</td>
-                    <td style={{ color: 'var(--text-muted)' }}>{formatDate(u.trial.startDate)}</td>
-                    <td style={{ color: 'var(--text-muted)' }}>{formatDate(u.trial.endDate)}</td>
-                    <td className="mono" style={{ color: 'var(--text-primary)' }}>
-                      {Math.max(0, u.trial.daysLeft)}
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        onClick={async () => { await extendOne(u.uid, 30); await load() }}
-                      >
-                        +30 days
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
-    <ConfirmModal {...confirmModalProps} />
-    </>
+      </td>
+    </tr>
   )
 }
 

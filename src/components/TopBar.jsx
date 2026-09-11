@@ -1,33 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, Bell } from 'lucide-react'
 import { useAvatar } from '../hooks/useAvatar.js'
 import { getInitials } from '../utils/helpers.js'
 import { getDisplayName } from '../utils/storage.js'
-import { getTrialStatus } from '../utils/trial.js'
-import { useAuth } from '../context/AuthContext.jsx'
 import { useUserData } from '../hooks/useUserData.js'
 import { useNotifications } from '../hooks/useNotifications.js'
 import NotificationPanel from './NotificationPanel.jsx'
 
 export default function TopBar({ title }) {
   const navigate = useNavigate()
-  const { user: authUser } = useAuth()
   const { avatar } = useAvatar()
   const { xp } = useUserData()
   const { unreadCount } = useNotifications()
-  const [trial, setTrial] = useState(null)
   const [panelOpen, setPanelOpen] = useState(false)
-
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      if (!authUser?.uid) { if (!cancelled) setTrial(null); return }
-      const status = await getTrialStatus(authUser.uid)
-      if (!cancelled) setTrial(status)
-    })()
-    return () => { cancelled = true }
-  }, [authUser?.uid])
 
   function openMobileSidebar() {
     window.dispatchEvent(new Event('esports-elite:sidebar-open'))
@@ -71,7 +57,7 @@ export default function TopBar({ title }) {
             </button>
           </div>
 
-          {/* ── RIGHT: trial + bell + avatar + CTA ── */}
+          {/* ── RIGHT: bell + avatar + CTA ── */}
           <div className="topbar-actions" style={{
             display: 'flex',
             alignItems: 'center',
@@ -81,38 +67,6 @@ export default function TopBar({ title }) {
             minWidth: 0,
             overflowX: 'auto',
           }}>
-            {/* Trial badge */}
-            {trial && !trial.expired && (
-              <span className="topbar-trial-badge" style={{
-                background: 'rgba(13,21,40,0.9)',
-                border: '1px solid var(--border)',
-                borderRadius: 20,
-                padding: '5px 12px',
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 500, fontSize: 11,
-                color: 'var(--text-muted)',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-              }}>
-                FREE TRIAL · {trial.daysLeft} days left
-              </span>
-            )}
-            {trial?.expired && (
-              <span className="topbar-trial-badge" style={{
-                background: 'var(--danger-tint)',
-                border: '1px solid rgba(239,68,68,0.3)',
-                borderRadius: 20,
-                padding: '5px 12px',
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 500, fontSize: 11,
-                color: 'var(--danger)',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-              }}>
-                Trial Expired
-              </span>
-            )}
-
             {/* Bell */}
             <button
               onClick={() => setPanelOpen(true)}
@@ -222,9 +176,6 @@ export default function TopBar({ title }) {
         }
         .topbar-actions { scrollbar-width: none; -ms-overflow-style: none; }
         .topbar-actions::-webkit-scrollbar { display: none; }
-        @media (max-width: 480px) {
-          .topbar-trial-badge { display: none !important; }
-        }
       `}</style>
     </>
   )

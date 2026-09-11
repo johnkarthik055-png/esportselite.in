@@ -22,7 +22,6 @@ import {
   formatRelative, formatDuration, dateKey, normalizeSessions, greeting,
 } from '../utils/helpers.js'
 import { getDisplayName } from '../utils/storage.js'
-import { getTrialStatus } from '../utils/trial.js'
 import { useUserData } from '../hooks/useUserData.js'
 import { getLevelName, XP_PER_LEVEL } from '../utils/db.js'
 
@@ -154,17 +153,6 @@ export default function Dashboard() {
   const { modules }   = useModules()
   const navigate      = useNavigate()
   const { user: authUser } = useAuth()
-
-  const [trial, setTrial] = useState(null)
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      if (!authUser?.uid) { if (!cancelled) setTrial(null); return }
-      const status = await getTrialStatus(authUser.uid)
-      if (!cancelled) setTrial(status)
-    })()
-    return () => { cancelled = true }
-  }, [authUser?.uid])
 
   const {
     sessions: fsSessions,
@@ -316,27 +304,6 @@ export default function Dashboard() {
 
   return (
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-      {/* Trial expired banner */}
-      {trial?.expired && (
-        <div style={{
-          display: 'flex', gap: 12, alignItems: 'center',
-          background: 'var(--danger-tint)',
-          border: '1px solid rgba(239,68,68,0.25)',
-          borderRadius: 10,
-          padding: '14px 18px',
-        }}>
-          <AlertTriangle size={18} style={{ color: 'var(--danger)', flexShrink: 0 }} />
-          <div>
-            <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
-              Your free trial has ended.
-            </div>
-            <div style={{ fontFamily: 'Inter, sans-serif', color: 'var(--text-subtle)', fontSize: 13, marginTop: 2 }}>
-              All your data is safe. Premium plan coming soon.
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ══ TOP GREETING + STATS ══════════════════════════════ */}
       <div style={{ paddingBottom: 4 }}>
