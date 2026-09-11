@@ -3,7 +3,7 @@
   "description": "Cloud Functions for Esports Elite — AI Coach (screenshot extraction, coaching chat) + Razorpay subscriptions (order creation, webhook)",
   "type": "module",
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "index.js",
   "scripts": {
