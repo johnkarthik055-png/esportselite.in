@@ -23,7 +23,7 @@ import {
   Sparkles, Coffee, ArrowRight, Check, AlertTriangle, X,
   History, Info, RotateCcw,
 } from 'lucide-react'
-import { db } from '../utils/firebase.js'
+import { db, functions, httpsCallable } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useUserData } from '../hooks/useUserData.js'
 import { getLevelName } from '../utils/db.js'
@@ -60,7 +60,6 @@ const GOAL_TYPES = [
 ]
 
 const XP_PER_INTENSITY = { light: 50, medium: 75, intense: 100 }
-const MODEL_ID = 'claude-sonnet-4-20250514'
 const AI_LOADING_MESSAGES = [
   'Analysing your match history…',
   'Identifying your weak points…',
@@ -979,6 +978,7 @@ function CreateScheduleModal({ uid, onClose }) {
   const [genError, setGenError] = useState('')
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
   const abortRef = useRef(null)
+  const cancelledRef = useRef(false)
 
   useEffect(() => {
     if (!saving) return
@@ -1015,6 +1015,7 @@ function CreateScheduleModal({ uid, onClose }) {
   const totalDays = daysBetween(startDate, endDate)
 
   async function generate(kind) {
+    cancelledRef.current = false
     setGenError('')
     setSaving(true)
     try {
@@ -1031,11 +1032,10 @@ function CreateScheduleModal({ uid, onClose }) {
 
       let dayPlan
       if (kind === 'ai') {
-        abortRef.current = new AbortController()
         try {
-          dayPlan = await generateAIPlan(config, abortRef.current.signal)
+          dayPlan = await generateAIPlan(config)
         } catch (e) {
-          if (e?.name === 'AbortError') return
+          if (cancelledRef.current) return
           // eslint-disable-next-line no-console
           console.warn('[Scheduler] AI generation failed, falling back to rule-based:', e)
           setGenError(`AI generation failed (${e?.message || e}). Fell back to standard plan.`)
@@ -1045,12 +1045,14 @@ function CreateScheduleModal({ uid, onClose }) {
         dayPlan = generateRulePlan(config)
       }
 
+      if (cancelledRef.current) return
+
       const scheduleId = await createSchedule(uid, config, kind, dayPlan)
       // eslint-disable-next-line no-console
       console.log('[Scheduler] created schedule', scheduleId, 'with', dayPlan.length, 'days')
       onClose()
     } catch (e) {
-      setGenError(e?.message || 'Failed to create schedule.')
+      if (!cancelledRef.current) setGenError(e?.message || 'Failed to create schedule.')
     } finally {
       setSaving(false)
     }
@@ -1105,6 +1107,7 @@ function CreateScheduleModal({ uid, onClose }) {
             onAI={() => generate('ai')}
             onRule={() => generate('rule')}
             onCancel={() => {
+              cancelledRef.current = true
               abortRef.current?.abort()
               setSaving(false)
               setGenError('AI generation cancelled.')
@@ -1417,11 +1420,10 @@ function Step3({ saving, loadingMsg, error, onAI, onRule, onCancel }) {
 
 /* ============================================================
    AI + RULE-BASED PLAN GENERATION
+   generateAIPlan calls the anthropicProxy Cloud Function so the
+   Anthropic API key is never bundled into the client build.
    ============================================================ */
-async function generateAIPlan(config, signal) {
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
-  if (!apiKey) throw new Error('Missing VITE_ANTHROPIC_API_KEY')
-
+async function generateAIPlan(config) {
   const sysPrompt = `You are a BGMI (Battlegrounds Mobile India) training coach AI. Generate a structured day-by-day training schedule in JSON format based on the player's data. Each day should have specific, actionable tasks tailored to their weaknesses and goal. Return ONLY valid JSON, no markdown, no explanation.`
 
   const userPrompt = `Generate a ${config.totalDays}-day BGMI training schedule for a player with these details:
@@ -1450,30 +1452,9 @@ Return JSON array of ${config.totalDays} day objects. Each day object:
   "xpReward": number (50-150 based on tasks)
 }`
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    signal,
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: MODEL_ID,
-      max_tokens: 4000,
-      system: sysPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-    }),
-  })
-
-  if (!response.ok) {
-    const text = await response.text().catch(() => '')
-    throw new Error(`Claude API ${response.status}: ${text.slice(0, 200)}`)
-  }
-
-  const data = await response.json()
-  const raw = data?.content?.[0]?.text || ''
+  const fn = httpsCallable(functions, 'anthropicProxy')
+  const result = await fn({ prompt: userPrompt, systemPrompt: sysPrompt, maxTokens: 4000 })
+  const raw = result.data?.text || ''
   const parsed = extractJsonArray(raw)
   if (!Array.isArray(parsed) || parsed.length === 0) {
     throw new Error('AI returned no days')

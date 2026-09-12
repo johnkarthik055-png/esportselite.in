@@ -19,7 +19,7 @@ if (!admin.apps.length) admin.initializeApp()
 
 export const confirmSquadMemberPayment = onCall(
   {
-    cors: true,
+    cors: ['https://esportselite.in', 'https://app.esportselite.in'],
     memory: '256MiB',
     timeoutSeconds: 30,
   },

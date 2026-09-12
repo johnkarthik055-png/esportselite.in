@@ -17,6 +17,7 @@
  */
 export { extractMatchScreenshot } from './extractMatchScreenshot.js'
 export { aiCoachChat } from './aiCoachChat.js'
+export { anthropicProxy } from './anthropicProxy.js'
 export { createRazorpayOrder } from './createRazorpayOrder.js'
 export { razorpayWebhook } from './razorpayWebhook.js'
 export { createSquad } from './createSquad.js'

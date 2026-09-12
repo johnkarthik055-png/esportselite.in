@@ -35,7 +35,7 @@ const PRICE_PAISE = { 2: 12900, 3: 11900, 4: 10900, 5: 9900, 6: 8900 }
 export const createSquad = onCall(
   {
     secrets: [RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RAZORPAY_PLAN_IDS],
-    cors: true,
+    cors: ['https://esportselite.in', 'https://app.esportselite.in'],
     memory: '256MiB',
     timeoutSeconds: 60,
   },

@@ -36,7 +36,7 @@ const TOTAL_BILLING_CYCLES = 120
 export const createRazorpayOrder = onCall(
   {
     secrets: [RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RAZORPAY_PLAN_IDS],
-    cors: true,
+    cors: ['https://esportselite.in', 'https://app.esportselite.in'],
     memory: '256MiB',
     timeoutSeconds: 30,
   },

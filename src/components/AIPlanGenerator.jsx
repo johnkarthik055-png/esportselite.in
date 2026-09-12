@@ -11,6 +11,7 @@ import {
 import { readLS } from '../hooks/useLocalStorage.js'
 import { STORAGE_KEYS } from '../utils/constants.js'
 import { uid } from '../utils/helpers.js'
+import { functions, httpsCallable } from '../utils/firebase.js'
 
 /* ============================================================
    CONSTANTS
@@ -219,38 +220,14 @@ Use this exact structure:
 }
 
 /* ============================================================
-   ANTHROPIC API CALL
+   ANTHROPIC API CALL — routed through a server-side Cloud Function
+   so the API key is never bundled into the client build.
    ============================================================ */
 async function callAnthropic(prompt) {
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
-  if (!apiKey) {
-    const err = new Error('NO_API_KEY')
-    err.code = 'NO_API_KEY'
-    throw err
-  }
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      /* Required for direct browser-origin calls. */
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  })
-
-  if (!response.ok) throw new Error(`API ${response.status}`)
-
-  const data = await response.json()
-  const text = (data.content || []).map(i => i.text || '').join('')
-  const clean = text.replace(/```json|```/g, '').trim()
-  return JSON.parse(clean)
+  const fn = httpsCallable(functions, 'anthropicProxy')
+  const result = await fn({ prompt, maxTokens: 1000 })
+  const text = (result.data?.text || '').replace(/```json|```/g, '').trim()
+  return JSON.parse(text)
 }
 
 /* ============================================================
@@ -487,18 +464,13 @@ export default function AIPlanGenerator({ onSavePlan }) {
       setExpanded({ 0: true })
       setPhase('result')
     } catch (e) {
-      if (e.code === 'NO_API_KEY') {
-        /* No key configured — generate a solid plan locally. */
-        await delay(1400) // let the loading animation breathe
-        const local = buildLocalPlan(inputs, ctx)
-        setAiPlan(local)
-        setSource('local')
-        setExpanded({ 0: true })
-        setPhase('result')
-      } else {
-        setError('Could not generate plan. Try again.')
-        setPhase('error')
-      }
+      /* AI call failed — fall back to a locally-generated plan. */
+      await delay(1400)
+      const local = buildLocalPlan(inputs, ctx)
+      setAiPlan(local)
+      setSource('local')
+      setExpanded({ 0: true })
+      setPhase('result')
     }
   }
 
@@ -576,8 +548,8 @@ export default function AIPlanGenerator({ onSavePlan }) {
             )}
             {source === 'local' && (
               <p className="text-[11px] text-text-muted mt-2 inline-flex items-center gap-1.5 bg-bg-elevated/60 border border-border rounded-md px-2.5 py-1.5">
-                <WifiOff size={12} /> Built locally from your data. Add an Anthropic API
-                key for fully AI-crafted plans.
+                <WifiOff size={12} /> Built locally from your match data. AI plan generation
+                is currently unavailable.
               </p>
             )}
             {!hadMatchData && (

@@ -94,8 +94,7 @@ export function useUserData() {
          stored value with the fresh 0-indexed number. */
       const loadedLevel = calcLevelFromXP(loadedXP)
 
-      console.log('[useUserData] XP loaded:', loadedXP)
-      console.log('[useUserData] Level (computed from XP):', loadedLevel)
+      if (import.meta.env.DEV) console.log('[useUserData] XP loaded:', loadedXP, 'Level:', loadedLevel)
 
       setData({
         profile:       profile || {},
@@ -219,7 +218,7 @@ export function useUserData() {
 
     await saveXP(uid, computedXP, computedLevel)
 
-    console.log('[useUserData] XP updated:', computedXP, 'Level:', computedLevel)
+    if (import.meta.env.DEV) console.log('[useUserData] XP updated:', computedXP, 'Level:', computedLevel)
 
     const levelName = LEVEL_NAMES_ARR[computedLevel] || 'Rookie'
     if (typeof window !== 'undefined') {

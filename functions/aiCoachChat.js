@@ -126,7 +126,7 @@ function buildCoachMessages({ current, prior, history, followUpText }) {
 export const aiCoachChat = onCall(
   {
     secrets: [OPENAI_KEY],
-    cors: true,
+    cors: ['https://esportselite.in', 'https://app.esportselite.in'],
     memory: '512MiB',
     timeoutSeconds: 90,
   },

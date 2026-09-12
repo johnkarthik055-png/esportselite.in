@@ -98,10 +98,10 @@ function AppRoutes() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/__/auth/action" element={<ResetPassword />} />
 
-        {/* Checkout flows — each handles its own auth redirect */}
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/squad-checkout" element={<SquadCheckout />} />
-        <Route path="/squad-payment-success" element={<SquadPaymentSuccess />} />
+        {/* Checkout flows — require auth */}
+        <Route path="/checkout" element={<AuthGuard><Checkout /></AuthGuard>} />
+        <Route path="/squad-checkout" element={<AuthGuard><SquadCheckout /></AuthGuard>} />
+        <Route path="/squad-payment-success" element={<AuthGuard><SquadPaymentSuccess /></AuthGuard>} />
 
         <Route
           element={

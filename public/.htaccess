@@ -1,34 +1,20 @@
-# SPA fallback: the app subdomain's document root IS this folder
-# (confirmed live — requesting /.htaccess here 403s, and a bare path
-# like /dashboard 404s straight from Apache before React Router ever
-# gets a chance to run). The app uses react-router's HashRouter
-# (routes live in the URL fragment, e.g. /#/dashboard), so normal
-# in-app navigation never touches the server at all — but any direct/
-# bookmarked/shared link that omits the "#" (e.g. /dashboard) is a
-# literal path Apache tries to resolve on disk, finds nothing, and
-# 404s on. Rewrite anything that isn't a real file or directory back
-# to index.html so those links load the app shell instead of a dead
-# host 404 page, same as any other client-side-routed SPA.
+# Security headers
+<IfModule mod_headers.c>
+  Header always set X-Frame-Options "DENY"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.cloudfunctions.net https://api.razorpay.com wss://*.firebaseio.com; frame-src https://checkout.razorpay.com https://api.razorpay.com https://accounts.google.com;"
+</IfModule>
+
+# Force HTTPS
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # SPA routing — serve index.html for all non-file, non-directory routes
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
-</IfModule>
-
-# SPA shell: never cache index.html, so every deploy is visible on the
-# very next page load instead of waiting out a stale server/CDN cache.
-<IfModule mod_headers.c>
-  <FilesMatch "^index\.html$">
-    Header set Cache-Control "no-cache, no-store, must-revalidate"
-    Header set Pragma "no-cache"
-    Header set Expires "0"
-  </FilesMatch>
-
-  # Vite-built JS/CSS/font assets are content-hashed (filename changes
-  # on every build), so they're safe to cache aggressively forever.
-  <FilesMatch "\.(js|css|woff2?|ttf|eot)$">
-    Header set Cache-Control "public, max-age=31536000, immutable"
-  </FilesMatch>
 </IfModule>

@@ -119,7 +119,7 @@ export async function saveXP(uid, xp, level) {
       { xp, level },
       { merge: true }
     )
-    console.log('[db] XP saved:', xp, 'Level:', level, 'uid:', id)
+    if (import.meta.env.DEV) console.log('[db] XP saved:', xp, 'Level:', level, 'uid:', id)
   } catch (err) {
     console.warn('[db] saveXP failed:', err)
   }
@@ -267,7 +267,7 @@ export async function saveStreak(uid, streak) {
   if (!id) return
   try {
     await setDoc(doc(db, 'users', id), { streak }, { merge: true })
-    console.log('[db] Streak saved:', streak, 'uid:', id)
+    if (import.meta.env.DEV) console.log('[db] Streak saved:', streak, 'uid:', id)
   } catch (err) {
     console.warn('[db] saveStreak failed:', err)
   }
