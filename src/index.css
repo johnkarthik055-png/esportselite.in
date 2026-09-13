@@ -1291,6 +1291,10 @@ body.amoled {
   right: 12px;
   margin: 0 auto;
   z-index: 1250;
+  /* The panel's margin box spans the full canvas width due to left+right
+     constraints; pointer-events:none stops that invisible margin area from
+     blocking clicks on the FloatingToolbar beneath/beside it. */
+  pointer-events: none;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -1306,6 +1310,7 @@ body.amoled {
   -webkit-backdrop-filter: blur(10px);
 }
 .szs-btn {
+  pointer-events: auto; /* re-enable on the actual interactive buttons */
   min-width: 30px;
   height: 30px;
   padding: 0 8px;
@@ -1362,6 +1367,7 @@ body.amoled {
   flex-wrap: nowrap;
   justify-content: flex-start;
   overflow-x: auto;
+  pointer-events: auto; /* restore for touch-scroll */
 }
 /* collapsed handle stays a fixed small size, never stretched */
 .mk-mobile-root .sct-panel.sct-collapsed {

@@ -77,6 +77,19 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if isAdmin();
     }
+    /* Strategies are user-owned: any authenticated user may create their
+       own strategy doc; only the owner (or admin) may update or delete. */
+    match /mapData/{mapId}/strategies/{strategyId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null &&
+        request.resource.data.createdBy == request.auth.uid;
+      allow update: if request.auth != null && (
+        resource.data.createdBy == request.auth.uid || isAdmin()
+      );
+      allow delete: if request.auth != null && (
+        resource.data.createdBy == request.auth.uid || isAdmin()
+      );
+    }
     match /tournaments/{tournamentId} {
       allow read: if request.auth != null;
       allow write: if isAdmin();
