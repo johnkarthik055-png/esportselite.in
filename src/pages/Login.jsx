@@ -272,6 +272,8 @@ export default function Login() {
 
   return (
     <PageTransition>
+      {/* Chrome autofill detection — fires onAnimationStart so React controlled inputs pick up autofilled values */}
+      <style>{`@keyframes autofillDetect{from{opacity:1}to{opacity:1}}input:-webkit-autofill{animation-name:autofillDetect;animation-duration:1ms}`}</style>
       <div
         style={{
           minHeight: '100vh',
@@ -466,6 +468,7 @@ function SignInView({
             ref={emailInputRef} type="text"
             value={username}
             onChange={e => { setUsername(e.target.value); clearFieldError('email') }}
+            onAnimationStart={e => { if (e.animationName === 'autofillDetect') { setUsername(e.target.value); clearFieldError('email') } }}
             className="input" placeholder="Enter your email" autoComplete="username"
           />
           {errors.email && (
@@ -481,6 +484,7 @@ function SignInView({
               type={showPass ? 'text' : 'password'}
               value={password}
               onChange={e => { setPassword(e.target.value); clearFieldError('password') }}
+              onAnimationStart={e => { if (e.animationName === 'autofillDetect') { setPassword(e.target.value); clearFieldError('password') } }}
               className="input" style={{ paddingRight: 40 }}
               placeholder="Enter your password" autoComplete="current-password"
             />
