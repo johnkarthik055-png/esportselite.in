@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "1789295383670-e216",
+  "createdAt": 1789295383670,
+  "origin": "failed-assert",
+  "expected": "declared consequence",
+  "observed": "no element matched {\"text\":\"Invalid\"}",
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "testid",
+        "value": "e216",
+        "source": {
+          "file": "src/pages/Login.jsx",
+          "line": 804,
+          "column": 9
+        }
+      },
+      "action": "click"
+    }
+  ]
+}

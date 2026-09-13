@@ -29,6 +29,8 @@
     "recharts": "^3.9.2"
   },
   "devDependencies": {
+    "@reticlehq/react": "^2.14.0",
+    "@reticlehq/vite-plugin": "^2.14.0",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.35",

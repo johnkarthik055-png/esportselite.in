@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "1789328677784-e40",
+  "createdAt": 1789328677785,
+  "origin": "failed-assert",
+  "expected": "declared consequence",
+  "observed": "no sub-predicate of anyOf matched",
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "testid",
+        "value": "e40",
+        "source": {
+          "file": "src/pages/MapKnowledge.jsx",
+          "line": 781,
+          "column": 4
+        }
+      },
+      "action": "click"
+    }
+  ]
+}

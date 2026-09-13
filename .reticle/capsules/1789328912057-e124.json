@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "1789328912057-e124",
+  "createdAt": 1789328912057,
+  "origin": "failed-assert",
+  "expected": "declared consequence",
+  "observed": "expected element to be absent but found 1",
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "testid",
+        "value": "e124",
+        "source": {
+          "file": "src/pages/MapKnowledge.jsx",
+          "line": 1224,
+          "column": 16
+        }
+      },
+      "action": "click"
+    }
+  ]
+}

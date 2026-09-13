@@ -1,0 +1,169 @@
+{
+  "version": 1,
+  "name": "map-knowledge-full-player-journey",
+  "projectId": "esports-elite-1ca98fc4",
+  "createdAt": 1789329215959,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "component",
+        "source": {
+          "file": "src/pages/MapKnowledge.jsx",
+          "line": 781,
+          "column": 4
+        }
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "component",
+        "source": {
+          "file": "src/pages/MapKnowledge.jsx",
+          "line": 781,
+          "column": 4
+        }
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Miramar"
+      },
+      "args": {
+        "text": "Escape"
+      },
+      "action": "press"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Miramar"
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Rondo"
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Vehicle 402"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "element": {
+          "role": "button",
+          "name": "Vehicle 402"
+        }
+      }
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Erangel"
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "component",
+        "component": "ZoomBtn",
+        "source": {
+          "file": "src/pages/MapKnowledge.jsx",
+          "line": 918,
+          "column": 10
+        }
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Recenter"
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Miramar"
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Rondo"
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Erangel"
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Miramar"
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Rondo"
+      },
+      "args": {},
+      "action": "click"
+    }
+  ],
+  "startPath": "/#/map-knowledge",
+  "intent": "A player opens Map Knowledge, sees Erangel as default, can switch between all 3 maps (Erangel/Miramar/Rondo), toggle spawn layers on/off, zoom and recenter the map, and rapidly switch maps without glitches or console errors. Rondo correctly has no boat spawns. Vehicle and boat spawn counts match the dataset.",
+  "intentId": "flow:map-knowledge-full-player-journey"
+}

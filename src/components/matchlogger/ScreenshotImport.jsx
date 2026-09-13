@@ -1,6 +1,8 @@
 import { useMemo, useRef, useState } from 'react'
 import { ImageIcon, Loader2, AlertTriangle, Check, X, RefreshCw } from 'lucide-react'
 import { extractMatchScreenshot, fileToBase64 } from '../../utils/aiFunctions.js'
+import { auth, db } from '../../utils/firebase.js'
+import { doc, getDoc } from 'firebase/firestore'
 
 /* ============================================================
    SCREENSHOT IMPORT  (Match Logger)
@@ -64,11 +66,32 @@ export default function ScreenshotImport({
     setPhase('loading'); setError('')
     try {
       const { base64, mimeType } = await fileToBase64(file)
+
+      // Fetch user's IGNs from Firestore for accurate player row identification
+      let playerIgns = [...(userIgns || [])]
+      const uid = auth.currentUser?.uid
+      if (uid) {
+        try {
+          const snap = await getDoc(doc(db, 'users', uid))
+          if (snap.exists()) {
+            const data = snap.data()
+            const fetched = [
+              ...(Array.isArray(data.igns) ? data.igns : []),
+              ...(data.ign ? [String(data.ign).trim()] : []),
+            ].map(s => String(s).trim()).filter(Boolean)
+            playerIgns = [...new Set([...fetched, ...playerIgns])].slice(0, 3)
+          }
+        } catch {
+          /* Firestore fetch failed — proceed with prop IGNs */
+        }
+      }
+
       const res = await extractMatchScreenshot({
         imageBase64: base64,
         mimeType,
         matchType,
         subMode,
+        ...(playerIgns.length ? { playerIgns } : {}),
         userIgns,
         rosterIgns: isTournament ? rosterIgns : [],
       })

@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "name": "strategy-maker-full-player-journey",
+  "projectId": "esports-elite-1ca98fc4",
+  "createdAt": 1789330519483,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Strategy Maker"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "element": {
+          "role": "button",
+          "name": "Pencil"
+        }
+      }
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Pencil"
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Select"
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Pencil"
+      },
+      "args": {},
+      "action": "click"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Zone 1–8"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "element": {
+          "role": "button"
+        }
+      }
+    }
+  ],
+  "startPath": "/#/map-knowledge",
+  "intent": "A player opens Strategy Maker, selects Pencil tool (confirms Color/Thickness/Opacity context toolbar appears), selects Zone 1-8 (confirms ZoneSelector panel with numbered zones and ALL button appears), and switches maps with unsaved-changes guard firing correctly — proving the full Strategy Maker toolbar and zone selection flow works.",
+  "intentId": "flow:strategy-maker-full-player-journey"
+}

@@ -37,20 +37,17 @@ const IGNORE_RULE =
   'anything not listed above. Return numbers as plain numbers (no "#", "x", "kills", or "m" suffixes). ' +
   'If a value is not clearly visible, use null.'
 
-function classicPrompt(subMode, userIgns) {
-  const individual = subMode === 'Solo' || subMode === 'solo_vs_squad'
-  const killsDesc = individual
-    ? 'kills: the number of kills for the user\'s own player only.'
-    : 'kills: the TEAM\'s total kills for this match (sum of the squad).'
+function classicPrompt(subMode, playerIgns) {
+  const ignLine = playerIgns.length
+    ? `The player's in-game name (IGN) is one of: ${playerIgns.join(' / ')}. Find the row in the results screen that matches this IGN (or closest match) and extract kills ONLY from that specific row. Do NOT extract the total team kills shown in the summary at the top of the screen.`
+    : "Extract kills from the individual player row that appears highlighted, marked as 'You', or visually distinct from other player rows. Do NOT extract total team kills from the summary panel."
   return [
     `This is a BGMI Classic ${subMode === 'solo_vs_squad' ? 'Solo vs Squad' : subMode} end-of-match result screen.`,
-    userIgns.length
-      ? `The user plays under one of these in-game names: ${userIgns.join(', ')}. Use them to identify the user's own row if several players are shown.`
-      : '',
+    ignLine,
     'Extract EXACTLY these fields as JSON:',
     '- map: the map name (Erangel, Miramar, Sanhok, Vikendi, Livik, Rondo, Nusa, Karakin) or null.',
     '- position: the final placement / rank for this match as a number (1 = winner / "WINNER WINNER CHICKEN DINNER").',
-    `- ${killsDesc.split(':')[0]}: ${killsDesc.split(':').slice(1).join(':').trim()}`,
+    '- kills: the number of kills for the user\'s own player only (from their individual row, NOT the team summary at the top).',
     '- damage: the total damage dealt by the user\'s player in this match as a number, or null.',
     '- survivalTime: the user\'s survival time as a string in "MM:SS" format, or null. Keep the colon — do not convert to a plain number.',
     '- matchType: the detected game sub-mode shown on screen: "Solo", "Duo", or "Squad" — or null if not clearly visible.',
@@ -59,17 +56,18 @@ function classicPrompt(subMode, userIgns) {
   ].filter(Boolean).join('\n')
 }
 
-function scrimsPrompt(userIgns) {
+function scrimsPrompt(playerIgns) {
+  const ignLine = playerIgns.length
+    ? `The player's in-game name (IGN) is one of: ${playerIgns.join(' / ')}. Find the row in the results screen that matches this IGN (or closest match) and extract that player's individual kills ONLY from their specific row. Do NOT extract the total team kills shown in the summary at the top of the screen.`
+    : "Extract individualKills from the individual player row that appears highlighted, marked as 'You', or visually distinct from other player rows. Do NOT extract total team kills from the summary panel."
   return [
     'This is a BGMI custom-room / scrims squad end-of-match result screen.',
-    userIgns.length
-      ? `The user plays under one of these in-game names: ${userIgns.join(', ')}. If the user's own row is visible, also read their individual kills and damage.`
-      : '',
+    ignLine,
     'Extract EXACTLY these fields as JSON:',
     '- map: the map name (Erangel, Miramar, Sanhok, Vikendi, Livik, Rondo, Nusa, Karakin) or null.',
     '- teamPosition: the squad\'s final placement in the lobby as a number.',
-    '- teamKills: the squad\'s total kills for this match.',
-    '- individualKills: the user\'s own kills if their row is identifiable, else null.',
+    '- teamKills: the squad\'s total kills for this match (from the team summary).',
+    '- individualKills: the user\'s own kills from their individual player row (NOT the team total) — or null if not identifiable.',
     '- damage: the total damage dealt by the user\'s player in this match as a number, or null.',
     '- placement_points: the placement points awarded for the team\'s finishing position as a number, or null.',
     IGNORE_RULE,
@@ -187,6 +185,7 @@ export const extractMatchScreenshot = onCall(
       mimeType = 'image/png',
       matchType,
       subMode = '',
+      playerIgns = [],
       userIgns = [],
       rosterIgns = [],
     } = req.data || {}
@@ -204,7 +203,15 @@ export const extractMatchScreenshot = onCall(
       throw new HttpsError('invalid-argument', 'Unknown Classic sub-mode.')
     }
 
-    const cleanUserIgns = (Array.isArray(userIgns) ? userIgns : []).map(s => String(s).trim()).filter(Boolean).slice(0, 3)
+    // Merge playerIgns (from Firestore fetch) with legacy userIgns, deduplicate
+    const mergedIgns = [
+      ...(Array.isArray(playerIgns) ? playerIgns : []),
+      ...(Array.isArray(userIgns) ? userIgns : []),
+    ].map(s => String(s).trim()).filter(Boolean)
+    const effectiveIgns = [...new Set(mergedIgns)].slice(0, 3)
+
+    console.log('[extractMatchScreenshot] using playerIgns:', effectiveIgns)
+
     const cleanRoster = (Array.isArray(rosterIgns) ? rosterIgns : [])
       .filter(r => r && r.uid)
       .map(r => ({
@@ -214,8 +221,8 @@ export const extractMatchScreenshot = onCall(
       }))
 
     let prompt
-    if (matchType === 'Classic') prompt = classicPrompt(subMode || 'Squad', cleanUserIgns)
-    else if (matchType === 'Scrims') prompt = scrimsPrompt(cleanUserIgns)
+    if (matchType === 'Classic') prompt = classicPrompt(subMode || 'Squad', effectiveIgns)
+    else if (matchType === 'Scrims') prompt = scrimsPrompt(effectiveIgns)
     else prompt = tournamentPrompt(cleanRoster)
 
     const openai = new OpenAI({ apiKey: OPENAI_KEY.value() })

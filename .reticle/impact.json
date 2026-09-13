@@ -1,0 +1,111 @@
+{
+  "counts": {
+    "calls": 251,
+    "verdicts": 58,
+    "passed": 44,
+    "failed": 8,
+    "unknown": 6,
+    "refusals": 12,
+    "marks": 0,
+    "sessions": 5,
+    "tokensReturned": 105737,
+    "drivingMs": 148776
+  },
+  "days": [
+    {
+      "date": "2026-09-13",
+      "counts": {
+        "calls": 129,
+        "verdicts": 32,
+        "passed": 24,
+        "failed": 2,
+        "unknown": 6,
+        "refusals": 8,
+        "marks": 0,
+        "sessions": 3,
+        "tokensReturned": 48769,
+        "drivingMs": 77744
+      }
+    },
+    {
+      "date": "2026-09-14",
+      "counts": {
+        "calls": 122,
+        "verdicts": 26,
+        "passed": 20,
+        "failed": 6,
+        "unknown": 0,
+        "refusals": 4,
+        "marks": 0,
+        "sessions": 2,
+        "tokensReturned": 56968,
+        "drivingMs": 71032
+      }
+    }
+  ],
+  "records": {
+    "longestRunMs": 0,
+    "bestVerdictDay": 32,
+    "bestDefectDay": 6,
+    "streakDays": 2,
+    "bestStreakDays": 2
+  },
+  "savings": {
+    "tokens": {
+      "value": 0,
+      "basis": "vs an agent reading the app through screenshots"
+    },
+    "minutes": {
+      "value": 61,
+      "basis": "vs checking each consequence by hand, plus one re-prompt cycle per defect caught"
+    }
+  },
+  "since": 1789294396936,
+  "defects": [
+    {
+      "at": 1789330497673,
+      "title": "the declared consequence did not hold"
+    },
+    {
+      "at": 1789330490108,
+      "title": "Zone 1–8",
+      "detail": "no element matched {\"role\":\"button\",\"component\":\"ZoneSelector.jsx\"} in state 'visible'",
+      "source": "src/components/strategy/FloatingToolbar.jsx:60"
+    },
+    {
+      "at": 1789330372576,
+      "title": "Discard",
+      "detail": "no 'button' named 'Discard'; saw: Open menu",
+      "source": "src/components/strategy/SaveStrategyModal.jsx:124"
+    },
+    {
+      "at": 1789330263275,
+      "title": "Layers",
+      "detail": "no element matched {\"role\":\"dialog\"} in state 'visible'",
+      "source": "src/components/strategy/FloatingToolbar.jsx:60"
+    },
+    {
+      "at": 1789328912075,
+      "title": "Vehicle 402",
+      "detail": "expected element to be absent but found 1",
+      "source": "src/pages/MapKnowledge.jsx:1224"
+    },
+    {
+      "at": 1789328677796,
+      "title": "no sub-predicate of anyOf matched",
+      "source": "src/pages/MapKnowledge.jsx:781"
+    },
+    {
+      "at": 1789295449208,
+      "title": "Sign in",
+      "detail": "current route (no route change in the window) '/' does not contain '/dashboard'",
+      "source": "src/pages/Login.jsx:804"
+    },
+    {
+      "at": 1789295383675,
+      "title": "Sign in",
+      "detail": "no element matched {\"text\":\"Invalid\"}",
+      "source": "src/pages/Login.jsx:804"
+    }
+  ]
+}

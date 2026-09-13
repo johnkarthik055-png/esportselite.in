@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "1789295449202-e316",
+  "createdAt": 1789295449202,
+  "origin": "failed-assert",
+  "expected": "declared consequence",
+  "observed": "current route (no route change in the window) '/' does not contain '/dashboard'",
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "testid",
+        "value": "e316",
+        "source": {
+          "file": "src/pages/Login.jsx",
+          "line": 804,
+          "column": 9
+        }
+      },
+      "action": "click"
+    }
+  ]
+}
