@@ -93,7 +93,7 @@ export const createRazorpayOrder = onCall(
       const status = err?.statusCode || err?.status
       console.error('[createRazorpayOrder] subscription create failed:', status, desc)
       if (status === 401) throw new HttpsError('failed-precondition', 'Payment gateway credentials are invalid. Contact support.')
-      if (status === 400) throw new HttpsError('invalid-argument', `Razorpay rejected the request: ${desc}`)
+      if (status === 400) throw new HttpsError('invalid-argument', 'The payment request was rejected. Please check your details and try again.')
       throw new HttpsError('internal', 'Could not start the subscription. Please try again.')
     }
 

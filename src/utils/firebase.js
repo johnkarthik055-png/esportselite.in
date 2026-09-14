@@ -1,4 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 import { getAnalytics, isSupported as isAnalyticsSupported, logEvent } from 'firebase/analytics'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
@@ -29,7 +30,30 @@ const firebaseConfig = {
 }
 
 /** Singleton — survives Vite HMR without double-initializing. */
-export const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig)
+const _isFirstInit = !getApps().length
+export const firebaseApp = _isFirstInit ? initializeApp(firebaseConfig) : getApp()
+
+/**
+ * Firebase App Check — prevents abuse of Cloud Functions and Firestore from
+ * outside the app (scripts, Postman, etc.).
+ *
+ * TODO: Replace the test reCAPTCHA key below with a real reCAPTCHA v3 site key
+ * from https://console.cloud.google.com/security/recaptcha
+ * Then in Firebase Console → App Check → Apps, enable enforcement for each
+ * Cloud Function and for Firestore.
+ *
+ * The key below ('6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI') is Google's public
+ * test key — it allows all requests through and should NOT be used in production.
+ */
+if (typeof window !== 'undefined' && _isFirstInit) {
+  initializeAppCheck(firebaseApp, {
+    provider: new ReCaptchaV3Provider(
+      import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
+        '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+    ),
+    isTokenAutoRefreshEnabled: true,
+  })
+}
 
 /** Auth instance + pre-configured Google provider for the
     "Continue with Google" button on the Login page. */

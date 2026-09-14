@@ -96,7 +96,7 @@ export const anthropicProxy = onCall(
       if (response.status === 429) {
         throw new HttpsError('resource-exhausted', 'The AI service is busy — try again shortly.')
       }
-      throw new HttpsError('internal', `AI service returned error ${response.status}.`)
+      throw new HttpsError('internal', 'The AI service returned an unexpected response. Try again.')
     }
 
     let data
