@@ -101,5 +101,10 @@ service cloud.firestore {
     match /projectLog/{entryId} {
       allow read, write: if isAdmin();
     }
+    /* Marketing website contact form — anyone may create, only admins may read */
+    match /contactSubmissions/{doc} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
   }
 }
