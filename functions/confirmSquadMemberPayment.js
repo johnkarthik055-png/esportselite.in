@@ -10,10 +10,7 @@
  * Returns: { squadStatus: "pending" | "active", allPaid: boolean }
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
-import { setGlobalOptions } from 'firebase-functions/v2'
 import admin from 'firebase-admin'
-
-setGlobalOptions({ region: 'us-central1', maxInstances: 10 })
 
 if (!admin.apps.length) admin.initializeApp()
 

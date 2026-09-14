@@ -19,14 +19,11 @@
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import { defineSecret } from 'firebase-functions/params'
-import { setGlobalOptions } from 'firebase-functions/v2'
 import Razorpay from 'razorpay'
 
 const RAZORPAY_KEY_ID     = defineSecret('RAZORPAY_KEY_ID')
 const RAZORPAY_KEY_SECRET = defineSecret('RAZORPAY_KEY_SECRET')
 const RAZORPAY_PLAN_IDS   = defineSecret('RAZORPAY_PLAN_IDS')
-
-setGlobalOptions({ region: 'us-central1', maxInstances: 10 })
 
 const CURRENCY = 'INR'
 /* ~10 years of monthly renewals; Razorpay marks the subscription "completed"

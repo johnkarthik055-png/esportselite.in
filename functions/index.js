@@ -15,6 +15,10 @@
  * Deploy:  firebase deploy --only functions
  * (Requires the Blaze plan on the Firebase project.)
  */
+import { setGlobalOptions } from 'firebase-functions/v2'
+
+setGlobalOptions({ region: 'us-central1', maxInstances: 10 })
+
 export { extractMatchScreenshot } from './extractMatchScreenshot.js'
 export { aiCoachChat } from './aiCoachChat.js'
 export { anthropicProxy } from './anthropicProxy.js'

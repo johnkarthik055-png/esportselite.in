@@ -24,13 +24,10 @@
  */
 import { onRequest } from 'firebase-functions/v2/https'
 import { defineSecret } from 'firebase-functions/params'
-import { setGlobalOptions } from 'firebase-functions/v2'
 import admin from 'firebase-admin'
 import { verifyRazorpaySignature, mapSubscriptionEvent } from './lib/razorpaySubscription.js'
 
 const RAZORPAY_WEBHOOK_SECRET = defineSecret('RAZORPAY_WEBHOOK_SECRET')
-
-setGlobalOptions({ region: 'us-central1', maxInstances: 10 })
 
 if (!admin.apps.length) admin.initializeApp()
 

@@ -17,11 +17,8 @@
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import { defineSecret } from 'firebase-functions/params'
-import { setGlobalOptions } from 'firebase-functions/v2'
 
 const ANTHROPIC_KEY = defineSecret('ANTHROPIC_KEY')
-
-setGlobalOptions({ region: 'us-central1', maxInstances: 10 })
 
 const MODEL         = 'claude-sonnet-4-5-20250609'
 const MAX_PROMPT    = 10000

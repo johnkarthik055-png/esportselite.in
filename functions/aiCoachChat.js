@@ -25,12 +25,9 @@
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import { defineSecret } from 'firebase-functions/params'
-import { setGlobalOptions } from 'firebase-functions/v2'
 import OpenAI from 'openai'
 
 const OPENAI_KEY = defineSecret('OPENAI_KEY')
-
-setGlobalOptions({ region: 'us-central1', maxInstances: 10 })
 
 const VISION_MODEL = 'gpt-4o-mini'   /* cheap, fine for 3-number OCR */
 const COACH_MODEL = 'gpt-4o'         /* the actual advice quality */

@@ -15,12 +15,9 @@
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import { defineSecret } from 'firebase-functions/params'
-import { setGlobalOptions } from 'firebase-functions/v2'
 import OpenAI from 'openai'
 
 const OPENAI_KEY = defineSecret('OPENAI_KEY')
-
-setGlobalOptions({ region: 'us-central1', maxInstances: 10 })
 
 const MODEL = 'gpt-4o-mini'
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024 /* ~5 MB of raw bytes (~6.7 MB base64) */
