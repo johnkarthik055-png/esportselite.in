@@ -1,13 +1,17 @@
 /**
  * anthropicProxy — Firebase Callable (v2)
  *
- * Server-side proxy for the Anthropic Claude API. The web client MUST
- * NOT call the Anthropic API directly — doing so would expose the key
- * in the client bundle. All Claude calls go through this function.
+ * Server-side proxy for AI plan/schedule generation. The web client MUST
+ * NOT call an AI provider directly — doing so would expose the key in
+ * the client bundle. All calls go through this function.
+ *
+ * Uses OpenAI (gpt-4o-mini) via the OPENAI_KEY secret — the same secret
+ * already used by aiCoachChat.js and extractMatchScreenshot.js. The
+ * export name is kept as `anthropicProxy` because AIPlanGenerator.jsx
+ * and Scheduler.jsx call it by that name via httpsCallable.
  *
  * Secrets:
- *   ANTHROPIC_KEY  — Anthropic API key
- *   Set once with: firebase functions:secrets:set ANTHROPIC_KEY
+ *   OPENAI_KEY  — OpenAI API key
  *
  * Input:
  *   { prompt: string, systemPrompt?: string, maxTokens?: number }
@@ -17,22 +21,23 @@
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import { defineSecret } from 'firebase-functions/params'
+import OpenAI from 'openai'
 
-const ANTHROPIC_KEY = defineSecret('ANTHROPIC_KEY')
+const OPENAI_KEY = defineSecret('OPENAI_KEY')
 
-const MODEL         = 'claude-sonnet-4-5-20250609'
-const MAX_PROMPT    = 10000
+const MODEL          = 'gpt-4o-mini'
+const MAX_PROMPT     = 10000
 const MAX_SYS_PROMPT = 5000
 const DEFAULT_TOKENS = 1024
-const MAX_TOKENS    = 4096
-const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages'
+const MAX_TOKENS     = 4096
 
 export const anthropicProxy = onCall(
   {
-    secrets: [ANTHROPIC_KEY],
+    secrets: [OPENAI_KEY],
     cors: ['https://esportselite.in', 'https://app.esportselite.in'],
     memory: '256MiB',
     timeoutSeconds: 120,
+    enforceAppCheck: true,
   },
   async (req) => {
     if (!req.auth?.uid) {
@@ -62,56 +67,38 @@ export const anthropicProxy = onCall(
       ? Math.min(Math.max(1, Number(maxTokens) || DEFAULT_TOKENS), MAX_TOKENS)
       : DEFAULT_TOKENS
 
-    const body = {
-      model:      MODEL,
-      max_tokens: tokens,
-      messages:   [{ role: 'user', content: String(prompt) }],
-    }
-    if (systemPrompt && systemPrompt.trim()) {
-      body.system = systemPrompt.trim()
-    }
+    const openai = new OpenAI({ apiKey: OPENAI_KEY.value() })
 
-    let response
+    const messages = []
+    if (systemPrompt && systemPrompt.trim()) {
+      messages.push({ role: 'system', content: systemPrompt.trim() })
+    }
+    messages.push({ role: 'user', content: String(prompt) })
+
+    let completion
     try {
-      response = await fetch(ANTHROPIC_API, {
-        method:  'POST',
-        headers: {
-          'Content-Type':    'application/json',
-          'x-api-key':       ANTHROPIC_KEY.value(),
-          'anthropic-version': '2023-06-01',
-        },
-        body: JSON.stringify(body),
+      completion = await openai.chat.completions.create({
+        model:      MODEL,
+        max_tokens: tokens,
+        messages,
       })
     } catch (err) {
-      console.error('[anthropicProxy] network error:', err?.message || err)
+      console.error('[anthropicProxy] OpenAI error:', err?.message || err)
+      if (err?.status === 401) {
+        throw new HttpsError('failed-precondition', 'The AI service is not configured. Contact support.')
+      }
+      if (err?.status === 429) {
+        throw new HttpsError('resource-exhausted', 'The AI service is busy — try again shortly.')
+      }
       throw new HttpsError('internal', 'Could not reach the AI service. Try again.')
     }
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '')
-      console.error(`[anthropicProxy] API error ${response.status}:`, errorText.slice(0, 200))
-      if (response.status === 401) {
-        throw new HttpsError('failed-precondition', 'The AI service is not configured. Contact support.')
-      }
-      if (response.status === 429) {
-        throw new HttpsError('resource-exhausted', 'The AI service is busy — try again shortly.')
-      }
-      throw new HttpsError('internal', 'The AI service returned an unexpected response. Try again.')
-    }
-
-    let data
-    try {
-      data = await response.json()
-    } catch {
-      throw new HttpsError('internal', 'AI service returned an unreadable response.')
-    }
-
-    const text = (data.content || []).map(c => c.text || '').join('').trim()
+    const text = (completion.choices?.[0]?.message?.content || '').trim()
     if (!text) {
       throw new HttpsError('internal', 'AI service returned an empty response.')
     }
 
-    console.log(`[anthropicProxy] uid=${req.auth.uid} tokens_used=${data.usage?.output_tokens ?? '?'}`)
+    console.log(`[anthropicProxy] uid=${req.auth.uid} tokens_used=${completion.usage?.total_tokens ?? '?'}`)
 
     return { text }
   },

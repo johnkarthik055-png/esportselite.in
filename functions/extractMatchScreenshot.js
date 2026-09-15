@@ -171,6 +171,7 @@ export const extractMatchScreenshot = onCall(
     cors: true,
     memory: '512MiB',
     timeoutSeconds: 60,
+    enforceAppCheck: true,
   },
   async (req) => {
     if (!req.auth?.uid) {

@@ -35,6 +35,7 @@ export const createSquad = onCall(
     cors: ['https://esportselite.in', 'https://app.esportselite.in'],
     memory: '256MiB',
     timeoutSeconds: 60,
+    enforceAppCheck: true,
   },
   async (req) => {
     const uid = req.auth?.uid

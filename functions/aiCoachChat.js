@@ -126,6 +126,7 @@ export const aiCoachChat = onCall(
     cors: ['https://esportselite.in', 'https://app.esportselite.in'],
     memory: '512MiB',
     timeoutSeconds: 90,
+    enforceAppCheck: true,
   },
   async (req) => {
     if (!req.auth?.uid) {
