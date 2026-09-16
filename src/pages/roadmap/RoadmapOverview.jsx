@@ -280,33 +280,34 @@ function StageRow({ stage, isLast, onOpen, gated }) {
 
   if (gated) {
     return (
-      <li style={{ position: 'relative', display: 'flex', gap: 14, marginBottom: 12 }}>
-        <div className="rmo-rail" style={{ opacity: 0.35, filter: 'blur(1px)' }}>
+      <li style={{ position: 'relative', overflow: 'hidden', display: 'flex', gap: 14, marginBottom: 12 }}>
+        {/* Blurred rail preview */}
+        <div className="rmo-rail" style={{ filter: 'blur(3px)', opacity: 0.4, pointerEvents: 'none' }}>
           <span className="rmo-node"><Lock size={12} /></span>
           {!isLast && <span className="rmo-rail-line" />}
         </div>
-        <div style={{
-          flex: 1, borderRadius: 'var(--radius)',
-          background: 'var(--bg-surface)', border: '1px solid var(--border)',
-          padding: '14px 15px', opacity: 0.35, filter: 'blur(1px)',
-          display: 'flex', alignItems: 'center', gap: 13,
-        }}>
-          <span style={{ fontSize: 24, lineHeight: 1 }}>{icon}</span>
-          <span style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{
-              fontFamily: 'DM Sans, sans-serif', fontSize: 10.5,
-              textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-subtle)',
-            }}>
+        {/* Full stage card content, blurred — gives users a preview of what they're missing */}
+        <button
+          type="button"
+          className="rmo-card"
+          disabled
+          tabIndex={-1}
+          aria-hidden="true"
+          style={{
+            filter: 'blur(3px)', opacity: 0.4,
+            pointerEvents: 'none', userSelect: 'none', marginBottom: 0,
+          }}
+        >
+          <span className="rmo-card-icon" aria-hidden>{icon}</span>
+          <span className="rmo-card-body">
+            <span className="rmo-card-kicker">
               Stage {String(order).padStart(2, '0')}
+              <span className="rmo-lock-hint"><Lock size={10} /> Elite</span>
             </span>
-            <span style={{
-              fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 16,
-              color: 'var(--text-primary)',
-            }}>
-              {title}
-            </span>
+            <span className="rmo-card-title">{title}</span>
+            {description && <span className="rmo-card-desc">{description}</span>}
           </span>
-        </div>
+        </button>
         <UpgradeOverlay
           title="Roadmap Phase 2"
           description="Unlock advanced stages with deeper analysis, role-specific training, and structured competitive preparation."
