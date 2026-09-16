@@ -155,38 +155,22 @@ export default function ScreenshotImport({
 
   if (!isActive) {
     return (
-      <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 8, minHeight: 120 }}>
-        <div style={{ filter: 'blur(2px)', opacity: 0.45, pointerEvents: 'none', userSelect: 'none' }}>
-          <div className="si-panel glass clip-corner-sm">
-            <div className="si-head">
-              <div className="si-title">
-                <ImageIcon size={15} /> Import {matchType} from screenshot
-              </div>
-            </div>
-            <div className="si-body">
-              <p className="si-p">
-                Upload the end-of-match result screen. The AI reads map, position, and kill data automatically —
-                you review every value before it's applied.
-              </p>
-              <label className="btn btn-red btn-sm si-file">
-                <ImageIcon size={14} /> Choose screenshot
-              </label>
-            </div>
-          </div>
+      <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 8, minHeight: 80 }}>
+        {/* Blurred preview — just the collapsed bar so the overlay stays within this small area */}
+        <div style={{ filter: 'blur(2px)', opacity: 0.45, pointerEvents: 'none', userSelect: 'none',
+          display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', flexWrap: 'wrap' }}>
+          <button type="button" className="btn btn-secondary btn-sm" disabled>
+            <ImageIcon size={14} /> Import from screenshot
+          </button>
+          <span style={{ fontSize: 11, color: 'var(--text-subtle)' }}>
+            {matchType} — reads only the fields this mode needs.
+          </span>
         </div>
         <UpgradeOverlay
           title="AI Screenshot Import"
           description="Automatically extract your match stats from a screenshot. No manual entry needed."
           feature="match-logger-ai"
         />
-        <style>{`
-          .si-panel { padding:16px; margin-bottom:16px; }
-          .si-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-          .si-title { display:flex; align-items:center; gap:7px; font-family:'DM Sans',sans-serif; font-weight:700; font-size:13px; color:var(--text-primary); }
-          .si-body { display:flex; flex-direction:column; gap:12px; }
-          .si-p { font-size:12px; color:var(--text-muted); line-height:1.6; margin:0; }
-          .si-file { cursor:pointer; align-self:flex-start; }
-        `}</style>
       </div>
     )
   }

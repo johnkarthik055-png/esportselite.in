@@ -281,12 +281,12 @@ function StageRow({ stage, isLast, onOpen, gated }) {
   if (gated) {
     return (
       <li style={{ position: 'relative', overflow: 'hidden', display: 'flex', gap: 14, marginBottom: 12 }}>
-        {/* Blurred rail preview */}
-        <div className="rmo-rail" style={{ filter: 'blur(3px)', opacity: 0.4, pointerEvents: 'none' }}>
+        {/* Blurred rail */}
+        <div className="rmo-rail" style={{ filter: 'blur(2px)', opacity: 0.35, pointerEvents: 'none', flexShrink: 0 }}>
           <span className="rmo-node"><Lock size={12} /></span>
           {!isLast && <span className="rmo-rail-line" />}
         </div>
-        {/* Full stage card content, blurred — gives users a preview of what they're missing */}
+        {/* Real stage card — each stage shows its own name/description blurred behind the overlay */}
         <button
           type="button"
           className="rmo-card"
@@ -295,24 +295,42 @@ function StageRow({ stage, isLast, onOpen, gated }) {
           aria-hidden="true"
           style={{
             filter: 'blur(3px)', opacity: 0.4,
-            pointerEvents: 'none', userSelect: 'none', marginBottom: 0,
+            pointerEvents: 'none', userSelect: 'none',
+            marginBottom: 0, flex: 1,
           }}
         >
           <span className="rmo-card-icon" aria-hidden>{icon}</span>
           <span className="rmo-card-body">
-            <span className="rmo-card-kicker">
-              Stage {String(order).padStart(2, '0')}
-              <span className="rmo-lock-hint"><Lock size={10} /> Elite</span>
-            </span>
+            <span className="rmo-card-kicker">Stage {String(order).padStart(2, '0')}</span>
             <span className="rmo-card-title">{title}</span>
             {description && <span className="rmo-card-desc">{description}</span>}
           </span>
         </button>
-        <UpgradeOverlay
-          title="Roadmap Phase 2"
-          description="Unlock advanced stages with deeper analysis, role-specific training, and structured competitive preparation."
-          feature="roadmap-phase2"
-        />
+        {/* Compact inline gate — stays within row bounds, semi-transparent so stage preview shows through */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'rgba(5,8,22,0.76)',
+          backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          gap: 10, padding: '0 16px', borderRadius: 'var(--radius)', flexWrap: 'wrap',
+        }}>
+          <Lock size={15} color="#3B82F6" style={{ flexShrink: 0 }} />
+          <span style={{
+            fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 13,
+            color: '#F8FAFC', flexShrink: 0,
+          }}>Roadmap Phase 2</span>
+          <span style={{
+            background: 'rgba(59,130,246,0.12)', color: '#3B82F6', fontSize: 9.5,
+            fontFamily: 'Inter, sans-serif', fontWeight: 700, letterSpacing: '0.12em',
+            textTransform: 'uppercase', borderRadius: 999, padding: '2px 9px',
+            border: '1px solid rgba(59,130,246,0.3)', flexShrink: 0,
+          }}>ELITE</span>
+          <a href="/#/checkout" style={{
+            background: '#3B82F6', color: '#fff', borderRadius: 6, padding: '5px 14px',
+            fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 11.5,
+            textDecoration: 'none', letterSpacing: '0.03em', flexShrink: 0,
+          }}>Upgrade →</a>
+        </div>
       </li>
     )
   }
