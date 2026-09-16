@@ -29,6 +29,8 @@ import {
 import { db } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { aiCoachChat, fileToBase64 } from '../utils/aiFunctions.js'
+import { useSubscription } from '../hooks/useSubscription.js'
+import UpgradeOverlay from '../components/UpgradeOverlay.jsx'
 
 /* Single ongoing thread per user — simplest for v1; no session switcher.
    (A multi-session picker can be layered on later without changing the
@@ -38,6 +40,7 @@ const SESSION_ID = 'default'
 export default function AICoach() {
   const { user } = useAuth()
   const uid = user?.uid
+  const { isActive, loading: subLoading } = useSubscription()
 
   const [messages, setMessages] = useState([])
   const [statsHistory, setStatsHistory] = useState([]) /* newest first, up to 3 */
@@ -202,7 +205,14 @@ export default function AICoach() {
   }
 
   return (
-    <div className="aic-page page-transition">
+    <div className="aic-page page-transition" style={{ position: 'relative' }}>
+      {!isActive && !subLoading && (
+        <UpgradeOverlay
+          title="AI Coach"
+          description="Get personalized coaching based on your actual match stats. Upload a screenshot and receive a breakdown of your strengths, weaknesses, and a custom practice plan."
+          feature="ai-coach"
+        />
+      )}
       <div className="aic-head">
         <div className="aic-title">
           <Bot size={20} /> AI Coach

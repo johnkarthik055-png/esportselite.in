@@ -3,6 +3,8 @@ import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
+const ADMIN_EMAILS = ['karthikreddyy2010@gmail.com', 'karthikreddyyy2010@gmail.com']
+
 /**
  * useSubscription — live read of `users/{uid}.subscription`.
  *
@@ -51,11 +53,16 @@ export function isSubscriptionActive(subscription, at = Date.now()) {
 export function useSubscription() {
   const { user } = useAuth()
   const uid = user?.uid || null
+  const isAdminUser = user?.email ? ADMIN_EMAILS.includes(user.email) : false
 
   const [subscription, setSubscription] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (isAdminUser) {
+      setLoading(false)
+      return
+    }
     if (!uid) {
       setSubscription(null)
       setLoading(false)
@@ -76,7 +83,19 @@ export function useSubscription() {
       },
     )
     return unsub
-  }, [uid])
+  }, [uid, isAdminUser])
+
+  if (isAdminUser) {
+    return {
+      loading: false,
+      subscription: null,
+      status: 'active',
+      plan: 'admin',
+      isActive: true,
+      isAdmin: true,
+      expiresAt: null,
+    }
+  }
 
   const expiresRaw = subscription?.expiresAt
   const expiresAt = expiresRaw
@@ -91,6 +110,7 @@ export function useSubscription() {
     status: subscription?.status ?? 'none',
     plan: subscription?.plan ?? 'none',
     isActive: isSubscriptionActive(subscription),
+    isAdmin: false,
     expiresAt: expiresAt && !isNaN(expiresAt?.getTime?.()) ? expiresAt : null,
   }
 }

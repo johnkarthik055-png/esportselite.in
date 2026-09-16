@@ -6,6 +6,8 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useUserTeamId, useTeam } from '../hooks/useTeam.js'
+import { useSubscription } from '../hooks/useSubscription.js'
+import UpgradeOverlay from '../components/UpgradeOverlay.jsx'
 import { leaveTeam } from '../utils/team.js'
 import { useConfirm } from '../hooks/useConfirm.js'
 import ConfirmModal from '../components/ConfirmModal.jsx'
@@ -35,6 +37,7 @@ export default function Team() {
   const { user } = useAuth()
   const { teamId, loading: idLoading } = useUserTeamId()
   const { team, members, myRole, loading: teamLoading } = useTeam(teamId)
+  const { isActive, loading: subLoading } = useSubscription()
   const [tab, setTab] = useState('overview')
   const [leaving, setLeaving] = useState(false)
 
@@ -132,7 +135,18 @@ export default function Team() {
       {tab === 'practice'      && <TeamPractice      team={team} members={members} myRole={myRole} teamId={teamId} />}
       {tab === 'scrims'        && <TeamScrims        team={team} members={members} myRole={myRole} teamId={teamId} />}
       {tab === 'announcements' && <TeamAnnouncements team={team} members={members} myRole={myRole} teamId={teamId} />}
-      {tab === 'stats'         && <TeamStats         team={team} members={members} myRole={myRole} teamId={teamId} />}
+      {tab === 'stats' && (
+        <div style={{ position: 'relative', minHeight: 400, borderRadius: 12, overflow: 'hidden' }}>
+          <TeamStats team={team} members={members} myRole={myRole} teamId={teamId} />
+          {!isActive && !subLoading && (
+            <UpgradeOverlay
+              title="Squad Performance Analysis"
+              description="See exactly where each player underperformed — positioning errors, kill contributions, damage breakdown, and what went wrong in each match."
+              feature="squad-analysis"
+            />
+          )}
+        </div>
+      )}
       {tab === 'igl'           && (myRole === 'owner' || myRole === 'igl'
         ? <IGLDashboard         team={team} members={members} myRole={myRole} teamId={teamId} />
         : null)}

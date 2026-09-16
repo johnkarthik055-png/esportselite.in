@@ -10,6 +10,8 @@ import { useStreak } from '../../hooks/useStreak.js'
 import { getLevelName, XP_PER_LEVEL } from '../../utils/db.js'
 import { ROADMAP_INTRO } from '../../data/roadmapStages.js'
 import ThirtyDayJourney from './ThirtyDayJourney.jsx'
+import { useSubscription } from '../../hooks/useSubscription.js'
+import UpgradeOverlay from '../../components/UpgradeOverlay.jsx'
 
 const PHASE_ACTION = {
   content: 'Learn the lesson',
@@ -38,6 +40,7 @@ export default function RoadmapOverview() {
   } = useRoadmap()
   const { xp, level } = useUserData()
   const streak = useStreak()
+  const { isActive, loading: subLoading } = useSubscription()
 
   const levelName = getLevelName(level)
   const floor = XP_PER_LEVEL[level] ?? 0
@@ -248,6 +251,7 @@ export default function RoadmapOverview() {
                 stage={s}
                 isLast={i === stages.length - 1}
                 onOpen={() => navigate(`/roadmap/${s.id}`)}
+                gated={!isActive && !subLoading && i >= 3}
               />
             ))}
           </ol>
@@ -267,12 +271,50 @@ export default function RoadmapOverview() {
   )
 }
 
-function StageRow({ stage, isLast, onOpen }) {
+function StageRow({ stage, isLast, onOpen, gated }) {
   const { state, order, title, description, icon } = stage
   const locked = state === 'locked'
   const done = state === 'completed'
   const inProgress = state === 'in_progress'
   const available = state === 'available'
+
+  if (gated) {
+    return (
+      <li style={{ position: 'relative', display: 'flex', gap: 14, marginBottom: 12 }}>
+        <div className="rmo-rail" style={{ opacity: 0.35, filter: 'blur(1px)' }}>
+          <span className="rmo-node"><Lock size={12} /></span>
+          {!isLast && <span className="rmo-rail-line" />}
+        </div>
+        <div style={{
+          flex: 1, borderRadius: 'var(--radius)',
+          background: 'var(--bg-surface)', border: '1px solid var(--border)',
+          padding: '14px 15px', opacity: 0.35, filter: 'blur(1px)',
+          display: 'flex', alignItems: 'center', gap: 13,
+        }}>
+          <span style={{ fontSize: 24, lineHeight: 1 }}>{icon}</span>
+          <span style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span style={{
+              fontFamily: 'DM Sans, sans-serif', fontSize: 10.5,
+              textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-subtle)',
+            }}>
+              Stage {String(order).padStart(2, '0')}
+            </span>
+            <span style={{
+              fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 16,
+              color: 'var(--text-primary)',
+            }}>
+              {title}
+            </span>
+          </span>
+        </div>
+        <UpgradeOverlay
+          title="Roadmap Phase 2"
+          description="Unlock advanced stages with deeper analysis, role-specific training, and structured competitive preparation."
+          feature="roadmap-phase2"
+        />
+      </li>
+    )
+  }
 
   return (
     <li className={`rmo-row rmo-row--${state}`}>

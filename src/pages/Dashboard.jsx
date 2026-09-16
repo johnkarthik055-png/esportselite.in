@@ -4,8 +4,9 @@ import {
   Flame, AlertTriangle, Crosshair, Target, ChevronRight,
   Clock, Calendar, Activity, ArrowRight, Brain, Shield,
   BarChart2, Zap, Star, Trophy, Sparkles, TrendingUp,
-  Plus, MapPin, Car, Settings,
+  Plus, MapPin, Car, Settings, X,
 } from 'lucide-react'
+import { useSubscription } from '../hooks/useSubscription.js'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   ResponsiveContainer, Tooltip,
@@ -212,6 +213,16 @@ export default function Dashboard() {
   }
   const practiceTime = formatTotal(fsSessions)
 
+  const { isActive, loading: subLoading } = useSubscription()
+  const [bannerDismissed, setBannerDismissed] = useState(
+    () => localStorage.getItem('upgrade_banner_dismissed') === '1'
+  )
+
+  function dismissBanner() {
+    localStorage.setItem('upgrade_banner_dismissed', '1')
+    setBannerDismissed(true)
+  }
+
   const displayName = getDisplayName()
   const xp          = fsXP ?? 0
   const xpToday     = Math.min(xp % 500, 999)
@@ -304,6 +315,51 @@ export default function Dashboard() {
 
   return (
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+      {/* ══ UPGRADE BANNER ═══════════════════════════════════ */}
+      {!isActive && !subLoading && !bannerDismissed && (
+        <div style={{
+          background: 'linear-gradient(135deg, #0A0F1C, #0D1526)',
+          borderLeft: '4px solid #3B82F6',
+          borderRadius: 10,
+          padding: '12px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          flexWrap: 'wrap',
+        }}>
+          <span style={{
+            fontFamily: 'Inter, sans-serif', fontSize: 13,
+            color: '#CBD5E1', lineHeight: 1.4, flex: 1, minWidth: 0,
+          }}>
+            🚀 Unlock AI Coach, screenshot import, and advanced squad analysis
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+            <a
+              href="/#/checkout"
+              style={{
+                background: '#3B82F6', color: '#fff',
+                fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 13,
+                padding: '6px 14px', borderRadius: 6, textDecoration: 'none',
+                letterSpacing: '0.03em', whiteSpace: 'nowrap',
+              }}
+            >
+              Upgrade →
+            </a>
+            <button
+              onClick={dismissBanner}
+              style={{
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                color: '#475569', display: 'flex', alignItems: 'center', padding: 4,
+              }}
+              aria-label="Dismiss"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ══ TOP GREETING + STATS ══════════════════════════════ */}
       <div style={{ paddingBottom: 4 }}>
