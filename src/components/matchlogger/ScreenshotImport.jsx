@@ -155,7 +155,7 @@ export default function ScreenshotImport({
 
   if (!isActive) {
     return (
-      <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 8, minHeight: 80 }}>
+      <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 8, height: 120 }}>
         {/* Blurred preview — just the collapsed bar so the overlay stays within this small area */}
         <div style={{ filter: 'blur(2px)', opacity: 0.45, pointerEvents: 'none', userSelect: 'none',
           display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', flexWrap: 'wrap' }}>
