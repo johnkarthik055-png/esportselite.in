@@ -37,15 +37,17 @@ export const firebaseApp = _isFirstInit ? initializeApp(firebaseConfig) : getApp
  * Firebase App Check — prevents abuse of Cloud Functions and Firestore from
  * outside the app (scripts, Postman, etc.).
  *
- * TODO: Replace the test reCAPTCHA key below with a real reCAPTCHA v3 site key
- * from https://console.cloud.google.com/security/recaptcha
- * Then in Firebase Console → App Check → Apps, enable enforcement for each
- * Cloud Function and for Firestore.
- *
- * The key below ('6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI') is Google's public
- * test key — it allows all requests through and should NOT be used in production.
+ * Production: uses the reCAPTCHA v3 site key from VITE_RECAPTCHA_SITE_KEY (.env).
+ * localhost dev: App Check fails because localhost is not an authorized reCAPTCHA
+ * domain. Setting FIREBASE_APPCHECK_DEBUG_TOKEN = true makes the SDK generate a
+ * debug token and log it to the browser console. Whitelist that token in:
+ * Firebase Console → App Check → Apps → your app → Manage debug tokens.
  */
 if (typeof window !== 'undefined' && _isFirstInit) {
+  if (import.meta.env.DEV) {
+    // eslint-disable-next-line no-undef
+    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true
+  }
   initializeAppCheck(firebaseApp, {
     provider: new ReCaptchaV3Provider(
       import.meta.env.VITE_RECAPTCHA_SITE_KEY ||

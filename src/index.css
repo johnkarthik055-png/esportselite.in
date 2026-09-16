@@ -1106,6 +1106,8 @@ body.amoled {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  flex: 1;
+  min-height: 0;
 }
 .sft-group-label {
   font-family: 'Inter', sans-serif;

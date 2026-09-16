@@ -37,6 +37,7 @@ import TeamCreate from './pages/TeamCreate.jsx'
 import Tournaments from './pages/Tournaments.jsx'
 import TournamentDetail from './pages/TournamentDetail.jsx'
 import Scheduler from './pages/Scheduler.jsx'
+import Leaderboards from './pages/Leaderboards.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import Checkout from './pages/Checkout.jsx'
 import SquadCheckout from './pages/SquadCheckout.jsx'
@@ -138,6 +139,7 @@ function AppRoutes() {
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/tournaments/:tournamentId" element={<TournamentDetail />} />
           <Route path="/scheduler" element={<Scheduler />} />
+          <Route path="/leaderboards" element={<Leaderboards />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

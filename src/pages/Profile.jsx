@@ -641,7 +641,7 @@ export default function Profile() {
             <Upload size={13} /> Import
           </button>
           <ResetButton onClick={resetLocalData} />
-          {import.meta.env.DEV && (
+          {import.meta.env.DEV && ['karthikreddyy2010@gmail.com', 'johnkarthik055@gmail.com'].includes(authUser?.email) && (
             <button
               onClick={async () => {
                 if (!authUser?.uid) { showToast('Not signed in.'); return }

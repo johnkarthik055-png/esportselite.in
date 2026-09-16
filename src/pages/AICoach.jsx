@@ -267,6 +267,11 @@ export default function AICoach() {
 
       <div className="aic-composer">
         <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} hidden />
+        {!currentStats && (
+          <p className="aic-hint">
+            Tap <strong>📎</strong> to upload a Classic stats screenshot — the AI will analyse your stats and give personalised coaching.
+          </p>
+        )}
         <button
           className="aic-attach"
           onClick={() => fileRef.current?.click()}
@@ -320,7 +325,8 @@ export default function AICoach() {
         .aic-spin { animation:aic-spin 0.9s linear infinite; }
         @keyframes aic-spin { to { transform:rotate(360deg); } }
         .aic-error { flex-shrink:0; display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--red); background:var(--red-ghost); border:1px solid rgba(232,0,28,0.25); padding:9px 12px; border-radius:var(--radius-sm); }
-        .aic-composer { flex-shrink:0; display:flex; align-items:center; gap:8px; }
+        .aic-hint { flex-shrink:0; margin:0 0 4px; font-size:12px; color:var(--text-muted); line-height:1.5; }
+        .aic-composer { flex-shrink:0; display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
         .aic-attach, .aic-send { width:38px; height:38px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary); cursor:pointer; }
         .aic-send { background:var(--blue); border-color:var(--blue); color:#fff; }
         .aic-attach:disabled, .aic-send:disabled { opacity:0.5; cursor:not-allowed; }

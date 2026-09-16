@@ -89,6 +89,7 @@ export default function MatchLogger() {
   const [forms, setForms] = useState(EMPTY_FORM)
   const [filter, setFilter] = useState('All')
   const [toast, setToast] = useState('')
+  const [validationErrors, setValidationErrors] = useState({})
 
   const { getById } = useSuggestions()
   const { updateXP } = useUserData()
@@ -150,11 +151,38 @@ export default function MatchLogger() {
   const classicSubMode = forms.Classic.teamSize
 
   async function logMatch() {
+    /* Validate required fields before writing to Firestore */
+    const errs = {}
+    if (activeType === 'Classic') {
+      const pos = Number(form.position)
+      if (!form.position || Number.isNaN(pos) || pos < 1 || pos > 100) {
+        errs.position = 'Position must be between 1 and 100.'
+      }
+      const kills = Number(form.kills)
+      if (form.kills === '' || form.kills === null || form.kills === undefined || Number.isNaN(kills) || kills < 0) {
+        errs.kills = 'Kills must be 0 or more.'
+      }
+      if (form.damage !== '' && form.damage !== null && form.damage !== undefined) {
+        const dmg = Number(form.damage)
+        if (Number.isNaN(dmg) || dmg < 0) errs.damage = 'Damage must be 0 or more.'
+      }
+    } else if (activeType === 'Scrims' || activeType === 'Tournament') {
+      const pos = Number(form.teamPosition)
+      if (!form.teamPosition || Number.isNaN(pos) || pos < 1) {
+        errs.teamPosition = 'Team position is required.'
+      }
+    }
+    if (Object.keys(errs).length > 0) {
+      setValidationErrors(errs)
+      return
+    }
+    setValidationErrors({})
+
     const entry = { id: uid(), type: activeType, timestamp: Date.now(), ...form }
     if (activeType === 'Classic') {
-      entry.position     = form.position     ? Number(form.position)     : null
-      entry.kills        = form.kills        ? Number(form.kills)        : 0
-      entry.damage       = form.damage       ? Number(form.damage)       : null
+      entry.position     = Number(form.position)
+      entry.kills        = form.kills !== '' ? Number(form.kills) : 0
+      entry.damage       = form.damage !== '' && form.damage !== null && form.damage !== undefined ? Number(form.damage) : null
       entry.survivalTime = form.survivalTime || null
     } else {
       entry.teamPosition    = form.teamPosition    ? Number(form.teamPosition)    : null
@@ -212,7 +240,7 @@ export default function MatchLogger() {
           return (
             <button
               key={t.id}
-              onClick={() => setActiveType(t.id)}
+              onClick={() => { setActiveType(t.id); setValidationErrors({}) }}
               className={`tab-btn flex items-center gap-2 flex-shrink-0 ${activeType === t.id ? 'active' : ''}`}
             >
               <Icon size={15} /> {t.label}
@@ -255,6 +283,13 @@ export default function MatchLogger() {
               </button>
               {toast && (
                 <span className="toast-success px-3 py-2 rounded-md text-xs mono">{toast}</span>
+              )}
+              {Object.keys(validationErrors).length > 0 && (
+                <div className="text-xs text-red-400 flex flex-col gap-1">
+                  {Object.values(validationErrors).map((msg, i) => (
+                    <span key={i}>⚠ {msg}</span>
+                  ))}
+                </div>
               )}
             </div>
           </div>

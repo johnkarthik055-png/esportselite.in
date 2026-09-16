@@ -50,12 +50,7 @@ export default function Checkout() {
     }
   }, [user, authLoading])
 
-  /* Start checkout once we know the user is logged in */
-  useEffect(() => {
-    if (!user || started.current) return
-    started.current = true
-    startCheckout()
-  }, [user])
+  /* No auto-start: the user must explicitly click "Proceed to Payment". */
 
   async function startCheckout() {
     setPhase('loading')
@@ -123,15 +118,17 @@ export default function Checkout() {
   function retry() {
     started.current = false
     setPhase('idle')
-    if (user) {
-      started.current = true
-      startCheckout()
-    }
+  }
+
+  function beginCheckout() {
+    if (!user || started.current) return
+    started.current = true
+    startCheckout()
   }
 
   /* ---- render ------------------------------------------------------------ */
 
-  if (authLoading || (!user && phase === 'idle')) {
+  if (authLoading) {
     return <Shell><Spinner label="Checking login…" /></Shell>
   }
 
@@ -167,7 +164,7 @@ export default function Checkout() {
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 15, marginBottom: 32 }}>{errorMsg}</p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-            <button className="btn btn-primary" onClick={retry}>Try again</button>
+            <button className="btn btn-primary" onClick={beginCheckout}>Try again</button>
             <button className="btn btn-ghost" onClick={() => navigate(-1)}>Go back</button>
           </div>
         </div>
@@ -176,18 +173,17 @@ export default function Checkout() {
   }
 
   if (phase === 'idle') {
-    /* Returned from dismissed modal — offer to re-open */
     return (
       <Shell>
         <div style={{ textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
           <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 40, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
-            Complete your subscription
+            Subscribe to Esports Elite
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 15, marginBottom: 32 }}>
             {planLabel(plan, members)}
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-            <button className="btn btn-primary" onClick={retry}>Continue to payment</button>
+            <button className="btn btn-primary" onClick={beginCheckout}>Proceed to Payment →</button>
             <button className="btn btn-ghost" onClick={() => navigate(-1)}>Cancel</button>
           </div>
         </div>

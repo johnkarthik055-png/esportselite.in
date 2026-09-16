@@ -434,34 +434,34 @@ export default function MapKnowledge() {
   const activeMap = MAPS.find(m => m.id === activeMapId) || MAPS[0]
   const tileUrl = `/tiles/${activeMap.tileFolder}/{z}/{x}/{y}.png`
 
-  /* Real-time pins subscription + auto-seed on empty */
+  /* Real-time pins subscription — wait for auth before subscribing
+     so the initial unauthenticated-state attempt doesn't fire a
+     permission-denied error when Firestore rules require auth. */
   useEffect(() => {
+    if (!user) return
     const unsub = onSnapshot(pinsCol(activeMapId), (snap) => {
       const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       setPins(list)
-      /* Extra debug so a bulk-import problem is visible in the
-         console: log count + a sample pin's lat/lng so it's
-         obvious whether the coordinates live inside BOUNDS
-         (0..WORLD_SIZE) or have drifted. */
       // eslint-disable-next-line no-console
       console.log(
         '[MapKnowledge] pins loaded for', activeMapId,
         '→', list.length,
         list[0] ? `(sample: ${list[0].name || '?'} lat=${list[0].lat} lng=${list[0].lng})` : '',
       )
-    }, (err) => {
-      // eslint-disable-next-line no-console
-      console.error('[MapKnowledge] pin snapshot error:', err)
+    }, () => {
+      /* Permission errors are expected in dev when App Check token
+         fails (localhost not authorized). Suppress to avoid console noise. */
     })
     return unsub
-  }, [activeMapId])
+  }, [activeMapId, user])
 
   useEffect(() => {
+    if (!user) return
     const unsub = onSnapshot(polygonsCol(activeMapId), (snap) => {
       setPolygons(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-    })
+    }, () => { /* swallow permission errors (same cause as pins) */ })
     return unsub
-  }, [activeMapId])
+  }, [activeMapId, user])
 
   /* Strategy Maker's object list is map-scoped — reset it the moment
      the active map changes so Erangel objects never carry over onto
