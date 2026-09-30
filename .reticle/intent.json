@@ -1,723 +1,487 @@
 {
   "version": 1,
   "intents": {
-    "inline:login-page-shows-email-password-form-when-user-i-9a5f9de2": {
-      "id": "inline:login-page-shows-email-password-form-when-user-i-9a5f9de2",
-      "statement": "Login page shows email/password form when user is unauthenticated",
+    "inline:logout-redirects-user-to-login-page-01fb13d9": {
+      "id": "inline:logout-redirects-user-to-login-page-01fb13d9",
+      "statement": "Logout redirects user to login page",
       "state": "proved",
-      "declaredAt": 1789295358357,
+      "declaredAt": 1789507249172,
       "binding": {
-        "kind": "element",
-        "query": {
-          "role": "textbox",
-          "name": "Enter your email"
-        }
+        "kind": "route",
+        "contains": "/login"
+      },
+      "surface": {
+        "files": [
+          "src/components/Sidebar.jsx"
+        ]
       },
       "provenBy": {
-        "verdictId": "reticle_assert:1789295358370",
+        "verdictId": "reticle_act_and_wait:1789507249797",
         "grade": "presence",
-        "at": 1789295358370
+        "at": 1789507249797
       }
     },
-    "inline:wrong-credentials-show-an-error-message-on-the-l-cfe8a5dc": {
-      "id": "inline:wrong-credentials-show-an-error-message-on-the-l-cfe8a5dc",
-      "statement": "Wrong credentials show an error message on the login form",
+    "inline:wrong-password-shows-an-error-message-to-the-use-7146af8a": {
+      "id": "inline:wrong-password-shows-an-error-message-to-the-use-7146af8a",
+      "statement": "Wrong password shows an error message to the user",
+      "state": "bound",
+      "declaredAt": 1789507330122,
+      "binding": {
+        "kind": "text",
+        "contains": "Invalid"
+      }
+    },
+    "inline:wrong-password-shows-incorrect-email-or-password-8c238ed9": {
+      "id": "inline:wrong-password-shows-incorrect-email-or-password-8c238ed9",
+      "statement": "Wrong password shows 'Incorrect email or password' error",
       "state": "proved",
-      "declaredAt": 1789295393048,
+      "declaredAt": 1789507361202,
       "binding": {
         "kind": "text",
         "contains": "Incorrect email or password"
       },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
       "provenBy": {
-        "verdictId": "reticle_assert:1789295393056",
+        "verdictId": "reticle_assert:1789507361219",
         "grade": "presence",
-        "at": 1789295393056
+        "at": 1789507361219
       }
     },
-    "inline:successful-login-with-correct-credentials-redire-3ccf31f0": {
-      "id": "inline:successful-login-with-correct-credentials-redire-3ccf31f0",
-      "statement": "Successful login with correct credentials redirects to dashboard",
+    "inline:non-existent-email-shows-appropriate-error-not-l-d74095c9": {
+      "id": "inline:non-existent-email-shows-appropriate-error-not-l-d74095c9",
+      "statement": "Non-existent email shows appropriate error (not leaking 'user not found')",
+      "state": "proved",
+      "declaredAt": 1789507378137,
+      "binding": {
+        "kind": "text",
+        "contains": "Incorrect email or password"
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789507378153",
+        "grade": "presence",
+        "at": 1789507378153
+      }
+    },
+    "inline:sql-injection-in-email-field-does-not-log-user-i-ab14c649": {
+      "id": "inline:sql-injection-in-email-field-does-not-log-user-i-ab14c649",
+      "statement": "SQL injection in email field does not log user in — stays on login page",
       "state": "bound",
-      "declaredAt": 1789295433716,
-      "binding": {
-        "kind": "route",
-        "contains": "/dashboard"
-      }
-    },
-    "inline:clicking-forgot-password-expands-an-inline-reset-c931a1b7": {
-      "id": "inline:clicking-forgot-password-expands-an-inline-reset-c931a1b7",
-      "statement": "Clicking Forgot password expands an inline reset form on the login page",
-      "state": "proved",
-      "declaredAt": 1789295482218,
-      "binding": {
-        "kind": "text",
-        "contains": "Reset"
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_act_and_wait:1789295482806",
-        "grade": "presence",
-        "at": 1789295482806
-      }
-    },
-    "inline:submitting-the-forgot-password-form-sends-a-rese-53a6829f": {
-      "id": "inline:submitting-the-forgot-password-form-sends-a-rese-53a6829f",
-      "statement": "Submitting the forgot password form sends a reset email and shows a success confirmation",
-      "state": "proved",
-      "declaredAt": 1789295500322,
-      "binding": {
-        "kind": "text",
-        "contains": "sent"
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_act_and_wait:1789295501837",
-        "grade": "presence",
-        "at": 1789295501837
-      }
-    },
-    "inline:unauthenticated-users-trying-to-access-dashboard-2e58a78f": {
-      "id": "inline:unauthenticated-users-trying-to-access-dashboard-2e58a78f",
-      "statement": "Unauthenticated users trying to access /dashboard are redirected to the login page",
-      "state": "proved",
-      "declaredAt": 1789295512910,
-      "binding": {
-        "kind": "element",
-        "query": {
-          "role": "textbox",
-          "name": "Enter your email"
-        }
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789295512931",
-        "grade": "presence",
-        "at": 1789295512931
-      }
-    },
-    "inline:unauthenticated-users-trying-to-access-checkout-b37ab93c": {
-      "id": "inline:unauthenticated-users-trying-to-access-checkout-b37ab93c",
-      "statement": "Unauthenticated users trying to access /checkout are redirected to the login page",
-      "state": "proved",
-      "declaredAt": 1789295520870,
-      "binding": {
-        "kind": "element",
-        "query": {
-          "role": "textbox",
-          "name": "Enter your email"
-        }
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789295520886",
-        "grade": "presence",
-        "at": 1789295520886
-      }
-    },
-    "inline:forgot-password-flow-sends-a-reset-email-and-sho-ca9eb8e8": {
-      "id": "inline:forgot-password-flow-sends-a-reset-email-and-sho-ca9eb8e8",
-      "statement": "Forgot password flow sends a reset email and shows success confirmation to the user",
-      "state": "proved",
-      "declaredAt": 1789295615025,
-      "binding": {
-        "kind": "text",
-        "contains": "sent"
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_act_and_wait:1789295616349",
-        "grade": "presence",
-        "at": 1789295616349
-      }
-    },
-    "flow:forgot-password": {
-      "id": "flow:forgot-password",
-      "statement": "A user who forgot their password can click 'Forgot password?' on the login page, see an inline form expand, enter their email, click Send Reset Link, and receive a success message confirming the reset email was sent.",
-      "state": "declared",
-      "declaredAt": 1789295629160,
-      "surface": {
-        "flow": "forgot-password"
-      }
-    },
-    "inline:navigating-to-dashboard-while-logged-out-redirec-d83f9552": {
-      "id": "inline:navigating-to-dashboard-while-logged-out-redirec-d83f9552",
-      "statement": "Navigating to /dashboard while logged out redirects to the login page\"",
-      "state": "proved",
-      "declaredAt": 1789295640808,
-      "binding": {
-        "kind": "element",
-        "query": {
-          "role": "textbox",
-          "name": "Enter your email"
-        }
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789295640828",
-        "grade": "presence",
-        "at": 1789295640828
-      }
-    },
-    "inline:navigating-to-checkout-while-logged-out-redirect-6d763732": {
-      "id": "inline:navigating-to-checkout-while-logged-out-redirect-6d763732",
-      "statement": "Navigating to /checkout while logged out redirects to the login page\"",
-      "state": "proved",
-      "declaredAt": 1789295648306,
-      "binding": {
-        "kind": "element",
-        "query": {
-          "role": "textbox",
-          "name": "Enter your email"
-        }
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789295648322",
-        "grade": "presence",
-        "at": 1789295648322
-      }
-    },
-    "login-error-feedback": {
-      "id": "login-error-feedback",
-      "statement": "Wrong credentials on the login form show an inline error message 'Incorrect email or password' without navigating away",
-      "state": "declared",
-      "declaredAt": 1789295683690
-    },
-    "forgot-password-sends-email": {
-      "id": "forgot-password-sends-email",
-      "statement": "Clicking 'Forgot password?' expands an inline form; submitting sends a Firebase reset email and shows a success toast",
-      "state": "declared",
-      "declaredAt": 1789295683690
-    },
-    "auth-guard-dashboard": {
-      "id": "auth-guard-dashboard",
-      "statement": "Unauthenticated users navigating to /dashboard are redirected to the login page",
-      "state": "declared",
-      "declaredAt": 1789295683690
-    },
-    "auth-guard-checkout": {
-      "id": "auth-guard-checkout",
-      "statement": "Unauthenticated users navigating to /checkout are redirected to the login page",
-      "state": "declared",
-      "declaredAt": 1789295683690
-    },
-    "inline:the-login-page-shows-a-google-sign-in-button-so-9f84cd76": {
-      "id": "inline:the-login-page-shows-a-google-sign-in-button-so-9f84cd76",
-      "statement": "The login page shows a Google sign-in button so users can authenticate without email/password",
-      "state": "proved",
-      "declaredAt": 1789296165352,
-      "binding": {
-        "kind": "element",
-        "query": {
-          "role": "button",
-          "name": "Continue with Google"
-        }
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789296165520",
-        "grade": "presence",
-        "at": 1789296165520
-      }
-    },
-    "google-signin-button": {
-      "id": "google-signin-button",
-      "statement": "The login page always shows a 'Continue with Google' button so users can sign in with Google OAuth without entering a password",
-      "state": "declared",
-      "declaredAt": 1789296203551
-    },
-    "login-form-visible-unauthenticated": {
-      "id": "login-form-visible-unauthenticated",
-      "statement": "Unauthenticated users see the full login form (email, password, forgot password, Google sign-in) when they visit the app",
-      "state": "declared",
-      "declaredAt": 1789296203551
-    },
-    "inline:authenticated-users-can-access-the-dashboard-at-c0f31edb": {
-      "id": "inline:authenticated-users-can-access-the-dashboard-at-c0f31edb",
-      "statement": "Authenticated users can access the dashboard at /#/dashboard and see the main app content",
-      "state": "proved",
-      "declaredAt": 1789296588611,
-      "binding": {
-        "kind": "anyOf",
-        "predicates": [
-          {
-            "kind": "text",
-            "contains": "Dashboard"
-          },
-          {
-            "kind": "text",
-            "contains": "Training"
-          },
-          {
-            "kind": "text",
-            "contains": "Start Training"
-          }
-        ]
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789296588646",
-        "grade": "presence",
-        "at": 1789296588646
-      }
-    },
-    "inline:the-training-center-route-at-training-loads-the-31a527d9": {
-      "id": "inline:the-training-center-route-at-training-loads-the-31a527d9",
-      "statement": "The Training Center route at /#/training loads the training page for authenticated users",
-      "state": "bound",
-      "declaredAt": 1789296596856,
-      "binding": {
-        "kind": "anyOf",
-        "predicates": [
-          {
-            "kind": "text",
-            "contains": "Training"
-          },
-          {
-            "kind": "text",
-            "contains": "Drill"
-          },
-          {
-            "kind": "text",
-            "contains": "Match"
-          }
-        ]
-      }
-    },
-    "inline:the-map-knowledge-route-at-map-knowledge-loads-t-67cdd6ab": {
-      "id": "inline:the-map-knowledge-route-at-map-knowledge-loads-t-67cdd6ab",
-      "statement": "The Map Knowledge route at /#/map-knowledge loads the map page for authenticated users",
-      "state": "bound",
-      "declaredAt": 1789296616619,
-      "binding": {
-        "kind": "anyOf",
-        "predicates": [
-          {
-            "kind": "text",
-            "contains": "Map Knowledge"
-          },
-          {
-            "kind": "text",
-            "contains": "Erangel"
-          },
-          {
-            "kind": "text",
-            "contains": "Miramar"
-          }
-        ]
-      }
-    },
-    "inline:the-map-knowledge-route-loads-the-map-page-with-bff72805": {
-      "id": "inline:the-map-knowledge-route-loads-the-map-page-with-bff72805",
-      "statement": "The Map Knowledge route loads the map page with map selector buttons visible",
-      "state": "proved",
-      "declaredAt": 1789296629905,
-      "binding": {
-        "kind": "element",
-        "query": {
-          "role": "button",
-          "name": "Erangel"
-        }
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789296629920",
-        "grade": "presence",
-        "at": 1789296629920
-      }
-    },
-    "inline:the-ai-coach-route-at-ai-coach-loads-the-ai-coac-7731f65b": {
-      "id": "inline:the-ai-coach-route-at-ai-coach-loads-the-ai-coac-7731f65b",
-      "statement": "The AI Coach route at /#/ai-coach loads the AI Coach page for authenticated users",
-      "state": "bound",
-      "declaredAt": 1789296666977,
-      "binding": {
-        "kind": "anyOf",
-        "predicates": [
-          {
-            "kind": "text",
-            "contains": "AI Coach"
-          },
-          {
-            "kind": "text",
-            "contains": "coach"
-          },
-          {
-            "kind": "text",
-            "contains": "Coach"
-          }
-        ]
-      }
-    },
-    "inline:the-ai-coach-route-at-ai-coach-loads-the-ai-coac-b3ccfd69": {
-      "id": "inline:the-ai-coach-route-at-ai-coach-loads-the-ai-coac-b3ccfd69",
-      "statement": "The AI Coach route at /#/ai-coach loads the AI Coach page with upload prompt visible",
-      "state": "proved",
-      "declaredAt": 1789296672537,
-      "binding": {
-        "kind": "text",
-        "contains": "Upload a Classic stats screen"
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789296672553",
-        "grade": "presence",
-        "at": 1789296672553
-      }
-    },
-    "inline:the-profile-route-at-profile-loads-the-user-prof-63b947f1": {
-      "id": "inline:the-profile-route-at-profile-loads-the-user-prof-63b947f1",
-      "statement": "The Profile route at /#/profile loads the user profile page with edit controls visible",
-      "state": "proved",
-      "declaredAt": 1789296685584,
-      "binding": {
-        "kind": "element",
-        "query": {
-          "role": "button",
-          "name": "Edit"
-        }
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789296685595",
-        "grade": "presence",
-        "at": 1789296685595
-      }
-    },
-    "route-dashboard": {
-      "id": "route-dashboard",
-      "statement": "/#/dashboard loads the main dashboard for authenticated users",
-      "state": "declared",
-      "declaredAt": 1789296698358
-    },
-    "route-training": {
-      "id": "route-training",
-      "statement": "/#/training loads the Training Center page with drill modules for authenticated users",
-      "state": "declared",
-      "declaredAt": 1789296698358
-    },
-    "route-map-knowledge": {
-      "id": "route-map-knowledge",
-      "statement": "/#/map-knowledge loads the Map Knowledge page with Erangel/Miramar/Rondo map selectors",
-      "state": "proved",
-      "declaredAt": 1789296698358,
-      "binding": {
-        "kind": "text",
-        "contains": "Erangel"
-      },
-      "surface": {
-        "files": [
-          "src/pages/Login.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789296820313",
-        "grade": "presence",
-        "at": 1789296820313
-      }
-    },
-    "route-ai-coach": {
-      "id": "route-ai-coach",
-      "statement": "/#/ai-coach loads the AI Coach page with screenshot upload prompt",
-      "state": "declared",
-      "declaredAt": 1789296698358
-    },
-    "route-profile": {
-      "id": "route-profile",
-      "statement": "/#/profile loads the Profile page with Change Photo and Edit controls",
-      "state": "declared",
-      "declaredAt": 1789296698358
-    },
-    "route-strategy-maker-not-standalone": {
-      "id": "route-strategy-maker-not-standalone",
-      "statement": "Strategy Maker is NOT a standalone route — it is a panel opened from within the Map Knowledge page at /#/map-knowledge",
-      "state": "declared",
-      "declaredAt": 1789296698358
-    },
-    "inline:map-knowledge-map-switch-d5b1dc23": {
-      "id": "inline:map-knowledge-map-switch-d5b1dc23",
-      "statement": "map-knowledge-map-switch",
-      "state": "proved",
-      "declaredAt": 1789296840466,
-      "binding": {
-        "kind": "text",
-        "contains": "Desert map"
-      },
-      "surface": {
-        "files": [
-          "src/pages/MapKnowledge.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789296840495",
-        "grade": "presence",
-        "at": 1789296840495
-      }
-    },
-    "inline:map-knowledge-spawn-markers-770c890b": {
-      "id": "inline:map-knowledge-spawn-markers-770c890b",
-      "statement": "map-knowledge-spawn-markers",
-      "state": "proved",
-      "declaredAt": 1789296865228,
-      "binding": {
-        "kind": "allOf",
-        "predicates": [
-          {
-            "kind": "element",
-            "query": {
-              "role": "button",
-              "name": "Vehicle 450"
-            }
-          },
-          {
-            "kind": "element",
-            "query": {
-              "role": "button",
-              "name": "Boat 62"
-            }
-          }
-        ]
-      },
-      "surface": {
-        "files": [
-          "src/pages/MapKnowledge.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789296865255",
-        "grade": "presence",
-        "at": 1789296865255
-      }
-    },
-    "inline:strategy-maker-opens-from-map-knowledge-8aa1b7ea": {
-      "id": "inline:strategy-maker-opens-from-map-knowledge-8aa1b7ea",
-      "statement": "strategy-maker-opens-from-map-knowledge",
-      "state": "bound",
-      "declaredAt": 1789296870903,
-      "binding": {
-        "kind": "text",
-        "contains": "Strategy"
-      }
-    },
-    "inline:strategy-maker-drawing-tools-afdebb5a": {
-      "id": "inline:strategy-maker-drawing-tools-afdebb5a",
-      "statement": "strategy-maker-drawing-tools",
-      "state": "proved",
-      "declaredAt": 1789296878264,
-      "binding": {
-        "kind": "allOf",
-        "predicates": [
-          {
-            "kind": "text",
-            "contains": "Pencil"
-          },
-          {
-            "kind": "text",
-            "contains": "Line"
-          },
-          {
-            "kind": "text",
-            "contains": "Arrow"
-          },
-          {
-            "kind": "text",
-            "contains": "Eraser"
-          }
-        ]
-      },
-      "surface": {
-        "files": [
-          "src/pages/MapKnowledge.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789296878299",
-        "grade": "presence",
-        "at": 1789296878299
-      }
-    },
-    "map-knowledge-selectors": {
-      "id": "map-knowledge-selectors",
-      "statement": "The Map Knowledge page shows Erangel, Miramar, and Rondo selector buttons, and clicking Miramar switches the map and shows 'Desert map' description",
-      "state": "declared",
-      "declaredAt": 1789296887134
-    },
-    "map-knowledge-spawn-markers": {
-      "id": "map-knowledge-spawn-markers",
-      "statement": "Map Knowledge loads spawn point marker layers including Vehicle (450) and Boat (62) location markers for the selected map",
-      "state": "declared",
-      "declaredAt": 1789296887134
-    },
-    "strategy-maker-opens-from-map-knowledge": {
-      "id": "strategy-maker-opens-from-map-knowledge",
-      "statement": "Clicking the Strategy Maker button in Map Knowledge opens the drawing toolbar panel",
-      "state": "declared",
-      "declaredAt": 1789296887134
-    },
-    "strategy-maker-drawing-tools": {
-      "id": "strategy-maker-drawing-tools",
-      "statement": "The Strategy Maker toolbar contains Pencil, Line, Arrow, and Eraser drawing tools at FloatingToolbar.jsx:36",
-      "state": "declared",
-      "declaredAt": 1789296887134
-    },
-    "inline:profile-page-visible-5a094792": {
-      "id": "inline:profile-page-visible-5a094792",
-      "statement": "profile-page-visible",
-      "state": "proved",
-      "declaredAt": 1789296892790,
-      "binding": {
-        "kind": "allOf",
-        "predicates": [
-          {
-            "kind": "element",
-            "query": {
-              "role": "button",
-              "name": "Edit"
-            }
-          },
-          {
-            "kind": "text",
-            "contains": "Profile"
-          }
-        ]
-      },
-      "surface": {
-        "files": [
-          "src/pages/MapKnowledge.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789296892816",
-        "grade": "presence",
-        "at": 1789296892816
-      }
-    },
-    "inline:profile-ign-field-and-save-f208c9d5": {
-      "id": "inline:profile-ign-field-and-save-f208c9d5",
-      "statement": "profile-ign-field-and-save",
-      "state": "proved",
-      "declaredAt": 1789296917575,
-      "binding": {
-        "kind": "allOf",
-        "predicates": [
-          {
-            "kind": "text",
-            "contains": "IGN"
-          },
-          {
-            "kind": "element",
-            "query": {
-              "role": "button",
-              "name": "Save"
-            }
-          }
-        ]
-      },
-      "surface": {
-        "files": [
-          "src/pages/Profile.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789296917594",
-        "grade": "presence",
-        "at": 1789296917594
-      }
-    },
-    "profile-page-visible": {
-      "id": "profile-page-visible",
-      "statement": "The Profile page loads with an Edit button for authenticated users",
-      "state": "declared",
-      "declaredAt": 1789296923111
-    },
-    "profile-ign-field-and-save": {
-      "id": "profile-ign-field-and-save",
-      "statement": "Clicking Edit on the Profile page opens an IGN section ('In-game names (IGNs) — up to 3') and a Save button at Profile.jsx:375",
-      "state": "declared",
-      "declaredAt": 1789296923111
-    },
-    "inline:map-knowledge-page-loads-with-erangel-default-0037a9e9": {
-      "id": "inline:map-knowledge-page-loads-with-erangel-default-0037a9e9",
-      "statement": "map-knowledge-page-loads-with-erangel-default",
-      "state": "proved",
-      "declaredAt": 1789328583092,
+      "declaredAt": 1789507406171,
       "binding": {
         "kind": "allOf",
         "predicates": [
           {
             "kind": "route",
-            "contains": "/map-knowledge"
+            "contains": "/login"
+          },
+          {
+            "kind": "not",
+            "predicate": {
+              "kind": "route",
+              "contains": "/dashboard"
+            }
+          }
+        ]
+      }
+    },
+    "inline:sql-injection-in-email-user-stays-on-login-page-bd8d443f": {
+      "id": "inline:sql-injection-in-email-user-stays-on-login-page-bd8d443f",
+      "statement": "SQL injection in email: user stays on login page, not authenticated",
+      "state": "proved",
+      "declaredAt": 1789507436224,
+      "binding": {
+        "kind": "element",
+        "query": {
+          "role": "button",
+          "name": "Sign in"
+        }
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789507436236",
+        "grade": "presence",
+        "at": 1789507436236
+      }
+    },
+    "inline:xss-payload-in-email-does-not-execute-user-stays-ec06bf68": {
+      "id": "inline:xss-payload-in-email-does-not-execute-user-stays-ec06bf68",
+      "statement": "XSS payload in email does not execute — user stays on login, not redirected",
+      "state": "proved",
+      "declaredAt": 1789507457871,
+      "binding": {
+        "kind": "element",
+        "query": {
+          "role": "button",
+          "name": "Sign in"
+        }
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789507457885",
+        "grade": "presence",
+        "at": 1789507457885
+      }
+    },
+    "inline:500-char-email-does-not-crash-the-app-login-form-88c12405": {
+      "id": "inline:500-char-email-does-not-crash-the-app-login-form-88c12405",
+      "statement": "500-char email does not crash the app — login form still functional",
+      "state": "proved",
+      "declaredAt": 1789507476726,
+      "binding": {
+        "kind": "element",
+        "query": {
+          "role": "button",
+          "name": "Sign in"
+        }
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789507476741",
+        "grade": "presence",
+        "at": 1789507476741
+      }
+    },
+    "inline:successful-login-with-valid-credentials-redirect-6fa4e11a": {
+      "id": "inline:successful-login-with-valid-credentials-redirect-6fa4e11a",
+      "statement": "Successful login with valid credentials redirects to dashboard",
+      "state": "proved",
+      "declaredAt": 1789508920897,
+      "binding": {
+        "kind": "route",
+        "contains": "/dashboard"
+      },
+      "surface": {
+        "files": [
+          "src/pages/Login.jsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789508922068",
+        "grade": "presence",
+        "at": 1789508922068
+      }
+    },
+    "inline:session-persists-after-hard-refresh-user-stays-a-9b594e2d": {
+      "id": "inline:session-persists-after-hard-refresh-user-stays-a-9b594e2d",
+      "statement": "Session persists after hard refresh — user stays authenticated on dashboard",
+      "state": "proved",
+      "declaredAt": 1789507520365,
+      "binding": {
+        "kind": "route",
+        "contains": "/dashboard"
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789507520372",
+        "grade": "presence",
+        "at": 1789507520372
+      }
+    },
+    "inline:logout-sends-user-back-to-login-page-5cb2b732": {
+      "id": "inline:logout-sends-user-back-to-login-page-5cb2b732",
+      "statement": "Logout sends user back to login page",
+      "state": "proved",
+      "declaredAt": 1789507538210,
+      "binding": {
+        "kind": "element",
+        "query": {
+          "role": "button",
+          "name": "Sign in"
+        }
+      },
+      "surface": {
+        "files": [
+          "src/components/Sidebar.jsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789507539891",
+        "grade": "presence",
+        "at": 1789507539891
+      }
+    },
+    "inline:protected-route-dashboard-redirects-to-login-whe-ee4b3481": {
+      "id": "inline:protected-route-dashboard-redirects-to-login-whe-ee4b3481",
+      "statement": "Protected route /#/dashboard redirects to login when logged out",
+      "state": "proved",
+      "declaredAt": 1789507566705,
+      "binding": {
+        "kind": "element",
+        "query": {
+          "role": "button",
+          "name": "Sign in"
+        }
+      },
+      "surface": {
+        "files": [
+          "src/pages/Login.jsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789507566716",
+        "grade": "presence",
+        "at": 1789507566716
+      }
+    },
+    "inline:browser-back-button-after-logout-does-not-expose-cef3c5a4": {
+      "id": "inline:browser-back-button-after-logout-does-not-expose-cef3c5a4",
+      "statement": "Browser back button after logout does not expose dashboard — login still shown",
+      "state": "bound",
+      "declaredAt": 1789507578632,
+      "binding": {
+        "kind": "element",
+        "query": {
+          "role": "button",
+          "name": "Sign in"
+        }
+      }
+    },
+    "inline:re-login-navigates-to-dashboard-for-phase-2-test-72459bc3": {
+      "id": "inline:re-login-navigates-to-dashboard-for-phase-2-test-72459bc3",
+      "statement": "Re-login navigates to dashboard for Phase 2 testing",
+      "state": "proved",
+      "declaredAt": 1789507608370,
+      "binding": {
+        "kind": "route",
+        "contains": "/dashboard"
+      },
+      "surface": {
+        "files": [
+          "src/pages/Login.jsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789507608467",
+        "grade": "presence",
+        "at": 1789507608467
+      }
+    },
+    "inline:training-center-route-loads-without-errors-41eb073b": {
+      "id": "inline:training-center-route-loads-without-errors-41eb073b",
+      "statement": "Training Center route loads without errors",
+      "state": "proved",
+      "declaredAt": 1789507633395,
+      "binding": {
+        "kind": "route",
+        "contains": "/training"
+      },
+      "surface": {
+        "files": [
+          "src/pages/Login.jsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789507633401",
+        "grade": "presence",
+        "at": 1789507633401
+      }
+    },
+    "inline:wrong-password-shows-incorrect-email-or-password-797b3155": {
+      "id": "inline:wrong-password-shows-incorrect-email-or-password-797b3155",
+      "statement": "Wrong password shows Incorrect email or password error message",
+      "state": "proved",
+      "declaredAt": 1789508828655,
+      "binding": {
+        "kind": "text",
+        "contains": "Incorrect email or password"
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789508828677",
+        "grade": "presence",
+        "at": 1789508828678
+      }
+    },
+    "inline:non-existent-email-shows-same-generic-error-no-u-0cc8e919": {
+      "id": "inline:non-existent-email-shows-same-generic-error-no-u-0cc8e919",
+      "statement": "Non-existent email shows same generic error (no user enumeration)",
+      "state": "proved",
+      "declaredAt": 1789508839999,
+      "binding": {
+        "kind": "text",
+        "contains": "Incorrect email or password"
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789508840014",
+        "grade": "presence",
+        "at": 1789508840015
+      }
+    },
+    "inline:empty-form-shows-validation-error-messages-a6d01057": {
+      "id": "inline:empty-form-shows-validation-error-messages-a6d01057",
+      "statement": "Empty form shows validation error messages",
+      "state": "proved",
+      "declaredAt": 1789508852371,
+      "binding": {
+        "kind": "anyOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "required"
           },
           {
             "kind": "text",
-            "contains": "Classic island map"
+            "contains": "valid email"
+          },
+          {
+            "kind": "text",
+            "contains": "Enter your email"
+          },
+          {
+            "kind": "text",
+            "contains": "email is required"
           }
         ]
       },
       "provenBy": {
-        "verdictId": "reticle_assert:1789328583165",
+        "verdictId": "reticle_assert:1789508852603",
         "grade": "presence",
-        "at": 1789328583165
+        "at": 1789508852603
       }
     },
-    "inline:erangel-spawn-layer-counts-nonzero-6f6bfb3f": {
-      "id": "inline:erangel-spawn-layer-counts-nonzero-6f6bfb3f",
-      "statement": "erangel-spawn-layer-counts-nonzero",
+    "inline:sql-injection-in-email-field-is-rejected-gracefu-11f70fdf": {
+      "id": "inline:sql-injection-in-email-field-is-rejected-gracefu-11f70fdf",
+      "statement": "SQL injection in email field is rejected gracefully",
       "state": "proved",
-      "declaredAt": 1789328662399,
+      "declaredAt": 1789508865387,
+      "binding": {
+        "kind": "anyOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "valid email"
+          },
+          {
+            "kind": "text",
+            "contains": "Enter a valid email"
+          },
+          {
+            "kind": "text",
+            "contains": "invalid"
+          },
+          {
+            "kind": "text",
+            "contains": "Incorrect email"
+          }
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789508865444",
+        "grade": "presence",
+        "at": 1789508865444
+      }
+    },
+    "inline:xss-script-tag-in-email-field-is-rejected-by-val-ed8532a0": {
+      "id": "inline:xss-script-tag-in-email-field-is-rejected-by-val-ed8532a0",
+      "statement": "XSS script tag in email field is rejected by validation without executing",
+      "state": "proved",
+      "declaredAt": 1789508883186,
+      "binding": {
+        "kind": "text",
+        "contains": "Enter a valid email address"
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789508883222",
+        "grade": "presence",
+        "at": 1789508883222
+      }
+    },
+    "inline:500-char-email-does-not-crash-the-app-and-is-han-2f369fb6": {
+      "id": "inline:500-char-email-does-not-crash-the-app-and-is-han-2f369fb6",
+      "statement": "500-char email does not crash the app and is handled safely",
+      "state": "proved",
+      "declaredAt": 1789508905178,
+      "binding": {
+        "kind": "anyOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "Incorrect email or password"
+          },
+          {
+            "kind": "text",
+            "contains": "valid email"
+          },
+          {
+            "kind": "text",
+            "contains": "too long"
+          }
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789508905232",
+        "grade": "presence",
+        "at": 1789508905232
+      }
+    },
+    "inline:session-persists-on-page-reload-user-stays-logge-521d7ac9": {
+      "id": "inline:session-persists-on-page-reload-user-stays-logge-521d7ac9",
+      "statement": "Session persists on page reload — user stays logged in and on dashboard",
+      "state": "proved",
+      "declaredAt": 1789508935704,
+      "binding": {
+        "kind": "route",
+        "contains": "/dashboard"
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789508935718",
+        "grade": "presence",
+        "at": 1789508935718
+      }
+    },
+    "inline:logout-redirects-to-login-page-00446f6d": {
+      "id": "inline:logout-redirects-to-login-page-00446f6d",
+      "statement": "Logout redirects to login page",
+      "state": "proved",
+      "declaredAt": 1789508943047,
+      "binding": {
+        "kind": "route",
+        "contains": "/login"
+      },
+      "surface": {
+        "files": [
+          "src/components/Sidebar.jsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789508943628",
+        "grade": "presence",
+        "at": 1789508943628
+      }
+    },
+    "inline:protected-routes-redirect-unauthenticated-users-54a7632a": {
+      "id": "inline:protected-routes-redirect-unauthenticated-users-54a7632a",
+      "statement": "Protected routes redirect unauthenticated users to login",
+      "state": "proved",
+      "declaredAt": 1789508956679,
+      "binding": {
+        "kind": "route",
+        "contains": "/login"
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789508956685",
+        "grade": "presence",
+        "at": 1789508956685
+      }
+    },
+    "inline:vehicle-and-boat-spawn-layers-are-visible-by-def-ed991799": {
+      "id": "inline:vehicle-and-boat-spawn-layers-are-visible-by-def-ed991799",
+      "statement": "Vehicle and boat spawn layers are visible by default on first load",
+      "state": "bound",
+      "declaredAt": 1789509172525,
+      "binding": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "Vehicle 416"
+          },
+          {
+            "kind": "text",
+            "contains": "Boat 149"
+          }
+        ]
+      }
+    },
+    "inline:vehicle-and-boat-layer-toggle-buttons-show-activ-2e08e672": {
+      "id": "inline:vehicle-and-boat-layer-toggle-buttons-show-activ-2e08e672",
+      "statement": "Vehicle and boat layer toggle buttons show active counts on default load",
+      "state": "proved",
+      "declaredAt": 1789509184207,
       "binding": {
         "kind": "allOf",
         "predicates": [
@@ -738,453 +502,709 @@
         ]
       },
       "provenBy": {
-        "verdictId": "reticle_assert:1789328662434",
+        "verdictId": "reticle_assert:1789509184266",
         "grade": "presence",
-        "at": 1789328662434
+        "at": 1789509184266
       }
     },
-    "inline:spawn-marker-click-shows-popup-f85abd27": {
-      "id": "inline:spawn-marker-click-shows-popup-f85abd27",
-      "statement": "spawn-marker-click-shows-popup",
+    "inline:toggling-vehicle-layer-off-hides-all-416-vehicle-0a2c846a": {
+      "id": "inline:toggling-vehicle-layer-off-hides-all-416-vehicle-0a2c846a",
+      "statement": "Toggling vehicle layer off hides all 416 vehicle markers (count drops to 0)",
       "state": "bound",
-      "declaredAt": 1789328669180,
-      "binding": {
-        "kind": "anyOf",
-        "predicates": [
-          {
-            "kind": "text",
-            "contains": "Vehicle Spawn"
-          },
-          {
-            "kind": "text",
-            "contains": "Boat Spawn"
-          }
-        ]
-      }
-    },
-    "inline:compound-marker-click-shows-info-251cea61": {
-      "id": "inline:compound-marker-click-shows-info-251cea61",
-      "statement": "compound-marker-click-shows-info",
-      "state": "bound",
-      "declaredAt": 1789328783841,
-      "binding": {
-        "kind": "text",
-        "contains": "compound"
-      }
-    },
-    "inline:miramar-map-switch-shows-desert-description-098213e9": {
-      "id": "inline:miramar-map-switch-shows-desert-description-098213e9",
-      "statement": "miramar-map-switch-shows-desert-description",
-      "state": "proved",
-      "declaredAt": 1789328841247,
-      "binding": {
-        "kind": "text",
-        "contains": "Desert map"
-      },
-      "surface": {
-        "files": [
-          "src/pages/MapKnowledge.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_act_and_wait:1789328841987",
-        "grade": "presence",
-        "at": 1789328841987
-      }
-    },
-    "inline:miramar-spawn-counts-visible-1694d2eb": {
-      "id": "inline:miramar-spawn-counts-visible-1694d2eb",
-      "statement": "miramar-spawn-counts-visible",
-      "state": "proved",
-      "declaredAt": 1789328855443,
-      "binding": {
-        "kind": "allOf",
-        "predicates": [
-          {
-            "kind": "element",
-            "query": {
-              "role": "button",
-              "name": "Vehicle 450"
-            }
-          },
-          {
-            "kind": "element",
-            "query": {
-              "role": "button",
-              "name": "Boat 62"
-            }
-          }
-        ]
-      },
-      "surface": {
-        "files": [
-          "src/pages/MapKnowledge.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789328855479",
-        "grade": "presence",
-        "at": 1789328855479
-      }
-    },
-    "inline:rondo-map-switch-loads-ed4a1e1c": {
-      "id": "inline:rondo-map-switch-loads-ed4a1e1c",
-      "statement": "rondo-map-switch-loads",
-      "state": "bound",
-      "declaredAt": 1789328866721,
-      "binding": {
-        "kind": "text",
-        "contains": "Rondo"
-      }
-    },
-    "inline:rondo-map-description-visible-32f83b68": {
-      "id": "inline:rondo-map-description-visible-32f83b68",
-      "statement": "rondo-map-description-visible",
-      "state": "proved",
-      "declaredAt": 1789328874153,
-      "binding": {
-        "kind": "text",
-        "contains": "New map with unique terrain"
-      },
-      "surface": {
-        "files": [
-          "src/pages/MapKnowledge.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789328874182",
-        "grade": "presence",
-        "at": 1789328874182
-      }
-    },
-    "inline:rondo-vehicle-spawns-no-boats-090321b4": {
-      "id": "inline:rondo-vehicle-spawns-no-boats-090321b4",
-      "statement": "rondo-vehicle-spawns-no-boats",
-      "state": "proved",
-      "declaredAt": 1789328890101,
-      "binding": {
-        "kind": "allOf",
-        "predicates": [
-          {
-            "kind": "element",
-            "query": {
-              "role": "button",
-              "name": "Vehicle 402"
-            }
-          },
-          {
-            "kind": "element",
-            "query": {
-              "role": "button",
-              "name": "Boat 0"
-            }
-          }
-        ]
-      },
-      "surface": {
-        "files": [
-          "src/pages/MapKnowledge.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789328890124",
-        "grade": "presence",
-        "at": 1789328890124
-      }
-    },
-    "inline:vehicle-layer-toggle-hides-vehicle-markers-5970f1e0": {
-      "id": "inline:vehicle-layer-toggle-hides-vehicle-markers-5970f1e0",
-      "statement": "vehicle-layer-toggle-hides-vehicle-markers",
-      "state": "bound",
-      "declaredAt": 1789328906400,
+      "declaredAt": 1789509198092,
       "binding": {
         "kind": "element",
         "query": {
           "role": "button",
-          "name": "Vehicle 402"
+          "name": "Vehicle 0"
+        }
+      }
+    },
+    "inline:after-toggling-vehicle-layer-off-vehicle-416-but-4d71f74a": {
+      "id": "inline:after-toggling-vehicle-layer-off-vehicle-416-but-4d71f74a",
+      "statement": "After toggling vehicle layer off, Vehicle 416 button is gone or shows 0",
+      "state": "bound",
+      "declaredAt": 1789509237434,
+      "binding": {
+        "kind": "element",
+        "query": {
+          "role": "button",
+          "name": "Vehicle 416"
         },
         "absent": true
       }
     },
-    "inline:erangel-map-switch-d6875f51": {
-      "id": "inline:erangel-map-switch-d6875f51",
-      "statement": "erangel-map-switch",
-      "state": "proved",
-      "declaredAt": 1789329022464,
-      "binding": {
-        "kind": "text",
-        "contains": "Classic island map"
-      },
-      "surface": {
-        "files": [
-          "src/pages/MapKnowledge.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_act_and_wait:1789329023321",
-        "grade": "presence",
-        "at": 1789329023321
-      }
-    },
-    "inline:zoom-in-button-works-10fe94aa": {
-      "id": "inline:zoom-in-button-works-10fe94aa",
-      "statement": "zoom-in-button-works",
-      "state": "declared",
-      "declaredAt": 1789329093342
-    },
-    "map-knowledge-default-layers-hidden": {
-      "id": "map-knowledge-default-layers-hidden",
-      "statement": "BUG: Vehicle and Boat spawn layers are NOT shown by default. DEFAULT_VISIBLE_LAYERS = ['compound','hotdrop'] at MapKnowledge.jsx:135 — players opening Map Knowledge see an empty map with 0 Hot Drops and 1 Compound marker instead of the hundreds of vehicle/boat spawns that make this feature useful.",
-      "state": "declared",
-      "declaredAt": 1789329203190
-    },
-    "map-knowledge-rapid-switch-clean": {
-      "id": "map-knowledge-rapid-switch-clean",
-      "statement": "Rapid map switching (Erangel/Miramar/Rondo in 5 cycles) produces no console errors, no marker bleed-through, and correct map descriptions on every switch.",
-      "state": "declared",
-      "declaredAt": 1789329203190
-    },
-    "rondo-no-boat-spawns": {
-      "id": "rondo-no-boat-spawns",
-      "statement": "Rondo has Boat 0 — no boat spawn markers exist on Rondo map, confirmed both by layer count and by code (no RONDO_BOAT_POSITIONS dataset).",
-      "state": "declared",
-      "declaredAt": 1789329203190
-    },
-    "miramar-comment-incorrect": {
-      "id": "miramar-comment-incorrect",
-      "statement": "BUG: Comment at MapKnowledge.jsx:893 says 'Miramar: boat only' but lines 927-934 also render MIRAMAR_VEHICLE_POSITIONS — Miramar has both vehicle (450) and boat (62) spawn markers.",
-      "state": "declared",
-      "declaredAt": 1789329203190
-    },
-    "spawn-marker-popup-unverified": {
-      "id": "spawn-marker-popup-unverified",
-      "statement": "Vehicle/Boat spawn marker popups could NOT be verified via programmatic click — Leaflet's pointer-events:none on marker img elements prevents synthetic clicks from reaching the Leaflet marker container. Needs manual browser verification.",
-      "state": "declared",
-      "declaredAt": 1789329203190
-    },
-    "zoom-recenter-functional": {
-      "id": "zoom-recenter-functional",
-      "statement": "Zoom In, Zoom Out, and Recenter buttons work correctly — tile layers refresh on zoom, map recenters with flyTo animation, 0 console errors.",
-      "state": "declared",
-      "declaredAt": 1789329203190
-    },
-    "layer-toggle-global-state": {
-      "id": "layer-toggle-global-state",
-      "statement": "Layer toggle state (visibleLayers) is shared across all maps — toggling Vehicle on Rondo also enables Vehicle on Erangel and Miramar. State does NOT reset when switching maps.",
-      "state": "declared",
-      "declaredAt": 1789329203190
-    },
-    "flow:map-knowledge-full-player-journey": {
-      "id": "flow:map-knowledge-full-player-journey",
-      "statement": "A player opens Map Knowledge, sees Erangel as default, can switch between all 3 maps (Erangel/Miramar/Rondo), toggle spawn layers on/off, zoom and recenter the map, and rapidly switch maps without glitches or console errors. Rondo correctly has no boat spawns. Vehicle and boat spawn counts match the dataset.",
-      "state": "declared",
-      "declaredAt": 1789329215961,
-      "surface": {
-        "flow": "map-knowledge-full-player-journey"
-      }
-    },
-    "inline:strategy-maker-opens-toolbar-38576ddf": {
-      "id": "inline:strategy-maker-opens-toolbar-38576ddf",
-      "statement": "strategy-maker-opens-toolbar",
-      "state": "proved",
-      "declaredAt": 1789329811281,
-      "binding": {
-        "kind": "text",
-        "contains": "Pencil"
-      },
-      "surface": {
-        "files": [
-          "src/pages/MapKnowledge.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_act_and_wait:1789329811883",
-        "grade": "presence",
-        "at": 1789329811883
-      }
-    },
-    "inline:zone-selector-opens-on-zone-tool-click-3654d9c6": {
-      "id": "inline:zone-selector-opens-on-zone-tool-click-3654d9c6",
-      "statement": "zone-selector-opens-on-zone-tool-click",
+    "inline:clicking-vehicle-toggle-again-turns-layer-off-ch-951e709f": {
+      "id": "inline:clicking-vehicle-toggle-again-turns-layer-off-ch-951e709f",
+      "statement": "Clicking vehicle toggle again turns layer off — checkmark disappears",
       "state": "bound",
-      "declaredAt": 1789330036698,
+      "declaredAt": 1789509265205,
       "binding": {
-        "kind": "text",
-        "contains": "Zone"
+        "kind": "element",
+        "query": {
+          "role": "button",
+          "name": "Vehicle 416"
+        }
       }
     },
-    "inline:zone-selector-shows-1-to-8-and-all-e94c3cd4": {
-      "id": "inline:zone-selector-shows-1-to-8-and-all-e94c3cd4",
-      "statement": "zone-selector-shows-1-to-8-and-all",
-      "state": "proved",
-      "declaredAt": 1789330044119,
-      "binding": {
-        "kind": "allOf",
-        "predicates": [
-          {
-            "kind": "text",
-            "contains": "1"
-          },
-          {
-            "kind": "text",
-            "contains": "ALL"
-          }
-        ]
-      },
-      "surface": {
-        "files": [
-          "src/components/strategy/FloatingToolbar.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789330044190",
-        "grade": "presence",
-        "at": 1789330044190
-      }
-    },
-    "inline:layers-panel-opens-when-layers-button-is-clicked-fa7ea382": {
-      "id": "inline:layers-panel-opens-when-layers-button-is-clicked-fa7ea382",
-      "statement": "Layers panel opens when Layers button is clicked and shows empty state message",
-      "state": "proved",
-      "declaredAt": 1789330270172,
-      "binding": {
-        "kind": "text",
-        "contains": "Nothing drawn yet"
-      },
-      "surface": {
-        "files": [
-          "src/components/strategy/FloatingToolbar.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789330270212",
-        "grade": "presence",
-        "at": 1789330270212
-      }
-    },
-    "inline:map-switch-to-miramar-in-strategy-maker-mode-sho-d4623ab1": {
-      "id": "inline:map-switch-to-miramar-in-strategy-maker-mode-sho-d4623ab1",
-      "statement": "Map switch to Miramar in Strategy Maker mode shows unsaved-changes guard then switches map on Discard",
-      "state": "proved",
-      "declaredAt": 1789330382925,
+    "inline:switching-to-miramar-loads-correct-map-data-497bbcb8": {
+      "id": "inline:switching-to-miramar-loads-correct-map-data-497bbcb8",
+      "statement": "Switching to Miramar loads correct map data",
+      "state": "bound",
+      "declaredAt": 1789509293159,
       "binding": {
         "kind": "element",
         "query": {
           "role": "button",
           "name": "Miramar"
-        },
-        "state": "visible"
-      },
-      "surface": {
-        "files": [
-          "src/components/strategy/SaveStrategyModal.jsx"
-        ]
-      },
-      "provenBy": {
-        "verdictId": "reticle_assert:1789330382957",
-        "grade": "presence",
-        "at": 1789330382957
+        }
       }
     },
-    "inline:zone-1-8-button-opens-zoneselector-panel-with-nu-00cd9ac9": {
-      "id": "inline:zone-1-8-button-opens-zoneselector-panel-with-nu-00cd9ac9",
-      "statement": "Zone 1–8 button opens ZoneSelector panel with numbered zone buttons and ALL button",
-      "state": "bound",
-      "declaredAt": 1789330497561,
-      "binding": {
-        "kind": "allOf",
-        "predicates": [
-          {
-            "kind": "text",
-            "contains": "1"
-          },
-          {
-            "kind": "element",
-            "query": {
-              "role": "button",
-              "name": "ALL"
-            },
-            "state": "visible"
-          }
-        ]
-      }
-    },
-    "inline:zone-1-8-toolbar-button-opens-zoneselector-panel-ffb8102a": {
-      "id": "inline:zone-1-8-toolbar-button-opens-zoneselector-panel-ffb8102a",
-      "statement": "Zone 1–8 toolbar button opens ZoneSelector panel showing numbered zone buttons (1–8) and ALL button",
+    "inline:rondo-map-shows-0-boat-markers-no-water-in-rondo-b47d5235": {
+      "id": "inline:rondo-map-shows-0-boat-markers-no-water-in-rondo-b47d5235",
+      "statement": "Rondo map shows 0 boat markers (no water in Rondo)",
       "state": "proved",
-      "declaredAt": 1789330505977,
+      "declaredAt": 1789509303028,
       "binding": {
-        "kind": "allOf",
+        "kind": "element",
+        "query": {
+          "role": "button",
+          "name": "Boat 0"
+        }
+      },
+      "surface": {
+        "files": [
+          "src/pages/MapKnowledge.jsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789509303780",
+        "grade": "presence",
+        "at": 1789509303780
+      }
+    },
+    "inline:clicking-strategy-maker-opens-the-drawing-canvas-040236e4": {
+      "id": "inline:clicking-strategy-maker-opens-the-drawing-canvas-040236e4",
+      "statement": "Clicking Strategy Maker opens the drawing canvas with toolbar",
+      "state": "proved",
+      "declaredAt": 1789509327530,
+      "binding": {
+        "kind": "element",
+        "query": {
+          "role": "button",
+          "name": "Pencil"
+        }
+      },
+      "surface": {
+        "files": [
+          "src/pages/MapKnowledge.jsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789509328085",
+        "grade": "presence",
+        "at": 1789509328085
+      }
+    },
+    "inline:show-paths-button-is-clickable-and-not-occluded-8ffeed5a": {
+      "id": "inline:show-paths-button-is-clickable-and-not-occluded-8ffeed5a",
+      "statement": "Show Paths button is clickable and not occluded by ZoneSelector panel",
+      "state": "declared",
+      "declaredAt": 1789509404850
+    },
+    "inline:save-strategy-button-opens-save-dialog-or-confir-031a21e0": {
+      "id": "inline:save-strategy-button-opens-save-dialog-or-confir-031a21e0",
+      "statement": "Save Strategy button opens save dialog or confirmation",
+      "state": "bound",
+      "declaredAt": 1789509427291,
+      "binding": {
+        "kind": "anyOf",
+        "predicates": [
+          {
+            "kind": "element",
+            "query": {
+              "role": "dialog"
+            }
+          },
+          {
+            "kind": "text",
+            "contains": "Save"
+          },
+          {
+            "kind": "text",
+            "contains": "saved"
+          },
+          {
+            "kind": "text",
+            "contains": "Strategy saved"
+          }
+        ]
+      }
+    },
+    "inline:strategy-save-completes-modal-closes-or-success-185902ca": {
+      "id": "inline:strategy-save-completes-modal-closes-or-success-185902ca",
+      "statement": "Strategy save completes — modal closes or success toast appears",
+      "state": "bound",
+      "declaredAt": 1789509477543,
+      "binding": {
+        "kind": "anyOf",
+        "predicates": [
+          {
+            "kind": "element",
+            "query": {
+              "role": "dialog"
+            },
+            "absent": true
+          },
+          {
+            "kind": "text",
+            "contains": "saved"
+          },
+          {
+            "kind": "text",
+            "contains": "Strategy saved"
+          },
+          {
+            "kind": "net",
+            "method": "POST",
+            "urlContains": "firestore"
+          }
+        ]
+      }
+    },
+    "inline:match-logger-tab-loads-with-form-and-import-from-335780f3": {
+      "id": "inline:match-logger-tab-loads-with-form-and-import-from-335780f3",
+      "statement": "Match Logger tab loads with form and Import from Screenshot button",
+      "state": "bound",
+      "declaredAt": 1789530416931,
+      "binding": {
+        "kind": "anyOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "Import from Screenshot"
+          },
+          {
+            "kind": "text",
+            "contains": "Classic"
+          },
+          {
+            "kind": "text",
+            "contains": "Match Log"
+          }
+        ]
+      }
+    },
+    "inline:logging-a-classic-match-erangel-position-1-kills-486a3f82": {
+      "id": "inline:logging-a-classic-match-erangel-position-1-kills-486a3f82",
+      "statement": "Logging a Classic match (Erangel, position 1, kills 5, damage 800) saves successfully",
+      "state": "bound",
+      "declaredAt": 1789530447944,
+      "binding": {
+        "kind": "anyOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "Match logged"
+          },
+          {
+            "kind": "text",
+            "contains": "saved"
+          },
+          {
+            "kind": "text",
+            "contains": "success"
+          }
+        ]
+      }
+    },
+    "inline:empty-match-form-submission-shows-validation-err-d7a3a41a": {
+      "id": "inline:empty-match-form-submission-shows-validation-err-d7a3a41a",
+      "statement": "Empty match form submission shows validation errors",
+      "state": "bound",
+      "declaredAt": 1789530470882,
+      "binding": {
+        "kind": "anyOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "required"
+          },
+          {
+            "kind": "text",
+            "contains": "valid"
+          },
+          {
+            "kind": "text",
+            "contains": "error"
+          },
+          {
+            "kind": "text",
+            "contains": "Enter"
+          },
+          {
+            "kind": "element",
+            "query": {
+              "role": "alert"
+            }
+          }
+        ]
+      }
+    },
+    "inline:typing-a-question-in-ai-coach-enables-the-send-b-6c55f0eb": {
+      "id": "inline:typing-a-question-in-ai-coach-enables-the-send-b-6c55f0eb",
+      "statement": "Typing a question in AI Coach enables the Send button",
+      "state": "bound",
+      "declaredAt": 1789530527615,
+      "binding": {
+        "kind": "element",
+        "query": {
+          "role": "button",
+          "name": "Send"
+        }
+      }
+    },
+    "inline:ai-coach-returns-a-meaningful-response-to-a-bgmi-2db9ef7b": {
+      "id": "inline:ai-coach-returns-a-meaningful-response-to-a-bgmi-2db9ef7b",
+      "statement": "AI Coach returns a meaningful response to a BGMI skills question",
+      "state": "bound",
+      "declaredAt": 1789530536557,
+      "binding": {
+        "kind": "anyOf",
         "predicates": [
           {
             "kind": "element",
             "query": {
               "role": "button",
-              "name": "Zone 1"
-            },
-            "state": "visible"
+              "name": "Send"
+            }
           },
           {
             "kind": "text",
-            "contains": "ALL"
+            "contains": "skills"
+          },
+          {
+            "kind": "text",
+            "contains": "BGMI"
+          },
+          {
+            "kind": "text",
+            "contains": "aim"
+          },
+          {
+            "kind": "text",
+            "contains": "training"
+          },
+          {
+            "kind": "text",
+            "contains": "Error"
+          }
+        ]
+      }
+    },
+    "inline:ai-coach-correctly-gates-responses-behind-screen-04f3afa9": {
+      "id": "inline:ai-coach-correctly-gates-responses-behind-screen-04f3afa9",
+      "statement": "AI Coach correctly gates responses behind screenshot upload requirement",
+      "state": "proved",
+      "declaredAt": 1789530548290,
+      "binding": {
+        "kind": "text",
+        "contains": "Upload a Classic stats screenshot first so the coach has something to work with"
+      },
+      "surface": {
+        "files": [
+          "src/pages/AICoach.jsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789530548321",
+        "grade": "presence",
+        "at": 1789530548321
+      }
+    },
+    "inline:clicking-edit-opens-the-profile-edit-form-with-i-858a89cf": {
+      "id": "inline:clicking-edit-opens-the-profile-edit-form-with-i-858a89cf",
+      "statement": "Clicking Edit opens the profile edit form with IGN field",
+      "state": "bound",
+      "declaredAt": 1789530593095,
+      "binding": {
+        "kind": "anyOf",
+        "predicates": [
+          {
+            "kind": "element",
+            "query": {
+              "role": "textbox"
+            }
+          },
+          {
+            "kind": "text",
+            "contains": "IGN"
+          },
+          {
+            "kind": "text",
+            "contains": "In-Game"
+          }
+        ]
+      }
+    },
+    "inline:saving-profile-with-ign-sparkop-persists-to-fire-d72750ac": {
+      "id": "inline:saving-profile-with-ign-sparkop-persists-to-fire-d72750ac",
+      "statement": "Saving profile with IGN=SparkOp persists to Firestore and exits edit mode",
+      "state": "bound",
+      "declaredAt": 1789530613761,
+      "binding": {
+        "kind": "anyOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "saved"
+          },
+          {
+            "kind": "text",
+            "contains": "Profile saved"
+          },
+          {
+            "kind": "element",
+            "query": {
+              "role": "button",
+              "name": "Edit"
+            }
+          }
+        ]
+      }
+    },
+    "inline:profile-shows-subscription-status-free-or-active-4d499e85": {
+      "id": "inline:profile-shows-subscription-status-free-or-active-4d499e85",
+      "statement": "Profile shows subscription status (Free or Active)",
+      "state": "bound",
+      "declaredAt": 1789530628197,
+      "binding": {
+        "kind": "anyOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "Free"
+          },
+          {
+            "kind": "text",
+            "contains": "Active"
+          },
+          {
+            "kind": "text",
+            "contains": "Subscription"
+          },
+          {
+            "kind": "text",
+            "contains": "Plan"
+          }
+        ]
+      }
+    },
+    "show-paths-occluded": {
+      "id": "show-paths-occluded",
+      "statement": "Show Paths button in FloatingToolbar is permanently occluded by MapPanel div and cannot be clicked",
+      "state": "declared",
+      "declaredAt": 1789530975466
+    },
+    "match-logger-null-save": {
+      "id": "match-logger-null-save",
+      "statement": "Match Logger saves null to Firestore for empty position and damage fields with no validation",
+      "state": "declared",
+      "declaredAt": 1789530975466
+    },
+    "checkout-broken": {
+      "id": "checkout-broken",
+      "statement": "Checkout page auto-fires createRazorpayOrder which fails with FirebaseError: internal, breaking payment flow",
+      "state": "declared",
+      "declaredAt": 1789530975466
+    },
+    "leaderboards-dead-link": {
+      "id": "leaderboards-dead-link",
+      "statement": "Sidebar links to /leaderboards which has no matching route in App.jsx, causing redirect to dashboard",
+      "state": "declared",
+      "declaredAt": 1789530975466
+    },
+    "dev-seed-button-exposed": {
+      "id": "dev-seed-button-exposed",
+      "statement": "Dev-only Seed Data button in Profile page is visible to all users, not just admins",
+      "state": "declared",
+      "declaredAt": 1789530975466
+    },
+    "mapknowledge-pin-permission": {
+      "id": "mapknowledge-pin-permission",
+      "statement": "MapKnowledge pin snapshot listener fails with Missing or insufficient permissions for authenticated test user",
+      "state": "declared",
+      "declaredAt": 1789530975466
+    },
+    "react-router-future-flags": {
+      "id": "react-router-future-flags",
+      "statement": "React Router v6 future flags v7_startTransition and v7_relativeSplatPath not opted in, will cause breaking changes on v7 upgrade",
+      "state": "declared",
+      "declaredAt": 1789530975466
+    },
+    "firestore-permission-errors": {
+      "id": "firestore-permission-errors",
+      "statement": "Multiple Firestore operations fail with Missing or insufficient permissions for authenticated test user: notif gen, cleanOldNotifications, saveXP, useSubscription snapshot",
+      "state": "declared",
+      "declaredAt": 1789530975466
+    },
+    "app-check-failing-localhost": {
+      "id": "app-check-failing-localhost",
+      "statement": "App Check reCAPTCHA token refresh fails on localhost (not an authorized domain), making all Cloud Functions inaccessible in dev environment",
+      "state": "declared",
+      "declaredAt": 1789530975466
+    },
+    "ai-coach-misleading-placeholder": {
+      "id": "ai-coach-misleading-placeholder",
+      "statement": "AI Coach input placeholder says 'Ask your coach anything' but messages are rejected without prior screenshot upload — placeholder is misleading",
+      "state": "declared",
+      "declaredAt": 1789530975466
+    },
+    "inline:b1-checkout-page-loads-idle-no-auto-fired-create-a966bfa6": {
+      "id": "inline:b1-checkout-page-loads-idle-no-auto-fired-create-a966bfa6",
+      "statement": "B1: Checkout page loads idle — no auto-fired createRazorpayOrder, shows manual trigger button",
+      "state": "proved",
+      "declaredAt": 1789550469600,
+      "binding": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "Subscribe to Esports Elite"
+          },
+          {
+            "kind": "element",
+            "query": {
+              "role": "button",
+              "name": "Proceed to Payment →"
+            }
+          },
+          {
+            "kind": "not",
+            "predicate": {
+              "kind": "net",
+              "urlContains": "createRazorpayOrder"
+            }
+          }
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789550469637",
+        "grade": "presence",
+        "at": 1789550469637
+      }
+    },
+    "inline:b10-no-react-router-future-flag-warnings-for-v7-0027c3ee": {
+      "id": "inline:b10-no-react-router-future-flag-warnings-for-v7-0027c3ee",
+      "statement": "B10: No React Router future flag warnings for v7_startTransition or v7_relativeSplatPath",
+      "state": "bound",
+      "declaredAt": 1789550545338,
+      "binding": {
+        "kind": "console",
+        "level": "warn",
+        "contains": "v7_startTransition",
+        "absent": true
+      }
+    },
+    "inline:b6-leaderboards-route-renders-a-coming-soon-page-80915c48": {
+      "id": "inline:b6-leaderboards-route-renders-a-coming-soon-page-80915c48",
+      "statement": "B6: /leaderboards route renders a Coming Soon page — not redirected to dashboard",
+      "state": "bound",
+      "declaredAt": 1789550564589,
+      "binding": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "route",
+            "pathname": "/leaderboards"
+          },
+          {
+            "kind": "text",
+            "contains": "Leaderboards"
+          },
+          {
+            "kind": "text",
+            "contains": "Coming soon"
+          }
+        ]
+      }
+    },
+    "inline:b6-leaderboards-route-renders-coming-soon-page-n-0d434b3c": {
+      "id": "inline:b6-leaderboards-route-renders-coming-soon-page-n-0d434b3c",
+      "statement": "B6: /leaderboards route renders Coming Soon page, not redirected",
+      "state": "proved",
+      "declaredAt": 1789550590281,
+      "binding": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "route",
+            "pathname": "/leaderboards"
+          },
+          {
+            "kind": "text",
+            "contains": "Leaderboards"
+          },
+          {
+            "kind": "text",
+            "contains": "Coming soon"
+          }
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789550590754",
+        "grade": "presence",
+        "at": 1789550590754
+      }
+    },
+    "inline:b9-ai-coach-shows-hint-text-instructing-user-to-9032f591": {
+      "id": "inline:b9-ai-coach-shows-hint-text-instructing-user-to-9032f591",
+      "statement": "B9: AI Coach shows hint text instructing user to upload a screenshot before asking questions",
+      "state": "proved",
+      "declaredAt": 1789550608937,
+      "binding": {
+        "kind": "text",
+        "contains": "upload a Classic stats screenshot"
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789550608974",
+        "grade": "presence",
+        "at": 1789550608974
+      }
+    },
+    "inline:b3-submitting-empty-match-logger-form-shows-vali-29d61540": {
+      "id": "inline:b3-submitting-empty-match-logger-form-shows-vali-29d61540",
+      "statement": "B3: Submitting empty Match Logger form shows validation errors and blocks Firestore write",
+      "state": "bound",
+      "declaredAt": 1789550679536,
+      "binding": {
+        "kind": "anyOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "required"
+          },
+          {
+            "kind": "text",
+            "contains": "Position is required"
+          },
+          {
+            "kind": "text",
+            "contains": "Kills is required"
+          },
+          {
+            "kind": "text",
+            "contains": "Enter a placement"
+          }
+        ]
+      }
+    },
+    "inline:b3-empty-match-logger-form-shows-position-kills-a7d5098b": {
+      "id": "inline:b3-empty-match-logger-form-shows-position-kills-a7d5098b",
+      "statement": "B3: Empty Match Logger form shows position+kills validation errors, no Firestore write fired",
+      "state": "proved",
+      "declaredAt": 1789550697126,
+      "binding": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "Position must be between 1 and 100"
+          },
+          {
+            "kind": "text",
+            "contains": "Kills must be 0 or more"
+          },
+          {
+            "kind": "not",
+            "predicate": {
+              "kind": "net",
+              "urlContains": "firestore.googleapis.com"
+            }
           }
         ]
       },
       "surface": {
         "files": [
-          "src/components/strategy/FloatingToolbar.jsx"
+          "src/components/MatchLogger.jsx"
         ]
       },
       "provenBy": {
-        "verdictId": "reticle_assert:1789330506031",
+        "verdictId": "reticle_assert:1789550697179",
         "grade": "presence",
-        "at": 1789330506031
+        "at": 1789550697179
       }
     },
-    "flow:strategy-maker-full-player-journey": {
-      "id": "flow:strategy-maker-full-player-journey",
-      "statement": "A player opens Strategy Maker, selects Pencil tool (confirms Color/Thickness/Opacity context toolbar appears), selects Zone 1-8 (confirms ZoneSelector panel with numbered zones and ALL button appears), and switches maps with unsaved-changes guard firing correctly — proving the full Strategy Maker toolbar and zone selection flow works.",
-      "state": "declared",
-      "declaredAt": 1789330519484,
-      "surface": {
-        "flow": "strategy-maker-full-player-journey"
+    "inline:b4-seed-test-data-button-not-visible-on-profile-23a69af2": {
+      "id": "inline:b4-seed-test-data-button-not-visible-on-profile-23a69af2",
+      "statement": "B4: Seed Test Data button not visible on profile page (DEV guard active or non-admin)",
+      "state": "bound",
+      "declaredAt": 1789550712914,
+      "binding": {
+        "kind": "text",
+        "contains": "Seed Test Data",
+        "absent": true
       }
     },
-    "strategy-toolbar-all-tools-clickable": {
-      "id": "strategy-toolbar-all-tools-clickable",
-      "state": "declared",
-      "declaredAt": 1789330531669
+    "inline:b5-no-firestore-permission-errors-on-dashboard-f-6828e7d8": {
+      "id": "inline:b5-no-firestore-permission-errors-on-dashboard-f-6828e7d8",
+      "statement": "B5: No Firestore permission errors on dashboard for authenticated user",
+      "state": "bound",
+      "declaredAt": 1789550763757,
+      "binding": {
+        "kind": "console",
+        "level": "error",
+        "contains": "Missing or insufficient permissions",
+        "absent": true
+      }
     },
-    "strategy-pencil-context-toolbar": {
-      "id": "strategy-pencil-context-toolbar",
-      "state": "declared",
-      "declaredAt": 1789330531669
+    "inline:b7-mapknowledge-loads-without-pin-snapshot-permi-56dee044": {
+      "id": "inline:b7-mapknowledge-loads-without-pin-snapshot-permi-56dee044",
+      "statement": "B7: MapKnowledge loads without pin snapshot permission errors in console",
+      "state": "bound",
+      "declaredAt": 1789550788928,
+      "binding": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "console",
+            "level": "error",
+            "contains": "permission",
+            "absent": true
+          },
+          {
+            "kind": "console",
+            "level": "error",
+            "contains": "Missing or insufficient",
+            "absent": true
+          }
+        ]
+      }
     },
-    "strategy-zone-selector-panel": {
-      "id": "strategy-zone-selector-panel",
-      "state": "declared",
-      "declaredAt": 1789330531669
-    },
-    "strategy-layers-panel-empty-state": {
-      "id": "strategy-layers-panel-empty-state",
-      "state": "declared",
-      "declaredAt": 1789330531669
-    },
-    "strategy-map-switch-unsaved-guard": {
-      "id": "strategy-map-switch-unsaved-guard",
-      "state": "declared",
-      "declaredAt": 1789330531669
-    },
-    "strategy-no-console-errors": {
-      "id": "strategy-no-console-errors",
-      "state": "declared",
-      "declaredAt": 1789330531669
-    },
-    "strategy-no-measure-tool": {
-      "id": "strategy-no-measure-tool",
-      "state": "declared",
-      "declaredAt": 1789330531669
+    "inline:b8-unauthenticated-admin-access-redirects-to-log-7de9cd8f": {
+      "id": "inline:b8-unauthenticated-admin-access-redirects-to-log-7de9cd8f",
+      "statement": "B8: Unauthenticated /admin access redirects to login with no flash of admin content",
+      "state": "proved",
+      "declaredAt": 1789550809259,
+      "binding": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "route",
+            "pathname": "/login"
+          },
+          {
+            "kind": "text",
+            "contains": "Admin",
+            "absent": true
+          }
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789550809317",
+        "grade": "presence",
+        "at": 1789550809317
+      }
     }
   }
 }

@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "name": "drive-lease-1a0117da-f7b4-4a03-bc7c-b532ec18f5-roadmap",
+  "projectId": "esports-website-3c91e497",
+  "createdAt": 1790722336784,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "STAGE 01: Foundation, click to expand"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "console",
+            "level": "error",
+            "absent": true
+          }
+        ]
+      }
+    }
+  ],
+  "startPath": "/roadmap"
+}

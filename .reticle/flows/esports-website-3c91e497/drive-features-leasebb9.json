@@ -1,0 +1,80 @@
+{
+  "version": 2,
+  "name": "drive-features-leasebb9",
+  "projectId": "esports-website-3c91e497",
+  "createdAt": 1790693637533,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Open menu"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "element",
+        "query": {
+          "by": "role",
+          "value": "button",
+          "name": "Close menu"
+        },
+        "state": "visible"
+      }
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Close menu"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "element",
+        "query": {
+          "by": "role",
+          "value": "button",
+          "name": "Close menu"
+        },
+        "absent": true
+      }
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Open menu"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "element",
+        "query": {
+          "by": "role",
+          "value": "link",
+          "name": "Features"
+        },
+        "state": "visible"
+      }
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "link",
+        "name": "Features"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "route",
+        "pathname": "/features"
+      }
+    }
+  ],
+  "startPath": "/"
+}

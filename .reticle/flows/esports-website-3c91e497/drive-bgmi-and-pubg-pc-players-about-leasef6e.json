@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "name": "drive-bgmi-and-pubg-pc-players-about-leasef6e",
+  "projectId": "esports-website-3c91e497",
+  "createdAt": 1790609800404,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "WHO IS ESPORTS ELITE FOR?"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "text",
+        "contains": "BGMI and PUBG PC players"
+      }
+    }
+  ],
+  "startPath": "/about"
+}

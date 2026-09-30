@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "1789550685284-e2564",
+  "createdAt": 1789550685286,
+  "origin": "failed-assert",
+  "expected": "declared consequence",
+  "observed": "no sub-predicate of anyOf matched",
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "testid",
+        "value": "e2564",
+        "source": {
+          "file": "src/components/MatchLogger.jsx",
+          "line": 330,
+          "column": 15
+        }
+      },
+      "action": "click"
+    }
+  ]
+}

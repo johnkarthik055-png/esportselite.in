@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "name": "drive-lease-1a0117da-f7b4-4a03-bc7c-b532ec18f5-about",
+  "projectId": "esports-website-3c91e497",
+  "createdAt": 1790722364333,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "WHO IS ESPORTS ELITE FOR?"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "element",
+        "query": {
+          "role": "button",
+          "name": "WHO IS ESPORTS ELITE FOR?"
+        },
+        "state": "expanded"
+      }
+    }
+  ],
+  "startPath": "/about"
+}

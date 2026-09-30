@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "name": "drive-ai-coach-features-leasef4e",
+  "projectId": "esports-website-3c91e497",
+  "createdAt": 1790706218471,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "tab",
+        "name": "AI Coach"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "text",
+        "contains": "AI COACH",
+        "visible": true
+      }
+    }
+  ],
+  "startPath": "/features"
+}

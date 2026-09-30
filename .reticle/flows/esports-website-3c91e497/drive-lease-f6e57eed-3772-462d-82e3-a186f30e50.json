@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "name": "drive-lease-f6e57eed-3772-462d-82e3-a186f30e50",
+  "projectId": "esports-website-3c91e497",
+  "createdAt": 1790609617831,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Toggle menu"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "element",
+        "query": {
+          "role": "navigation",
+          "name": "Mobile navigation"
+        }
+      }
+    }
+  ],
+  "startPath": "/"
+}

@@ -1,15 +1,15 @@
 {
   "counts": {
-    "calls": 251,
-    "verdicts": 58,
-    "passed": 44,
-    "failed": 8,
-    "unknown": 6,
-    "refusals": 12,
+    "calls": 574,
+    "verdicts": 114,
+    "passed": 84,
+    "failed": 16,
+    "unknown": 14,
+    "refusals": 25,
     "marks": 0,
-    "sessions": 5,
-    "tokensReturned": 105737,
-    "drivingMs": 148776
+    "sessions": 15,
+    "tokensReturned": 219067,
+    "drivingMs": 421115
   },
   "days": [
     {
@@ -30,7 +30,7 @@
     {
       "date": "2026-09-14",
       "counts": {
-        "calls": 122,
+        "calls": 123,
         "verdicts": 26,
         "passed": 20,
         "failed": 6,
@@ -38,17 +38,122 @@
         "refusals": 4,
         "marks": 0,
         "sessions": 2,
-        "tokensReturned": 56968,
+        "tokensReturned": 56985,
         "drivingMs": 71032
+      }
+    },
+    {
+      "date": "2026-09-15",
+      "counts": {
+        "calls": 2,
+        "verdicts": 0,
+        "passed": 0,
+        "failed": 0,
+        "unknown": 0,
+        "refusals": 1,
+        "marks": 0,
+        "sessions": 1,
+        "tokensReturned": 997,
+        "drivingMs": 29816
+      }
+    },
+    {
+      "date": "2026-09-16",
+      "counts": {
+        "calls": 227,
+        "verdicts": 56,
+        "passed": 40,
+        "failed": 8,
+        "unknown": 8,
+        "refusals": 8,
+        "marks": 0,
+        "sessions": 3,
+        "tokensReturned": 89826,
+        "drivingMs": 168053
+      }
+    },
+    {
+      "date": "2026-09-19",
+      "counts": {
+        "calls": 0,
+        "verdicts": 0,
+        "passed": 0,
+        "failed": 0,
+        "unknown": 0,
+        "refusals": 0,
+        "marks": 0,
+        "sessions": 4,
+        "tokensReturned": 0,
+        "drivingMs": 0
+      }
+    },
+    {
+      "date": "2026-09-20",
+      "counts": {
+        "calls": 0,
+        "verdicts": 0,
+        "passed": 0,
+        "failed": 0,
+        "unknown": 0,
+        "refusals": 0,
+        "marks": 0,
+        "sessions": 2,
+        "tokensReturned": 0,
+        "drivingMs": 0
+      }
+    },
+    {
+      "date": "2026-09-28",
+      "counts": {
+        "calls": 36,
+        "verdicts": 0,
+        "passed": 0,
+        "failed": 0,
+        "unknown": 0,
+        "refusals": 3,
+        "marks": 0,
+        "sessions": 0,
+        "tokensReturned": 15489,
+        "drivingMs": 12773
+      }
+    },
+    {
+      "date": "2026-09-29",
+      "counts": {
+        "calls": 37,
+        "verdicts": 0,
+        "passed": 0,
+        "failed": 0,
+        "unknown": 0,
+        "refusals": 1,
+        "marks": 0,
+        "sessions": 0,
+        "tokensReturned": 5722,
+        "drivingMs": 32867
+      }
+    },
+    {
+      "date": "2026-09-30",
+      "counts": {
+        "calls": 20,
+        "verdicts": 0,
+        "passed": 0,
+        "failed": 0,
+        "unknown": 0,
+        "refusals": 0,
+        "marks": 0,
+        "sessions": 0,
+        "tokensReturned": 1279,
+        "drivingMs": 28830
       }
     }
   ],
   "records": {
     "longestRunMs": 0,
-    "bestVerdictDay": 32,
-    "bestDefectDay": 6,
-    "streakDays": 2,
-    "bestStreakDays": 2
+    "bestVerdictDay": 56,
+    "bestDefectDay": 8,
+    "streakDays": 3,
+    "bestStreakDays": 4
   },
   "savings": {
     "tokens": {
@@ -56,12 +161,49 @@
       "basis": "vs an agent reading the app through screenshots"
     },
     "minutes": {
-      "value": 61,
+      "value": 121,
       "basis": "vs checking each consequence by hand, plus one re-prompt cycle per defect caught"
     }
   },
   "since": 1789294396936,
   "defects": [
+    {
+      "at": 1789550685298,
+      "title": "Log Match",
+      "detail": "no sub-predicate of anyOf matched",
+      "source": "src/components/MatchLogger.jsx:330"
+    },
+    {
+      "at": 1789550572659,
+      "title": "the declared consequence did not hold"
+    },
+    {
+      "at": 1789509485559,
+      "title": "the declared consequence did not hold"
+    },
+    {
+      "at": 1789509240477,
+      "title": "the declared consequence did not hold",
+      "source": "src/pages/MapKnowledge.jsx:1295"
+    },
+    {
+      "at": 1789509203835,
+      "title": "Vehicle 416",
+      "detail": "no 'button' named 'Vehicle 0'; saw: Settings, Notifications, Logout, Collapse, Open menu, Notifications, ▶ Start Training, Erangel, Miramar, Rondo, View Map, Strategy Maker, Hide maps & tabs",
+      "source": "src/pages/MapKnowledge.jsx:1224"
+    },
+    {
+      "at": 1789509175664,
+      "title": "the declared consequence did not hold"
+    },
+    {
+      "at": 1789507414188,
+      "title": "the declared consequence did not hold"
+    },
+    {
+      "at": 1789507338181,
+      "title": "the declared consequence did not hold"
+    },
     {
       "at": 1789330497673,
       "title": "the declared consequence did not hold"
@@ -71,41 +213,6 @@
       "title": "Zone 1–8",
       "detail": "no element matched {\"role\":\"button\",\"component\":\"ZoneSelector.jsx\"} in state 'visible'",
       "source": "src/components/strategy/FloatingToolbar.jsx:60"
-    },
-    {
-      "at": 1789330372576,
-      "title": "Discard",
-      "detail": "no 'button' named 'Discard'; saw: Open menu",
-      "source": "src/components/strategy/SaveStrategyModal.jsx:124"
-    },
-    {
-      "at": 1789330263275,
-      "title": "Layers",
-      "detail": "no element matched {\"role\":\"dialog\"} in state 'visible'",
-      "source": "src/components/strategy/FloatingToolbar.jsx:60"
-    },
-    {
-      "at": 1789328912075,
-      "title": "Vehicle 402",
-      "detail": "expected element to be absent but found 1",
-      "source": "src/pages/MapKnowledge.jsx:1224"
-    },
-    {
-      "at": 1789328677796,
-      "title": "no sub-predicate of anyOf matched",
-      "source": "src/pages/MapKnowledge.jsx:781"
-    },
-    {
-      "at": 1789295449208,
-      "title": "Sign in",
-      "detail": "current route (no route change in the window) '/' does not contain '/dashboard'",
-      "source": "src/pages/Login.jsx:804"
-    },
-    {
-      "at": 1789295383675,
-      "title": "Sign in",
-      "detail": "no element matched {\"text\":\"Invalid\"}",
-      "source": "src/pages/Login.jsx:804"
     }
   ]
 }

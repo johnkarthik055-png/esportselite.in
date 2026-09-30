@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "1789509203815-e987",
+  "createdAt": 1789509203816,
+  "origin": "failed-assert",
+  "expected": "declared consequence",
+  "observed": "no 'button' named 'Vehicle 0'; saw: Settings, Notifications, Logout, Collapse, Open menu, Notifications, ▶ Start Training, Erangel, Miramar, Rondo, View Map, Strategy Maker, Hide maps & tabs",
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "testid",
+        "value": "e987",
+        "source": {
+          "file": "src/pages/MapKnowledge.jsx",
+          "line": 1224,
+          "column": 16
+        }
+      },
+      "action": "click"
+    }
+  ]
+}

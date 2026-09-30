@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "name": "drive-features-leaseed1",
+  "projectId": "esports-website-3c91e497",
+  "createdAt": 1790696486296,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "unresolved"
+      },
+      "args": {},
+      "action": "hover",
+      "degraded": true,
+      "expect": {
+        "kind": "console",
+        "level": "error",
+        "absent": true
+      }
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "link",
+        "name": "Features"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "route",
+        "pathname": "/features"
+      }
+    }
+  ],
+  "startPath": "/"
+}
