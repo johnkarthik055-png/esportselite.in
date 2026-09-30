@@ -107,9 +107,8 @@ const GLOBAL_CSS = `
   }
   .ee-left {
     flex:0 0 55%; display:flex; flex-direction:column; justify-content:center;
-    padding:56px 48px; background:#F0F4FF; overflow:hidden;
-    background-image:radial-gradient(circle,rgba(23,105,255,0.07) 1px,transparent 1px);
-    background-size:28px 28px;
+    padding:56px 48px; overflow:hidden; position:relative;
+    background:linear-gradient(160deg,#07111F 0%,#0B1A35 50%,#0D1E3D 100%);
   }
   .ee-right {
     flex:0 0 45%; display:flex; flex-direction:column;
@@ -340,29 +339,19 @@ export default function Login() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          {/* 1. Logo row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
-            <img
-              src="/assets/logo.png" alt="Esports Elite"
-              style={{ height: 64, width: 'auto', objectFit: 'contain', flexShrink: 0 }}
-              onError={e => { e.currentTarget.style.display = 'none' }}
-            />
-            <div>
-              <div style={{
-                fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
-                fontSize: 22, color: '#111827', letterSpacing: '0.06em', lineHeight: 1,
-              }}>
-                ESPORTS ELITE
-              </div>
-              <div style={{
-                fontFamily: "'Rajdhani', sans-serif", fontWeight: 600,
-                fontSize: 11, color: '#1769FF',
-                letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4,
-              }}>
-                India's BGMI Training Platform
-              </div>
-            </div>
-          </div>
+          {/* Glow effects — absolute, behind content */}
+          <div style={{ position: 'absolute', bottom: -80, left: -80, width: 500, height: 500, background: 'radial-gradient(circle, rgba(23,105,255,0.12) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+          <div style={{ position: 'absolute', top: -80, right: -80, width: 400, height: 400, background: 'radial-gradient(circle, rgba(113,55,255,0.08) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+
+          {/* Content wrapper — above glows */}
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column' }}>
+
+          {/* 1. Logo — standalone, no text beside it */}
+          <img
+            src="/assets/logo.png" alt="Esports Elite"
+            style={{ height: 120, width: 'auto', display: 'block', marginBottom: 32, objectFit: 'contain' }}
+            onError={e => { e.currentTarget.style.display = 'none' }}
+          />
 
           {/* 2. Platform pill */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
@@ -397,7 +386,7 @@ export default function Login() {
                 ) : (
                   <span style={{
                     fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
-                    fontSize: 56, color: '#111827', lineHeight: 0.95, display: 'block',
+                    fontSize: 56, color: '#FFFFFF', lineHeight: 0.95, display: 'block',
                   }}>
                     {word}
                   </span>
@@ -409,7 +398,7 @@ export default function Login() {
 
           {/* 4. Description */}
           <p style={{
-            fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#536174',
+            fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#8899AA',
             lineHeight: 1.65, maxWidth: 340, margin: '0 0 28px',
           }}>
             Sign in to continue your training journey with AI coaching, structured roadmaps and real-time match analytics.
@@ -421,14 +410,14 @@ export default function Login() {
               <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: '50%',
-                  background: 'rgba(23,105,255,0.1)',
+                  background: 'rgba(23,105,255,0.15)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
                   <Icon size={20} color="#1769FF" />
                 </div>
                 <div style={{
                   fontFamily: "'Rajdhani', sans-serif", fontWeight: 600,
-                  fontSize: 11, color: '#111827',
+                  fontSize: 11, color: '#FFFFFF',
                   textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center',
                 }}>
                   {label}
@@ -439,6 +428,8 @@ export default function Login() {
               </div>
             ))}
           </div>
+
+          </div>{/* end content wrapper */}
         </motion.div>
 
         {/* ════════════════════════════════════════
