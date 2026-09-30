@@ -332,6 +332,7 @@ export default function Login() {
             overflow: 'hidden',
             flexDirection: 'column',
             justifyContent: 'center',
+            alignItems: 'flex-start',
             padding: '64px',
             minHeight: '100vh',
           }}
@@ -355,7 +356,7 @@ export default function Login() {
             {!logoFailed && (
               <img
                 src="/assets/logo.png" alt="Esports Elite logo"
-                style={{ height: 56, width: 'auto', objectFit: 'contain', display: 'block', marginBottom: 24 }}
+                style={{ height: 72, width: 'auto', objectFit: 'contain', display: 'block', marginBottom: 16 }}
                 onError={() => setLogoFailed(true)}
               />
             )}
@@ -390,8 +391,8 @@ export default function Login() {
               ].map((text) => (
                 <div key={text} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <div style={{
-                    width: 8, height: 8, background: '#1769FF', borderRadius: 2,
-                    flexShrink: 0, marginTop: 4,
+                    width: 6, height: 6, background: '#1769FF', borderRadius: '50%',
+                    flexShrink: 0, marginTop: 6,
                   }} />
                   <span style={{
                     fontFamily: "'Inter', sans-serif", fontSize: 15,
@@ -428,7 +429,7 @@ export default function Login() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '64px 56px',
+            padding: '48px 56px',
             minHeight: '100vh',
             overflowY: 'auto',
           }}
@@ -582,7 +583,7 @@ function SignInView({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        style={{ marginBottom: 20 }}
+        style={{ marginBottom: 24 }}
       >
         <span style={{
           display: 'inline-block',
@@ -894,7 +895,7 @@ function SignUpView({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        style={{ marginBottom: 20 }}
+        style={{ marginBottom: 24 }}
       >
         <span style={{
           display: 'inline-block',
