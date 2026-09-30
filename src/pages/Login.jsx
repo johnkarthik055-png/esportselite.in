@@ -1,6 +1,10 @@
 import { useRef, useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Eye, EyeOff, ArrowLeft, Loader } from 'lucide-react'
+import {
+  Eye, EyeOff, ArrowLeft, Loader,
+  Mail, Lock, BarChart2, Target, Users, ArrowRight,
+  User, Phone,
+} from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageTransition from '../components/motion/PageTransition.jsx'
 import {
@@ -91,19 +95,22 @@ async function setupUserProfile(fbUser) {
   }
 }
 
-/* ─── Global styles injected once ─────────────────────────────────────────── */
+/* ─── Global styles ───────────────────────────────────────────────────────── */
 const GLOBAL_CSS = `
   @keyframes autofillDetect{from{opacity:1}to{opacity:1}}
   input:-webkit-autofill{animation-name:autofillDetect;animation-duration:1ms}
   @keyframes ee-spin{to{transform:rotate(360deg)}}
 
-  .ee-brand { display:flex; width:52%; }
-  .ee-form-panel { width:48%; }
+  .ee-grid { display:grid; grid-template-columns:55% 45%; min-height:100vh; }
+  .ee-left { display:block; }
+  .ee-topbar { display:flex; }
   .ee-mobile-logo { display:none; }
 
   @media(max-width:768px){
-    .ee-brand  { display:none !important; }
-    .ee-form-panel { width:100% !important; padding:32px 24px !important; }
+    .ee-grid { display:block; min-height:auto; }
+    .ee-left { display:none !important; }
+    .ee-topbar { display:none !important; }
+    .ee-right { padding:32px 24px !important; min-height:100vh !important; }
     .ee-mobile-logo { display:flex !important; }
   }
 
@@ -111,11 +118,12 @@ const GLOBAL_CSS = `
   .ee-inp {
     width:100%; background:#F7F9FC;
     border:1.5px solid #DCE4EF; border-radius:10px;
-    padding:13px 16px; font-size:15px;
-    font-family:'Inter',sans-serif; color:#111827;
+    padding:13px 16px 13px 44px;
+    font-size:15px; font-family:'Inter',sans-serif; color:#111827;
     box-sizing:border-box; outline:none;
     transition:border-color 200ms,box-shadow 200ms,background 200ms;
   }
+  .ee-inp.no-icon { padding-left:16px; }
   .ee-inp::placeholder{ color:#9CA3AF; }
   .ee-inp:focus{
     border-color:#1769FF; background:#FFFFFF;
@@ -148,7 +156,6 @@ const GLOBAL_CSS = `
   }
   .ee-g-btn:disabled{ opacity:0.6; cursor:not-allowed; }
 
-  /* ── Secondary/cancel button ── */
   .ee-sec-btn{
     background:#F7F9FC; border:1.5px solid #DCE4EF;
     color:#536174; font-family:'Inter',sans-serif;
@@ -158,6 +165,13 @@ const GLOBAL_CSS = `
   }
   .ee-sec-btn:hover:not(:disabled){ background:#EEF2F7; border-color:#B0BEC5; }
 `
+
+const HEADING_WORDS = ['WHERE', 'GRIND', 'BECOMES', 'GREATNESS.']
+const FEATURE_ITEMS = [
+  { Icon: BarChart2, label: 'TRACK',   sub: 'Your Progress' },
+  { Icon: Target,    label: 'IMPROVE', sub: 'With AI Coaching' },
+  { Icon: Users,     label: 'CLIMB',   sub: 'With Your Squad' },
+]
 
 export default function Login() {
   const navigate  = useNavigate()
@@ -316,206 +330,271 @@ export default function Login() {
     <PageTransition>
       <style>{GLOBAL_CSS}</style>
 
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'stretch', background: '#F7F9FC' }}>
+      {/* Page wrapper — position relative for absolute top-right strip */}
+      <div style={{ minHeight: '100vh', background: '#F0F4FF', position: 'relative' }}>
 
-        {/* ════════════════════════════════════════
-            LEFT BRAND PANEL  (52%, desktop only)
-        ════════════════════════════════════════ */}
-        <motion.div
-          className="ee-brand"
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        {/* ── Top-right "New to Esports Elite?" strip ── */}
+        <div
+          className="ee-topbar"
           style={{
-            background: 'linear-gradient(160deg, #07111F 0%, #0D1E3D 60%, #1769FF15 100%)',
-            position: 'relative',
-            overflow: 'hidden',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            padding: '64px',
-            minHeight: '100vh',
+            position: 'absolute', top: 24, right: 32, zIndex: 30,
+            alignItems: 'center', gap: 12,
           }}
         >
-          {/* Grid overlay */}
-          <div style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none',
-            backgroundImage: 'linear-gradient(rgba(23,105,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(23,105,255,0.04) 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
-          }} />
-          {/* Blue glow — bottom-left */}
-          <div style={{
-            position: 'absolute', bottom: -100, left: -100,
-            width: 400, height: 400, pointerEvents: 'none',
-            background: 'radial-gradient(circle, rgba(23,105,255,0.15) 0%, transparent 70%)',
-          }} />
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#536174' }}>
+            {mode === 'signin' ? 'New to Esports Elite?' : 'Already have an account?'}
+          </span>
+          <button
+            onClick={mode === 'signin' ? switchToSignUp : switchToSignIn}
+            style={{
+              border: '1.5px solid #1769FF', color: '#1769FF',
+              fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 14,
+              padding: '8px 20px', borderRadius: 8, background: 'transparent',
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 4,
+              transition: 'background 200ms, color 200ms',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#1769FF'; e.currentTarget.style.color = '#FFFFFF' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#1769FF' }}
+          >
+            {mode === 'signin' ? 'Create account' : 'Sign in'} →
+          </button>
+        </div>
 
-          {/* Content */}
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            {/* Logo */}
+        {/* ── Grid: 55% left / 45% right ── */}
+        <div className="ee-grid">
+
+          {/* ════════════════════════════════════════
+              LEFT PANEL
+          ════════════════════════════════════════ */}
+          <motion.div
+            className="ee-left"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              position: 'relative',
+              background: '#F0F4FF',
+              backgroundImage: 'radial-gradient(circle, rgba(23,105,255,0.08) 1px, transparent 1px)',
+              backgroundSize: '24px 24px',
+              minHeight: '100vh',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Diagonal gradient divider — right edge */}
+            <div style={{
+              position: 'absolute', right: 0, top: 0,
+              width: 6, height: '100%', zIndex: 10,
+              background: 'linear-gradient(180deg, #1769FF 0%, #FF1838 100%)',
+            }} />
+
+            {/* Red accent strip */}
+            <div style={{
+              position: 'absolute', top: 0, right: 20,
+              width: 8, height: 120, background: '#FF1838',
+              borderRadius: '0 0 4px 4px', zIndex: 5,
+            }} />
+            {/* Blue accent strip */}
+            <div style={{
+              position: 'absolute', top: 0, right: 36,
+              width: 4, height: 80, background: '#1769FF',
+              borderRadius: '0 0 4px 4px', zIndex: 5,
+            }} />
+
+            {/* Logo — absolute top-left */}
             {!logoFailed && (
               <img
-                src="/assets/logo.png" alt="Esports Elite logo"
-                style={{ height: 72, width: 'auto', objectFit: 'contain', display: 'block', marginBottom: 16 }}
+                src="/assets/logo.png" alt="Esports Elite"
+                style={{ position: 'absolute', top: 32, left: 40, height: 80, width: 'auto', objectFit: 'contain', zIndex: 2 }}
                 onError={() => setLogoFailed(true)}
               />
             )}
 
-            {/* Wordmark */}
+            {/* Platform pill — next to logo */}
             <div style={{
-              fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
-              fontSize: 52, color: '#FFFFFF', letterSpacing: '0.06em',
-              lineHeight: 1, marginBottom: 8,
+              position: 'absolute', top: 48, left: 160, zIndex: 2,
+              display: 'flex', alignItems: 'center', gap: 8,
             }}>
-              ESPORTS ELITE
+              <div style={{ width: 6, height: 6, background: '#1769FF', borderRadius: '50%', flexShrink: 0 }} />
+              <span style={{
+                fontFamily: "'Rajdhani', sans-serif", fontWeight: 600,
+                fontSize: 11, color: '#536174',
+                letterSpacing: '0.14em', textTransform: 'uppercase',
+              }}>
+                INDIA'S #1 BGMI TRAINING PLATFORM
+              </span>
             </div>
 
-            {/* Tagline */}
-            <div style={{
-              fontFamily: "'Rajdhani', sans-serif", fontWeight: 600,
-              fontSize: 15, color: '#536174', letterSpacing: '0.08em',
-              marginBottom: 40,
-            }}>
-              Where Grind Becomes Greatness
+            {/* Main heading — absolute bottom-280 left-40 */}
+            <div style={{ position: 'absolute', bottom: 280, left: 40, zIndex: 2 }}>
+              {HEADING_WORDS.map((word, i) => (
+                <motion.div
+                  key={word}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + i * 0.05, ease: [0.22, 1, 0.36, 1], duration: 0.5 }}
+                >
+                  {word === 'GRIND' ? (
+                    <span style={{
+                      fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
+                      fontSize: 72, lineHeight: 1.05, display: 'block',
+                      background: 'linear-gradient(90deg, #1769FF, #7137FF)',
+                      WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    }}>
+                      {word}
+                    </span>
+                  ) : (
+                    <span style={{
+                      fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
+                      fontSize: 72, color: '#111827', lineHeight: 1.05, display: 'block',
+                    }}>
+                      {word}
+                    </span>
+                  )}
+                </motion.div>
+              ))}
+
+              {/* Blue underline */}
+              <div style={{ width: 80, height: 3, background: '#1769FF', marginTop: 12 }} />
+
+              {/* Description */}
+              <p style={{
+                fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#536174',
+                maxWidth: 360, lineHeight: 1.6, marginTop: 16,
+              }}>
+                Sign in to continue your training journey with AI coaching, structured roadmaps and real-time match analytics.
+              </p>
             </div>
 
-            {/* Blue accent divider */}
-            <div style={{ width: 48, height: 2, background: '#1769FF', marginBottom: 40 }} />
-
-            {/* Feature bullets */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {[
-                'AI-powered coaching tailored to your BGMI playstyle',
-                'Interactive map strategy & rotation planning tools',
-                'Squad analytics, leaderboards & scrim tracking',
-              ].map((text) => (
-                <div key={text} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            {/* Feature icons row — absolute bottom-40 */}
+            <div style={{
+              position: 'absolute', bottom: 40, left: 40, zIndex: 2,
+              display: 'flex', gap: 32,
+            }}>
+              {FEATURE_ITEMS.map(({ Icon, label, sub }) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{
-                    width: 6, height: 6, background: '#1769FF', borderRadius: '50%',
-                    flexShrink: 0, marginTop: 6,
-                  }} />
-                  <span style={{
-                    fontFamily: "'Inter', sans-serif", fontSize: 15,
-                    color: '#CBD5E1', lineHeight: 1.6,
+                    width: 32, height: 32, borderRadius: '50%',
+                    background: 'rgba(23,105,255,0.1)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
                   }}>
-                    {text}
-                  </span>
+                    <Icon size={16} color="#1769FF" />
+                  </div>
+                  <div>
+                    <div style={{
+                      fontFamily: "'Rajdhani', sans-serif", fontWeight: 600,
+                      fontSize: 11, color: '#111827',
+                      textTransform: 'uppercase', letterSpacing: '0.08em',
+                    }}>
+                      {label}
+                    </div>
+                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: '#536174' }}>
+                      {sub}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Trust badge — absolute bottom */}
-          <div style={{
-            position: 'absolute', bottom: 40, left: 64, right: 64,
-            zIndex: 1,
-            fontFamily: "'Inter', sans-serif", fontSize: 13, color: '#536174',
-          }}>
-            Trusted by 1,000+ serious BGMI players across India
-          </div>
-        </motion.div>
-
-        {/* ════════════════════════════════════════
-            RIGHT FORM PANEL  (48%)
-        ════════════════════════════════════════ */}
-        <motion.div
-          className="ee-form-panel"
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          style={{
-            background: '#FFFFFF',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '48px 56px',
-            minHeight: '100vh',
-            overflowY: 'auto',
-          }}
-        >
-          {/* Mobile logo — hidden on desktop */}
-          <div
-            className="ee-mobile-logo"
-            style={{ alignItems: 'center', gap: 10, marginBottom: 32, justifyContent: 'center' }}
+          {/* ════════════════════════════════════════
+              RIGHT PANEL
+          ════════════════════════════════════════ */}
+          <motion.div
+            className="ee-right"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              background: '#FFFFFF',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '48px 56px',
+              minHeight: '100vh',
+              overflowY: 'auto',
+            }}
           >
-            <img
-              src="/assets/logo.png" alt="Esports Elite"
-              style={{ height: 40, width: 'auto', objectFit: 'contain' }}
-              onError={e => { e.currentTarget.style.display = 'none' }}
-            />
-            <div style={{
-              fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
-              fontSize: 28, color: '#111827', letterSpacing: '0.06em',
-            }}>
-              ESPORTS ELITE
+            {/* Mobile logo */}
+            <div
+              className="ee-mobile-logo"
+              style={{ alignItems: 'center', gap: 10, marginBottom: 32, justifyContent: 'center' }}
+            >
+              <img
+                src="/assets/logo.png" alt="Esports Elite"
+                style={{ height: 48, width: 'auto', objectFit: 'contain' }}
+                onError={e => { e.currentTarget.style.display = 'none' }}
+              />
             </div>
-          </div>
 
-          {/* Form container */}
-          <div style={{ width: '100%', maxWidth: 400 }}>
-            <AnimatePresence mode="wait">
-              {mode === 'signin' ? (
-                <motion.div
-                  key="signin"
-                  initial={{ opacity: 0, height: 'auto' }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <SignInView
-                    username={username} setUsername={setUsername}
-                    password={password} setPassword={setPassword}
-                    showPass={showPass} setShowPass={setShowPass}
-                    remember={remember} setRemember={setRemember}
-                    errors={errors} clearFieldError={clearFieldError}
-                    submitting={submitting}
-                    forgotLoading={forgotLoading}
-                    forgotSuccess={forgotSuccess}
-                    forgotError={forgotError}
-                    setForgotError={setForgotError}
-                    setForgotSuccess={setForgotSuccess}
-                    emailInputRef={emailInputRef}
-                    onSubmit={handleSignIn}
-                    onForgot={handleForgotPassword}
-                    onGetStarted={switchToSignUp}
-                    onGoogleSignIn={handleGoogleSignIn}
-                  />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="signup"
-                  initial={{ opacity: 0, height: 'auto' }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <SignUpView
-                    suUsername={suUsername} setSuUsername={setSuUsername}
-                    suEmail={suEmail} setSuEmail={setSuEmail}
-                    suPhone={suPhone} setSuPhone={setSuPhone}
-                    suPassword={suPassword} setSuPassword={setSuPassword}
-                    suConfirm={suConfirm} setSuConfirm={setSuConfirm}
-                    showSuPass={showSuPass} setShowSuPass={setShowSuPass}
-                    showSuConfirm={showSuConfirm} setShowSuConfirm={setShowSuConfirm}
-                    errors={errors} clearFieldError={clearFieldError}
-                    submitting={submitting}
-                    onSubmit={handleSignUp}
-                    onBackToSignIn={switchToSignIn}
-                    onGoogleSignIn={handleGoogleSignIn}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </motion.div>
+            {/* Form container */}
+            <div style={{ width: '100%', maxWidth: 400 }}>
+              <AnimatePresence mode="wait">
+                {mode === 'signin' ? (
+                  <motion.div
+                    key="signin"
+                    initial={{ opacity: 0, height: 'auto' }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <SignInView
+                      username={username} setUsername={setUsername}
+                      password={password} setPassword={setPassword}
+                      showPass={showPass} setShowPass={setShowPass}
+                      remember={remember} setRemember={setRemember}
+                      errors={errors} clearFieldError={clearFieldError}
+                      submitting={submitting}
+                      forgotLoading={forgotLoading}
+                      forgotSuccess={forgotSuccess}
+                      forgotError={forgotError}
+                      setForgotError={setForgotError}
+                      setForgotSuccess={setForgotSuccess}
+                      emailInputRef={emailInputRef}
+                      onSubmit={handleSignIn}
+                      onForgot={handleForgotPassword}
+                      onGetStarted={switchToSignUp}
+                      onGoogleSignIn={handleGoogleSignIn}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="signup"
+                    initial={{ opacity: 0, height: 'auto' }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <SignUpView
+                      suUsername={suUsername} setSuUsername={setSuUsername}
+                      suEmail={suEmail} setSuEmail={setSuEmail}
+                      suPhone={suPhone} setSuPhone={setSuPhone}
+                      suPassword={suPassword} setSuPassword={setSuPassword}
+                      suConfirm={suConfirm} setSuConfirm={setSuConfirm}
+                      showSuPass={showSuPass} setShowSuPass={setShowSuPass}
+                      showSuConfirm={showSuConfirm} setShowSuConfirm={setShowSuConfirm}
+                      errors={errors} clearFieldError={clearFieldError}
+                      submitting={submitting}
+                      onSubmit={handleSignUp}
+                      onBackToSignIn={switchToSignIn}
+                      onGoogleSignIn={handleGoogleSignIn}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
 
+        </div>
       </div>
     </PageTransition>
   )
 }
 
-/* ─── Shared sub-components ───────────────────────────────────────────────── */
+/* ─── Shared utilities ────────────────────────────────────────────────────── */
 
 function ErrorBox({ children }) {
   if (!children) return null
@@ -524,13 +603,19 @@ function ErrorBox({ children }) {
       background: 'rgba(255,24,56,0.06)',
       border: '1px solid rgba(255,24,56,0.2)',
       color: '#FF1838',
-      padding: '10px 14px',
-      borderRadius: 8,
-      fontSize: 13,
-      fontFamily: "'Inter', sans-serif",
-      lineHeight: 1.5,
-      marginBottom: 16,
+      padding: '10px 14px', borderRadius: 8,
+      fontSize: 13, fontFamily: "'Inter', sans-serif", lineHeight: 1.5,
+      marginBottom: 12,
     }}>
+      {children}
+    </div>
+  )
+}
+
+function FieldError({ children }) {
+  if (!children) return null
+  return (
+    <div style={{ color: '#FF1838', fontSize: 12, marginTop: 5, fontFamily: "'Inter', sans-serif", lineHeight: 1.4 }}>
       {children}
     </div>
   )
@@ -547,6 +632,42 @@ function GoogleButton({ onClick, disabled }) {
       </svg>
       Continue with Google
     </button>
+  )
+}
+
+function InputIcon({ icon: Icon }) {
+  return (
+    <Icon
+      size={16}
+      style={{
+        position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
+        color: '#9CA3AF', pointerEvents: 'none',
+      }}
+    />
+  )
+}
+
+function SignInButton({ submitting, children }) {
+  return (
+    <motion.button
+      type="submit" disabled={submitting}
+      whileHover={{ scale: submitting ? 1 : 1.01 }}
+      whileTap={{ scale: submitting ? 1 : 0.99 }}
+      style={{
+        width: '100%', background: submitting ? '#4A90D9' : '#1769FF',
+        color: '#FFFFFF',
+        fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
+        fontSize: 20, letterSpacing: '0.04em',
+        padding: 14, borderRadius: 10, border: 'none',
+        cursor: submitting ? 'not-allowed' : 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        transition: 'background 200ms, box-shadow 200ms',
+      }}
+      onMouseEnter={e => { if (!submitting) { e.currentTarget.style.background = '#1254CC'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(23,105,255,0.35)' } }}
+      onMouseLeave={e => { e.currentTarget.style.background = submitting ? '#4A90D9' : '#1769FF'; e.currentTarget.style.boxShadow = 'none' }}
+    >
+      {children}
+    </motion.button>
   )
 }
 
@@ -589,8 +710,8 @@ function SignInView({
           display: 'inline-block',
           fontFamily: "'Rajdhani', sans-serif", fontWeight: 600,
           fontSize: 11, color: '#1769FF',
-          border: '1px solid rgba(23,105,255,0.3)',
-          borderRadius: 20, padding: '4px 12px',
+          border: '1px solid rgba(23,105,255,0.25)',
+          borderRadius: 20, padding: '4px 14px',
           letterSpacing: '0.08em', textTransform: 'uppercase',
         }}>
           BGMI Training Platform
@@ -606,7 +727,7 @@ function SignInView({
       >
         <h1 style={{
           fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
-          fontSize: 42, color: '#111827', lineHeight: 1, marginBottom: 8,
+          fontSize: 48, color: '#111827', lineHeight: 1, marginBottom: 8,
         }}>
           Welcome back
         </h1>
@@ -623,18 +744,21 @@ function SignInView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
         >
-          <label className="ee-lbl" htmlFor="si-email">Username / Email</label>
-          <input
-            id="si-email"
-            ref={emailInputRef} type="text"
-            value={username}
-            onChange={e => { setUsername(e.target.value); clearFieldError('email') }}
-            onAnimationStart={e => { if (e.animationName === 'autofillDetect') { setUsername(e.target.value); clearFieldError('email') } }}
-            className={`ee-inp${errors.email ? ' err' : ''}`}
-            placeholder="Enter your email"
-            autoComplete="username"
-          />
-          {errors.email && <FieldError>{errors.email}</FieldError>}
+          <label className="ee-lbl" htmlFor="si-email">Email</label>
+          <div style={{ position: 'relative' }}>
+            <InputIcon icon={Mail} />
+            <input
+              id="si-email"
+              ref={emailInputRef} type="text"
+              value={username}
+              onChange={e => { setUsername(e.target.value); clearFieldError('email') }}
+              onAnimationStart={e => { if (e.animationName === 'autofillDetect') { setUsername(e.target.value); clearFieldError('email') } }}
+              className={`ee-inp${errors.email ? ' err' : ''}`}
+              placeholder="Enter your email"
+              autoComplete="username"
+            />
+          </div>
+          <FieldError>{errors.email}</FieldError>
         </motion.div>
 
         {/* Password */}
@@ -645,6 +769,7 @@ function SignInView({
         >
           <label className="ee-lbl" htmlFor="si-password">Password</label>
           <div style={{ position: 'relative' }}>
+            <InputIcon icon={Lock} />
             <input
               id="si-password"
               type={showPass ? 'text' : 'password'}
@@ -660,21 +785,21 @@ function SignInView({
               type="button" onClick={() => setShowPass(v => !v)}
               aria-label={showPass ? 'Hide password' : 'Show password'}
               style={{
-                position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+                position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
                 background: 'transparent', border: 'none', cursor: 'pointer',
-                color: '#536174', padding: 4, display: 'flex', alignItems: 'center',
+                color: '#9CA3AF', padding: 4, display: 'flex', alignItems: 'center',
                 transition: 'color 150ms',
               }}
-              onMouseEnter={e => e.currentTarget.style.color = '#1769FF'}
-              onMouseLeave={e => e.currentTarget.style.color = '#536174'}
+              onMouseEnter={e => e.currentTarget.style.color = '#536174'}
+              onMouseLeave={e => e.currentTarget.style.color = '#9CA3AF'}
               tabIndex={-1}
             >
               {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
-          {errors.password && <FieldError>{errors.password}</FieldError>}
+          <FieldError>{errors.password}</FieldError>
 
-          {/* Inline forgot password form */}
+          {/* Inline forgot form */}
           <AnimatePresence>
             {showForgotForm && !forgotSuccess && (
               <motion.div
@@ -684,46 +809,36 @@ function SignInView({
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.2, ease: 'easeOut' }}
                 style={{
-                  marginTop: 12,
-                  padding: '14px',
+                  marginTop: 12, padding: 14,
                   background: '#F7F9FC',
-                  border: '1.5px solid #DCE4EF',
-                  borderRadius: 10,
+                  border: '1.5px solid #DCE4EF', borderRadius: 10,
                 }}
               >
                 <p style={{ fontSize: 12, color: '#536174', marginBottom: 10, lineHeight: 1.5, fontFamily: "'Inter', sans-serif" }}>
                   Enter your account email and we'll send a reset link.
                 </p>
                 <input
-                  type="email"
-                  value={forgotEmail}
+                  type="email" value={forgotEmail}
                   onChange={e => { setForgotEmail(e.target.value); setForgotError('') }}
-                  className="ee-inp"
+                  className="ee-inp no-icon"
                   placeholder="your@email.com"
                   autoComplete="email"
                   style={{ marginBottom: forgotError ? 6 : 10 }}
                 />
-                {forgotError && <FieldError style={{ marginBottom: 10 }}>{forgotError}</FieldError>}
-                <div style={{ display: 'flex', gap: 8 }}>
+                {forgotError && <FieldError>{forgotError}</FieldError>}
+                <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                   <button
-                    type="button"
-                    onClick={() => onForgot(forgotEmail)}
-                    disabled={forgotLoading}
+                    type="button" onClick={() => onForgot(forgotEmail)} disabled={forgotLoading}
                     style={{
-                      flex: 1,
-                      background: 'linear-gradient(135deg, #1769FF, #1254CC)',
-                      color: '#FFFFFF',
+                      flex: 1, background: '#1769FF', color: '#FFFFFF',
                       fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 13,
                       padding: '10px 12px', borderRadius: 8, border: 'none',
                       cursor: forgotLoading ? 'not-allowed' : 'pointer',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      opacity: forgotLoading ? 0.7 : 1,
-                      transition: 'opacity 200ms',
+                      opacity: forgotLoading ? 0.7 : 1, transition: 'opacity 200ms',
                     }}
                   >
-                    {forgotLoading
-                      ? <><Loader size={13} style={{ animation: 'ee-spin 1s linear infinite' }} /> Sending…</>
-                      : 'Send Reset Link'}
+                    {forgotLoading ? <><Loader size={13} style={{ animation: 'ee-spin 1s linear infinite' }} /> Sending…</> : 'Send Reset Link'}
                   </button>
                   <button type="button" onClick={closeForgotForm} disabled={forgotLoading} className="ee-sec-btn">
                     Cancel
@@ -738,31 +853,20 @@ function SignInView({
             {forgotSuccess && (
               <motion.div
                 key="forgot-success"
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
+                initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
                 style={{
-                  marginTop: 12,
-                  padding: '12px 14px',
+                  marginTop: 12, padding: '12px 14px',
                   background: 'rgba(34,197,94,0.06)',
-                  border: '1px solid rgba(34,197,94,0.25)',
-                  borderRadius: 10,
-                  fontSize: 13,
-                  color: '#15803D',
-                  lineHeight: 1.5,
+                  border: '1px solid rgba(34,197,94,0.25)', borderRadius: 10,
+                  fontSize: 13, color: '#15803D', lineHeight: 1.5,
                   fontFamily: "'Inter', sans-serif",
                 }}
               >
                 Reset link sent to <strong>{forgotEmail}</strong>. Check your inbox.
                 <button
                   type="button" onClick={closeForgotForm}
-                  style={{
-                    display: 'block', marginTop: 6,
-                    background: 'none', border: 'none', padding: 0,
-                    color: '#536174', fontSize: 12, cursor: 'pointer',
-                    fontFamily: "'Inter', sans-serif",
-                  }}
+                  style={{ display: 'block', marginTop: 6, background: 'none', border: 'none', padding: 0, color: '#536174', fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}
                 >
                   Dismiss
                 </button>
@@ -771,26 +875,17 @@ function SignInView({
           </AnimatePresence>
         </motion.div>
 
-        {/* Remember me + Forgot password — same row */}
+        {/* Remember me + Forgot password row */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         >
-          <label style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#536174',
-            cursor: 'pointer',
-          }}>
-            <input
-              type="checkbox" checked={remember}
-              onChange={e => setRemember(e.target.checked)}
-              style={{ accentColor: '#1769FF', width: 15, height: 15 }}
-            />
+          <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#536174', cursor: 'pointer' }}>
+            <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} style={{ accentColor: '#1769FF', width: 15, height: 15 }} />
             Remember me
           </label>
-
           {!showForgotForm && !forgotSuccess && (
             <button
               type="button" onClick={openForgotForm}
@@ -798,7 +893,6 @@ function SignInView({
                 background: 'none', border: 'none', padding: 0,
                 cursor: 'pointer', color: '#1769FF',
                 fontFamily: "'Inter', sans-serif", fontSize: 13,
-                textDecoration: 'none',
                 transition: 'text-decoration 150ms',
               }}
               onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
@@ -817,57 +911,23 @@ function SignInView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
         >
-          <motion.button
-            type="submit" disabled={submitting}
-            whileHover={{ scale: submitting ? 1 : 1.01, y: submitting ? 0 : -1 }}
-            whileTap={{ scale: submitting ? 1 : 0.99 }}
-            style={{
-              width: '100%',
-              background: 'linear-gradient(135deg, #1769FF 0%, #1254CC 100%)',
-              color: '#FFFFFF',
-              fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
-              fontSize: 20, letterSpacing: '0.04em',
-              padding: 14, borderRadius: 10, border: 'none',
-              cursor: submitting ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 20px rgba(23,105,255,0.3)',
-              opacity: submitting ? 0.75 : 1,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              transition: 'opacity 200ms, box-shadow 200ms',
-            }}
-            onMouseEnter={e => { if (!submitting) e.currentTarget.style.boxShadow = '0 6px 28px rgba(23,105,255,0.45)' }}
-            onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(23,105,255,0.3)' }}
-          >
+          <SignInButton submitting={submitting}>
             {submitting
               ? <><Loader size={16} style={{ animation: 'ee-spin 1s linear infinite' }} /> Signing in…</>
-              : 'Sign in'}
-          </motion.button>
+              : <>Sign in <ArrowRight size={18} /></>}
+          </SignInButton>
         </motion.div>
 
-        {/* OR divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '4px 0' }}>
-          <div style={{ flex: 1, height: 1, background: '#DCE4EF' }} />
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: '#9CA3AF' }}>or</span>
-          <div style={{ flex: 1, height: 1, background: '#DCE4EF' }} />
-        </div>
+        {/* Or divider */}
+        <p style={{ textAlign: 'center', fontFamily: "'Inter', sans-serif", fontSize: 13, color: '#9CA3AF', margin: '4px 0' }}>
+          or continue with
+        </p>
 
-        {/* Google */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          <GoogleButton onClick={onGoogleSignIn} disabled={submitting} />
-        </motion.div>
+        <GoogleButton onClick={onGoogleSignIn} disabled={submitting} />
 
-        {/* Bottom link */}
-        <p style={{
-          textAlign: 'center', marginTop: 12,
-          fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#536174',
-        }}>
-          Don't have an account?{' '}
-          <a
-            href="#"
-            onClick={e => { e.preventDefault(); onGetStarted() }}
+        <p style={{ textAlign: 'center', marginTop: 4, fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#536174' }}>
+          New here?{' '}
+          <a href="#" onClick={e => { e.preventDefault(); onGetStarted() }}
             style={{ color: '#1769FF', fontWeight: 600, textDecoration: 'none' }}
             onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
             onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
@@ -901,15 +961,14 @@ function SignUpView({
           display: 'inline-block',
           fontFamily: "'Rajdhani', sans-serif", fontWeight: 600,
           fontSize: 11, color: '#1769FF',
-          border: '1px solid rgba(23,105,255,0.3)',
-          borderRadius: 20, padding: '4px 12px',
+          border: '1px solid rgba(23,105,255,0.25)',
+          borderRadius: 20, padding: '4px 14px',
           letterSpacing: '0.08em', textTransform: 'uppercase',
         }}>
           BGMI Training Platform
         </span>
       </motion.div>
 
-      {/* Heading */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -929,10 +988,7 @@ function SignUpView({
         >
           <ArrowLeft size={14} /> Back to sign in
         </button>
-        <h1 style={{
-          fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
-          fontSize: 42, color: '#111827', lineHeight: 1, marginBottom: 8,
-        }}>
+        <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 48, color: '#111827', lineHeight: 1, marginBottom: 8 }}>
           Create account
         </h1>
         <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#536174', lineHeight: 1.5 }}>
@@ -941,82 +997,44 @@ function SignUpView({
       </motion.div>
 
       <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <PField
-          id="su-username" label="Username" placeholder="Choose a display name"
-          autoComplete="username" value={suUsername} delay={0.4}
-          onChange={v => { setSuUsername(v); clearFieldError('username') }}
-          error={errors.username}
+        <IconField id="su-username" label="Username" placeholder="Choose a display name" autoComplete="username"
+          icon={User} value={suUsername} delay={0.4}
+          onChange={v => { setSuUsername(v); clearFieldError('username') }} error={errors.username}
         />
-        <PField
-          id="su-email" label="Email" type="email" placeholder="you@example.com"
-          autoComplete="email" value={suEmail} delay={0.42}
-          onChange={v => { setSuEmail(v); clearFieldError('email') }}
-          error={errors.email}
+        <IconField id="su-email" label="Email" type="email" placeholder="you@example.com" autoComplete="email"
+          icon={Mail} value={suEmail} delay={0.42}
+          onChange={v => { setSuEmail(v); clearFieldError('email') }} error={errors.email}
         />
-        <PField
-          id="su-phone" label="Phone number" type="tel" placeholder="+91 98765 43210"
-          autoComplete="tel" value={suPhone} delay={0.44}
-          onChange={v => { setSuPhone(v); clearFieldError('phone') }}
-          error={errors.phone}
+        <IconField id="su-phone" label="Phone number" type="tel" placeholder="+91 98765 43210" autoComplete="tel"
+          icon={Phone} value={suPhone} delay={0.44}
+          onChange={v => { setSuPhone(v); clearFieldError('phone') }} error={errors.phone}
         />
-        <PPwdField
-          id="su-password" label="Password" placeholder="At least 6 characters"
-          autoComplete="new-password" value={suPassword} show={showSuPass}
-          setShow={setShowSuPass} delay={0.46}
-          onChange={v => { setSuPassword(v); clearFieldError('password') }}
-          error={errors.password}
+        <IconPwdField id="su-password" label="Password" placeholder="At least 6 characters" autoComplete="new-password"
+          value={suPassword} show={showSuPass} setShow={setShowSuPass} delay={0.46}
+          onChange={v => { setSuPassword(v); clearFieldError('password') }} error={errors.password}
         />
-        <PPwdField
-          id="su-confirm" label="Confirm password" placeholder="Re-enter your password"
-          autoComplete="new-password" value={suConfirm} show={showSuConfirm}
-          setShow={setShowSuConfirm} delay={0.48}
-          onChange={v => { setSuConfirm(v); clearFieldError('confirmPassword') }}
-          error={errors.confirmPassword}
+        <IconPwdField id="su-confirm" label="Confirm password" placeholder="Re-enter your password" autoComplete="new-password"
+          value={suConfirm} show={showSuConfirm} setShow={setShowSuConfirm} delay={0.48}
+          onChange={v => { setSuConfirm(v); clearFieldError('confirmPassword') }} error={errors.confirmPassword}
         />
 
         <ErrorBox>{errors.form}</ErrorBox>
 
-        <motion.button
-          type="submit" disabled={submitting}
-          whileHover={{ scale: submitting ? 1 : 1.01, y: submitting ? 0 : -1 }}
-          whileTap={{ scale: submitting ? 1 : 0.99 }}
-          style={{
-            width: '100%',
-            background: 'linear-gradient(135deg, #1769FF 0%, #1254CC 100%)',
-            color: '#FFFFFF',
-            fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
-            fontSize: 20, letterSpacing: '0.04em',
-            padding: 14, borderRadius: 10, border: 'none',
-            cursor: submitting ? 'not-allowed' : 'pointer',
-            boxShadow: '0 4px 20px rgba(23,105,255,0.3)',
-            opacity: submitting ? 0.75 : 1,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            transition: 'opacity 200ms, box-shadow 200ms',
-          }}
-          onMouseEnter={e => { if (!submitting) e.currentTarget.style.boxShadow = '0 6px 28px rgba(23,105,255,0.45)' }}
-          onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(23,105,255,0.3)' }}
-        >
+        <SignInButton submitting={submitting}>
           {submitting
             ? <><Loader size={16} style={{ animation: 'ee-spin 1s linear infinite' }} /> Creating…</>
-            : 'Create account'}
-        </motion.button>
+            : <>Create account <ArrowRight size={18} /></>}
+        </SignInButton>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '2px 0' }}>
-          <div style={{ flex: 1, height: 1, background: '#DCE4EF' }} />
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: '#9CA3AF' }}>or</span>
-          <div style={{ flex: 1, height: 1, background: '#DCE4EF' }} />
-        </div>
+        <p style={{ textAlign: 'center', fontFamily: "'Inter', sans-serif", fontSize: 13, color: '#9CA3AF', margin: '4px 0' }}>
+          or continue with
+        </p>
 
         <GoogleButton onClick={onGoogleSignIn} disabled={submitting} />
 
-        <p style={{
-          textAlign: 'center', marginTop: 12,
-          fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#536174',
-        }}>
+        <p style={{ textAlign: 'center', marginTop: 4, fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#536174' }}>
           Already have an account?{' '}
-          <a
-            href="#"
-            onClick={e => { e.preventDefault(); onBackToSignIn() }}
+          <a href="#" onClick={e => { e.preventDefault(); onBackToSignIn() }}
             style={{ color: '#1769FF', fontWeight: 600, textDecoration: 'none' }}
             onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
             onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
@@ -1031,71 +1049,47 @@ function SignUpView({
 
 /* ─── Field helpers ───────────────────────────────────────────────────────── */
 
-function FieldError({ children, style }) {
-  if (!children) return null
+function IconField({ id, label, value, onChange, placeholder, type, autoComplete, icon: Icon, error, delay = 0 }) {
   return (
-    <div style={{
-      color: '#FF1838', fontSize: 12, marginTop: 5,
-      fontFamily: "'Inter', sans-serif", lineHeight: 1.4,
-      ...style,
-    }}>
-      {children}
-    </div>
-  )
-}
-
-function PField({ id, label, value, onChange, placeholder, type, autoComplete, error, delay = 0 }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, ease: [0.22, 1, 0.36, 1] }}
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, ease: [0.22, 1, 0.36, 1] }}>
       <label className="ee-lbl" htmlFor={id}>{label}</label>
-      <input
-        id={id}
-        type={type || 'text'}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className={`ee-inp${error ? ' err' : ''}`}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-      />
+      <div style={{ position: 'relative' }}>
+        {Icon && <InputIcon icon={Icon} />}
+        <input
+          id={id} type={type || 'text'} value={value}
+          onChange={e => onChange(e.target.value)}
+          className={`ee-inp${!Icon ? ' no-icon' : ''}${error ? ' err' : ''}`}
+          placeholder={placeholder} autoComplete={autoComplete}
+        />
+      </div>
       <FieldError>{error}</FieldError>
     </motion.div>
   )
 }
 
-function PPwdField({ id, label, value, onChange, show, setShow, placeholder, autoComplete, error, delay = 0 }) {
+function IconPwdField({ id, label, value, onChange, show, setShow, placeholder, autoComplete, error, delay = 0 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, ease: [0.22, 1, 0.36, 1] }}
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, ease: [0.22, 1, 0.36, 1] }}>
       <label className="ee-lbl" htmlFor={id}>{label}</label>
       <div style={{ position: 'relative' }}>
+        <InputIcon icon={Lock} />
         <input
-          id={id}
-          type={show ? 'text' : 'password'}
-          value={value}
+          id={id} type={show ? 'text' : 'password'} value={value}
           onChange={e => onChange(e.target.value)}
           className={`ee-inp${error ? ' err' : ''}`}
-          style={{ paddingRight: 46 }}
-          placeholder={placeholder}
-          autoComplete={autoComplete}
+          style={{ paddingRight: 46 }} placeholder={placeholder} autoComplete={autoComplete}
         />
         <button
           type="button" onClick={() => setShow(v => !v)}
           aria-label={show ? 'Hide password' : 'Show password'}
           style={{
-            position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+            position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
             background: 'transparent', border: 'none', cursor: 'pointer',
-            color: '#536174', padding: 4, display: 'flex', alignItems: 'center',
+            color: '#9CA3AF', padding: 4, display: 'flex', alignItems: 'center',
             transition: 'color 150ms',
           }}
-          onMouseEnter={e => e.currentTarget.style.color = '#1769FF'}
-          onMouseLeave={e => e.currentTarget.style.color = '#536174'}
+          onMouseEnter={e => e.currentTarget.style.color = '#536174'}
+          onMouseLeave={e => e.currentTarget.style.color = '#9CA3AF'}
           tabIndex={-1}
         >
           {show ? <EyeOff size={16} /> : <Eye size={16} />}
