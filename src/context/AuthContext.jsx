@@ -33,39 +33,42 @@ export function AuthProvider({ children }) {
     let authUnsubscribe = null
     let mounted = true
 
-    /* 1. Resolve any pending Google-redirect sign-in result FIRST. */
-    getRedirectResult(auth)
+    function subscribeAuthState() {
+      authUnsubscribe = onAuthStateChanged(auth, firebaseUser => {
+        const uid = firebaseUser?.uid || null
+        setActiveUID(uid)
+        if (uid) migrateOldData(uid)
+        setUser(firebaseUser ?? null)
+      })
+    }
+
+    /* 1. Resolve any pending Google-redirect sign-in result FIRST.
+          Race against a 5-second timeout so a hung getRedirectResult
+          (e.g. App Check / network issue) never freezes the Splash screen. */
+    const redirectPromise = getRedirectResult(auth)
+      .then(result => result)
+      .catch(err => {
+        console.error('Redirect error:', err)
+        return null
+      })
+    const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 5000))
+
+    Promise.race([redirectPromise, timeoutPromise])
       .then(result => {
         if (!mounted) return
         if (result?.user) {
           const u = result.user
-          /* setActiveUID before anything else so storage reads land on the
-             correct UID-scoped keys from the very first re-render. */
           setActiveUID(u.uid)
           migrateOldData(u.uid)
           navigate('/dashboard', { replace: true })
         }
-      })
-      .catch(err => {
-        /* eslint-disable-next-line no-console */
-        console.error('Redirect error:', err)
       })
       .finally(() => {
         if (!mounted) return
         setIsResolvingRedirect(false)
 
         /* 2. Subscribe to ongoing auth state AFTER redirect is resolved. */
-        authUnsubscribe = onAuthStateChanged(auth, firebaseUser => {
-          const uid = firebaseUser?.uid || null
-          /* CRITICAL: setActiveUID BEFORE setUser so every component that
-             re-renders due to auth-state-change already has the right UID
-             when it reads from localStorage. */
-          setActiveUID(uid)
-          if (uid) {
-            migrateOldData(uid)
-          }
-          setUser(firebaseUser ?? null)
-        })
+        subscribeAuthState()
       })
 
     return () => {
