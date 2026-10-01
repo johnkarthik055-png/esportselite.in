@@ -318,14 +318,22 @@ export default function Login() {
     try {
       const provider = new GoogleAuthProvider()
       provider.setCustomParameters({ prompt: 'select_account' })
-      await signInWithPopup(auth, provider)
-      // onAuthStateChanged in AuthContext handles navigation after successful sign-in
+      const result = await signInWithPopup(auth, provider)
+      if (result && result.user) {
+        navigate('/dashboard')
+      }
     } catch (error) {
       console.error('Google sign-in error:', error)
-      if (error.code === 'auth/popup-closed-by-user') return
-      if (error.code === 'auth/cancelled-popup-request') return
+      if (error.code === 'auth/popup-closed-by-user') {
+        setGoogleLoading(false)
+        return
+      }
+      if (error.code === 'auth/cancelled-popup-request') {
+        setGoogleLoading(false)
+        return
+      }
       if (error.code === 'auth/popup-blocked') {
-        setFieldError('form', 'Popup blocked. Allow popups for app.esportselite.in and try again.')
+        setFieldError('form', 'Popup blocked. Please allow popups for this site.')
       } else {
         setFieldError('form', error.message || 'Google sign-in failed. Please try again.')
       }
