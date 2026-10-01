@@ -320,7 +320,14 @@ export default function Login() {
       }
       navigate(nextUrl, { replace: true })
     } catch (error) {
-      if (error?.code !== 'auth/popup-closed-by-user') setFieldError('form', 'Google sign in failed. Try again.')
+      const code = error?.code
+      if (code === 'auth/popup-blocked') {
+        setFieldError('form', 'Popup was blocked. Please allow popups for this site and try again.')
+      } else if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+        // user dismissed — no error message needed
+      } else {
+        setFieldError('form', 'Google sign in failed. Please try again.')
+      }
     } finally { setSubmitting(false) }
   }
 
@@ -744,7 +751,7 @@ function SignInView({
           <div style={{ flex: 1, height: 1, background: '#DCE4EF' }} />
         </div>
 
-        <GoogleButton onClick={onGoogleSignIn} disabled={submitting} />
+        <GoogleButton onClick={onGoogleSignIn} />
 
         <p style={{ textAlign: 'center', marginTop: 8, fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#536174' }}>
           New here?{' '}
@@ -817,7 +824,7 @@ function SignUpView({
           <div style={{ flex: 1, height: 1, background: '#DCE4EF' }} />
         </div>
 
-        <GoogleButton onClick={onGoogleSignIn} disabled={submitting} />
+        <GoogleButton onClick={onGoogleSignIn} />
 
         <p style={{ textAlign: 'center', marginTop: 8, fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#536174' }}>
           Already have an account?{' '}
