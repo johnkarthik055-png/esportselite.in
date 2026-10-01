@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { onAuthStateChanged, signOut } from 'firebase/auth'
+import { onAuthStateChanged, signOut, getRedirectResult } from 'firebase/auth'
 import { auth } from '../utils/firebase.js'
 import { setActiveUID, migrateOldData } from '../utils/storage.js'
 import SplashScreen from '../components/SplashScreen.jsx'
@@ -16,6 +16,8 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    getRedirectResult(auth).catch(() => {})
+
     const timeout = setTimeout(() => {
       setUser(null)
       setLoading(false)

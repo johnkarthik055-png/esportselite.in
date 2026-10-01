@@ -11,7 +11,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   sendPasswordResetEmail,
   GoogleAuthProvider,
 } from 'firebase/auth'
@@ -196,6 +197,23 @@ export default function Login() {
   const [mode, setMode] = useState(location.state?.signup ? 'signup' : 'signin')
   useEffect(() => { if (location.state?.signup) setMode('signup') }, [location.state])
 
+  useEffect(() => {
+    const checkRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth)
+        if (result?.user) {
+          navigate('/dashboard')
+        }
+      } catch (error) {
+        console.error('Redirect result error:', error)
+        if (error.code !== 'auth/no-current-user') {
+          setFieldError('form', error.message || 'Google sign-in failed.')
+        }
+      }
+    }
+    checkRedirect()
+  }, [])
+
   const nextUrl = (() => {
     const hash = window.location.hash
     const m = hash.match(/[?&]next=([^&]*)/)
@@ -318,26 +336,10 @@ export default function Login() {
     try {
       const provider = new GoogleAuthProvider()
       provider.setCustomParameters({ prompt: 'select_account' })
-      const result = await signInWithPopup(auth, provider)
-      if (result && result.user) {
-        navigate('/dashboard')
-      }
+      await signInWithRedirect(auth, provider)
     } catch (error) {
       console.error('Google sign-in error:', error)
-      if (error.code === 'auth/popup-closed-by-user') {
-        setGoogleLoading(false)
-        return
-      }
-      if (error.code === 'auth/cancelled-popup-request') {
-        setGoogleLoading(false)
-        return
-      }
-      if (error.code === 'auth/popup-blocked') {
-        setFieldError('form', 'Popup blocked. Please allow popups for this site.')
-      } else {
-        setFieldError('form', error.message || 'Google sign-in failed. Please try again.')
-      }
-    } finally {
+      setFieldError('form', error.message || 'Google sign-in failed. Please try again.')
       setGoogleLoading(false)
     }
   }
