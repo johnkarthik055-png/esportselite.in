@@ -210,30 +210,32 @@ export default function ModuleCard({
               padding: 0,
             }}
           >
-            {/* Icon box — Crosshair on elevated/border */}
+            {/* Icon box */}
             <div
               style={{
                 width: 36,
                 height: 36,
-                background: 'var(--bg-elevated)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-sm)',
+                background: '#EAF2FF',
+                border: '1px solid rgba(37,99,255,0.12)',
+                borderRadius: 8,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
               }}
             >
-              <Crosshair size={16} style={{ color: 'var(--text-muted)' }} />
+              <Crosshair size={16} style={{ color: '#2563FF' }} />
             </div>
 
             <div style={{ minWidth: 0 }}>
               <div
                 style={{
-                  fontFamily: 'Bebas Neue, sans-serif',
-                  fontWeight: 700,
-                  fontSize: 16,
-                  color: 'var(--text-primary)',
+                  fontFamily: 'Barlow Condensed, sans-serif',
+                  fontWeight: 900,
+                  fontSize: 18,
+                  color: '#0B1224',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
@@ -250,8 +252,10 @@ export default function ModuleCard({
               {module.description && (
                 <div
                   style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontWeight: 400,
                     fontSize: 13,
-                    color: 'var(--text-muted)',
+                    color: '#64748B',
                     marginTop: 2,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -288,14 +292,16 @@ export default function ModuleCard({
             {/* Drills count badge — neutral muted style */}
             <span
               style={{
-                background: 'var(--bg-elevated)',
-                border: '1px solid var(--border)',
-                color: 'var(--text-muted)',
+                background: '#F1F5F9',
+                border: '1px solid #E5EAF3',
+                color: '#64748B',
                 padding: '3px 10px',
                 borderRadius: 999,
                 fontSize: 11,
                 fontWeight: 600,
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Rajdhani, sans-serif',
+                letterSpacing: '0.10em',
+                textTransform: 'uppercase',
                 whiteSpace: 'nowrap',
               }}
             >

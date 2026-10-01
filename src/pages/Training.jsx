@@ -156,8 +156,8 @@ export default function Training() {
       {/* ── Page header ── */}
       <div className="tc-page-header" style={{ marginBottom: 20, marginTop: 4 }}>
         <h1 style={{
-          fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: 36,
-          color: '#0B1224', margin: '0 0 4px', letterSpacing: '-0.5px',
+          fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 40,
+          color: '#0B1224', margin: '0 0 4px', letterSpacing: '0.02em', textTransform: 'uppercase',
         }}>
           Training Center
         </h1>
@@ -928,7 +928,7 @@ function TipCard() {
 const sectionLabelStyle = {
   fontFamily: 'Rajdhani, sans-serif',
   fontSize: 11, fontWeight: 600,
-  textTransform: 'uppercase', letterSpacing: '0.12em',
+  textTransform: 'uppercase', letterSpacing: '0.14em',
   color: '#64748B',
 }
 
