@@ -261,25 +261,26 @@ export default function Login() {
     const email = username.trim(), pw = password.trim()
     if (!email) { setFieldError('email', 'Email is required.'); return }
     if (!pw)    { setFieldError('password', 'Password is required.'); return }
+    if (submitting) return
     setSubmitting(true)
     try {
-      const result = await signInWithEmailAndPassword(auth, email, pw)
-      const fbUser = result?.user
-      const existingLocal = findLocalUser(email)
-      const uname = fbUser?.displayName || existingLocal?.username || email.split('@')[0] || 'Player'
-      const localUser = {
-        id: fbUser?.uid || 'user-' + uid(),
-        username: uname, email,
-        phone: fbUser?.phoneNumber || existingLocal?.phone || '',
-        password: pw, createdAt: existingLocal?.createdAt || Date.now(),
-      }
-      upsertLocalUser(localUser); setLocalSession(localUser)
-      writeLS(STORAGE_KEYS.USER, { username: localUser.username, email, phone: localUser.phone, ign: '', igId: '' })
-      if (fbUser) await setupUserProfile(fbUser)
-      navigate(nextUrl, { replace: true })
+      await signInWithEmailAndPassword(auth, email, pw)
+      // onAuthStateChanged in AuthContext handles navigation
     } catch (err) {
-      const mapped = mapSignInError(err); setFieldError(mapped.field, mapped.message)
-    } finally { setSubmitting(false) }
+      const signInErrors = {
+        'auth/user-not-found':          'No account found with this email.',
+        'auth/wrong-password':          'Incorrect password. Please try again.',
+        'auth/invalid-email':           'Please enter a valid email address.',
+        'auth/too-many-requests':       'Too many failed attempts. Please try again later.',
+        'auth/invalid-credential':      'Invalid email or password. Please try again.',
+        'auth/invalid-login-credentials': 'Invalid email or password. Please try again.',
+        'auth/user-disabled':           'This account has been disabled.',
+        'auth/network-request-failed':  'Network error. Check your connection and try again.',
+      }
+      setFieldError('form', signInErrors[err?.code] || err?.message || 'Sign in failed.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   async function handleSignUp(e) {

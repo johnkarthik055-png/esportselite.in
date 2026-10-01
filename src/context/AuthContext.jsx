@@ -31,10 +31,19 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let authUnsubscribe = null
+    let userFallback = null
     let mounted = true
 
     function subscribeAuthState() {
+      /* Safety: if onAuthStateChanged never calls back (network blocked, SDK
+         issue) force user out of `undefined` after 5 seconds so `loading`
+         resolves and the app doesn't stay on Splash forever. */
+      userFallback = setTimeout(() => {
+        if (mounted) setUser(prev => prev === undefined ? null : prev)
+      }, 5000)
+
       authUnsubscribe = onAuthStateChanged(auth, firebaseUser => {
+        clearTimeout(userFallback)
         const uid = firebaseUser?.uid || null
         setActiveUID(uid)
         if (uid) migrateOldData(uid)
@@ -74,6 +83,7 @@ export function AuthProvider({ children }) {
     return () => {
       mounted = false
       if (authUnsubscribe) authUnsubscribe()
+      if (userFallback) clearTimeout(userFallback)
     }
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [])
