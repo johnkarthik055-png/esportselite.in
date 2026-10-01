@@ -223,28 +223,31 @@ export default function RoadmapOverview() {
         </button>
       </div>
 
-      {view === 'stage' ? (
-        <>
-          <ol className="rmo-timeline">
-            {stages.map((s, i) => (
-              <StageRow
-                key={s.id}
-                stage={s}
-                isLast={i === stages.length - 1}
-                onOpen={() => navigate(`/roadmap/${s.id}`)}
-                gated={!isActive && !subLoading && i >= 3}
-              />
-            ))}
-          </ol>
+      <div key={view} className="rmo-view-content">
+        {view === 'stage' ? (
+          <>
+            <ol className="rmo-timeline">
+              {stages.map((s, i) => (
+                <StageRow
+                  key={s.id}
+                  stage={s}
+                  index={i}
+                  isLast={i === stages.length - 1}
+                  onOpen={() => navigate(`/roadmap/${s.id}`)}
+                  gated={!isActive && !subLoading && i >= 3}
+                />
+              ))}
+            </ol>
 
-          <footer className="rmo-footer">
-            <p className="rmo-footer-quote">{ROADMAP_INTRO.coreLoop}</p>
-            <span className="rmo-footer-stamp">{ROADMAP_INTRO.tagline}</span>
-          </footer>
-        </>
-      ) : (
-        <ThirtyDayJourney />
-      )}
+            <footer className="rmo-footer">
+              <p className="rmo-footer-quote">{ROADMAP_INTRO.coreLoop}</p>
+              <span className="rmo-footer-stamp">{ROADMAP_INTRO.tagline}</span>
+            </footer>
+          </>
+        ) : (
+          <ThirtyDayJourney />
+        )}
+      </div>
 
       <style>{styles}</style>
     </div>
@@ -254,7 +257,7 @@ export default function RoadmapOverview() {
 /* ============================================================
    STAGE ROW — all logic preserved, visual layer updated
    ============================================================ */
-function StageRow({ stage, isLast, onOpen, gated }) {
+function StageRow({ stage, index, isLast, onOpen, gated }) {
   const { state, order, title, description, icon } = stage
   const locked = state === 'locked'
   const done = state === 'completed'
@@ -279,7 +282,7 @@ function StageRow({ stage, isLast, onOpen, gated }) {
           style={{
             filter: 'blur(3px)', opacity: 0.4,
             pointerEvents: 'none', userSelect: 'none',
-            marginBottom: 0, flex: 1,
+            marginBottom: 0, flex: 1, animation: 'none',
           }}
         >
           <span className="rmo-card-icon" aria-hidden>{icon}</span>
@@ -337,6 +340,7 @@ function StageRow({ stage, isLast, onOpen, gated }) {
         disabled={locked}
         onClick={locked ? undefined : onOpen}
         aria-disabled={locked}
+        style={{ animationDelay: `${Math.min(index, 6) * 0.055}s` }}
       >
         {inProgress && <span className="rmo-current-ribbon">Current stage</span>}
         <span className="rmo-card-icon" aria-hidden>{icon}</span>
@@ -370,6 +374,20 @@ function StageRow({ stage, isLast, onOpen, gated }) {
    STYLES — white premium theme
    ============================================================ */
 const styles = `
+  /* ── Entry animation keyframes ── */
+  @keyframes rmo-fadeup {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes rmo-fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes rmo-bar-grow {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
   /* ── Hero ── */
   .rmo-hero {
     position: relative; overflow: hidden;
@@ -379,6 +397,7 @@ const styles = `
     padding: clamp(24px, 4vw, 40px);
     display: flex; flex-direction: column; gap: 10px;
     box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 16px 48px rgba(15,23,42,0.05);
+    animation: rmo-fadeup 0.5s cubic-bezier(0.23,1,0.32,1) both;
   }
   .rmo-hero-dots {
     position: absolute; inset: 0; pointer-events: none; z-index: 0;
@@ -559,6 +578,7 @@ const styles = `
     border-radius: 14px; padding: 16px 18px; margin-bottom: 12px;
     box-shadow: 0 2px 8px rgba(15,23,42,0.04);
     transition: border-color 0.15s ease, transform 0.2s cubic-bezier(0.23,1,0.32,1), box-shadow 0.2s ease;
+    animation: rmo-fadeup 0.35s cubic-bezier(0.23,1,0.32,1) both;
   }
   .rmo-card:hover:not(:disabled) {
     border-color: #2563FF;
@@ -659,5 +679,36 @@ const styles = `
     .rmo-card { flex-wrap: wrap; }
     .rmo-card-chev { width: 100%; justify-content: flex-end; }
     .rmo-card-title { font-size: 14.5px; }
+  }
+
+  /* ── Progress bar grow (scaleX — no layout reflow) ── */
+  .road-bar-fill {
+    transform-origin: left center;
+    animation: rmo-bar-grow 0.7s cubic-bezier(0.23,1,0.32,1) 0.4s both;
+  }
+  .road-bar-fill--xp {
+    animation-delay: 0.52s;
+  }
+
+  /* ── View content fade on tab switch ── */
+  .rmo-view-content {
+    animation: rmo-fadein 0.15s ease both;
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .rmo-hero {
+      animation: rmo-fadein 0.2s ease both;
+    }
+    .rmo-card {
+      animation: rmo-fadein 0.15s ease both !important;
+    }
+    .road-bar-fill {
+      animation: none;
+      transform: none;
+    }
+    .rmo-view-content {
+      animation: none;
+    }
   }
 `

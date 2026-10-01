@@ -258,6 +258,16 @@ function Notice({ icon, title, body, action, actionLabel }) {
    STYLES — white premium theme
    ============================================================ */
 const styles = `
+  /* ── Entry animation keyframes ── */
+  @keyframes rst-fadeup {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes rst-fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
   .road-stage-wrap {
     display: flex; flex-direction: column; gap: 16px;
     max-width: 1040px; margin: 0 auto; width: 100%;
@@ -273,7 +283,10 @@ const styles = `
   .road-back:hover { opacity: 0.75; text-decoration: underline; }
 
   /* ── Stage header ── */
-  .road-stage-head { display: flex; gap: 14px; align-items: flex-start; }
+  .road-stage-head {
+    display: flex; gap: 14px; align-items: flex-start;
+    animation: rst-fadeup 0.4s cubic-bezier(0.23,1,0.32,1) both;
+  }
   .road-stage-emoji { font-size: 32px; line-height: 1; flex-shrink: 0; }
   .road-stage-headtext { min-width: 0; }
   .road-stage-kicker {
@@ -303,6 +316,7 @@ const styles = `
     background: #FFFFFF; border: 1px solid #E5EAF3;
     border-radius: 14px; padding: 12px 16px;
     box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    animation: rst-fadeup 0.4s cubic-bezier(0.23,1,0.32,1) 0.1s both;
   }
   .road-tracker::-webkit-scrollbar { display: none; }
   .road-tracker-item { display: flex; align-items: center; flex-shrink: 0; }
@@ -356,5 +370,12 @@ const styles = `
   }
   .road-soon-body {
     font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; color: #64748B; max-width: 420px;
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .road-stage-head, .road-tracker {
+      animation: rst-fadein 0.2s ease both;
+    }
   }
 `
