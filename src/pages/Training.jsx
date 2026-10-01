@@ -154,7 +154,7 @@ export default function Training() {
       <TodayPlanBanner />
 
       {/* ── Page header ── */}
-      <div style={{ marginBottom: 20, marginTop: 4 }}>
+      <div className="tc-page-header" style={{ marginBottom: 20, marginTop: 4 }}>
         <h1 style={{
           fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: 36,
           color: '#0B1224', margin: '0 0 4px', letterSpacing: '-0.5px',
@@ -172,6 +172,7 @@ export default function Training() {
       {/* ── Tab switcher ── */}
       <div
         {...tabSwipe}
+        className="tc-tab-switcher"
         style={{
           display: 'inline-flex',
           background: '#F1F5F9',
@@ -214,24 +215,26 @@ export default function Training() {
         })}
       </div>
 
-      {tab === 'modules' ? (
-        <TrainingModulesTab
-          focusModuleId={focusModuleId}
-          uid={authUser?.uid}
-          sessions={Array.isArray(sessions) ? sessions : []}
-          streak={streak || profile?.streak || null}
-          drillCount={drillCount}
-          totalDuration={totalDuration}
-          onWeaponsChange={setSessionWeapons}
-        />
-      ) : (
-        <MatchLoggerTab
-          uid={authUser?.uid}
-          matches={Array.isArray(matches) ? matches : []}
-          xp={xp || 0}
-          matchCount={matchCount}
-        />
-      )}
+      <div key={tab} className="tc-tab-content">
+        {tab === 'modules' ? (
+          <TrainingModulesTab
+            focusModuleId={focusModuleId}
+            uid={authUser?.uid}
+            sessions={Array.isArray(sessions) ? sessions : []}
+            streak={streak || profile?.streak || null}
+            drillCount={drillCount}
+            totalDuration={totalDuration}
+            onWeaponsChange={setSessionWeapons}
+          />
+        ) : (
+          <MatchLoggerTab
+            uid={authUser?.uid}
+            matches={Array.isArray(matches) ? matches : []}
+            xp={xp || 0}
+            matchCount={matchCount}
+          />
+        )}
+      </div>
 
       <EndSessionModal
         open={endOpen}
@@ -366,7 +369,7 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
                   {modules.map((m, i) => {
                     const isFocused = focusModuleId === m.id
                     return (
-                      <div key={m.id} ref={isFocused ? focusRowRef : undefined}>
+                      <div key={m.id} ref={isFocused ? focusRowRef : undefined} className="tc-module-wrap" style={{ animationDelay: `${Math.min(i, 6) * 0.055}s` }}>
                         <ModuleCard
                           module={m}
                           defaultOpen={isFocused || (!focusModuleId && i === 0)}
@@ -548,8 +551,8 @@ function TodayScheduledDrills({ uid }) {
         </button>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {drillTasks.map(task => (
-          <ScheduledDrillRow key={task.id} task={task} onToggle={(done) => markTaskDone(task.id, done)} onStart={() => startDrill(task)} />
+        {drillTasks.map((task, i) => (
+          <ScheduledDrillRow key={task.id} task={task} index={i} onToggle={(done) => markTaskDone(task.id, done)} onStart={() => startDrill(task)} />
         ))}
       </div>
       {allDrillsDone && (
@@ -572,14 +575,15 @@ function TodayScheduledDrills({ uid }) {
   )
 }
 
-function ScheduledDrillRow({ task, onToggle, onStart }) {
+function ScheduledDrillRow({ task, index, onToggle, onStart }) {
   return (
-    <div style={{
+    <div className="tc-drill-row" style={{
       display: 'flex', alignItems: 'flex-start', gap: 10,
       padding: '10px 12px',
       background: '#F8FAFD',
       border: `1px solid ${task.done ? 'rgba(22,163,74,0.25)' : '#E5EAF3'}`,
       borderRadius: 8, transition: 'border-color 0.15s ease',
+      animationDelay: `${(index || 0) * 0.05}s`,
     }}>
       <button
         type="button"
@@ -656,7 +660,7 @@ function TodayMatchStatsRow({ matchCount, avgKills, avgPlacement, winRate, avgDa
   return (
     <div className="match-logger-stats-row" style={{ gap: 10 }}>
       {cards.map(({ Icon, color, label, value }) => (
-        <div key={label} style={{
+        <div key={label} className="tc-stat-card" style={{
           background: '#FFFFFF', border: '1px solid #E5EAF3',
           borderRadius: 12, padding: 16,
           boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
@@ -910,6 +914,58 @@ const sectionLabelStyle = {
 function TrainingStyles() {
   return (
     <style>{`
+      /* ── Keyframes ── */
+      @keyframes tc-fadeup {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes tc-fadein {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+
+      /* ── Entrance animations ── */
+      .tc-page-header {
+        animation: tc-fadeup 0.45s cubic-bezier(0.23,1,0.32,1) both;
+      }
+      .tc-tab-switcher {
+        animation: tc-fadeup 0.4s cubic-bezier(0.23,1,0.32,1) 0.07s both;
+      }
+      /* Tab content: opacity-only, near-imperceptible — switched tens/day */
+      .tc-tab-content {
+        animation: tc-fadein 0.15s ease both;
+      }
+      /* Module cards: stagger delay set inline per-card */
+      .tc-module-wrap {
+        animation: tc-fadeup 0.35s cubic-bezier(0.23,1,0.32,1) both;
+      }
+      /* Stat cards: nth-child stagger (5 cards) */
+      .tc-stat-card {
+        animation: tc-fadeup 0.35s cubic-bezier(0.23,1,0.32,1) both;
+      }
+      .tc-stat-card:nth-child(1) { animation-delay: 0s; }
+      .tc-stat-card:nth-child(2) { animation-delay: 0.055s; }
+      .tc-stat-card:nth-child(3) { animation-delay: 0.11s; }
+      .tc-stat-card:nth-child(4) { animation-delay: 0.165s; }
+      .tc-stat-card:nth-child(5) { animation-delay: 0.22s; }
+      /* Drill rows: stagger delay set inline per-row */
+      .tc-drill-row {
+        animation: tc-fadeup 0.3s cubic-bezier(0.23,1,0.32,1) both;
+      }
+
+      /* ── Reduced motion: keep opacity, drop translateY ── */
+      @media (prefers-reduced-motion: reduce) {
+        .tc-page-header,
+        .tc-tab-switcher,
+        .tc-module-wrap,
+        .tc-stat-card,
+        .tc-drill-row {
+          animation: tc-fadein 0.2s ease both;
+        }
+        .tc-tab-content { animation: none; }
+      }
+
+      /* ── Layout ── */
       .tc-two-col { display: flex; gap: 20px; align-items: flex-start; }
       .tc-left { flex: 2; min-width: 0; }
       .tc-right { width: 340px; flex-shrink: 0; }
