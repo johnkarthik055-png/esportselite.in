@@ -338,17 +338,22 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
             </div>
             <button
               onClick={() => setCreateOpen(true)}
+              className="tc-pill-btn"
               style={{
-                background: '#2563FF', border: 'none', borderRadius: 8,
-                color: '#fff', padding: '8px 18px', fontSize: 13,
+                background: '#2563FF', border: 'none', borderRadius: 999,
+                color: '#fff', padding: '8px 10px 8px 20px', fontSize: 13,
                 fontFamily: 'Inter, sans-serif', fontWeight: 600,
-                cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6,
-                transition: 'opacity 0.15s ease',
+                cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8,
+                boxShadow: '0 4px 14px rgba(37,99,255,0.25), inset 0 1px 0 rgba(255,255,255,0.12)',
+                transition: 'opacity 0.18s cubic-bezier(0.23,1,0.32,1), transform 0.18s cubic-bezier(0.23,1,0.32,1)',
               }}
-              onMouseEnter={e => { e.currentTarget.style.opacity = '0.88' }}
-              onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'scale(1.02)' }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)' }}
             >
-              <Plus size={13} /> Add Drill
+              Add Drill
+              <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Plus size={13} />
+              </span>
             </button>
           </div>
 
@@ -524,10 +529,11 @@ function TodayScheduledDrills({ uid }) {
   }
 
   return (
+    <div style={{ background: 'rgba(37,99,255,0.012)', border: '1px solid rgba(37,99,255,0.06)', borderRadius: 17, padding: 3 }}>
     <div style={{
-      background: '#FFFFFF', border: '1px solid #E5EAF3',
-      borderRadius: 12, padding: 20,
-      boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
+      background: '#FFFFFF',
+      borderRadius: 14, padding: 20,
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(15,23,42,0.04)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -572,6 +578,7 @@ function TodayScheduledDrills({ uid }) {
         </div>
       )}
     </div>
+    </div>
   )
 }
 
@@ -581,8 +588,9 @@ function ScheduledDrillRow({ task, index, onToggle, onStart }) {
       display: 'flex', alignItems: 'flex-start', gap: 10,
       padding: '10px 12px',
       background: '#F8FAFD',
-      border: `1px solid ${task.done ? 'rgba(22,163,74,0.25)' : '#E5EAF3'}`,
-      borderRadius: 8, transition: 'border-color 0.15s ease',
+      border: `1px solid ${task.done ? 'rgba(22,163,74,0.2)' : 'rgba(37,99,255,0.08)'}`,
+      borderLeft: `3px solid ${task.done ? 'rgba(22,163,74,0.45)' : 'rgba(37,99,255,0.2)'}`,
+      borderRadius: 8,
       animationDelay: `${(index || 0) * 0.05}s`,
     }}>
       <button
@@ -631,15 +639,20 @@ function ScheduledDrillRow({ task, index, onToggle, onStart }) {
           onClick={onStart}
           style={{
             background: '#2563FF', color: '#fff', border: 'none',
-            borderRadius: 6, padding: '6px 16px', fontSize: 12,
+            borderRadius: 999, padding: '6px 8px 6px 14px', fontSize: 12,
             fontFamily: 'Inter, sans-serif', fontWeight: 600,
             cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap',
-            transition: 'opacity 0.15s ease',
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            boxShadow: '0 2px 8px rgba(37,99,255,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+            transition: 'opacity 0.18s cubic-bezier(0.23,1,0.32,1), transform 0.18s cubic-bezier(0.23,1,0.32,1)',
           }}
-          onMouseEnter={e => { e.currentTarget.style.opacity = '0.85' }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; e.currentTarget.style.transform = 'scale(1.03)' }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)' }}
         >
           Start
+          <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ArrowRight size={11} />
+          </span>
         </button>
       )}
     </div>
@@ -703,10 +716,11 @@ function QuickStatsCard({ sessions, streak, drillCount, totalDuration }) {
   ]
 
   return (
+    <div style={{ background: 'rgba(37,99,255,0.012)', border: '1px solid rgba(37,99,255,0.06)', borderRadius: 17, padding: 3 }}>
     <div style={{
-      background: '#FFFFFF', border: '1px solid #E5EAF3',
+      background: '#FFFFFF',
       borderRadius: 14, padding: 20,
-      boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(15,23,42,0.04)',
     }}>
       <div style={{ ...sectionLabelStyle, marginBottom: 14 }}>QUICK STATS</div>
       {STATS.map(({ Icon, color, label, value }, i) => (
@@ -720,6 +734,7 @@ function QuickStatsCard({ sessions, streak, drillCount, totalDuration }) {
           <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 13, color: '#0B1224' }}>{value}</span>
         </div>
       ))}
+    </div>
     </div>
   )
 }
@@ -763,10 +778,11 @@ function PerformanceScoreCard({ matches }) {
   const dashOffset = circumference - Math.min(1, (score || 0) / 100) * circumference
 
   return (
+    <div style={{ background: 'rgba(37,99,255,0.012)', border: '1px solid rgba(37,99,255,0.06)', borderRadius: 17, padding: 3 }}>
     <div style={{
-      background: '#FFFFFF', border: '1px solid #E5EAF3',
+      background: '#FFFFFF',
       borderRadius: 14, padding: 20,
-      boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(15,23,42,0.04)',
     }}>
       <div style={{ ...sectionLabelStyle, marginBottom: 16 }}>PERFORMANCE SCORE</div>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: score === null ? 10 : 0 }}>
@@ -797,6 +813,7 @@ function PerformanceScoreCard({ matches }) {
           Complete matches to unlock your score
         </div>
       )}
+    </div>
     </div>
   )
 }
@@ -845,10 +862,11 @@ function RecentMatchesCard({ matches }) {
     [matches]
   )
   return (
+    <div style={{ background: 'rgba(37,99,255,0.012)', border: '1px solid rgba(37,99,255,0.06)', borderRadius: 17, padding: 3 }}>
     <div style={{
-      background: '#FFFFFF', border: '1px solid #E5EAF3',
+      background: '#FFFFFF',
       borderRadius: 14, padding: 20,
-      boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(15,23,42,0.04)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <span style={sectionLabelStyle}>RECENT MATCHES</span>
@@ -879,21 +897,27 @@ function RecentMatchesCard({ matches }) {
         </div>
       )}
     </div>
+    </div>
   )
 }
 
 function TipCard() {
   return (
+    <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: 17, padding: 3 }}>
     <div style={{
-      background: '#FFFBEB', border: '1px solid #FDE68A',
+      background: '#FFFBEB',
       borderRadius: 14, padding: 16,
       display: 'flex', gap: 10, alignItems: 'flex-start',
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9)',
     }}>
-      <Lightbulb size={18} style={{ color: '#F59E0B', flexShrink: 0, marginTop: 2 }} />
+      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+        <Lightbulb size={16} style={{ color: '#F59E0B' }} />
+      </div>
       <div>
         <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 11, fontWeight: 600, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>TIP</div>
         <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>The more matches you log, the better your insights!</div>
       </div>
+    </div>
     </div>
   )
 }
@@ -951,7 +975,42 @@ function TrainingStyles() {
       /* Drill rows: stagger delay set inline per-row */
       .tc-drill-row {
         animation: tc-fadeup 0.3s cubic-bezier(0.23,1,0.32,1) both;
+        transition: background 0.18s cubic-bezier(0.23,1,0.32,1),
+                    border-color 0.18s cubic-bezier(0.23,1,0.32,1),
+                    box-shadow 0.18s cubic-bezier(0.23,1,0.32,1);
       }
+      @media (hover: hover) and (pointer: fine) {
+        .tc-drill-row:hover {
+          background: #EEF4FF !important;
+          border-color: rgba(37,99,255,0.12) !important;
+          border-left-color: #2563FF !important;
+          box-shadow: 0 2px 10px rgba(37,99,255,0.08);
+        }
+      }
+
+      /* Stat cards: elevated ambient + kinetic hover */
+      .tc-stat-card {
+        animation: tc-fadeup 0.35s cubic-bezier(0.23,1,0.32,1) both;
+        border: 1px solid rgba(37,99,255,0.07) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.9),
+                    0 1px 3px rgba(15,23,42,0.04),
+                    0 8px 24px rgba(15,23,42,0.05) !important;
+        transition: box-shadow 0.2s cubic-bezier(0.23,1,0.32,1),
+                    transform 0.2s cubic-bezier(0.23,1,0.32,1);
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .tc-stat-card:hover {
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.9),
+                      0 4px 14px rgba(37,99,255,0.1),
+                      0 16px 40px rgba(37,99,255,0.07) !important;
+          transform: translateY(-2px);
+        }
+      }
+      .tc-stat-card:nth-child(1) { animation-delay: 0s; }
+      .tc-stat-card:nth-child(2) { animation-delay: 0.055s; }
+      .tc-stat-card:nth-child(3) { animation-delay: 0.11s; }
+      .tc-stat-card:nth-child(4) { animation-delay: 0.165s; }
+      .tc-stat-card:nth-child(5) { animation-delay: 0.22s; }
 
       /* ── Reduced motion: keep opacity, drop translateY ── */
       @media (prefers-reduced-motion: reduce) {
