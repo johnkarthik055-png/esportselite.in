@@ -13,8 +13,7 @@ import StageResult from './StageResult.jsx'
 import StageImprove from './StageImprove.jsx'
 import StageNextStep from './StageNextStep.jsx'
 
-/* The core product loop, applied to every stage: Learn -> Assess -> Result
-   -> Improve -> Next. */
+/* The core product loop: Learn → Assess → Result → Improve → Next */
 const PHASES = [
   { id: 'content',    label: 'Learn',    icon: BookOpen },
   { id: 'assessment', label: 'Assess',   icon: ClipboardList },
@@ -105,15 +104,18 @@ export default function RoadmapStage() {
 
   return (
     <div className="road-stage-wrap page-transition">
+
+      {/* ── Breadcrumb ── */}
       <button className="road-back" onClick={() => navigate('/roadmap')}>
         <ArrowLeft size={14} /> The Road to Esports
       </button>
 
+      {/* ── Stage header ── */}
       <div className="road-stage-head">
         <span className="road-stage-emoji" aria-hidden>{stage.icon}</span>
         <div className="road-stage-headtext">
           <div className="road-stage-kicker">
-            Stage {String(stage.order).padStart(2, '0')}
+            STAGE {String(stage.order).padStart(2, '0')}
             <span className="road-daychip"><CalendarDays size={11} /> Day {dayCount}</span>
           </div>
           <h1 className="road-stage-title">{stage.title}</h1>
@@ -181,7 +183,7 @@ export default function RoadmapStage() {
 }
 
 /* ============================================================
-   PHASE TRACKER
+   PHASE TRACKER — all logic preserved, white theme applied
    ============================================================ */
 function PhaseTracker({ current, reachable, completed, onJump }) {
   const currentIdx = PHASES.findIndex(p => p.id === current)
@@ -215,7 +217,7 @@ function PhaseTracker({ current, reachable, completed, onJump }) {
 }
 
 /* ============================================================
-   COMING-SOON STAGE (stages 2–10, content not authored yet)
+   COMING-SOON STAGE
    ============================================================ */
 function ComingSoonStage({ stage, onBack }) {
   return (
@@ -252,72 +254,107 @@ function Notice({ icon, title, body, action, actionLabel }) {
   )
 }
 
+/* ============================================================
+   STYLES — white premium theme
+   ============================================================ */
 const styles = `
-  .road-stage-wrap { display: flex; flex-direction: column; gap: 16px; max-width: 1040px; margin: 0 auto; width: 100%; }
+  .road-stage-wrap {
+    display: flex; flex-direction: column; gap: 16px;
+    max-width: 1040px; margin: 0 auto; width: 100%;
+  }
+
+  /* ── Breadcrumb ── */
   .road-back {
     align-self: flex-start; display: inline-flex; align-items: center; gap: 6px;
     background: transparent; border: none; padding: 0; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-subtle);
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: #2563FF;
+    transition: opacity 0.15s ease;
   }
-  .road-back:hover { color: var(--text-primary); }
+  .road-back:hover { opacity: 0.75; text-decoration: underline; }
 
-  .road-stage-head { display: flex; gap: 13px; align-items: flex-start; }
-  .road-stage-emoji { font-size: 30px; line-height: 1; flex-shrink: 0; }
+  /* ── Stage header ── */
+  .road-stage-head { display: flex; gap: 14px; align-items: flex-start; }
+  .road-stage-emoji { font-size: 32px; line-height: 1; flex-shrink: 0; }
   .road-stage-headtext { min-width: 0; }
   .road-stage-kicker {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    font-family: 'DM Sans', sans-serif; font-size: 11px;
-    text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-subtle);
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: #64748B;
+  }
+  .road-daychip {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #EAF2FF; color: #2563FF;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    border-radius: 999px; padding: 2px 10px;
   }
   .road-stage-title {
-    font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 27px;
-    letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-primary);
-    margin: 3px 0 0;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 40px;
+    letter-spacing: 0.02em; color: #0B1224; margin: 4px 0 0; line-height: 1.1;
   }
-  .road-stage-desc { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--text-muted); margin: 4px 0 0; }
+  .road-stage-desc {
+    font-family: 'Inter', sans-serif; font-size: 15px; color: #475569;
+    margin: 4px 0 0; line-height: 1.6;
+  }
 
-  /* Phase tracker */
+  /* ── Phase tracker ── */
   .road-tracker {
     display: flex; align-items: center; overflow-x: auto;
-    background: var(--bg-surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 10px 12px;
+    background: #FFFFFF; border: 1px solid #E5EAF3;
+    border-radius: 14px; padding: 12px 16px;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.04);
   }
   .road-tracker::-webkit-scrollbar { display: none; }
   .road-tracker-item { display: flex; align-items: center; flex-shrink: 0; }
   .road-tstep {
-    display: flex; align-items: center; gap: 7px; padding: 4px 6px;
+    display: flex; align-items: center; gap: 7px; padding: 4px 8px;
     background: transparent; border: none; cursor: pointer; white-space: nowrap;
-    font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--text-subtle);
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; color: #64748B;
+    transition: color 0.15s ease;
   }
   .road-tstep:disabled { cursor: default; opacity: 0.55; }
   .road-tstep-dot {
     width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
-    border: 2px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
+    border: 2px solid #E5EAF3; background: #FFFFFF;
+    display: flex; align-items: center; justify-content: center; color: #94A3B8;
+    transition: all 0.15s ease;
   }
-  .road-tstep.is-current { color: var(--text-primary); }
-  .road-tstep.is-current .road-tstep-dot { border-color: var(--violet); background: var(--violet); color: #fff; }
-  .road-tstep.is-past { color: var(--text-muted); }
-  .road-tstep.is-past .road-tstep-dot { border-color: var(--green); background: var(--green); color: #04140b; }
-  .road-tstep-line { width: 22px; height: 2px; background: var(--border); flex-shrink: 0; }
-  .road-tstep-line.is-past { background: var(--green); }
-
-  /* Coming soon */
-  .road-soon { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 34px 22px; }
-  .road-soon-icon {
-    width: 54px; height: 54px; border-radius: 14px;
-    background: var(--bg-elevated); border: 1px solid var(--border);
-    color: var(--text-muted); display: flex; align-items: center; justify-content: center;
+  .road-tstep.is-current { color: #0B1224; font-weight: 600; }
+  .road-tstep.is-current .road-tstep-dot {
+    border-color: #2563FF; background: #2563FF; color: #fff;
+    box-shadow: 0 0 0 3px rgba(37,99,255,0.12);
   }
-  .road-soon-title { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 17px; color: var(--text-primary); }
-  .road-soon-body { font-family: 'DM Sans', sans-serif; font-size: 13px; line-height: 1.6; color: var(--text-muted); max-width: 420px; }
+  .road-tstep.is-past { color: #64748B; }
+  .road-tstep.is-past .road-tstep-dot { border-color: #16A34A; background: #16A34A; color: #fff; }
+  .road-tstep-label { font-size: 13px; }
+  .road-tstep-line { width: 24px; height: 2px; background: #E5EAF3; flex-shrink: 0; margin: 0 2px; }
+  .road-tstep-line.is-past { background: #16A34A; }
 
-  /* Two-column layout shared by Content + Assessment phases */
+  /* ── Two-column grid (content / assessment phases) ── */
   .road-grid { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; }
   .road-grid-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
   .road-grid-aside { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
   @media (min-width: 940px) {
     .road-grid { grid-template-columns: minmax(0, 1fr) 300px; }
     .road-grid-aside { position: sticky; top: 16px; }
+  }
+
+  /* ── Coming soon ── */
+  .road-soon {
+    text-align: center; display: flex; flex-direction: column;
+    align-items: center; gap: 10px; padding: 34px 22px;
+    background: #FFFFFF; border: 1px solid #E5EAF3; border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+  }
+  .road-soon-icon {
+    width: 54px; height: 54px; border-radius: 14px;
+    background: #F1F5F9; border: 1px solid #E5EAF3;
+    color: #64748B; display: flex; align-items: center; justify-content: center;
+  }
+  .road-soon-title {
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 17px; color: #0B1224;
+  }
+  .road-soon-body {
+    font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; color: #64748B; max-width: 420px;
   }
 `

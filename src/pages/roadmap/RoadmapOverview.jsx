@@ -21,16 +21,6 @@ const PHASE_ACTION = {
   next: 'Confirm and continue',
 }
 
-/*
- * THE ROAD TO ESPORTS — overview.
- *
- * A vertical timeline of the 10 stages. Only Stage 1 starts AVAILABLE;
- * every later stage is LOCKED until the previous stage is COMPLETED
- * (progress-based, never day-based). The "Day N" chip is cosmetic only.
- *
- * Sidebar / XP / streak indicators are the app's existing ones, read
- * from the same hooks the Sidebar and Dashboard use — not rebuilt.
- */
 export default function RoadmapOverview() {
   const navigate = useNavigate()
   const [view, setView] = useState('stage')
@@ -49,9 +39,6 @@ export default function RoadmapOverview() {
     ? Math.round(Math.min(1, (xp - floor) / (ceil - floor)) * 100)
     : 100
 
-  /* "Your Biggest Opportunity" — real, derived from the most recently
-     computed result across ALL stages. Never fabricated: shows an honest
-     empty state when no assessment has been taken yet. */
   const latestResultStage = useMemo(() => {
     let best = null
     stages.forEach(s => {
@@ -59,6 +46,7 @@ export default function RoadmapOverview() {
     })
     return best
   }, [stages])
+
   const biggestOpportunity = latestResultStage
     ? {
         stageTitle: latestResultStage.title,
@@ -68,8 +56,6 @@ export default function RoadmapOverview() {
       }
     : null
 
-  /* "Next Action" — real, derived from where the current stage actually is
-     in the Learn -> Assess -> Result -> Improve -> Next loop. */
   const nextAction = currentStage
     ? `${PHASE_ACTION[currentStage.phase] || 'Continue'} — Stage ${String(currentStage.order).padStart(2, '0')} · ${currentStage.title}`
     : (totalStages && completedCount === totalStages
@@ -92,34 +78,30 @@ export default function RoadmapOverview() {
 
       {/* ── Hero ─────────────────────────────── */}
       <header className="rmo-hero">
-        <div className="rmo-hero-glow" aria-hidden />
+        {/* Decorative layers — pointer-events none, z-index 0 */}
+        <div className="rmo-hero-dots" aria-hidden />
+        <div className="rmo-hero-glow-blue" aria-hidden />
+        <div className="rmo-hero-glow-red" aria-hidden />
+
+        {/* All content sits above decorative layers */}
         <div className="rmo-hero-kicker">
-          <Compass size={14} /> Esports Elite
+          <Compass size={14} /> YOUR ROADMAP TO PRO
         </div>
         <h1 className="rmo-title">THE ROAD TO ESPORTS</h1>
         <p className="rmo-hook">Find your level. Fix your weaknesses. Build your game.</p>
         <p className="rmo-sub">{ROADMAP_INTRO.purpose[1]}</p>
-        <span className="rmo-tagline">{ROADMAP_INTRO.tagline}</span>
 
-        <div className="rmo-how">
-          {ROADMAP_INTRO.how.map(h => (
-            <div key={h.k} className="rmo-how-item">
-              <span className="rmo-how-k">{h.k}</span>
-              <span className="rmo-how-v">{h.v}</span>
-            </div>
-          ))}
-        </div>
-
+        {/* Stat pills */}
         <div className="rmo-stats">
           <div className="rmo-stat">
-            <span className="rmo-stat-icon"><CalendarDays size={15} /></span>
+            <span className="rmo-stat-icon"><CalendarDays size={18} /></span>
             <div>
               <div className="rmo-stat-value">Day {dayCount}</div>
               <div className="rmo-stat-label">since you started</div>
             </div>
           </div>
           <div className="rmo-stat">
-            <span className="rmo-stat-icon"><Play size={14} /></span>
+            <span className="rmo-stat-icon"><Play size={18} /></span>
             <div>
               <div className="rmo-stat-value">
                 {currentStage ? `Stage ${currentStage.order}` : 'All done'}
@@ -130,14 +112,14 @@ export default function RoadmapOverview() {
             </div>
           </div>
           <div className="rmo-stat">
-            <span className="rmo-stat-icon"><Check size={14} /></span>
+            <span className="rmo-stat-icon"><Check size={18} /></span>
             <div>
               <div className="rmo-stat-value">{completedCount}/{totalStages}</div>
               <div className="rmo-stat-label">stages complete</div>
             </div>
           </div>
           <div className="rmo-stat">
-            <span className="rmo-stat-icon rmo-stat-icon--flame"><Flame size={14} /></span>
+            <span className="rmo-stat-icon rmo-stat-icon--flame"><Flame size={18} /></span>
             <div>
               <div className="rmo-stat-value">{streak.current} day{streak.current === 1 ? '' : 's'}</div>
               <div className="rmo-stat-label">training streak</div>
@@ -145,7 +127,7 @@ export default function RoadmapOverview() {
           </div>
         </div>
 
-        {/* Real, derived-from-data callouts — never fabricated */}
+        {/* Data-derived callouts */}
         <div className="rmo-opportunity-grid">
           <div className="rmo-opp-card">
             <div className="rmo-opp-head"><Target size={13} /> Your Biggest Opportunity</div>
@@ -168,11 +150,11 @@ export default function RoadmapOverview() {
           </div>
         </div>
 
-        {/* Progress + XP: existing app indicators */}
+        {/* Progress + XP */}
         <div className="rmo-progress">
           <div className="rmo-progress-head">
-            <span>Overall progress</span>
-            <span>{overallPct}%</span>
+            <span>Overall Progress</span>
+            <span className="rmo-progress-pct">{overallPct}%</span>
           </div>
           <div className="road-bar"><div className="road-bar-fill" style={{ width: `${overallPct}%` }} /></div>
           <div className="rmo-progress-head rmo-progress-head--xp">
@@ -193,35 +175,35 @@ export default function RoadmapOverview() {
         )}
       </header>
 
-      {/* ── Deeper areas ── */}
+      {/* ── Deeper area tool cards ── */}
       <div className="road-links">
         <button className="road-link" onClick={() => navigate('/roadmap/roles')}>
-          <span className="road-link-icon"><Users size={16} /></span>
+          <span className="road-link-icon"><Users size={20} /></span>
           <span className="road-link-body">
             <span className="road-link-title">Role System</span>
             <span className="road-link-sub">Discovery + 7 role guides</span>
           </span>
-          <ChevronRight size={15} style={{ color: 'var(--text-subtle)' }} />
+          <ChevronRight size={15} className="road-link-chev" />
         </button>
         <button className="road-link" onClick={() => navigate('/roadmap/progress-report')}>
-          <span className="road-link-icon"><LineChart size={16} /></span>
+          <span className="road-link-icon"><LineChart size={20} /></span>
           <span className="road-link-body">
             <span className="road-link-title">Progress Report</span>
             <span className="road-link-sub">Your improvement over time</span>
           </span>
-          <ChevronRight size={15} style={{ color: 'var(--text-subtle)' }} />
+          <ChevronRight size={15} className="road-link-chev" />
         </button>
         <button className="road-link" onClick={() => navigate('/roadmap/gameplay-review')}>
-          <span className="road-link-icon"><ClipboardList size={16} /></span>
+          <span className="road-link-icon"><ClipboardList size={20} /></span>
           <span className="road-link-body">
             <span className="road-link-title">Gameplay Review</span>
             <span className="road-link-sub">Debrief a session or match</span>
           </span>
-          <ChevronRight size={15} style={{ color: 'var(--text-subtle)' }} />
+          <ChevronRight size={15} className="road-link-chev" />
         </button>
       </div>
 
-      {/* ── View toggle: same real progress, two visual angles ── */}
+      {/* ── View toggle ── */}
       <div className="rmo-viewtabs" role="tablist" aria-label="Roadmap view">
         <button
           role="tab"
@@ -243,7 +225,6 @@ export default function RoadmapOverview() {
 
       {view === 'stage' ? (
         <>
-          {/* ── Timeline ─────────────────────────── */}
           <ol className="rmo-timeline">
             {stages.map((s, i) => (
               <StageRow
@@ -256,7 +237,6 @@ export default function RoadmapOverview() {
             ))}
           </ol>
 
-          {/* ── Footer ───────────────────────────── */}
           <footer className="rmo-footer">
             <p className="rmo-footer-quote">{ROADMAP_INTRO.coreLoop}</p>
             <span className="rmo-footer-stamp">{ROADMAP_INTRO.tagline}</span>
@@ -271,6 +251,9 @@ export default function RoadmapOverview() {
   )
 }
 
+/* ============================================================
+   STAGE ROW — all logic preserved, visual layer updated
+   ============================================================ */
 function StageRow({ stage, isLast, onOpen, gated }) {
   const { state, order, title, description, icon } = stage
   const locked = state === 'locked'
@@ -286,7 +269,7 @@ function StageRow({ stage, isLast, onOpen, gated }) {
           <span className="rmo-node"><Lock size={12} /></span>
           {!isLast && <span className="rmo-rail-line" />}
         </div>
-        {/* Real stage card — each stage shows its own name/description blurred behind the overlay */}
+        {/* Blurred card preview */}
         <button
           type="button"
           className="rmo-card"
@@ -306,29 +289,31 @@ function StageRow({ stage, isLast, onOpen, gated }) {
             {description && <span className="rmo-card-desc">{description}</span>}
           </span>
         </button>
-        {/* Compact inline gate — stays within row bounds, semi-transparent so stage preview shows through */}
+        {/* Light-themed elite gate */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'rgba(5,8,22,0.76)',
-          backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)',
+          background: 'linear-gradient(135deg, rgba(238,244,255,0.96), rgba(255,240,243,0.96))',
+          backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)',
+          border: '1px solid #DCE5FA',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          gap: 10, padding: '0 16px', borderRadius: 'var(--radius)', flexWrap: 'wrap',
+          gap: 10, padding: '0 16px', borderRadius: 14, flexWrap: 'wrap',
         }}>
-          <Lock size={15} color="#3B82F6" style={{ flexShrink: 0 }} />
+          <Lock size={15} color="#5B3DF5" style={{ flexShrink: 0 }} />
           <span style={{
-            fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 13,
-            color: '#F8FAFC', flexShrink: 0,
+            fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 13,
+            color: '#0B1224', flexShrink: 0,
           }}>Roadmap Phase 2</span>
           <span style={{
-            background: 'rgba(59,130,246,0.12)', color: '#3B82F6', fontSize: 9.5,
-            fontFamily: 'Inter, sans-serif', fontWeight: 700, letterSpacing: '0.12em',
-            textTransform: 'uppercase', borderRadius: 999, padding: '2px 9px',
-            border: '1px solid rgba(59,130,246,0.3)', flexShrink: 0,
+            background: 'linear-gradient(90deg, #2563FF, #5B3DF5)',
+            color: '#FFFFFF',
+            fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 10,
+            letterSpacing: '0.12em', textTransform: 'uppercase',
+            borderRadius: 999, padding: '2px 10px', flexShrink: 0,
           }}>ELITE</span>
           <a href="/#/checkout" style={{
-            background: '#3B82F6', color: '#fff', borderRadius: 6, padding: '5px 14px',
-            fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 11.5,
-            textDecoration: 'none', letterSpacing: '0.03em', flexShrink: 0,
+            background: '#2563FF', color: '#fff', borderRadius: 8, padding: '6px 16px',
+            fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
+            textDecoration: 'none', flexShrink: 0,
           }}>Upgrade →</a>
         </div>
       </li>
@@ -381,197 +366,274 @@ function StageRow({ stage, isLast, onOpen, gated }) {
   )
 }
 
+/* ============================================================
+   STYLES — white premium theme
+   ============================================================ */
 const styles = `
+  /* ── Hero ── */
   .rmo-hero {
     position: relative; overflow: hidden;
-    background: linear-gradient(165deg, #0D1528 0%, #0B1020 55%, #0A0A1C 100%);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
-    padding: clamp(20px, 4vw, 34px);
+    background: linear-gradient(135deg, #F7F9FD 0%, #EEF4FF 50%, #FFF0F2 100%);
+    border: 1px solid #E5EAF3;
+    border-radius: 18px;
+    padding: clamp(24px, 4vw, 40px);
     display: flex; flex-direction: column; gap: 10px;
+    box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 16px 48px rgba(15,23,42,0.05);
   }
-  .rmo-hero-glow {
-    position: absolute; top: -120px; right: -80px;
-    width: 320px; height: 320px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(124,58,237,0.28), transparent 70%);
-    pointer-events: none;
+  .rmo-hero-dots {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background-image: radial-gradient(circle, rgba(37,99,255,0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
+  .rmo-hero-glow-blue {
+    position: absolute; top: -80px; left: -80px;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(37,99,255,0.10) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+  .rmo-hero-glow-red {
+    position: absolute; top: -60px; right: -60px;
+    width: 250px; height: 250px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(239,51,64,0.07) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+  .rmo-hero > * { position: relative; z-index: 1; }
+
   .rmo-hero-kicker {
     display: inline-flex; align-items: center; gap: 6px;
-    font-family: 'DM Sans', sans-serif; font-size: 11px;
-    text-transform: uppercase; letter-spacing: 0.16em;
-    color: var(--violet); font-weight: 600;
+    font-family: 'Rajdhani', sans-serif; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.15em;
+    color: #64748B; font-weight: 600;
   }
   .rmo-title {
-    font-family: 'Bebas Neue', sans-serif; font-weight: 400;
-    font-size: clamp(30px, 7vw, 46px); line-height: 1;
-    letter-spacing: 0.03em; color: var(--text-primary); margin: 4px 0 0;
+    font-family: 'Anton', sans-serif; font-weight: 400;
+    font-size: clamp(24px, 5vw, 36px); line-height: 1;
+    letter-spacing: 0.03em; color: #0B1224; margin: 4px 0 0;
   }
   .rmo-hook {
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 15px;
-    color: var(--text-primary); margin: 6px 0 0;
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px;
+    color: #0B1224; margin: 6px 0 0;
   }
   .rmo-sub {
-    font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
-    color: var(--text-muted); max-width: 460px; margin: 6px 0 0;
+    font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.65;
+    color: #475569; max-width: 600px; margin: 4px 0 0;
   }
   .rmo-tagline {
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 12px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px;
     letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--cyan); margin-top: 2px;
+    color: #2563FF; margin-top: 2px;
   }
-  .rmo-how { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
-  .rmo-how-item { display: flex; gap: 10px; align-items: baseline; }
-  .rmo-how-k {
-    flex-shrink: 0; width: 62px;
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 10.5px;
-    letter-spacing: 0.06em; color: var(--violet);
-  }
-  .rmo-how-v { font-family: 'DM Sans', sans-serif; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
 
+  /* ── Stat pills ── */
   .rmo-stats {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
     gap: 12px; margin-top: 16px;
   }
-  .rmo-stat { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .rmo-stat {
+    display: flex; align-items: center; gap: 10px;
+    background: #FFFFFF; border: 1px solid #E5EAF3;
+    border-radius: 12px; padding: 14px 18px;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    min-width: 0;
+  }
   .rmo-stat-icon {
-    width: 32px; height: 32px; flex-shrink: 0; border-radius: 9px;
-    background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.28);
-    color: var(--violet);
+    width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px;
+    background: #EAF2FF; color: #2563FF;
     display: flex; align-items: center; justify-content: center;
   }
-  .rmo-stat-icon--flame { background: var(--amber-tint); border-color: rgba(245,158,11,0.28); color: var(--amber); }
+  .rmo-stat-icon--flame { background: #FFF0F2; color: #EF3340; }
   .rmo-stat-value {
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 15px;
-    color: var(--text-primary); line-height: 1.2;
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 18px;
+    color: #0B1224; line-height: 1.2;
   }
   .rmo-stat-label {
-    font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--text-subtle);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-family: 'Inter', sans-serif; font-size: 11px; color: #64748B;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;
   }
 
+  /* ── Opportunity callouts ── */
   .rmo-opportunity-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 12px; margin-top: 16px;
   }
   .rmo-opp-card {
-    background: var(--bg-elevated); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 12px 14px;
+    background: #FFFFFF; border: 1px solid #E5EAF3;
+    border-radius: 12px; padding: 14px 16px;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.04);
   }
   .rmo-opp-head {
     display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 10.5px;
-    letter-spacing: 0.05em; text-transform: uppercase; color: var(--violet);
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: #2563FF;
   }
-  .rmo-opp-main { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-primary); }
+  .rmo-opp-main { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: #0B1224; }
   .rmo-opp-main--action { font-size: 12.5px; }
-  .rmo-opp-sub { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--text-subtle); margin-top: 2px; }
-  .rmo-opp-empty { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-subtle); font-style: italic; }
+  .rmo-opp-sub { font-family: 'Inter', sans-serif; font-size: 11px; color: #64748B; margin-top: 2px; }
+  .rmo-opp-empty { font-family: 'Inter', sans-serif; font-size: 12px; color: #94A3B8; font-style: italic; }
 
+  /* ── Progress ── */
   .rmo-progress { margin-top: 18px; display: flex; flex-direction: column; gap: 6px; }
   .rmo-progress-head {
     display: flex; justify-content: space-between; align-items: center;
-    font-family: 'DM Sans', sans-serif; font-size: 11.5px; color: var(--text-subtle);
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: #0B1224;
   }
-  .rmo-progress-head--xp { margin-top: 8px; }
+  .rmo-progress-pct { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: #2563FF; }
+  .rmo-progress-head--xp {
+    margin-top: 10px;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; color: #64748B;
+  }
   .rmo-progress-head--xp span { display: inline-flex; align-items: center; gap: 5px; }
 
-  .rmo-hero-cta { align-self: flex-start; margin-top: 18px; }
+  .rmo-hero-cta { align-self: flex-start; margin-top: 14px; }
 
-  /* Timeline */
+  /* ── Tool / link cards ── */
+  .road-links {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  }
+  .road-link {
+    background: #FFFFFF; border: 1px solid #E5EAF3;
+    border-radius: 14px; padding: 20px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; text-align: left;
+    transition: transform 0.2s cubic-bezier(0.23,1,0.32,1), border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+  }
+  .road-link:hover {
+    transform: translateY(-2px);
+    border-color: #2563FF;
+    box-shadow: 0 8px 24px rgba(37,99,255,0.08);
+  }
+  .road-link-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: #EAF2FF; color: #2563FF;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .road-link-body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .road-link-title { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: #0B1224; }
+  .road-link-sub { font-family: 'Inter', sans-serif; font-size: 12px; color: #64748B; }
+  .road-link-chev { color: #2563FF; margin-left: auto; flex-shrink: 0; }
+
+  /* ── View tabs ── */
+  .rmo-viewtabs {
+    display: flex; align-items: center; gap: 4px;
+    background: #F1F4F9; border-radius: 10px; padding: 4px;
+    align-self: flex-start;
+  }
+  .rmo-viewtab {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 7px; border: none;
+    background: transparent; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+    color: #64748B; transition: all 0.15s ease;
+  }
+  .rmo-viewtab.is-active {
+    background: #FFFFFF; color: #0B1224; font-weight: 600;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.08);
+  }
+
+  /* ── Timeline ── */
   .rmo-timeline { list-style: none; margin: 4px 0 0; padding: 0; }
   .rmo-row { display: flex; gap: 14px; }
   .rmo-rail { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 34px; }
   .rmo-node {
     width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    border: 2px solid var(--border); background: var(--bg-elevated);
-    color: var(--text-subtle);
+    border: 2px solid #E5EAF3; background: #FFFFFF; color: #94A3B8;
   }
-  .rmo-node-num { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 12px; }
-  .rmo-rail-line { width: 2px; flex: 1; min-height: 20px; background: var(--border); margin: 4px 0; }
+  .rmo-node-num { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 12px; }
+  .rmo-rail-line { width: 2px; flex: 1; min-height: 20px; background: #E5EAF3; margin: 4px 0; }
 
-  .rmo-row--available .rmo-node { border-color: var(--blue); color: var(--blue); }
+  .rmo-row--available .rmo-node { border-color: #2563FF; color: #2563FF; }
   .rmo-row--in_progress .rmo-node {
-    border-color: var(--violet); background: var(--violet); color: #fff;
-    box-shadow: 0 0 14px rgba(124,58,237,0.5);
+    border-color: #2563FF; background: #2563FF; color: #fff;
+    box-shadow: 0 0 14px rgba(37,99,255,0.35);
   }
-  .rmo-row--completed .rmo-node { border-color: var(--green); background: var(--green); color: #04140b; }
-  .rmo-row--completed .rmo-rail-line { background: var(--green); }
+  .rmo-row--completed .rmo-node { border-color: #16A34A; background: #16A34A; color: #fff; }
+  .rmo-row--completed .rmo-rail-line { background: #16A34A; }
 
+  /* ── Stage cards ── */
   .rmo-card {
     flex: 1; min-width: 0; text-align: left; cursor: pointer;
     display: flex; align-items: center; gap: 13px;
-    background: var(--bg-surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 14px 15px; margin-bottom: 12px;
-    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    background: #FFFFFF; border: 1px solid #E5EAF3;
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    transition: border-color 0.15s ease, transform 0.2s cubic-bezier(0.23,1,0.32,1), box-shadow 0.2s ease;
   }
-  .rmo-card:hover:not(:disabled) { border-color: var(--violet); transform: translateY(-1px); }
-  .rmo-row--completed .rmo-card { border-color: rgba(34,197,94,0.35); }
+  .rmo-card:hover:not(:disabled) {
+    border-color: #2563FF;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(37,99,255,0.08);
+  }
+  .rmo-row--completed .rmo-card { border-color: rgba(22,163,74,0.25); }
 
-  /* Current stage: visually dominant, not just another row in the list. */
+  /* Available: LEFT border accent */
+  .rmo-row--available .rmo-card {
+    border-left: 3px solid #2563FF;
+    padding-left: 15px;
+  }
+
+  /* Current stage: dominant card */
   .rmo-card--current {
     padding: 20px 20px 20px 22px;
-    border-color: var(--violet);
-    background: linear-gradient(135deg, rgba(124,58,237,0.14), var(--bg-surface) 60%);
-    box-shadow: 0 0 0 1px rgba(124,58,237,0.35), 0 0 28px rgba(124,58,237,0.18);
+    border-color: #2563FF;
+    background: linear-gradient(135deg, rgba(37,99,255,0.035), #FFFFFF 60%);
+    box-shadow: 0 0 0 1px rgba(37,99,255,0.15), 0 8px 28px rgba(37,99,255,0.09);
     position: relative;
   }
   .rmo-card--current .rmo-card-icon { font-size: 30px; }
   .rmo-card--current .rmo-card-title { font-size: 19px; }
   .rmo-current-ribbon {
     position: absolute; top: -9px; left: 18px;
-    background: var(--violet); color: #fff;
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 9.5px;
+    background: linear-gradient(90deg, #2563FF, #EF3340); color: #fff;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 10px;
     letter-spacing: 0.08em; text-transform: uppercase;
     border-radius: 999px; padding: 3px 10px;
-    box-shadow: 0 2px 8px rgba(124,58,237,0.5);
+    box-shadow: 0 2px 8px rgba(37,99,255,0.30);
   }
 
-  /* Locked: understated, not heavy/dim — a quiet row, not a black slab. */
+  /* Locked: muted, understated */
   .rmo-card--locked {
-    background: transparent; border-color: transparent;
-    padding: 10px 8px; opacity: 0.6;
+    background: #F8FAFF; border-color: #E5EAF3;
+    padding: 14px 16px; opacity: 0.65;
   }
-  .rmo-card--locked:hover { transform: none; }
-  .rmo-card--locked .rmo-card-icon { font-size: 18px; filter: grayscale(0.6); }
-  .rmo-card--locked .rmo-card-title { font-size: 13.5px; color: var(--text-subtle); font-family: 'DM Sans', sans-serif; font-weight: 600; }
+  .rmo-card--locked:hover { transform: none; border-color: #E5EAF3; box-shadow: none; }
+  .rmo-card--locked .rmo-card-icon { font-size: 18px; filter: grayscale(0.7); }
+  .rmo-card--locked .rmo-card-title { font-size: 14px; color: #94A3B8; font-weight: 600; }
   .rmo-card:disabled { cursor: default; }
 
   .rmo-lock-hint {
     display: inline-flex; align-items: center; gap: 4px;
-    font-family: 'DM Sans', sans-serif; font-size: 10px; color: var(--text-subtle);
+    font-family: 'Inter', sans-serif; font-size: 11px; color: #94A3B8;
   }
-
   .rmo-card-icon { font-size: 24px; line-height: 1; flex-shrink: 0; }
   .rmo-card-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
   .rmo-card-kicker {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    font-family: 'DM Sans', sans-serif; font-size: 10.5px;
-    text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-subtle);
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: #64748B;
   }
-  .rmo-card-title { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 16px; color: var(--text-primary); }
-  .rmo-card-desc { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.5; color: var(--text-muted); }
+  .rmo-card-title { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; color: #0B1224; }
+  .rmo-card-desc { font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.5; color: #64748B; }
   .rmo-card-hint {
     display: inline-flex; align-items: center; gap: 5px; margin-top: 4px;
-    font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--text-subtle);
+    font-family: 'Inter', sans-serif; font-size: 12px; color: #94A3B8;
   }
   .rmo-card-chev {
     flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px;
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 11.5px;
-    letter-spacing: 0.04em; text-transform: uppercase; color: var(--violet);
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 12px;
+    letter-spacing: 0.04em; text-transform: uppercase; color: #2563FF;
   }
-  .rmo-row--completed .rmo-card-chev { color: var(--green); }
+  .rmo-row--completed .rmo-card-chev { color: #16A34A; }
 
+  /* Tags / badges */
   .rmo-tag {
-    font-family: 'DM Sans', sans-serif; font-size: 9.5px; font-weight: 600;
-    letter-spacing: 0.06em; text-transform: uppercase;
-    border-radius: 999px; padding: 2px 7px; border: 1px solid transparent;
+    font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    border-radius: 999px; padding: 2px 8px; border: 1px solid transparent;
   }
-  .rmo-tag--done { background: var(--green-tint); color: var(--green); border-color: rgba(34,197,94,0.3); }
-  .rmo-tag--prog { background: var(--violet-tint); color: var(--violet); border-color: rgba(124,58,237,0.3); }
-  .rmo-tag--open { background: var(--blue-tint); color: var(--blue); border-color: rgba(59,130,246,0.3); }
-  .rmo-tag--lock { background: var(--bg-elevated); color: var(--text-subtle); border-color: var(--border); }
+  .rmo-tag--done { background: rgba(22,163,74,0.08); color: #16A34A; border-color: rgba(22,163,74,0.2); }
+  .rmo-tag--open { background: #EAF2FF; color: #2563FF; border-color: rgba(37,99,255,0.2); }
 
   /* Footer */
   .rmo-footer {
@@ -579,16 +641,20 @@ const styles = `
     display: flex; flex-direction: column; align-items: center; gap: 12px;
   }
   .rmo-footer-quote {
-    font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.7;
-    color: var(--text-muted); margin: 0;
+    font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.7;
+    color: #64748B; margin: 0;
   }
-  .rmo-footer-quote strong { color: var(--text-primary); }
+  .rmo-footer-quote strong { color: #0B1224; }
   .rmo-footer-stamp {
-    font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.1em;
-    background: linear-gradient(90deg, var(--violet), var(--cyan));
+    font-family: 'Anton', sans-serif; font-size: 24px; letter-spacing: 0.10em;
+    background: linear-gradient(90deg, #2563FF, #EF3340);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
 
+  @media (max-width: 700px) {
+    .road-links { grid-template-columns: 1fr; }
+    .rmo-stats { grid-template-columns: repeat(2, 1fr); }
+  }
   @media (max-width: 600px) {
     .rmo-card { flex-wrap: wrap; }
     .rmo-card-chev { width: 100%; justify-content: flex-end; }
