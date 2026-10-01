@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { collection, getDocs } from 'firebase/firestore'
 import {
@@ -17,16 +18,16 @@ import { DEFAULT_SUGGESTIONS } from '../utils/constants.js'
 
 /* ── palette ── */
 const C = {
-  blue:   '#3B82F6',
-  cyan:   '#22D3EE',
-  violet: '#7C3AED',
-  green:  '#22C55E',
-  red:    '#EF4444',
+  blue:   '#2563FF',
+  cyan:   '#0EA5E9',
+  violet: '#5B3DF5',
+  green:  '#16A34A',
+  red:    '#EF3340',
   amber:  '#F59E0B',
-  card:   '#0D1528',
-  border: '#1B2A45',
-  text:   '#F8FAFC',
-  muted:  '#94A3B8',
+  card:   '#FFFFFF',
+  border: '#E5EAF3',
+  text:   '#0B1224',
+  muted:  '#475569',
   subtle: '#64748B',
 }
 
@@ -157,14 +158,14 @@ export default function Analytics() {
 
   if (error) {
     return (
-      <div style={cardStyle}>
+      <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: 20, boxShadow: '0 4px 20px rgba(15,23,42,0.04)' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <AlertTriangle size={18} style={{ color: C.red, flexShrink: 0, marginTop: 2 }} />
           <div>
-            <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 600, color: C.text }}>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: '#0B1224' }}>
               Couldn't load analytics
             </div>
-            <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, color: C.muted, marginTop: 4 }}>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569', marginTop: 4 }}>
               {error}
             </div>
           </div>
@@ -175,17 +176,17 @@ export default function Analytics() {
 
   if (allMatches.length === 0) {
     return (
-      <div style={{ ...cardStyle, textAlign: 'center', padding: '48px 24px' }}>
-        <BarChart2 size={48} style={{ color: C.muted, opacity: 0.4, margin: '0 auto 16px' }} />
-        <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 20, color: C.text, marginBottom: 8 }}>
+      <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: '48px 24px', boxShadow: '0 4px 20px rgba(15,23,42,0.04)', textAlign: 'center' }}>
+        <BarChart2 size={48} style={{ color: '#475569', opacity: 0.4, margin: '0 auto 16px' }} />
+        <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 22, color: '#0B1224', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
           No match data yet
         </div>
-        <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, color: C.muted, marginBottom: 20 }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569', marginBottom: 20 }}>
           Log matches in Training Center to see your performance analytics here.
         </div>
         <button
           onClick={() => navigate('/training')}
-          style={{ background: C.blue, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 13, fontFamily: 'Oxanium, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}
+          style={{ background: '#2563FF', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 13, fontFamily: 'Inter, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}
         >
           Log a Match <ArrowRight size={13} />
         </button>
@@ -196,22 +197,43 @@ export default function Analytics() {
   return (
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Page header */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-        <div>
-          <h1 style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 26, color: C.text, margin: 0, marginBottom: 4, letterSpacing: '0.01em' }}>
-            Analytics Overview
-          </h1>
-          <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, color: C.muted }}>
-            Track your performance. Identify weaknesses. Improve every day.
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          background: 'linear-gradient(135deg, #F7F9FD 0%, #EEF4FF 60%, #FFF0F2 100%)',
+          borderRadius: 16, padding: 32, position: 'relative', overflow: 'hidden', marginBottom: 0,
+        }}
+      >
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(37,99,255,0.06) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', top: -60, left: -60, width: 300, height: 300, background: 'radial-gradient(circle, rgba(37,99,255,0.1) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', bottom: -40, right: -40, width: 250, height: 250, background: 'radial-gradient(circle, rgba(239,51,64,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, color: '#2563FF', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>
+              Performance Data
+            </div>
+            <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 48, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: 1, margin: 0 }}>
+              Analytics Overview
+            </h1>
+            <motion.div
+              initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+              transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              style={{ width: 64, height: 3, background: 'linear-gradient(90deg,#2563FF,#EF3340)', transformOrigin: 'left', borderRadius: 2, marginTop: 12, marginBottom: 12 }}
+            />
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#64748B', margin: 0 }}>
+              Track your progress, identify weaknesses, improve every game.
+            </p>
           </div>
+          <button
+            onClick={exportReport}
+            style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', color: '#475569', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontFamily: 'Inter, sans-serif', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(15,23,42,0.04)' }}
+          >
+            <Download size={13} /> Export Report
+          </button>
         </div>
-        <button
-          onClick={exportReport}
-          style={{ background: 'transparent', border: `1px solid ${C.border}`, color: C.muted, borderRadius: 8, padding: '8px 16px', fontSize: 13, fontFamily: 'Inter, sans-serif', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}
-        >
-          <Download size={13} /> Export Report
-        </button>
-      </div>
+      </motion.div>
 
       {/* Filter row */}
       <FilterRow
@@ -222,12 +244,12 @@ export default function Analytics() {
       />
 
       {filtered.length === 0 ? (
-        <div style={{ ...cardStyle, textAlign: 'center', padding: '36px 24px' }}>
-          <Filter size={32} style={{ color: C.muted, opacity: 0.3, margin: '0 auto 12px' }} />
-          <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 16, color: C.text, marginBottom: 6 }}>
+        <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: '36px 24px', boxShadow: '0 4px 20px rgba(15,23,42,0.04)', textAlign: 'center' }}>
+          <Filter size={32} style={{ color: '#475569', opacity: 0.3, margin: '0 auto 12px' }} />
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, color: '#0B1224', marginBottom: 6, textTransform: 'uppercase' }}>
             No matches in this filter window
           </div>
-          <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, color: C.muted }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569' }}>
             Widen the date range or change the mode/map filter.
           </div>
         </div>
@@ -251,9 +273,9 @@ export default function Analytics() {
    ================================================================ */
 function FilterRow({ dateRange, onDateRange, modeFilter, onModeFilter, mapFilter, onMapFilter, total, filtered }) {
   const selectStyle = {
-    background: C.card, border: `1px solid ${C.border}`, color: C.text,
+    background: '#FFFFFF', border: '1px solid #E5EAF3', color: '#0B1224',
     borderRadius: 8, padding: '8px 12px', fontSize: 13,
-    fontFamily: 'Inter, DM Sans, sans-serif', cursor: 'pointer', outline: 'none',
+    fontFamily: 'Inter, sans-serif', cursor: 'pointer', outline: 'none',
   }
 
   return (
@@ -345,14 +367,14 @@ function SummaryCard({ icon, iconColor, label, value, trend }) {
 
   return (
     <div style={{ ...cardStyle, display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
-      <div style={{ width: 36, height: 36, borderRadius: 8, background: `${iconColor}18`, border: `1px solid ${iconColor}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: iconColor, flexShrink: 0 }}>
+      <div style={{ width: 36, height: 36, borderRadius: 8, background: `${iconColor}15`, border: `1px solid ${iconColor}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: iconColor, flexShrink: 0 }}>
         {icon}
       </div>
       <div>
-        <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 11, fontWeight: 500, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
+        <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 11, fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
           {label}
         </div>
-        <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 26, color: C.text, lineHeight: 1 }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: 28, color: '#0B1224', lineHeight: 1 }}>
           {value}
         </div>
         {trend && arrow && (
@@ -485,7 +507,7 @@ function MapPerformanceRow({ filtered }) {
           const meta = MAP_META[d.map] || { emoji: '🗺', color: C.muted }
           const winColor = d.winRate >= 50 ? C.green : d.winRate >= 25 ? C.amber : C.red
           return (
-            <div key={d.map} style={{ background: '#0A1220', border: `1px solid ${C.border}`, borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div key={d.map} style={{ background: '#F8FAFD', border: '1px solid #E5EAF3', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{ width: 42, height: 42, borderRadius: 10, background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
                 {meta.emoji}
               </div>
@@ -649,7 +671,7 @@ function WeaknessAndWeaponsRow({ filtered }) {
               const pctColor = d.pct >= 50 ? C.red : d.pct >= 30 ? C.amber : C.blue
               const tip = getTip(d.name)
               return (
-                <div key={d.name} style={{ background: '#0A1220', border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 14px' }}>
+                <div key={d.name} style={{ background: '#FFF0F2', border: '1px solid rgba(239,51,64,0.15)', borderRadius: 10, padding: '12px 14px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: tip ? 6 : 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ width: 20, height: 20, borderRadius: 4, background: `${pctColor}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, fontFamily: 'Oxanium, sans-serif', color: pctColor }}>
@@ -756,16 +778,16 @@ function EmptyState({ msg, sub }) {
 }
 
 const axisProps = {
-  stroke: C.border,
+  stroke: '#EDF1F7',
   tickLine: false,
-  tick: { fill: C.subtle, fontSize: 11, fontFamily: 'Inter, DM Sans, sans-serif' },
+  tick: { fill: '#64748B', fontSize: 11, fontFamily: 'Inter, sans-serif' },
 }
 
 function CustomTooltip({ active, payload, label, suffix }) {
   if (!active || !payload?.length) return null
   const p = payload[0]
   return (
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 12, color: C.text }}>
+    <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 8, padding: '10px 14px', fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#0B1224' }}>
       {label && <div style={{ color: C.subtle, marginBottom: 4, fontSize: 11 }}>{label}</div>}
       {payload.map((p, i) => (
         <div key={i} style={{ color: p.color || C.text, fontWeight: 600 }}>
@@ -780,10 +802,10 @@ function LoadingSkeleton() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div className="analytics-6col">
-        {[0,1,2,3,4,5].map(i => <div key={i} className="skeleton" style={{ height: 110, borderRadius: 12 }} />)}
+        {[0,1,2,3,4,5].map(i => <div key={i} style={{ height: 110, borderRadius: 12, background: '#F1F5F9' }} />)}
       </div>
       <div className="analytics-2col">
-        {[0,1].map(i => <div key={i} className="skeleton" style={{ height: 280, borderRadius: 12 }} />)}
+        {[0,1].map(i => <div key={i} style={{ height: 280, borderRadius: 12, background: '#F1F5F9' }} />)}
       </div>
     </div>
   )
@@ -889,7 +911,8 @@ function getTip(name) {
    STYLES
    ================================================================ */
 const cardStyle = {
-  background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20,
+  background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: 20,
+  boxShadow: '0 4px 20px rgba(15,23,42,0.04)',
 }
 
 function AnalyticsStyles() {

@@ -2,7 +2,7 @@ import { getWeaponImage, INLINE_FALLBACK_IMAGE } from '../utils/weaponImages.js'
 
 /**
  * Single weapon card — image, category badge, name, ammo, and stat strip.
- * Premium dark esports theme — red gradient accents, glassmorphism card.
+ * Premium white esports theme.
  *
  * Props:
  *  - weapon: { id, name, category, ammo, damage, dps, magazine, rateOfFire }
@@ -15,40 +15,81 @@ export default function WeaponCard({ weapon, onClick }) {
   return (
     <button
       onClick={() => onClick?.(weapon)}
-      className="group glass clip-corner-sm overflow-hidden text-left transition-all hover:border-accent-primary hover:shadow-red-glow hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
       title={`${weapon.name} — ${weapon.category}`}
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid #E5EAF3',
+        borderRadius: 16,
+        overflow: 'hidden',
+        textAlign: 'left',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+        boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
+        padding: 0,
+        width: '100%',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.borderColor = '#2563FF'
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(37,99,255,0.15)'
+        e.currentTarget.style.transform = 'scale(1.02)'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.borderColor = '#E5EAF3'
+        e.currentTarget.style.boxShadow = '0 2px 8px rgba(15,23,42,0.04)'
+        e.currentTarget.style.transform = 'scale(1)'
+      }}
     >
       {/* Image */}
-      <div className="relative w-full h-32 bg-bg-elevated/60 flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[rgba(232,0,28,0.04)] to-transparent pointer-events-none" />
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        height: 128,
+        background: '#F8FAFD',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+      }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(37,99,255,0.03), transparent)', pointerEvents: 'none' }} />
         <img
           src={img}
           alt={weapon.name}
           loading="lazy"
           onError={e => { e.currentTarget.src = INLINE_FALLBACK_IMAGE }}
-          className="max-h-28 max-w-full object-contain transition-transform group-hover:scale-105"
+          style={{ maxHeight: 112, maxWidth: '100%', objectFit: 'contain' }}
         />
       </div>
 
       {/* Body */}
-      <div className="px-4 py-3 space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <span className="pill pill-red text-[10px] heading uppercase tracking-widest">
+      <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          <span style={{
+            background: '#EEF4FF',
+            color: '#2563FF',
+            border: '1px solid rgba(37,99,255,0.15)',
+            borderRadius: 20,
+            padding: '2px 10px',
+            fontSize: 10,
+            fontFamily: 'Rajdhani, sans-serif',
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+          }}>
             {weapon.category}
           </span>
-          <span className="text-[10px] mono text-text-secondary">
+          <span style={{ fontSize: 10, fontFamily: 'Inter, sans-serif', color: '#64748B' }}>
             🔴 {weapon.ammo}
           </span>
         </div>
 
-        <div className="heading text-lg text-white tracking-wide leading-tight">
+        <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, color: '#0B1224', letterSpacing: '0.02em', lineHeight: 1.1 }}>
           {weapon.name}
         </div>
 
-        <div className="h-px bg-border my-2" />
+        <div style={{ height: 1, background: '#E5EAF3' }} />
 
         {/* Stat strip */}
-        <div className="grid grid-cols-4 gap-1">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4 }}>
           <Stat label="DMG" value={weapon.damage || '—'} />
           <Stat label="DPS" value={weapon.dps || '—'} />
           <Stat label="MAG" value={weapon.magazine ?? '—'} />
@@ -61,9 +102,18 @@ export default function WeaponCard({ weapon, onClick }) {
 
 function Stat({ label, value }) {
   return (
-    <div className="flex flex-col items-center justify-center px-1 py-1.5 rounded bg-bg-elevated/60 border border-border">
-      <span className="mono text-[13px] text-accent-secondary leading-none">{value}</span>
-      <span className="heading text-[9px] uppercase tracking-widest text-text-muted mt-0.5">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '6px 4px',
+      borderRadius: 8,
+      background: '#F8FAFD',
+      border: '1px solid #E5EAF3',
+    }}>
+      <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 13, color: '#2563FF', lineHeight: 1 }}>{value}</span>
+      <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', marginTop: 2 }}>
         {label}
       </span>
     </div>

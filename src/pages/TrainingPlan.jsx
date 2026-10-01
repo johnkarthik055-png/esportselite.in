@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { motion } from 'framer-motion'
 import { ClipboardList, Bot, Plus, Save, X, Sparkles } from 'lucide-react'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { useModules } from '../hooks/useModules.js'
@@ -119,18 +120,33 @@ export default function TrainingPlan() {
 
   return (
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {/* Tabs */}
-      <div
+      {/* Standard Page Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-sm)',
-          padding: 3,
-          display: 'inline-flex',
-          gap: 2,
-          alignSelf: 'flex-start',
+          background: 'linear-gradient(135deg, #F7F9FD 0%, #EEF4FF 60%, #FFF0F2 100%)',
+          borderRadius: 16, padding: 32, position: 'relative', overflow: 'hidden',
         }}
       >
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(37,99,255,0.06) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', top: -60, left: -60, width: 300, height: 300, background: 'radial-gradient(circle, rgba(37,99,255,0.1) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', bottom: -40, right: -40, width: 250, height: 250, background: 'radial-gradient(circle, rgba(239,51,64,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, color: '#2563FF', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Weekly Routine</div>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 48, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: 1, margin: 0 }}>Training Plan</h1>
+          <motion.div
+            initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            style={{ width: 64, height: 3, background: 'linear-gradient(90deg,#2563FF,#EF3340)', transformOrigin: 'left', borderRadius: 2, marginTop: 12, marginBottom: 12 }}
+          />
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#64748B', margin: 0 }}>Build your weekly training routine.</p>
+        </div>
+      </motion.div>
+
+      {/* Premium Tab Switcher */}
+      <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 12, padding: 4, display: 'inline-flex', gap: 4, alignSelf: 'flex-start' }}>
         {TABS.map(t => {
           const Icon = t.icon
           const active = tab === t.id
@@ -139,18 +155,20 @@ export default function TrainingPlan() {
               key={t.id}
               onClick={() => setTab(t.id)}
               style={{
-                background: active ? 'var(--bg-elevated)' : 'transparent',
-                border: active ? '1px solid var(--border)' : '1px solid transparent',
-                color: active ? 'var(--text-primary)' : 'var(--text-subtle)',
-                padding: '8px 14px',
-                borderRadius: 4,
+                background: active ? 'linear-gradient(135deg,#2563FF,#5B3DF5)' : 'transparent',
+                color: active ? '#FFFFFF' : '#64748B',
+                border: 'none',
+                borderRadius: 8,
+                padding: '8px 16px',
                 fontSize: 13,
-                fontFamily: 'DM Sans, sans-serif',
-                fontWeight: 500,
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 600,
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
+                boxShadow: active ? '0 4px 12px rgba(37,99,255,0.25)' : 'none',
+                transition: 'all 0.2s ease',
               }}
             >
               <Icon size={14} /> {t.label}

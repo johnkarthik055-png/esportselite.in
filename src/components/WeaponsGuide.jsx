@@ -31,32 +31,72 @@ export default function WeaponsGuide() {
   const [tab, setTab] = useState('weapons')
 
   return (
-    <section className="space-y-6">
-      {/* Section header — scanline overlay matches Training Center style */}
-      <div className="glass clip-corner p-4 sm:p-6 lg:p-8 relative overflow-hidden bg-scanlines">
-        <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-accent-primary opacity-[0.10] blur-[100px] pointer-events-none" />
-        <div className="absolute top-0 left-0 h-full w-1 bg-red-gradient" />
-        <div className="relative z-10">
-          <h2 className="heading text-xl sm:text-2xl lg:text-3xl text-white tracking-wide flex items-center gap-3 flex-wrap">
-            <Crosshair className="text-accent-secondary" size={22} />
-            WEAPONS &amp; ATTACHMENTS{' '}
-            <span className="text-gradient-red">GUIDE</span>
-          </h2>
-          <p className="text-text-secondary mt-2 max-w-2xl text-sm sm:text-base">
-            Master every weapon with stats, recoil tips, and loadouts.
-          </p>
+    <section style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {/* Section header */}
+      <div style={{
+        background: '#FFFFFF',
+        border: '1px solid #E5EAF3',
+        borderRadius: 16,
+        padding: '24px 28px',
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: '0 4px 20px rgba(15,23,42,0.04)',
+      }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(37,99,255,0.04) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', top: -40, left: -40, width: 200, height: 200, background: 'radial-gradient(circle, rgba(37,99,255,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Crosshair size={22} style={{ color: '#2563FF', flexShrink: 0 }} />
+          <div>
+            <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 24, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
+              WEAPONS &amp; ATTACHMENTS <span style={{ color: '#EF3340' }}>GUIDE</span>
+            </h2>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#64748B', margin: '4px 0 0' }}>
+              Master every weapon with stats, recoil tips, and loadouts.
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Sub-tabs — horizontally scrollable on mobile */}
-      <div className="flex gap-2 border-b border-border overflow-x-auto whitespace-nowrap -mx-4 px-4 sm:mx-0 sm:px-0">
+      {/* Sub-tabs */}
+      <div style={{
+        background: '#FFFFFF',
+        border: '1px solid #E5EAF3',
+        borderRadius: 12,
+        padding: 4,
+        display: 'flex',
+        gap: 4,
+        overflowX: 'auto',
+      }}>
         {TABS.map(t => {
           const Icon = t.icon
+          const active = tab === t.id
           return (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`tab-btn flex items-center gap-2 flex-shrink-0 ${tab === t.id ? 'active' : ''}`}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '8px 16px',
+                borderRadius: 8,
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 600,
+                fontSize: 13,
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                transition: 'all 0.2s',
+                ...(active ? {
+                  background: 'linear-gradient(135deg,#2563FF,#5B3DF5)',
+                  color: '#fff',
+                  boxShadow: '0 4px 12px rgba(37,99,255,0.25)',
+                } : {
+                  background: 'transparent',
+                  color: '#475569',
+                }),
+              }}
             >
               <Icon size={16} /> {t.label}
             </button>
@@ -104,37 +144,72 @@ function WeaponsTab() {
     return list
   }, [query, category, ammo, sortKey])
 
+  const inputStyle = {
+    background: '#FFFFFF',
+    border: '1px solid #E5EAF3',
+    borderRadius: 8,
+    padding: '8px 12px',
+    fontFamily: 'Inter, sans-serif',
+    fontSize: 14,
+    color: '#0B1224',
+    width: '100%',
+    outline: 'none',
+    boxSizing: 'border-box',
+  }
+
+  const pillBase = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: '4px 12px',
+    borderRadius: 20,
+    fontSize: 11,
+    fontFamily: 'Rajdhani, sans-serif',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    cursor: 'pointer',
+    border: '1px solid #E5EAF3',
+    transition: 'all 0.15s',
+    flexShrink: 0,
+  }
+
   return (
-    <div className="space-y-5 animate-fade-in">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Controls */}
-      <div className="glass clip-corner-sm p-4 lg:p-5 space-y-3">
+      <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: 20, boxShadow: '0 4px 20px rgba(15,23,42,0.04)', display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* Search */}
-        <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+        <div style={{ position: 'relative' }}>
+          <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
           <input
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Search weapons, category, ammo…"
-            className="input-field pl-9"
+            style={{ ...inputStyle, paddingLeft: 36 }}
           />
         </div>
 
-        {/* Category pills — horizontally scrollable on mobile */}
+        {/* Category pills */}
         <div>
-          <div className="text-[10px] heading uppercase tracking-widest text-text-muted mb-1.5">
+          <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#94A3B8', marginBottom: 8 }}>
             Category
           </div>
-          <div className="flex sm:flex-wrap gap-2 overflow-x-auto sm:overflow-visible -mx-1 px-1 whitespace-nowrap">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {WEAPON_CATEGORIES_ALL.map(c => (
               <button
                 key={c}
                 onClick={() => setCategory(c)}
-                className={`pill text-xs heading uppercase tracking-widest transition-all flex-shrink-0 ${
-                  category === c
-                    ? 'pill-red shadow-red-glow'
-                    : 'hover:border-accent-primary hover:text-white'
-                }`}
+                style={{
+                  ...pillBase,
+                  ...(category === c ? {
+                    background: '#2563FF',
+                    borderColor: '#2563FF',
+                    color: '#fff',
+                  } : {
+                    background: '#F8FAFD',
+                    color: '#475569',
+                  }),
+                }}
               >
                 {c}
               </button>
@@ -142,21 +217,31 @@ function WeaponsTab() {
           </div>
         </div>
 
-        {/* Ammo pills — horizontally scrollable on mobile */}
+        {/* Ammo pills */}
         <div>
-          <div className="text-[10px] heading uppercase tracking-widest text-text-muted mb-1.5">
+          <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#94A3B8', marginBottom: 8 }}>
             Ammo
           </div>
-          <div className="flex sm:flex-wrap gap-2 overflow-x-auto sm:overflow-visible -mx-1 px-1 whitespace-nowrap">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {WEAPON_AMMO_ALL.map(a => (
               <button
                 key={a}
                 onClick={() => setAmmo(a)}
-                className={`pill text-xs mono transition-all flex-shrink-0 ${
-                  ammo === a
-                    ? 'pill-red shadow-red-glow'
-                    : 'hover:border-accent-primary hover:text-white'
-                }`}
+                style={{
+                  ...pillBase,
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: 500,
+                  textTransform: 'none',
+                  letterSpacing: 0,
+                  ...(ammo === a ? {
+                    background: '#2563FF',
+                    borderColor: '#2563FF',
+                    color: '#fff',
+                  } : {
+                    background: '#F8FAFD',
+                    color: '#475569',
+                  }),
+                }}
               >
                 {a}
               </button>
@@ -165,15 +250,14 @@ function WeaponsTab() {
         </div>
 
         {/* Sort */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[10px] heading uppercase tracking-widest text-text-muted flex items-center gap-1">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#94A3B8', display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
             <ArrowUpDown size={12} /> Sort by
           </span>
           <select
             value={sortKey}
             onChange={e => setSortKey(e.target.value)}
-            className="input-field py-1.5 text-sm w-auto"
-            style={{ minWidth: 180 }}
+            style={{ ...inputStyle, width: 'auto', minWidth: 180, padding: '6px 12px' }}
           >
             {WEAPON_SORTS.map(s => (
               <option key={s.id} value={s.id}>{s.label}</option>
@@ -183,24 +267,24 @@ function WeaponsTab() {
       </div>
 
       {/* Result count */}
-      <div className="flex items-center justify-between flex-wrap gap-2 px-1">
-        <span className="text-xs text-text-secondary heading uppercase tracking-widest">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, padding: '0 4px' }}>
+        <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#475569' }}>
           {filtered.length} weapon{filtered.length === 1 ? '' : 's'}
         </span>
-        <span className="text-[10px] mono text-text-muted">
-          Click a card for full stats & loadout tips
+        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#94A3B8' }}>
+          Click a card for full stats &amp; loadout tips
         </span>
       </div>
 
       {/* Grid */}
       {filtered.length === 0 ? (
-        <div className="glass clip-corner-sm p-10 text-center border border-dashed border-border">
-          <Sparkles className="inline-block text-accent-secondary" size={32} />
-          <p className="text-text-secondary text-sm mt-3">No weapons match your filter.</p>
-          <p className="text-text-muted text-xs mt-1">Try clearing the search or picking a different category.</p>
+        <div style={{ background: '#FFFFFF', border: '1px dashed #E5EAF3', borderRadius: 16, padding: 40, textAlign: 'center' }}>
+          <Sparkles style={{ color: '#2563FF', display: 'inline-block' }} size={32} />
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#475569', marginTop: 12 }}>No weapons match your filter.</p>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Try clearing the search or picking a different category.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
           {filtered.map(w => (
             <WeaponCard key={w.id} weapon={w} onClick={setSelected} />
           ))}

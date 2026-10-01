@@ -12,6 +12,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
 import {
   addDoc, collection, deleteDoc, doc, getDocs, onSnapshot,
   orderBy, query, serverTimestamp, setDoc, updateDoc, writeBatch,
@@ -152,29 +153,48 @@ export default function Scheduler() {
    ============================================================ */
 function Header({ hasActive, onCreate }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
-      <div>
-        <h1 style={pageTitleStyle}>Scheduler</h1>
-        <div style={pageSubtitleStyle}>Goal-based day-by-day training plan</div>
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        background: 'linear-gradient(135deg, #F7F9FD 0%, #EEF4FF 60%, #FFF0F2 100%)',
+        borderRadius: 16, padding: 32, position: 'relative', overflow: 'hidden', marginBottom: 0,
+      }}
+    >
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(37,99,255,0.06) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'absolute', top: -60, left: -60, width: 300, height: 300, background: 'radial-gradient(circle, rgba(37,99,255,0.1) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'absolute', bottom: -40, right: -40, width: 250, height: 250, background: 'radial-gradient(circle, rgba(239,51,64,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <div>
+          <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, color: '#2563FF', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Training Schedule</div>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 48, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: 1, margin: 0 }}>Scheduler</h1>
+          <motion.div
+            initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            style={{ width: 64, height: 3, background: 'linear-gradient(90deg,#2563FF,#EF3340)', transformOrigin: 'left', borderRadius: 2, marginTop: 12, marginBottom: 12 }}
+          />
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#64748B', margin: 0 }}>Goal-based day-by-day training plan.</p>
+        </div>
+        {hasActive && (
+          <button onClick={onCreate} className="btn btn-secondary btn-sm">
+            <Sparkles size={13} /> New schedule
+          </button>
+        )}
       </div>
-      {hasActive && (
-        <button onClick={onCreate} className="btn btn-secondary btn-sm">
-          <Sparkles size={13} /> New schedule
-        </button>
-      )}
-    </div>
+    </motion.div>
   )
 }
 
 function LandingCTA({ onCreate }) {
   return (
-    <div className="card empty-state">
-      <CalendarClock size={48} className="empty-state-icon" />
-      <div className="empty-state-title">Set your training goal</div>
-      <div className="empty-state-desc">
+    <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: 32, boxShadow: '0 4px 20px rgba(15,23,42,0.04)', textAlign: 'center' }}>
+      <CalendarClock size={48} style={{ color: '#2563FF', margin: '0 auto 16px' }} />
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 22, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: 8 }}>Set your training goal</div>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#475569', marginBottom: 16, lineHeight: 1.6 }}>
         Create a personalized day-by-day training plan to reach your target.
       </div>
-      <button onClick={onCreate} className="btn btn-primary btn-sm" style={{ marginTop: 12 }}>
+      <button onClick={onCreate} style={{ background: '#2563FF', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 13, fontFamily: 'Inter, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
         <Sparkles size={13} /> Create Schedule
       </button>
     </div>
@@ -338,23 +358,23 @@ function ScheduleHeader({ schedule, onTogglePause, onAbandon }) {
 
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-          <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)' }}>
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569' }}>
             Day {completed} of {total}
           </span>
-          <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+          <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 20, letterSpacing: '0.04em', color: '#0B1224' }}>
             {percent}%
           </span>
         </div>
-        <div className="xp-bar-track" style={{ height: 10 }}>
-          <div className="xp-bar-fill" style={{ width: `${percent}%`, background: 'var(--red)' }} />
+        <div style={{ height: 10, background: '#E5EAF3', borderRadius: 999, overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${percent}%`, background: '#2563FF', borderRadius: 999, transition: 'width 0.4s ease' }} />
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
         <MiniStat label="Days done" value={completed} />
         <MiniStat label="Days left" value={daysLeft} />
-        <MiniStat label="Missed" value={Number(schedule.missedDays) || 0} accent="var(--red)" />
-        <MiniStat label="Streak" value={`${Number(schedule.currentStreak) || 0}d`} accent="var(--amber)" />
+        <MiniStat label="Missed" value={Number(schedule.missedDays) || 0} accent="#EF3340" />
+        <MiniStat label="Streak" value={`${Number(schedule.currentStreak) || 0}d`} accent="#F59E0B" />
       </div>
     </div>
   )
@@ -363,25 +383,27 @@ function ScheduleHeader({ schedule, onTogglePause, onAbandon }) {
 function MiniStat({ label, value, accent }) {
   return (
     <div style={{
-      background: 'var(--bg-elevated)',
-      border: '1px solid var(--border)',
-      borderRadius: 'var(--radius-sm)',
+      background: '#F8FAFD',
+      border: '1px solid #E5EAF3',
+      borderRadius: 10,
       padding: '10px 12px',
       textAlign: 'center',
     }}>
       <div style={{
-        fontFamily: 'Bebas Neue, sans-serif',
+        fontFamily: 'Barlow Condensed, sans-serif',
+        fontWeight: 900,
         fontSize: 22,
         letterSpacing: '0.04em',
-        color: accent || 'var(--text-primary)',
+        color: accent || '#0B1224',
         lineHeight: 1,
       }}>
         {value}
       </div>
       <div style={{
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Rajdhani, sans-serif',
+        fontWeight: 600,
         fontSize: 10,
-        color: 'var(--text-subtle)',
+        color: '#64748B',
         marginTop: 4,
         textTransform: 'uppercase',
         letterSpacing: '0.08em',
@@ -686,13 +708,13 @@ function CalendarGrid({ days, todayId, selectedDayId, onSelect }) {
     <div className="card">
       {/* Month navigation */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <button onClick={prevMonth} className="btn btn-secondary btn-sm" style={{ padding: '4px 10px' }}>
+        <button onClick={prevMonth} style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 8, color: '#0B1224', padding: '4px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
           <ChevronLeft size={14} />
         </button>
-        <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 18, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+        <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, letterSpacing: '0.04em', color: '#0B1224', textTransform: 'uppercase' }}>
           {monthLabel}
         </span>
-        <button onClick={nextMonth} className="btn btn-secondary btn-sm" style={{ padding: '4px 10px' }}>
+        <button onClick={nextMonth} style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 8, color: '#0B1224', padding: '4px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
           <ChevronRight size={14} />
         </button>
       </div>
@@ -702,7 +724,7 @@ function CalendarGrid({ days, todayId, selectedDayId, onSelect }) {
         {['Su','Mo','Tu','We','Th','Fr','Sa'].map(l => (
           <div key={l} style={{
             textAlign: 'center', fontSize: 10, fontWeight: 600,
-            fontFamily: 'DM Sans, sans-serif', color: 'var(--text-subtle)',
+            fontFamily: 'Rajdhani, sans-serif', color: '#64748B',
             textTransform: 'uppercase', letterSpacing: '0.06em', padding: '2px 0',
           }}>{l}</div>
         ))}
@@ -739,17 +761,17 @@ function CalendarCell({ cell, isToday, isSelected, onClick }) {
   const status   = schedDay?.status
 
   const borderColor =
-    isSelected ? 'var(--text-primary)' :
-    isToday    ? 'var(--amber)'        :
-    status === 'done'   ? 'var(--green)' :
-    status === 'missed' ? 'var(--red)'   :
-    'var(--border)'
+    isSelected ? '#0B1224' :
+    isToday    ? '#F59E0B' :
+    status === 'done'   ? '#16A34A' :
+    status === 'missed' ? '#EF3340' :
+    '#E5EAF3'
   const bg =
     !inMonth ? 'transparent' :
-    status === 'done'   ? 'rgba(0,201,110,0.10)' :
-    status === 'missed' ? 'rgba(232,0,28,0.07)'  :
-    isToday  ? 'var(--amber-tint)'               :
-    'var(--bg-elevated)'
+    status === 'done'   ? '#DCFCE7' :
+    status === 'missed' ? '#FEE2E2' :
+    isToday  ? '#FEF3C7'            :
+    '#F8FAFD'
 
   return (
     <div
@@ -772,10 +794,10 @@ function CalendarCell({ cell, isToday, isSelected, onClick }) {
         fontFamily: 'Bebas Neue, sans-serif',
         fontSize: 14, letterSpacing: '0.04em', lineHeight: 1,
         color:
-          status === 'done'   ? 'var(--green)'  :
-          status === 'missed' ? 'var(--red)'    :
-          isToday ? 'var(--amber)'              :
-          'var(--text-primary)',
+          status === 'done'   ? '#16A34A' :
+          status === 'missed' ? '#EF3340' :
+          isToday ? '#D97706'             :
+          '#0B1224',
         marginBottom: 4,
       }}>
         {new Date(dateStr + 'T00:00').getDate()}

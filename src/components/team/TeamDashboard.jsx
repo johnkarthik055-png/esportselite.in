@@ -8,6 +8,19 @@ import {
   getAnnouncements, getPractices, getScrims, getRecentActivity,
 } from '../../utils/team.js'
 
+const cardStyle = {
+  background: '#FFFFFF',
+  border: '1px solid #E5EAF3',
+  borderRadius: 16,
+  padding: 20,
+  boxShadow: '0 4px 20px rgba(15,23,42,0.04)',
+}
+
+const labelStyle = {
+  fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11,
+  textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B',
+}
+
 /**
  * Team overview tab. Reads the async collections once on mount —
  * live updates on team + members come from useTeam in the parent.
@@ -78,37 +91,34 @@ export default function TeamDashboard({ team, members, teamId }) {
         {/* Left column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
           {/* Pinned announcements */}
-          <div className="card">
-            <div className="card-header">
-              <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Megaphone size={15} style={{ color: 'var(--text-subtle)' }} />
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 16, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Megaphone size={15} style={{ color: '#64748B' }} />
                 Pinned announcements
               </div>
             </div>
             {loading ? <SkeletonRow /> : pinned.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-title">No pinned announcements</div>
-                <div className="empty-state-desc">Pin important notices so the roster sees them first.</div>
-              </div>
+              <EmptyState title="No pinned announcements" desc="Pin important notices so the roster sees them first." />
             ) : (
               <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {pinned.map(a => (
                   <li
                     key={a.id}
                     style={{
-                      background: 'var(--bg-elevated)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-sm)',
+                      background: '#F8FAFD',
+                      border: '1px solid #E5EAF3',
+                      borderRadius: 8,
                       padding: '12px 14px',
                     }}
                   >
-                    <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13, color: '#0B1224' }}>
                       {a.title}
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.5 }}>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 4, lineHeight: 1.5 }}>
                       {truncate(a.body, 160)}
                     </div>
-                    <div style={{ fontSize: 11, color: 'var(--text-subtle)', marginTop: 6 }}>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#64748B', marginTop: 6 }}>
                       {a.createdByName || 'Unknown'} · {formatRelative(a.createdAt)}
                     </div>
                   </li>
@@ -125,10 +135,10 @@ export default function TeamDashboard({ team, members, teamId }) {
               gap: 14,
             }}
           >
-            <div className="card">
-              <div className="card-header">
-                <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Calendar size={15} style={{ color: 'var(--text-subtle)' }} />
+            <div style={cardStyle}>
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 16, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Calendar size={15} style={{ color: '#64748B' }} />
                   Next practice
                 </div>
               </div>
@@ -139,17 +149,14 @@ export default function TeamDashboard({ team, members, teamId }) {
                   sub={nextPractice.notes ? truncate(nextPractice.notes, 80) : ''}
                 />
               ) : (
-                <div className="empty-state">
-                  <div className="empty-state-title">No practice scheduled</div>
-                  <div className="empty-state-desc">Coming up in the Practice tab.</div>
-                </div>
+                <EmptyState title="No practice scheduled" desc="Coming up in the Practice tab." />
               )}
             </div>
 
-            <div className="card">
-              <div className="card-header">
-                <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Swords size={15} style={{ color: 'var(--text-subtle)' }} />
+            <div style={cardStyle}>
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 16, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Swords size={15} style={{ color: '#64748B' }} />
                   Next scrim
                 </div>
               </div>
@@ -160,10 +167,7 @@ export default function TeamDashboard({ team, members, teamId }) {
                   sub={nextScrim.notes ? truncate(nextScrim.notes, 80) : ''}
                 />
               ) : (
-                <div className="empty-state">
-                  <div className="empty-state-title">No scrims scheduled</div>
-                  <div className="empty-state-desc">Schedule one from the Scrims tab.</div>
-                </div>
+                <EmptyState title="No scrims scheduled" desc="Schedule one from the Scrims tab." />
               )}
             </div>
           </div>
@@ -172,10 +176,10 @@ export default function TeamDashboard({ team, members, teamId }) {
         {/* Right column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
           {/* Team info card */}
-          <div className="card">
-            <div className="card-header">
-              <div className="card-title">Team info</div>
-              <span className={team?.isPublic ? 'badge badge-green' : 'badge'}>
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 16, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Team info</div>
+              <span style={{ background: team?.isPublic ? '#DCFCE7' : '#F1F5F9', color: team?.isPublic ? '#16A34A' : '#475569', border: `1px solid ${team?.isPublic ? 'rgba(22,163,74,0.2)' : '#E5EAF3'}`, borderRadius: 20, padding: '3px 10px', fontSize: 10, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 {team?.isPublic ? 'Public' : 'Private'}
               </span>
             </div>
@@ -184,13 +188,13 @@ export default function TeamDashboard({ team, members, teamId }) {
               <TeamAvatar team={team} />
               <div style={{ minWidth: 0 }}>
                 <div
-                  className="heading"
                   style={{
-                    fontFamily: 'Bebas Neue, sans-serif',
+                    fontFamily: 'Barlow Condensed, sans-serif',
+                    fontWeight: 900,
                     fontSize: 22,
                     letterSpacing: '0.04em',
                     textTransform: 'uppercase',
-                    color: 'var(--text-primary)',
+                    color: '#0B1224',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -198,7 +202,7 @@ export default function TeamDashboard({ team, members, teamId }) {
                 >
                   {team?.name || '—'}
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 2 }}>
                   [{team?.tag || '—'}] · {team?.region || '—'}
                 </div>
               </div>
@@ -210,15 +214,12 @@ export default function TeamDashboard({ team, members, teamId }) {
           </div>
 
           {/* Activity feed */}
-          <div className="card">
-            <div className="card-header">
-              <div className="card-title">Recent activity</div>
+          <div style={cardStyle}>
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 16, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Recent activity</div>
             </div>
             {loading ? <SkeletonRow /> : activity.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-title">Nothing yet</div>
-                <div className="empty-state-desc">Team events will show up here.</div>
-              </div>
+              <EmptyState title="Nothing yet" desc="Team events will show up here." />
             ) : (
               <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {activity.map((ev, i) => (
@@ -229,21 +230,21 @@ export default function TeamDashboard({ team, members, teamId }) {
                       alignItems: 'center',
                       gap: 10,
                       padding: '8px 10px',
-                      background: 'var(--bg-elevated)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-sm)',
+                      background: '#F8FAFD',
+                      border: '1px solid #E5EAF3',
+                      borderRadius: 8,
                     }}
                   >
                     <ActivityIcon kind={ev.kind} />
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontSize: 13, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0B1224', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {ev.title}
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--text-subtle)', marginTop: 2 }}>
+                      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#64748B', marginTop: 2 }}>
                         {formatRelativeMs(ev.at)}
                       </div>
                     </div>
-                    <ChevronRight size={14} style={{ color: 'var(--text-subtle)' }} />
+                    <ChevronRight size={14} style={{ color: '#64748B' }} />
                   </li>
                 ))}
               </ul>
@@ -276,7 +277,7 @@ function TeamAvatar({ team }) {
           width: 56, height: 56,
           borderRadius: 12,
           objectFit: 'cover',
-          border: '1px solid var(--border)',
+          border: '1px solid #E5EAF3',
           flexShrink: 0,
         }}
       />
@@ -287,15 +288,16 @@ function TeamAvatar({ team }) {
       style={{
         width: 56, height: 56,
         borderRadius: 12,
-        background: 'var(--bg-elevated)',
-        border: '1px solid var(--border)',
+        background: '#EEF4FF',
+        border: '1px solid #E5EAF3',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'Bebas Neue, sans-serif',
+        fontFamily: 'Barlow Condensed, sans-serif',
+        fontWeight: 900,
         fontSize: 20,
         letterSpacing: '0.06em',
-        color: 'var(--text-primary)',
+        color: '#2563FF',
         flexShrink: 0,
       }}
     >
@@ -307,11 +309,11 @@ function TeamAvatar({ team }) {
 function UpcomingRow({ title, when, sub }) {
   return (
     <div>
-      <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: '#0B1224' }}>
         {title}
       </div>
-      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>{when || '—'}</div>
-      {sub && <div style={{ fontSize: 12, color: 'var(--text-subtle)', marginTop: 6, lineHeight: 1.5 }}>{sub}</div>}
+      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 4 }}>{when || '—'}</div>
+      {sub && <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B', marginTop: 6, lineHeight: 1.5 }}>{sub}</div>}
     </div>
   )
 }
@@ -323,17 +325,17 @@ function InfoRow({ label, value }) {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         gap: 10,
         padding: '8px 0',
-        borderTop: '1px solid var(--border)',
+        borderTop: '1px solid #E5EAF3',
       }}
     >
-      <span className="label">{label}</span>
-      <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{value}</span>
+      <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B' }}>{label}</span>
+      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0B1224' }}>{value}</span>
     </div>
   )
 }
 
 function ActivityIcon({ kind }) {
-  const style = { color: 'var(--text-muted)', flexShrink: 0 }
+  const style = { color: '#475569', flexShrink: 0 }
   if (kind === 'scrim') return <Swords size={14} style={style} />
   if (kind === 'practice') return <Calendar size={14} style={style} />
   if (kind === 'announcement') return <Megaphone size={14} style={style} />
@@ -341,11 +343,20 @@ function ActivityIcon({ kind }) {
   return <Users size={14} style={style} />
 }
 
+function EmptyState({ title, desc }) {
+  return (
+    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 14, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{title}</div>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 4 }}>{desc}</div>
+    </div>
+  )
+}
+
 function SkeletonRow() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <span className="skeleton" style={{ height: 14, width: '70%' }} />
-      <span className="skeleton" style={{ height: 12, width: '40%' }} />
+      <span style={{ height: 14, width: '70%', background: '#F1F5F9', borderRadius: 4, display: 'block' }} />
+      <span style={{ height: 12, width: '40%', background: '#F1F5F9', borderRadius: 4, display: 'block' }} />
     </div>
   )
 }
