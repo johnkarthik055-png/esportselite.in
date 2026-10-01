@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { motion, useReducedMotion } from 'framer-motion'
 import {
   Flame, AlertTriangle, Crosshair, Target, ChevronRight,
   Clock, Calendar, Activity, ArrowRight, Brain, Shield,
@@ -143,9 +144,45 @@ function buildActivityGrid(sessions, matches) {
 }
 
 /* ============================================================
+   ANIMATION VARIANTS
+   Strong ease-out per Emil Kowalski — cubic-bezier(0.23,1,0.32,1).
+   Reduced-motion variants keep opacity, drop transform.
+   ============================================================ */
+const EO = [0.23, 1, 0.32, 1]
+
+const ANIM = {
+  hero: {
+    hidden:  { opacity: 0, transform: 'translateY(20px)' },
+    visible: { opacity: 1, transform: 'translateY(0px)', transition: { duration: 0.5, ease: EO } },
+  },
+  heroReduced: {
+    hidden:  { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.2 } },
+  },
+  statsContainer: {
+    hidden:  {},
+    visible: { transition: { staggerChildren: 0.07, delayChildren: 0.15 } },
+  },
+  statsContainerReduced: {
+    hidden:  {},
+    visible: { transition: { staggerChildren: 0.04 } },
+  },
+  statsItem: {
+    hidden:  { opacity: 0, transform: 'translateY(16px)' },
+    visible: { opacity: 1, transform: 'translateY(0px)', transition: { duration: 0.35, ease: EO } },
+  },
+  statsItemReduced: {
+    hidden:  { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.15 } },
+  },
+}
+
+/* ============================================================
    DASHBOARD
    ============================================================ */
 export default function Dashboard() {
+  const reduce = useReducedMotion()
+
   const [sessionsRaw] = useLocalStorage(STORAGE_KEYS.SESSIONS, [])
   const [lsMatches]   = useLocalStorage(STORAGE_KEYS.MATCHES, [])
   const [suggestions] = useLocalStorage(STORAGE_KEYS.SUGGESTIONS, [])
@@ -322,11 +359,15 @@ export default function Dashboard() {
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
       {/* ══ HERO BANNER ══════════════════════════════════════════ */}
-      <div style={{
-        width: '100%', height: 275, borderRadius: 18,
-        position: 'relative', overflow: 'hidden',
-        background: '#EAF2FF',
-      }}>
+      <motion.div
+        initial="hidden" animate="visible"
+        variants={reduce ? ANIM.heroReduced : ANIM.hero}
+        style={{
+          width: '100%', height: 275, borderRadius: 18,
+          position: 'relative', overflow: 'hidden',
+          background: '#EAF2FF',
+        }}
+      >
         <img
           src="/assets/hero-banner.png"
           alt=""
@@ -386,27 +427,36 @@ export default function Dashboard() {
             <HeroPill color="#EF3340" label={`${displayStreak} day streak`} />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* ══ QUICK STATS (4 cards) ════════════════════════════════ */}
-      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}>
+      <motion.div
+        className="stats-grid"
+        initial="hidden" animate="visible"
+        variants={reduce ? ANIM.statsContainerReduced : ANIM.statsContainer}
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}
+      >
         <QuickStatCard
           iconBg="#EAF2FF" icon={<Clock size={22} color="#2563FF" />}
           title="Practice Time" value={practiceTimeWeek} sub="This week"
+          cardVariants={reduce ? ANIM.statsItemReduced : ANIM.statsItem}
         />
         <QuickStatCard
           iconBg="#FFF0F2" icon={<Calendar size={22} color="#EF3340" />}
           title="Sessions" value={sessionsThisWeek} sub="This week"
+          cardVariants={reduce ? ANIM.statsItemReduced : ANIM.statsItem}
         />
         <QuickStatCard
           iconBg="#EAF2FF" icon={<BarChart2 size={22} color="#2563FF" />}
           title="Matches Logged" value={matchesThisWeek} sub="This week"
+          cardVariants={reduce ? ANIM.statsItemReduced : ANIM.statsItem}
         />
         <QuickStatCard
           iconBg="#FFF0F2" icon={<Trophy size={22} color="#EF3340" />}
           title="Current Streak" value={`${displayStreak} days`} sub="Keep it going!"
+          cardVariants={reduce ? ANIM.statsItemReduced : ANIM.statsItem}
         />
-      </div>
+      </motion.div>
 
       {/* ══ MAIN 2-COL GRID ══════════════════════════════════════ */}
       <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
@@ -752,9 +802,10 @@ function HeroPill({ color, label }) {
   )
 }
 
-function QuickStatCard({ iconBg, icon, title, value, sub }) {
+function QuickStatCard({ iconBg, icon, title, value, sub, cardVariants }) {
   return (
-    <div
+    <motion.div
+      variants={cardVariants}
       style={{
         background: '#FFFFFF',
         border: '1px solid #E5EAF3',
@@ -784,7 +835,7 @@ function QuickStatCard({ iconBg, icon, title, value, sub }) {
       <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: '#0B1224', marginBottom: 6 }}>{title}</div>
       <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: 28, color: '#0B1224', lineHeight: 1, marginBottom: 4 }}>{value}</div>
       <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13, color: '#64748B' }}>{sub}</div>
-    </div>
+    </motion.div>
   )
 }
 

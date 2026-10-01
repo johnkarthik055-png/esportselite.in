@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Target, ChevronLeft, ChevronRight,
@@ -70,12 +71,20 @@ function clearLocalAppData() {
   } catch { /* ignore */ }
 }
 
+const EO_SB = [0.23, 1, 0.32, 1]
+const SB_ANIM = {
+  navList: { hidden: {}, visible: { transition: { staggerChildren: 0.05, delayChildren: 0.1 } } },
+  navItem: { hidden: { opacity: 0, transform: 'translateX(-12px)' }, visible: { opacity: 1, transform: 'translateX(0px)', transition: { duration: 0.3, ease: EO_SB } } },
+  navItemReduced: { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.15 } } },
+}
+
 export default function Sidebar({ collapsed, onToggle }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { user: authUser, logout: signOutFb } = useAuth()
   const isAdmin = !!authUser?.email && ADMIN_EMAILS.includes(authUser.email)
   const viewport = useViewport()
+  const reduce = useReducedMotion()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [panelOpen, setPanelOpen] = useState(false)
   const [logoFailed, setLogoFailed] = useState(false)
@@ -206,11 +215,15 @@ export default function Sidebar({ collapsed, onToggle }) {
                   {section.title}
                 </div>
               )}
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              <motion.ul
+                initial="hidden" animate="visible"
+                variants={SB_ANIM.navList}
+                style={{ listStyle: 'none', margin: 0, padding: 0 }}
+              >
                 {section.items.map(item => {
                   const Icon = item.icon
                   return (
-                    <li key={item.to}>
+                    <motion.li key={item.to} variants={reduce ? SB_ANIM.navItemReduced : SB_ANIM.navItem}>
                       <NavLink
                         to={item.to}
                         title={labelsHidden ? item.label : undefined}
@@ -264,10 +277,10 @@ export default function Sidebar({ collapsed, onToggle }) {
                           </>
                         )}
                       </NavLink>
-                    </li>
+                    </motion.li>
                   )
                 })}
-              </ul>
+              </motion.ul>
             </div>
           ))}
 

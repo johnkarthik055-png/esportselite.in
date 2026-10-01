@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Menu, Bell, Search, ChevronDown } from 'lucide-react'
 import { useAvatar } from '../hooks/useAvatar.js'
@@ -8,6 +9,8 @@ import { useUserData } from '../hooks/useUserData.js'
 import { useNotifications } from '../hooks/useNotifications.js'
 import NotificationPanel from './NotificationPanel.jsx'
 
+const EO_TB = [0.23, 1, 0.32, 1]
+
 export default function TopBar({ title }) {
   const navigate = useNavigate()
   const { avatar } = useAvatar()
@@ -15,6 +18,7 @@ export default function TopBar({ title }) {
   const { unreadCount } = useNotifications()
   const [panelOpen, setPanelOpen] = useState(false)
   const [searchFocused, setSearchFocused] = useState(false)
+  const reduce = useReducedMotion()
 
   function openMobileSidebar() {
     window.dispatchEvent(new Event('esports-elite:sidebar-open'))
@@ -23,9 +27,16 @@ export default function TopBar({ title }) {
   const displayName = getDisplayName()
   const initials = getInitials(displayName)
 
+  const headerAnim = reduce
+    ? { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.2 } } }
+    : { hidden: { opacity: 0, transform: 'translateY(-8px)' }, visible: { opacity: 1, transform: 'translateY(0px)', transition: { duration: 0.35, ease: EO_TB } } }
+
   return (
     <>
-      <header style={{
+      <motion.header
+        initial="hidden" animate="visible"
+        variants={headerAnim}
+        style={{
         background: 'rgba(255,255,255,0.94)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
@@ -190,7 +201,7 @@ export default function TopBar({ title }) {
             Start Training →
           </button>
         </div>
-      </header>
+      </motion.header>
 
       <NotificationPanel open={panelOpen} onClose={() => setPanelOpen(false)} />
 
