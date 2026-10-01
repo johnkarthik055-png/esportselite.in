@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
+// import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check' // Temporarily disabled — App Check blocking production login
 import { getAnalytics, isSupported as isAnalyticsSupported, logEvent } from 'firebase/analytics'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
@@ -33,29 +33,24 @@ const firebaseConfig = {
 const _isFirstInit = !getApps().length
 export const firebaseApp = _isFirstInit ? initializeApp(firebaseConfig) : getApp()
 
-/**
- * Firebase App Check — prevents abuse of Cloud Functions and Firestore from
- * outside the app (scripts, Postman, etc.).
+/* Temporarily disabled — App Check blocking production login.
+ * Re-enable once app.esportselite.in is registered in:
+ *   - Google reCAPTCHA admin console (for the site key)
+ *   - Firebase Console → App Check → Authorized domains
  *
- * Production: uses the reCAPTCHA v3 site key from VITE_RECAPTCHA_SITE_KEY (.env).
- * localhost dev: App Check fails because localhost is not an authorized reCAPTCHA
- * domain. Setting FIREBASE_APPCHECK_DEBUG_TOKEN = true makes the SDK generate a
- * debug token and log it to the browser console. Whitelist that token in:
- * Firebase Console → App Check → Apps → your app → Manage debug tokens.
+ * if (typeof window !== 'undefined' && _isFirstInit) {
+ *   if (import.meta.env.DEV) {
+ *     self.FIREBASE_APPCHECK_DEBUG_TOKEN = true
+ *   }
+ *   initializeAppCheck(firebaseApp, {
+ *     provider: new ReCaptchaV3Provider(
+ *       import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
+ *         '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+ *     ),
+ *     isTokenAutoRefreshEnabled: true,
+ *   })
+ * }
  */
-if (typeof window !== 'undefined' && _isFirstInit) {
-  if (import.meta.env.DEV) {
-    // eslint-disable-next-line no-undef
-    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true
-  }
-  initializeAppCheck(firebaseApp, {
-    provider: new ReCaptchaV3Provider(
-      import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
-        '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
-    ),
-    isTokenAutoRefreshEnabled: true,
-  })
-}
 
 /** Auth instance + pre-configured Google provider for the
     "Continue with Google" button on the Login page. */
