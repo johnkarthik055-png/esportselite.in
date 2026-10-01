@@ -153,24 +153,34 @@ export default function Training() {
 
       <TodayPlanBanner />
 
-      {/* Page header */}
+      {/* ── Page header ── */}
       <div style={{ marginBottom: 20, marginTop: 4 }}>
         <h1 style={{
-          fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 32,
-          color: '#F8FAFC', margin: '0 0 6px', letterSpacing: '0.01em',
+          fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: 36,
+          color: '#0B1224', margin: '0 0 4px', letterSpacing: '-0.5px',
         }}>
           Training Center
         </h1>
         <p style={{
-          fontFamily: 'Inter, DM Sans, sans-serif', fontWeight: 400,
-          fontSize: 14, color: '#94A3B8', margin: 0,
+          fontFamily: 'Inter, sans-serif', fontWeight: 400,
+          fontSize: 15, color: '#64748B', margin: 0,
         }}>
           Track your practice, improve and dominate.
         </p>
       </div>
 
-      {/* Tab switcher */}
-      <div {...tabSwipe} style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+      {/* ── Tab switcher ── */}
+      <div
+        {...tabSwipe}
+        style={{
+          display: 'inline-flex',
+          background: '#F1F5F9',
+          borderRadius: 10,
+          padding: 4,
+          marginBottom: 24,
+          alignSelf: 'flex-start',
+        }}
+      >
         {TABS.map(t => {
           const Icon = t.icon
           const active = tab === t.id
@@ -179,14 +189,24 @@ export default function Training() {
               key={t.id}
               onClick={() => setTab(t.id)}
               style={{
-                background: active ? '#101A30' : 'transparent',
-                border: `1px solid ${active ? '#3B82F6' : '#1B2A45'}`,
-                color: active ? '#F8FAFC' : '#94A3B8',
-                padding: '10px 20px', borderRadius: 8,
-                fontSize: 14, fontFamily: 'Inter, DM Sans, sans-serif', fontWeight: 500,
-                cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: active ? '#FFFFFF' : 'transparent',
+                border: 'none',
+                borderRadius: active ? 8 : 8,
+                color: active ? '#0B1224' : '#64748B',
+                padding: '8px 20px',
+                fontSize: 14,
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: active ? 600 : 500,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                boxShadow: active ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
                 transition: 'all 0.15s ease',
+                whiteSpace: 'nowrap',
               }}
+              onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#0B1224' }}
+              onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#64748B' }}
             >
               <Icon size={15} /> {t.label}
             </button>
@@ -304,18 +324,26 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
         <div id="training-modules-section" ref={modulesRef} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 14, fontWeight: 600, color: '#F8FAFC' }}>
-                <Target size={15} style={{ color: '#94A3B8' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 600, color: '#0B1224' }}>
+                <Target size={15} style={{ color: '#2563FF' }} />
                 DRILLS ({modules.reduce((acc, m) => acc + (m.drills?.length || 0), 0)})
               </div>
-              <div style={{ fontSize: 12, color: '#64748B', fontFamily: 'Inter, DM Sans, sans-serif', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: '#64748B', fontFamily: 'Inter, sans-serif', marginTop: 2 }}>
                 {modules.length} module{modules.length === 1 ? '' : 's'}
                 {customCount > 0 ? ` · ${customCount} custom` : ''}
               </div>
             </div>
             <button
               onClick={() => setCreateOpen(true)}
-              style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)', border: 'none', borderRadius: 8, color: '#fff', padding: '8px 16px', fontSize: 13, fontFamily: 'Oxanium, Inter, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              style={{
+                background: '#2563FF', border: 'none', borderRadius: 8,
+                color: '#fff', padding: '8px 18px', fontSize: 13,
+                fontFamily: 'Inter, sans-serif', fontWeight: 600,
+                cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6,
+                transition: 'opacity 0.15s ease',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = '0.88' }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
             >
               <Plus size={13} /> Add Drill
             </button>
@@ -473,11 +501,19 @@ function TodayScheduledDrills({ uid }) {
 
   if (drillTasks.length === 0) {
     return (
-      <div style={{ background: '#0D1528', border: '1px solid #1B2A45', borderRadius: 12, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
-        <CalendarClock size={14} style={{ color: '#3B82F6', flexShrink: 0 }} />
-        <span style={{ fontSize: 13, color: '#94A3B8', fontFamily: 'Inter, DM Sans, sans-serif' }}>
+      <div style={{
+        background: '#FFFFFF', border: '1px solid #E5EAF3',
+        borderRadius: 12, padding: '14px 20px',
+        display: 'flex', alignItems: 'center', gap: 10,
+        boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
+      }}>
+        <CalendarClock size={14} style={{ color: '#2563FF', flexShrink: 0 }} />
+        <span style={{ fontSize: 13, color: '#64748B', fontFamily: 'Inter, sans-serif' }}>
           No drills scheduled for today. Check your{' '}
-          <button onClick={() => navigate('/scheduler')} style={{ background: 'none', border: 'none', color: '#3B82F6', cursor: 'pointer', fontSize: 13, padding: 0, fontFamily: 'inherit' }}>full plan</button>
+          <button
+            onClick={() => navigate('/scheduler')}
+            style={{ background: 'none', border: 'none', color: '#2563FF', cursor: 'pointer', fontSize: 13, padding: 0, fontFamily: 'inherit', fontWeight: 600 }}
+          >full plan</button>
           {' '}for other tasks.
         </span>
       </div>
@@ -485,16 +521,29 @@ function TodayScheduledDrills({ uid }) {
   }
 
   return (
-    <div style={{ background: '#0D1528', border: '1px solid #1B2A45', borderRadius: 12, padding: 20 }}>
+    <div style={{
+      background: '#FFFFFF', border: '1px solid #E5EAF3',
+      borderRadius: 12, padding: 20,
+      boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
+    }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <CalendarClock size={15} style={{ color: '#3B82F6', flexShrink: 0 }} />
-          <span style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 12, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.10em', color: '#94A3B8' }}>Today's Scheduled Drills</span>
-          <span style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.30)', color: '#3B82F6', borderRadius: 4, padding: '2px 8px', fontSize: 11, fontFamily: 'Inter, DM Sans, sans-serif', fontWeight: 500 }}>
+          <CalendarClock size={15} style={{ color: '#2563FF', flexShrink: 0 }} />
+          <span style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#64748B' }}>
+            Today's Scheduled Drills
+          </span>
+          <span style={{
+            background: '#EAF2FF', border: '1px solid rgba(37,99,255,0.2)',
+            color: '#2563FF', borderRadius: 4, padding: '2px 8px',
+            fontSize: 11, fontFamily: 'Inter, sans-serif', fontWeight: 500,
+          }}>
             {data.planName}
           </span>
         </div>
-        <button onClick={() => navigate('/scheduler')} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#3B82F6', fontSize: 12, fontFamily: 'Inter, DM Sans, sans-serif', display: 'flex', alignItems: 'center', gap: 4, padding: 0, flexShrink: 0 }}>
+        <button
+          onClick={() => navigate('/scheduler')}
+          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#2563FF', fontSize: 12, fontFamily: 'Inter, sans-serif', display: 'flex', alignItems: 'center', gap: 4, padding: 0, flexShrink: 0, fontWeight: 600 }}
+        >
           View Full Plan <ArrowRight size={11} />
         </button>
       </div>
@@ -504,10 +553,18 @@ function TodayScheduledDrills({ uid }) {
         ))}
       </div>
       {allDrillsDone && (
-        <div style={{ marginTop: 12, padding: '8px 12px', background: 'rgba(0,201,110,0.08)', border: '1px solid rgba(0,201,110,0.30)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--green)', fontSize: 12, fontFamily: 'Inter, DM Sans, sans-serif' }}>
+        <div style={{
+          marginTop: 12, padding: '8px 12px',
+          background: 'rgba(22,163,74,0.06)', border: '1px solid rgba(22,163,74,0.2)',
+          borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8,
+          color: '#16A34A', fontSize: 12, fontFamily: 'Inter, sans-serif',
+        }}>
           <CheckCircle2 size={13} />
           All drills done! Go to{' '}
-          <button onClick={() => navigate('/scheduler')} style={{ background: 'none', border: 'none', color: 'var(--green)', cursor: 'pointer', fontSize: 12, padding: 0, fontWeight: 600, fontFamily: 'inherit' }}>Scheduler</button>
+          <button
+            onClick={() => navigate('/scheduler')}
+            style={{ background: 'none', border: 'none', color: '#16A34A', cursor: 'pointer', fontSize: 12, padding: 0, fontWeight: 600, fontFamily: 'inherit' }}
+          >Scheduler</button>
           {' '}to complete the day and earn XP.
         </div>
       )}
@@ -517,27 +574,67 @@ function TodayScheduledDrills({ uid }) {
 
 function ScheduledDrillRow({ task, onToggle, onStart }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', background: 'rgba(27,42,69,0.45)', border: `1px solid ${task.done ? 'rgba(0,201,110,0.25)' : '#1B2A45'}`, borderRadius: 8, transition: 'border-color 0.15s ease' }}>
-      <button type="button" onClick={() => onToggle(!task.done)} style={{ width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 2, background: task.done ? 'var(--green)' : 'transparent', border: `1px solid ${task.done ? 'var(--green)' : '#2D4060'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', transition: 'all 0.15s ease' }}>
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: 10,
+      padding: '10px 12px',
+      background: '#F8FAFD',
+      border: `1px solid ${task.done ? 'rgba(22,163,74,0.25)' : '#E5EAF3'}`,
+      borderRadius: 8, transition: 'border-color 0.15s ease',
+    }}>
+      <button
+        type="button"
+        onClick={() => onToggle(!task.done)}
+        style={{
+          width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 2,
+          background: task.done ? '#16A34A' : 'transparent',
+          border: `1px solid ${task.done ? '#16A34A' : '#D0DAE8'}`,
+          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: '#fff', transition: 'all 0.15s ease',
+        }}
+      >
         {task.done && <CheckCircle2 size={11} strokeWidth={3} />}
       </button>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: task.description ? 3 : 0 }}>
-          <span style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 14, fontWeight: 500, color: task.done ? '#94A3B8' : '#F8FAFC', textDecoration: task.done ? 'line-through' : 'none' }}>{task.title || 'Drill'}</span>
+          <span style={{
+            fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 500,
+            color: task.done ? '#94A3B8' : '#0B1224',
+            textDecoration: task.done ? 'line-through' : 'none',
+          }}>{task.title || 'Drill'}</span>
           {task.duration > 0 && (
-            <span style={{ background: '#101A30', border: '1px solid #1B2A45', color: '#94A3B8', borderRadius: 4, padding: '1px 7px', fontSize: 11, fontFamily: 'Inter, DM Sans, sans-serif' }}>{task.duration} min</span>
+            <span style={{
+              background: '#F1F5F9', border: '1px solid #E5EAF3',
+              color: '#64748B', borderRadius: 4, padding: '1px 7px',
+              fontSize: 11, fontFamily: 'Inter, sans-serif',
+            }}>{task.duration} min</span>
           )}
         </div>
         {task.description && (
-          <div style={{ fontSize: 12, fontFamily: 'Inter, DM Sans, sans-serif', color: '#94A3B8', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.description}</div>
+          <div style={{ fontSize: 12, fontFamily: 'Inter, sans-serif', color: '#94A3B8', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {task.description}
+          </div>
         )}
       </div>
       {task.done ? (
-        <span style={{ border: '1px solid rgba(0,201,110,0.4)', color: 'var(--green)', borderRadius: 6, padding: '5px 12px', fontSize: 12, fontFamily: 'Oxanium, Inter, sans-serif', fontWeight: 600, flexShrink: 0, whiteSpace: 'nowrap' }}>Completed ✓</span>
+        <span style={{
+          border: '1px solid rgba(22,163,74,0.4)', color: '#16A34A',
+          borderRadius: 6, padding: '5px 12px', fontSize: 12,
+          fontFamily: 'Inter, sans-serif', fontWeight: 600,
+          flexShrink: 0, whiteSpace: 'nowrap',
+        }}>Completed ✓</span>
       ) : (
-        <button onClick={onStart} style={{ background: '#3B82F6', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 16px', fontSize: 12, fontFamily: 'Oxanium, Inter, sans-serif', fontWeight: 600, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}
+        <button
+          onClick={onStart}
+          style={{
+            background: '#2563FF', color: '#fff', border: 'none',
+            borderRadius: 6, padding: '6px 16px', fontSize: 12,
+            fontFamily: 'Inter, sans-serif', fontWeight: 600,
+            cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap',
+            transition: 'opacity 0.15s ease',
+          }}
           onMouseEnter={e => { e.currentTarget.style.opacity = '0.85' }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}>
+          onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
+        >
           Start
         </button>
       )}
@@ -546,24 +643,35 @@ function ScheduledDrillRow({ task, onToggle, onStart }) {
 }
 
 /* ================================================================
-   MATCH LOGGER TAB — stat row + sub-tabs
+   MATCH LOGGER TAB — stat row
    ================================================================ */
 function TodayMatchStatsRow({ matchCount, avgKills, avgPlacement, winRate, avgDamage }) {
   const cards = [
-    { Icon: Swords,     color: '#3B82F6', label: 'Matches Logged', value: matchCount || '—' },
-    { Icon: Target,     color: '#22D3EE', label: 'Avg Placement',  value: avgPlacement != null ? `#${avgPlacement}` : '—' },
-    { Icon: Skull,      color: '#EF4444', label: 'Avg Kills',      value: avgKills ?? '—' },
+    { Icon: Swords,     color: '#2563FF', label: 'Matches Logged', value: matchCount || '—' },
+    { Icon: Target,     color: '#2563FF', label: 'Avg Placement',  value: avgPlacement != null ? `#${avgPlacement}` : '—' },
+    { Icon: Skull,      color: '#EF3340', label: 'Avg Kills',      value: avgKills ?? '—' },
     { Icon: Star,       color: '#F59E0B', label: 'Win Rate',       value: winRate != null ? `${winRate}%` : '—' },
-    { Icon: TrendingUp, color: '#22C55E', label: 'Avg Damage',     value: avgDamage != null ? avgDamage : '—' },
+    { Icon: TrendingUp, color: '#16A34A', label: 'Avg Damage',     value: avgDamage != null ? avgDamage : '—' },
   ]
   return (
     <div className="match-logger-stats-row" style={{ gap: 10 }}>
       {cards.map(({ Icon, color, label, value }) => (
-        <div key={label} style={{ background: '#0D1528', border: '1px solid #1B2A45', borderRadius: 10, padding: 16 }}>
-          <Icon size={18} style={{ color, marginBottom: 8 }} />
-          <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 11, color: '#94A3B8', marginBottom: 4, lineHeight: 1.3 }}>{label}</div>
-          <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 24, color: '#F8FAFC', lineHeight: 1 }}>{value}</div>
-          <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 10, color: '#64748B', marginTop: 4 }}>Today</div>
+        <div key={label} style={{
+          background: '#FFFFFF', border: '1px solid #E5EAF3',
+          borderRadius: 12, padding: 16,
+          boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
+        }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: color === '#EF3340' ? '#FFF0F2' : color === '#F59E0B' ? '#FFFBEB' : color === '#16A34A' ? '#F0FDF4' : '#EAF2FF',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 10,
+          }}>
+            <Icon size={18} style={{ color }} />
+          </div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#64748B', marginBottom: 4, lineHeight: 1.3, fontWeight: 500 }}>{label}</div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 22, color: '#0B1224', lineHeight: 1 }}>{value}</div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#94A3B8', marginTop: 4 }}>Today</div>
         </div>
       ))}
     </div>
@@ -582,22 +690,30 @@ function QuickStatsCard({ sessions, streak, drillCount, totalDuration }) {
   const bestStreak    = streak?.longestStreak || streak?.bestStreak || 0
 
   const STATS = [
-    { Icon: Clock,         color: '#3B82F6', label: 'Total Practice Time', value: `${hours}h ${mins}m` },
-    { Icon: CalendarClock, color: '#22D3EE', label: 'Sessions Completed',  value: totalSessions },
-    { Icon: Target,        color: '#7C3AED', label: 'Drills Completed',    value: totalSessions },
-    { Icon: Flame,         color: '#F59E0B', label: 'Current Streak',      value: `${currentStreak}d` },
-    { Icon: Trophy,        color: '#EF4444', label: 'Best Streak',         value: `${bestStreak}d` },
-    { Icon: TrendingUp,    color: '#22C55E', label: 'Consistency',         value: totalSessions > 0 ? `${Math.min(100, Math.round((currentStreak / 7) * 100))}%` : '—' },
+    { Icon: Clock,         color: '#2563FF', label: 'Total Practice Time', value: `${hours}h ${mins}m` },
+    { Icon: CalendarClock, color: '#EF3340', label: 'Sessions Completed',  value: totalSessions },
+    { Icon: Target,        color: '#5B3DF5', label: 'Drills Completed',    value: totalSessions },
+    { Icon: Flame,         color: '#EF3340', label: 'Current Streak',      value: `${currentStreak}d` },
+    { Icon: Trophy,        color: '#F59E0B', label: 'Best Streak',         value: `${bestStreak}d` },
+    { Icon: TrendingUp,    color: '#16A34A', label: 'Consistency',         value: totalSessions > 0 ? `${Math.min(100, Math.round((currentStreak / 7) * 100))}%` : '—' },
   ]
 
   return (
-    <div style={{ background: '#0D1528', border: '1px solid #1B2A45', borderRadius: 12, padding: 20 }}>
+    <div style={{
+      background: '#FFFFFF', border: '1px solid #E5EAF3',
+      borderRadius: 14, padding: 20,
+      boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
+    }}>
       <div style={{ ...sectionLabelStyle, marginBottom: 14 }}>QUICK STATS</div>
       {STATS.map(({ Icon, color, label, value }, i) => (
-        <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: i < STATS.length - 1 ? '1px solid rgba(27,42,69,0.7)' : 'none' }}>
-          <Icon size={16} style={{ color, flexShrink: 0 }} />
-          <span style={{ flex: 1, fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, color: '#94A3B8' }}>{label}</span>
-          <span style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 14, color: '#F8FAFC' }}>{value}</span>
+        <div key={label} style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '8px 0',
+          borderBottom: i < STATS.length - 1 ? '1px solid #F1F5F9' : 'none',
+        }}>
+          <Icon size={18} style={{ color, flexShrink: 0 }} />
+          <span style={{ flex: 1, fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, color: '#475569' }}>{label}</span>
+          <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 13, color: '#0B1224' }}>{value}</span>
         </div>
       ))}
     </div>
@@ -606,14 +722,22 @@ function QuickStatsCard({ sessions, streak, drillCount, totalDuration }) {
 
 function MotivationalCard() {
   return (
-    <div style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.15), rgba(124,58,237,0.15))', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 12, padding: 20, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        <Target size={24} style={{ color: '#3B82F6', marginBottom: 10 }} />
-        <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 16, color: '#F8FAFC', marginBottom: 8, lineHeight: 1.4 }}>Stay consistent, get better every day.</div>
-        <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 12, color: '#94A3B8', lineHeight: 1.6 }}>Consistency is the key to becoming unstoppable.</div>
+    <div style={{
+      background: 'linear-gradient(135deg, #EEF4FF, #FFF0F3)',
+      border: '1px solid #DCE5FA', borderRadius: 14, padding: 16,
+    }}>
+      <Target size={22} style={{ color: '#2563FF', marginBottom: 10 }} />
+      <div style={{
+        fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15,
+        color: '#0B1224', marginBottom: 6, lineHeight: 1.4,
+      }}>
+        Stay consistent, get better every day.
       </div>
-      <div style={{ position: 'absolute', right: -24, top: -24, width: 100, height: 100, borderRadius: '50%', background: 'rgba(59,130,246,0.08)', zIndex: 0 }} />
-      <div style={{ position: 'absolute', right: 10, bottom: -20, width: 60, height: 60, borderRadius: '50%', background: 'rgba(124,58,237,0.1)', zIndex: 0 }} />
+      <div style={{
+        fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#64748B', lineHeight: 1.6,
+      }}>
+        Consistency is the key to becoming unstoppable.
+      </div>
     </div>
   )
 }
@@ -635,28 +759,40 @@ function PerformanceScoreCard({ matches }) {
   const dashOffset = circumference - Math.min(1, (score || 0) / 100) * circumference
 
   return (
-    <div style={{ background: '#0D1528', border: '1px solid #1B2A45', borderRadius: 12, padding: 20 }}>
+    <div style={{
+      background: '#FFFFFF', border: '1px solid #E5EAF3',
+      borderRadius: 14, padding: 20,
+      boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
+    }}>
       <div style={{ ...sectionLabelStyle, marginBottom: 16 }}>PERFORMANCE SCORE</div>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: score === null ? 10 : 0 }}>
         <svg width="120" height="120" viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r={radius} fill="none" stroke="#1B2A45" strokeWidth="10" />
+          <circle cx="60" cy="60" r={radius} fill="none" stroke="#E5EAF3" strokeWidth="10" />
           {score !== null && (
-            <circle cx="60" cy="60" r={radius} fill="none" stroke="url(#sg)" strokeWidth="10"
+            <circle
+              cx="60" cy="60" r={radius} fill="none" stroke="#2563FF" strokeWidth="10"
               strokeDasharray={circumference} strokeDashoffset={dashOffset}
-              strokeLinecap="round" transform="rotate(-90 60 60)" />
+              strokeLinecap="round" transform="rotate(-90 60 60)"
+            />
           )}
-          <defs>
-            <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#2563EB" /><stop offset="100%" stopColor="#3B82F6" />
-            </linearGradient>
-          </defs>
-          <text x="60" y="55" textAnchor="middle" dominantBaseline="middle" style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 800, fontSize: 30, fill: '#F8FAFC' }}>
+          <text x="60" y="55" textAnchor="middle" dominantBaseline="middle"
+            style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: 30, fill: '#0B1224' }}>
             {score !== null ? score : '—'}
           </text>
-          {score !== null && <text x="60" y="74" textAnchor="middle" style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fill: '#94A3B8' }}>/100</text>}
+          {score !== null && (
+            <text x="60" y="74" textAnchor="middle"
+              style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, fill: '#64748B' }}>/100</text>
+          )}
         </svg>
       </div>
-      {score === null && <div style={{ textAlign: 'center', fontSize: 12, color: '#94A3B8', fontFamily: 'Inter, DM Sans, sans-serif', lineHeight: 1.5 }}>Complete matches to unlock your score</div>}
+      {score === null && (
+        <div style={{
+          textAlign: 'center', fontSize: 13,
+          color: '#64748B', fontFamily: 'Inter, sans-serif', lineHeight: 1.5,
+        }}>
+          Complete matches to unlock your score
+        </div>
+      )}
     </div>
   )
 }
@@ -665,23 +801,35 @@ function XPRewardCard({ xp }) {
   const XP_NEXT    = 250
   const xpProgress = Math.max(0, (xp || 0) % XP_NEXT)
   return (
-    <div style={{ background: '#0D1528', border: '1px solid #1B2A45', borderRadius: 12, padding: 20 }}>
-      <div style={{ ...sectionLabelStyle, marginBottom: 14 }}>XP REWARD</div>
+    <div style={{
+      background: 'linear-gradient(135deg, #EEF4FF, #F0EEFF)',
+      border: '1px solid #DCE5FA', borderRadius: 14, padding: 20,
+    }}>
+      <div style={{ ...sectionLabelStyle, color: '#5B3DF5', marginBottom: 14 }}>XP REWARD</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-        <div style={{ width: 40, height: 40, background: 'linear-gradient(135deg, #1D4ED8, #3B82F6)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Zap size={18} color="#fff" />
+        <div style={{
+          width: 32, height: 32, background: '#EAF2FF', borderRadius: 8,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>
+          <Zap size={17} color="#2563FF" />
         </div>
         <div>
-          <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 20, color: '#F8FAFC' }}>+25 XP</div>
-          <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 12, color: '#94A3B8' }}>Per match logged</div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224' }}>+25 XP</div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#64748B' }}>Per match logged</div>
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-        <span style={{ fontSize: 11, color: '#64748B', fontFamily: 'Inter, DM Sans, sans-serif' }}>{xpProgress} / {XP_NEXT} XP</span>
-        <span style={{ fontSize: 11, color: '#94A3B8', fontFamily: 'Inter, DM Sans, sans-serif' }}>Next Reward: {XP_NEXT} XP</span>
+        <span style={{ fontSize: 11, color: '#64748B', fontFamily: 'Inter, sans-serif' }}>{xpProgress} / {XP_NEXT} XP</span>
+        <span style={{ fontSize: 11, color: '#94A3B8', fontFamily: 'Inter, sans-serif' }}>Next Reward: {XP_NEXT} XP</span>
       </div>
-      <div style={{ height: 6, background: '#1B2A45', borderRadius: 3, overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${Math.min(100, (xpProgress / XP_NEXT) * 100)}%`, background: 'linear-gradient(90deg, #2563EB, #3B82F6)', borderRadius: 3, transition: 'width 0.4s ease' }} />
+      <div style={{ height: 4, background: '#E5EAF3', borderRadius: 999, overflow: 'hidden' }}>
+        <div style={{
+          height: '100%',
+          width: `${Math.min(100, (xpProgress / XP_NEXT) * 100)}%`,
+          background: 'linear-gradient(90deg, #2563FF, #5B3DF5)',
+          borderRadius: 999,
+          transition: 'width 0.4s ease',
+        }} />
       </div>
     </div>
   )
@@ -693,27 +841,35 @@ function RecentMatchesCard({ matches }) {
     [matches]
   )
   return (
-    <div style={{ background: '#0D1528', border: '1px solid #1B2A45', borderRadius: 12, padding: 20 }}>
+    <div style={{
+      background: '#FFFFFF', border: '1px solid #E5EAF3',
+      borderRadius: 14, padding: 20,
+      boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
+    }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <span style={sectionLabelStyle}>RECENT MATCHES</span>
-        <button style={{ background: 'none', border: 'none', color: '#3B82F6', fontSize: 12, cursor: 'pointer', fontFamily: 'Inter, DM Sans, sans-serif' }}>View All →</button>
+        <button style={{ background: 'none', border: 'none', color: '#2563FF', fontSize: 12, cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>View All →</button>
       </div>
       {recent.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '16px 0' }}>
           <Clipboard size={36} style={{ color: '#94A3B8', opacity: 0.3, display: 'block', margin: '0 auto 10px' }} />
-          <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 14, color: '#F8FAFC', marginBottom: 6 }}>No matches logged yet</div>
-          <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 12, color: '#94A3B8', lineHeight: 1.5 }}>Start logging matches to see your history.</div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: '#0B1224', marginBottom: 6 }}>No matches logged yet</div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>Start logging matches to see your history.</div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {recent.map((m, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: '#101A30', border: '1px solid #1B2A45', borderRadius: 8 }}>
-              <Swords size={14} style={{ color: '#3B82F6', flexShrink: 0 }} />
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '8px 10px', background: '#F8FAFD',
+              border: '1px solid #E5EAF3', borderRadius: 8,
+            }}>
+              <Swords size={14} style={{ color: '#2563FF', flexShrink: 0 }} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontFamily: 'Inter, DM Sans, sans-serif', color: '#F8FAFC', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.mapName || 'Unknown Map'}</div>
-                <div style={{ fontSize: 11, color: '#64748B', fontFamily: 'Inter, DM Sans, sans-serif' }}>#{m.teamPosition || '—'} · {m.kills || 0} kills</div>
+                <div style={{ fontSize: 12, fontFamily: 'Inter, sans-serif', color: '#0B1224', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.mapName || 'Unknown Map'}</div>
+                <div style={{ fontSize: 11, color: '#64748B', fontFamily: 'Inter, sans-serif' }}>#{m.teamPosition || '—'} · {m.kills || 0} kills</div>
               </div>
-              <span style={{ fontSize: 10, color: '#64748B', flexShrink: 0, whiteSpace: 'nowrap' }}>{timeAgo(m.timestamp)}</span>
+              <span style={{ fontSize: 10, color: '#94A3B8', flexShrink: 0, whiteSpace: 'nowrap' }}>{timeAgo(m.timestamp)}</span>
             </div>
           ))}
         </div>
@@ -724,13 +880,16 @@ function RecentMatchesCard({ matches }) {
 
 function TipCard() {
   return (
-    <div style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 12, padding: 16, display: 'flex', gap: 10, alignItems: 'flex-start', position: 'relative', overflow: 'hidden' }}>
+    <div style={{
+      background: '#FFFBEB', border: '1px solid #FDE68A',
+      borderRadius: 14, padding: 16,
+      display: 'flex', gap: 10, alignItems: 'flex-start',
+    }}>
       <Lightbulb size={18} style={{ color: '#F59E0B', flexShrink: 0, marginTop: 2 }} />
       <div>
-        <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>TIP</div>
-        <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 12, color: '#94A3B8', lineHeight: 1.6 }}>The more matches you log, the better your insights!</div>
+        <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 11, fontWeight: 600, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>TIP</div>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>The more matches you log, the better your insights!</div>
       </div>
-      <Target size={36} style={{ position: 'absolute', right: 10, top: 10, color: '#3B82F6', opacity: 0.08 }} />
     </div>
   )
 }
@@ -739,10 +898,10 @@ function TipCard() {
    SHARED STYLE CONSTANTS
    ================================================================ */
 const sectionLabelStyle = {
-  fontFamily: 'Inter, DM Sans, sans-serif',
-  fontSize: 11, fontWeight: 700,
-  textTransform: 'uppercase', letterSpacing: '0.10em',
-  color: '#94A3B8',
+  fontFamily: 'Rajdhani, sans-serif',
+  fontSize: 11, fontWeight: 600,
+  textTransform: 'uppercase', letterSpacing: '0.12em',
+  color: '#64748B',
 }
 
 /* ================================================================
