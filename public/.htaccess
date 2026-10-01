@@ -7,9 +7,19 @@
   Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.cloudfunctions.net https://api.razorpay.com wss://*.firebaseio.com; frame-src https://checkout.razorpay.com https://api.razorpay.com https://accounts.google.com;"
 </IfModule>
 
-# Force HTTPS
+# Force HTTPS + Firebase auth handler proxy + SPA routing
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+  # Firebase Auth Handler — proxy to Firebase Hosting
+  RewriteCond %{REQUEST_URI} ^/__/auth/(.*)$
+  RewriteRule ^__/auth/(.*)$ https://esports-elite-daf06.firebaseapp.com/__/auth/$1 [P,L]
+
+  # Firebase Auth Action Handler
+  RewriteCond %{REQUEST_URI} ^/__/firebase/(.*)$
+  RewriteRule ^__/firebase/(.*)$ https://esports-elite-daf06.firebaseapp.com/__/firebase/$1 [P,L]
+
+  # Force HTTPS
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
