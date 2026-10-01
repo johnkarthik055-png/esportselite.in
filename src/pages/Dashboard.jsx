@@ -381,7 +381,7 @@ export default function Dashboard() {
         {/* Gradient overlay */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(90deg, rgba(248,250,255,0.92) 0%, rgba(248,250,255,0.6) 40%, transparent 70%)',
+          background: 'linear-gradient(105deg, rgba(248,250,255,0.97) 0%, rgba(240,246,255,0.88) 32%, rgba(240,246,255,0.52) 54%, transparent 72%)',
         }} />
 
         {/* Left hero content */}
@@ -390,11 +390,16 @@ export default function Dashboard() {
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
         }}>
           <div style={{
-            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
-            color: '#64748B', letterSpacing: '0.08em', textTransform: 'uppercase',
-            marginBottom: 4,
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            height: 26, padding: '0 12px', borderRadius: 999,
+            background: 'rgba(37,99,255,0.07)', border: '1px solid rgba(37,99,255,0.14)',
+            marginBottom: 10,
           }}>
-            {greetingUpper}
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#2563FF', flexShrink: 0, boxShadow: '0 0 5px #2563FF80' }} />
+            <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: 11,
+              color: '#2563FF', letterSpacing: '0.20em', textTransform: 'uppercase' }}>
+              {greetingUpper}
+            </span>
           </div>
 
           <div style={{
@@ -414,8 +419,9 @@ export default function Dashboard() {
           </div>
 
           <div style={{
-            fontFamily: 'Inter, sans-serif', fontSize: 15,
-            color: '#475569', marginBottom: 20,
+            fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 14,
+            color: '#64748B', marginBottom: 20, letterSpacing: '0.01em',
+            fontStyle: 'italic',
           }}>
             Keep grinding. Consistency builds greatness.
           </div>
@@ -467,7 +473,7 @@ export default function Dashboard() {
           {/* Performance Overview */}
           <div style={cardStyle}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-              <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 20, color: '#0B1224' }}>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224', letterSpacing: '-0.3px' }}>
                 Performance Overview
               </span>
               <select style={{
@@ -528,10 +534,10 @@ export default function Dashboard() {
           <div style={cardStyle}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#EAF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: '#EAF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Activity size={15} color="#2563FF" />
                 </div>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224' }}>Recent Activity</span>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 17, color: '#0B1224', letterSpacing: '-0.2px' }}>Recent Activity</span>
               </div>
               <Link to="/training" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#2563FF', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
                 View All <ArrowRight size={14} />
@@ -549,9 +555,10 @@ export default function Dashboard() {
                 {recentActivity.map((item, i) => (
                   <div key={item.id || i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{
-                      width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+                      width: 40, height: 40, borderRadius: 11, flexShrink: 0,
                       background: item.type === 'session' ? '#EAF2FF' : '#F0EDFF',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      boxShadow: '0 2px 8px rgba(15,23,42,0.06)',
                     }}>
                       {item.type === 'session'
                         ? <Target size={18} color="#2563FF" />
@@ -588,22 +595,23 @@ export default function Dashboard() {
           <div style={cardStyle}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#EAF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: '#EAF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Zap size={15} color="#2563FF" />
                 </div>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224' }}>Today's Focus</span>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 17, color: '#0B1224', letterSpacing: '-0.2px' }}>Today's Focus</span>
               </div>
               <Link to="/training" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#2563FF', textDecoration: 'none' }}>View All →</Link>
             </div>
 
             {/* Focus icon + title */}
             <div style={{
-              width: 56, height: 56, borderRadius: '50%',
-              background: '#EAF2FF',
+              width: 56, height: 56, borderRadius: 16,
+              background: 'linear-gradient(135deg, #EAF2FF, #EEF4FF)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: 12,
+              marginBottom: 14,
+              boxShadow: '0 4px 16px rgba(37,99,255,0.10)',
             }}>
-              <Target size={28} color="#2563FF" />
+              <Target size={26} color="#2563FF" />
             </div>
             <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224', marginBottom: 8 }}>
               {priorityFocus ? priorityFocus.name : 'Log Matches'}
@@ -617,17 +625,26 @@ export default function Dashboard() {
             <button
               onClick={() => navigate('/training')}
               style={{
-                width: '100%', height: 46,
-                background: 'linear-gradient(90deg, #2563FF, #1677FF, #EF3340)',
+                width: '100%', height: 50,
+                background: 'linear-gradient(90deg, #2563FF, #EF3340)',
                 color: '#FFFFFF',
                 fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 14,
-                border: 'none', borderRadius: 9, cursor: 'pointer',
-                transition: 'opacity 0.2s ease',
+                border: 'none', borderRadius: 999, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '0 8px 0 22px',
+                transition: 'opacity 0.2s ease, transform 0.3s cubic-bezier(0.23,1,0.32,1)',
+                boxShadow: '0 6px 24px rgba(37,99,255,0.28)',
               }}
-              onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+              onMouseEnter={e => { e.currentTarget.style.opacity = '0.92'; e.currentTarget.style.transform = 'scale(1.015)' }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)' }}
             >
-              Start Training →
+              <span>Start Training</span>
+              <span style={{
+                width: 34, height: 34, borderRadius: '50%',
+                background: 'rgba(255,255,255,0.2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 18, lineHeight: 1, flexShrink: 0,
+              }}>→</span>
             </button>
           </div>
 
@@ -635,10 +652,10 @@ export default function Dashboard() {
           <div style={cardStyle}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#EAF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: '#EAF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Zap size={15} color="#2563FF" />
                 </div>
-                <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224' }}>Activity Calendar</span>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 17, color: '#0B1224', letterSpacing: '-0.2px' }}>Activity Calendar</span>
               </div>
               <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B' }}>14-Day Activity</span>
             </div>
@@ -694,50 +711,56 @@ export default function Dashboard() {
           {/* Quick Actions */}
           <div style={cardStyle}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#EAF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: '#EAF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Zap size={15} color="#2563FF" />
               </div>
-              <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224' }}>Quick Actions</span>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 17, color: '#0B1224', letterSpacing: '-0.2px' }}>Quick Actions</span>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
-                { label: 'Start Training',  icon: <Target size={20} color="#2563FF" />,  to: '/training' },
-                { label: 'Log Match',       icon: <Crosshair size={20} color="#EF3340" />, to: '/match-logger' },
-                { label: 'View Roadmap',    icon: <Map size={20} color="#5B3DF5" />,     to: '/roadmap' },
-                { label: 'Ask AI Coach',    icon: <Brain size={20} color="#F59E0B" />,    to: '/ai-coach' },
-              ].map(({ label, icon, to }) => (
+                { label: 'Start Training',  icon: <Target size={18} color="#2563FF" />,  to: '/training',     iconBg: '#EAF2FF' },
+                { label: 'Log Match',       icon: <Crosshair size={18} color="#EF3340" />, to: '/match-logger', iconBg: '#FFF0F2' },
+                { label: 'View Roadmap',    icon: <Map size={18} color="#5B3DF5" />,     to: '/roadmap',      iconBg: '#F0EDFF' },
+                { label: 'Ask AI Coach',    icon: <Brain size={18} color="#F59E0B" />,   to: '/ai-coach',     iconBg: '#FFFBEB' },
+              ].map(({ label, icon, to, iconBg }) => (
                 <button
                   key={label}
                   onClick={() => navigate(to)}
                   style={{
-                    height: 52,
-                    border: '1px solid #E5EAF3',
-                    borderRadius: 12,
-                    padding: '0 16px',
+                    height: 54,
+                    border: '1px solid rgba(229,234,243,0.9)',
+                    borderRadius: 14,
+                    padding: '0 12px 0 12px',
                     display: 'flex', alignItems: 'center', gap: 12,
-                    background: 'transparent',
+                    background: '#FAFBFF',
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    width: '100%',
-                    textAlign: 'left',
+                    transition: 'all 0.25s cubic-bezier(0.23,1,0.32,1)',
+                    width: '100%', textAlign: 'left',
+                    boxShadow: '0 2px 8px rgba(15,23,42,0.03)',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = '#2563FF'
+                    e.currentTarget.style.borderColor = 'rgba(37,99,255,0.28)'
                     e.currentTarget.style.background = '#EEF4FF'
-                    e.currentTarget.style.transform = 'translateY(-1px)'
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(37,99,255,0.09)'
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = '#E5EAF3'
-                    e.currentTarget.style.background = 'transparent'
+                    e.currentTarget.style.borderColor = 'rgba(229,234,243,0.9)'
+                    e.currentTarget.style.background = '#FAFBFF'
                     e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(15,23,42,0.03)'
                   }}
                 >
-                  {icon}
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {icon}
+                  </div>
                   <span style={{ flex: 1, fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: '#0B1224' }}>
                     {label}
                   </span>
-                  <ChevronRight size={16} color="#64748B" />
+                  <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'rgba(37,99,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <ChevronRight size={13} color="#2563FF" />
+                  </div>
                 </button>
               ))}
             </div>
@@ -775,28 +798,30 @@ export default function Dashboard() {
 /* ── Card style constant ──────────────────────────────────── */
 const cardStyle = {
   background: '#FFFFFF',
-  border: '1px solid #E5EAF3',
-  borderRadius: 16,
-  padding: 24,
-  boxShadow: '0 4px 18px rgba(31,41,55,0.04)',
-  transition: 'box-shadow 0.2s ease',
+  border: '1px solid rgba(229,234,243,0.8)',
+  borderRadius: 20,
+  padding: 26,
+  boxShadow: '0 1px 2px rgba(15,23,42,0.04), 0 16px 48px rgba(15,23,42,0.06)',
 }
 
 /* ── Sub-components ──────────────────────────────────────── */
 function HeroPill({ color, label }) {
   return (
     <div style={{
-      height: 38,
-      padding: '0 14px',
-      borderRadius: 999,
-      background: 'rgba(255,255,255,0.85)',
-      border: '1px solid #DCE5F4',
-      backdropFilter: 'blur(8px)',
-      display: 'inline-flex', alignItems: 'center', gap: 6,
-      fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
-      color: '#0B1224', whiteSpace: 'nowrap',
+      height: 36, padding: '0 14px', borderRadius: 999,
+      background: 'rgba(255,255,255,0.92)',
+      border: '1px solid rgba(255,255,255,0.85)',
+      backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+      display: 'inline-flex', alignItems: 'center', gap: 8,
+      fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 13,
+      letterSpacing: '0.04em', color: '#0B1224', whiteSpace: 'nowrap',
+      boxShadow: '0 2px 12px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,1)',
     }}>
-      <span style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }} />
+      <span style={{
+        width: 7, height: 7, borderRadius: '50%',
+        background: color, flexShrink: 0,
+        boxShadow: `0 0 7px ${color}80`,
+      }} />
       {label}
     </div>
   )
@@ -807,34 +832,40 @@ function QuickStatCard({ iconBg, icon, title, value, sub, cardVariants }) {
     <motion.div
       variants={cardVariants}
       style={{
-        background: '#FFFFFF',
-        border: '1px solid #E5EAF3',
-        borderRadius: 14,
-        padding: 20,
-        boxShadow: '0 4px 18px rgba(31,41,55,0.04)',
+        background: 'rgba(37,99,255,0.022)',
+        border: '1px solid rgba(37,99,255,0.07)',
+        borderRadius: 20,
+        padding: 3,
+        boxShadow: '0 2px 4px rgba(15,23,42,0.04), 0 20px 50px rgba(37,99,255,0.05)',
         cursor: 'default',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+        transition: 'transform 0.3s cubic-bezier(0.23,1,0.32,1), box-shadow 0.3s cubic-bezier(0.23,1,0.32,1)',
       }}
       onMouseEnter={e => {
-        e.currentTarget.style.transform = 'translateY(-2px)'
-        e.currentTarget.style.boxShadow = '0 8px 30px rgba(37,99,255,0.08)'
+        e.currentTarget.style.transform = 'translateY(-3px)'
+        e.currentTarget.style.boxShadow = '0 4px 8px rgba(15,23,42,0.04), 0 28px 60px rgba(37,99,255,0.10)'
       }}
       onMouseLeave={e => {
         e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = '0 4px 18px rgba(31,41,55,0.04)'
+        e.currentTarget.style.boxShadow = '0 2px 4px rgba(15,23,42,0.04), 0 20px 50px rgba(37,99,255,0.05)'
       }}
     >
       <div style={{
-        width: 44, height: 44, borderRadius: 12,
-        background: iconBg,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        marginBottom: 14,
+        background: '#FFFFFF', borderRadius: 17, padding: '20px 20px 18px',
+        boxShadow: 'inset 0 1px 1px rgba(255,255,255,1)',
       }}>
-        {icon}
+        <div style={{
+          width: 46, height: 46, borderRadius: 13,
+          background: iconBg,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: 16,
+          boxShadow: '0 4px 12px rgba(15,23,42,0.06)',
+        }}>
+          {icon}
+        </div>
+        <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 6 }}>{title}</div>
+        <div style={{ fontFamily: 'Anton, sans-serif', fontSize: 30, color: '#0B1224', lineHeight: 1, marginBottom: 5 }}>{value}</div>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12, color: '#64748B' }}>{sub}</div>
       </div>
-      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: '#0B1224', marginBottom: 6 }}>{title}</div>
-      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: 28, color: '#0B1224', lineHeight: 1, marginBottom: 4 }}>{value}</div>
-      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13, color: '#64748B' }}>{sub}</div>
     </motion.div>
   )
 }
@@ -842,19 +873,26 @@ function QuickStatCard({ iconBg, icon, title, value, sub, cardVariants }) {
 function MetricCard({ label, value, color }) {
   return (
     <div style={{
-      border: '1px solid #E5EAF3',
-      borderRadius: 12,
-      padding: 16,
+      background: '#FFFFFF',
+      border: '1px solid rgba(229,234,243,0.9)',
+      borderRadius: 14,
+      padding: '18px 16px 16px',
       textAlign: 'center',
+      position: 'relative',
+      overflow: 'hidden',
+      boxShadow: '0 4px 20px rgba(15,23,42,0.04)',
     }}>
       <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8,
-      }}>
-        <span style={{ width: 8, height: 8, borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />
-        <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 11, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.10em' }}>{label}</span>
+        position: 'absolute', top: 0, left: '22%', right: '22%', height: 2,
+        background: color, borderRadius: '0 0 3px 3px',
+      }} />
+      <div style={{ marginBottom: 10 }}>
+        <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 10,
+          color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.18em' }}>
+          {label}
+        </span>
       </div>
-      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 24, color: '#0B1224', lineHeight: 1, marginBottom: 4 }}>{value}</div>
-      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#94A3B8' }}>—</div>
+      <div style={{ fontFamily: 'Anton, sans-serif', fontSize: 26, color: '#0B1224', lineHeight: 1 }}>{value}</div>
     </div>
   )
 }
