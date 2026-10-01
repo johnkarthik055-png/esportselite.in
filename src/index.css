@@ -1,76 +1,74 @@
-@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Barlow+Condensed:wght@700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ============================================================
-   ESPORTS ELITE — V2 SPACE NAVY DESIGN TOKENS
-   Oxanium for headings / stats / brand callsigns.
-   Inter for UI text, labels, body copy.
+   ESPORTS ELITE — PREMIUM WHITE DESIGN TOKENS
+   Anton for display headings. Inter for UI/body. Rajdhani for labels.
    ============================================================ */
 
 :root {
-  --font-heading: 'Oxanium', 'Bebas Neue', sans-serif;
-  --font-body:    'Inter', 'DM Sans', sans-serif;
+  --font-heading: 'Anton', 'Barlow Condensed', sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-label:   'Rajdhani', sans-serif;
   --font-mono:    'SF Mono', 'Fira Code', monospace;
 
-  /* Space navy palette */
-  --bg-base:      #050816;
-  --bg-surface:   #0D1528;
-  --bg-elevated:  #101A30;
-  --bg-hover:     #1B2A45;
+  /* White premium palette */
+  --bg-base:      #F7F9FD;
+  --bg-surface:   #FFFFFF;
+  --bg-elevated:  #F8FAFF;
+  --bg-hover:     #EEF4FF;
 
-  /* Named semantic slots (new names) */
-  --sidebar:      #08101F;
-  --header:       #0B1224;
-  --card:         #0D1528;
-  --card2:        #101A30;
+  /* Named semantic slots */
+  --sidebar:      #FFFFFF;
+  --header:       rgba(255,255,255,0.94);
+  --card:         #FFFFFF;
+  --card2:        #F8FAFF;
 
-  --border:       #1B2A45;
-  --border-light: #243553;
-  --divider:      #243553;
+  --border:       #E5EAF3;
+  --border-light: #EEF2FA;
+  --divider:      #DCE4F0;
 
-  --text-primary: #F8FAFC;
-  --text-muted:   #CBD5E1;
-  --text-subtle:  #94A3B8;
+  --text-primary: #0B1224;
+  --text-muted:   #475569;
+  --text-subtle:  #64748B;
 
-  /* Primary action colour — blue */
-  --blue:         #3B82F6;
-  --blue-bright:  #2563EB;
-  --blue-tint:    rgba(59, 130, 246, 0.10);
-  --blue-ghost:   rgba(59, 130, 246, 0.06);
+  /* Blue accent */
+  --blue:         #2563FF;
+  --blue-bright:  #1677FF;
+  --blue-tint:    rgba(37,99,255,0.08);
+  --blue-ghost:   rgba(37,99,255,0.04);
+  --blue-light:   #EAF2FF;
 
-  /* --red is aliased to blue so every legacy var(--red) call
-     picks up the new primary accent automatically.           */
-  --red:          #3B82F6;
-  --red-hover:    #2563EB;
-  --red-tint:     rgba(59, 130, 246, 0.10);
-  --red-ghost:    rgba(59, 130, 246, 0.06);
+  /* Red accent */
+  --red:          #EF3340;
+  --red-hover:    #D62030;
+  --red-tint:     rgba(239,51,64,0.08);
+  --red-ghost:    rgba(239,51,64,0.04);
+  --red-light:    #FFF0F2;
 
-  --cyan:         #22D3EE;
-  --cyan-tint:    rgba(34, 211, 238, 0.10);
-
-  --violet:       #7C3AED;
-  --violet-tint:  rgba(124, 58, 237, 0.10);
-
+  --purple:       #5B3DF5;
   --gold:         #F59E0B;
-  --gold-tint:    rgba(245, 158, 11, 0.10);
-
-  /* Semantic status colours */
-  --green:        #22C55E;
-  --green-tint:   rgba(34, 197, 94, 0.10);
+  --green:        #16A34A;
   --amber:        #F59E0B;
-  --amber-tint:   rgba(245, 158, 11, 0.10);
-  --danger:       #EF4444;
-  --danger-tint:  rgba(239, 68, 68, 0.10);
+  --danger:       #EF3340;
+  --danger-tint:  rgba(239,51,64,0.08);
+
+  --gradient-primary: linear-gradient(90deg, #2563FF 0%, #5B3DF5 50%, #EF3340 100%);
+  --gradient-blue:    linear-gradient(135deg, #2563FF, #1677FF);
+
+  --shadow-card:  0 4px 20px rgba(15,23,42,0.04);
+  --shadow-hover: 0 8px 30px rgba(37,99,255,0.08);
+  --shadow-modal: 0 32px 64px rgba(15,23,42,0.18);
 
   --radius-sm: 6px;
   --radius:    10px;
   --radius-lg: 12px;
   --radius-xl: 16px;
-
-  --shadow-modal: 0 32px 64px rgba(0, 0, 0, 0.8);
+  --radius-card: 14px;
+  --radius-btn:  10px;
 }
 
 /* ============================================================
@@ -83,12 +81,12 @@ html, body, #root {
   max-width: 100vw !important;
 }
 html, body {
-  height: 100%; margin: 0; padding: 0; background-color: #050816 !important;
+  height: 100%; margin: 0; padding: 0; background-color: #F7F9FD !important;
   touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
 }
 #root {
-  height: 100%; margin: 0; padding: 0; background-color: #050816;
+  height: 100%; margin: 0; padding: 0; background-color: #F7F9FD;
 }
 
 html { scroll-behavior: smooth; }

@@ -4,12 +4,12 @@ import {
   Flame, AlertTriangle, Crosshair, Target, ChevronRight,
   Clock, Calendar, Activity, ArrowRight, Brain, Shield,
   BarChart2, Zap, Star, Trophy, Sparkles, TrendingUp,
-  Plus, MapPin, Car, Settings, X,
+  Plus, MapPin, Car, Settings, X, BookOpen, Map,
 } from 'lucide-react'
 import { useSubscription } from '../hooks/useSubscription.js'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
-  ResponsiveContainer, Tooltip,
+  ResponsiveContainer, Tooltip, Area, AreaChart,
 } from 'recharts'
 import FeaturedTournamentCard from '../components/dashboard/FeaturedTournamentCard.jsx'
 import TodaysScheduleCard from '../components/dashboard/TodaysScheduleCard.jsx'
@@ -81,10 +81,10 @@ function calculateHeatmap(matches, suggestions) {
   return HEATMAP_SKILLS.map(skill => {
     const count = counts[skill.name]
     let status, color, percentage
-    if      (count >= 5) { status = 'High Priority'; color = 'var(--danger)'; percentage = 90 }
-    else if (count >= 3) { status = 'High Priority'; color = 'var(--danger)'; percentage = 75 }
-    else if (count >= 2) { status = 'Weak';          color = 'var(--amber)';  percentage = 55 }
-    else if (count === 1){ status = 'Improving';     color = 'var(--gold)';   percentage = 30 }
+    if      (count >= 5) { status = 'High Priority'; color = '#EF3340'; percentage = 90 }
+    else if (count >= 3) { status = 'High Priority'; color = '#EF3340'; percentage = 75 }
+    else if (count >= 2) { status = 'Weak';          color = '#F59E0B'; percentage = 55 }
+    else if (count === 1){ status = 'Improving';     color = '#F59E0B'; percentage = 30 }
     else                 { return null }
     return { name: skill.name, count, status, color, percentage }
   }).filter(Boolean).sort((a, b) => b.count - a.count)
@@ -199,7 +199,10 @@ export default function Dashboard() {
     const kd = activeMatches.length > 0 ? (totalKills / activeMatches.length).toFixed(2) : '0.00'
     const hsKills = activeMatches.reduce((s, m) => s + (Number(m.headshotKills) || 0), 0)
     const hsPct = totalKills > 0 ? Math.round((hsKills / totalKills) * 100) : 0
-    return { winRate, kd, scrimCount: total, hsPct }
+    const avgPlacement = activeMatches.length > 0
+      ? (activeMatches.reduce((s, m) => s + (Number(m.teamPosition) || 0), 0) / activeMatches.length).toFixed(1)
+      : '—'
+    return { winRate, kd, scrimCount: total, hsPct, avgPlacement }
   }, [activeMatches])
 
   function formatTotal(sessions) {
@@ -235,7 +238,6 @@ export default function Dashboard() {
   const nextLevelName = getLevelName(levelNum + 1)
   const xpBarPct    = Math.min(100, Math.round((xp % 500) / 500 * 100))
 
-  /* Weekly performance chart data */
   const weeklyChartData = useMemo(() => {
     const dayLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
     return activityGrid.slice(-7).map((d, i) => ({
@@ -244,7 +246,6 @@ export default function Dashboard() {
     }))
   }, [activityGrid])
 
-  /* Maps played this week */
   const mapsThisWeek = useMemo(() => {
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7)
     const maps = new Set()
@@ -254,13 +255,11 @@ export default function Dashboard() {
     return maps.size
   }, [activeMatches])
 
-  /* Sessions this week */
   const sessionsThisWeek = useMemo(() => {
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7)
     return activeSessions.filter(s => s.timestamp && new Date(s.timestamp) > cutoff).length
   }, [activeSessions])
 
-  /* Practice time this week */
   const practiceTimeWeek = useMemo(() => {
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7)
     const secs = activeSessions
@@ -273,13 +272,11 @@ export default function Dashboard() {
     return `${m}m`
   }, [activeSessions])
 
-  /* Matches this week */
   const matchesThisWeek = useMemo(() => {
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7)
     return activeMatches.filter(m => m.timestamp && new Date(m.timestamp) > cutoff).length
   }, [activeMatches])
 
-  /* Recent activity: last 5 across sessions + matches */
   const recentActivity = useMemo(() => {
     const sessionItems = (activeSessions || []).map(s => ({
       type: 'session',
@@ -305,6 +302,9 @@ export default function Dashboard() {
       .slice(0, 5)
   }, [activeSessions, activeMatches])
 
+  /* Greeting time */
+  const greetingUpper = (greeting() + ',').toUpperCase()
+
   if (dataLoading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
@@ -313,722 +313,497 @@ export default function Dashboard() {
     )
   }
 
+  /* Username split: all but last char normal, last char gradient */
+  const nameUpper = (displayName || 'PLAYER').toUpperCase()
+  const nameFront = nameUpper.slice(0, -1)
+  const nameLast  = nameUpper.slice(-1)
+
   return (
-    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-      {/* ══ UPGRADE BANNER ═══════════════════════════════════ */}
-      {!isActive && !subLoading && !bannerDismissed && (
+      {/* ══ HERO BANNER ══════════════════════════════════════════ */}
+      <div style={{
+        width: '100%', height: 275, borderRadius: 18,
+        position: 'relative', overflow: 'hidden',
+        background: '#EAF2FF',
+      }}>
+        <img
+          src="/assets/hero-banner.png"
+          alt=""
+          style={{
+            position: 'absolute', top: 0, left: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover', objectPosition: 'center center',
+            display: 'block',
+          }}
+        />
+        {/* Gradient overlay */}
         <div style={{
-          background: 'linear-gradient(135deg, #0A0F1C, #0D1526)',
-          borderLeft: '4px solid #3B82F6',
-          borderRadius: 10,
-          padding: '12px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          flexWrap: 'wrap',
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(90deg, rgba(248,250,255,0.92) 0%, rgba(248,250,255,0.6) 40%, transparent 70%)',
+        }} />
+
+        {/* Left hero content */}
+        <div style={{
+          position: 'absolute', left: 32, top: 0, bottom: 0,
+          display: 'flex', flexDirection: 'column', justifyContent: 'center',
         }}>
-          <span style={{
-            fontFamily: 'Inter, sans-serif', fontSize: 13,
-            color: '#CBD5E1', lineHeight: 1.4, flex: 1, minWidth: 0,
+          <div style={{
+            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
+            color: '#64748B', letterSpacing: '0.08em', textTransform: 'uppercase',
+            marginBottom: 4,
           }}>
-            🚀 Unlock AI Coach, screenshot import, and advanced squad analysis
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-            <a
-              href="/#/checkout"
-              style={{
-                background: '#3B82F6', color: '#fff',
-                fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 13,
-                padding: '6px 14px', borderRadius: 6, textDecoration: 'none',
-                letterSpacing: '0.03em', whiteSpace: 'nowrap',
-              }}
-            >
-              Upgrade →
-            </a>
-            <button
-              onClick={dismissBanner}
-              style={{
-                background: 'transparent', border: 'none', cursor: 'pointer',
-                color: '#475569', display: 'flex', alignItems: 'center', padding: 4,
-              }}
-              aria-label="Dismiss"
-            >
-              <X size={16} />
-            </button>
+            {greetingUpper}
           </div>
-        </div>
-      )}
 
-      {/* ══ TOP GREETING + STATS ══════════════════════════════ */}
-      <div style={{ paddingBottom: 4 }}>
-        <div style={{
-          fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 14,
-          color: '#94A3B8', marginBottom: 4,
-        }}>
-          {greeting()},
-        </div>
-        <div style={{
-          fontFamily: 'Oxanium, sans-serif', fontWeight: 800,
-          fontSize: 'clamp(32px, 4vw, 48px)',
-          fontStyle: 'italic', textTransform: 'uppercase',
-          color: '#F8FAFC', lineHeight: 1,
-          marginBottom: 14,
-          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-        }}>
-          {displayName}
-        </div>
-        <div className="stat-pills-row" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <TopPill icon={<TrendingUp size={13} color="#22C55E" />} label="Top 18% this week" />
-          <TopPill icon={<Zap size={13} color="#22D3EE" />} label={`+${xpToday} XP today`} />
-          <TopPill icon={<Flame size={13} color="#F59E0B" />} label={`${displayStreak} day streak`} />
+          <div style={{
+            fontFamily: 'Anton, sans-serif', fontSize: 64,
+            color: '#0B1224', letterSpacing: '-1px', lineHeight: 1,
+            textTransform: 'uppercase', marginBottom: 8,
+          }}>
+            {nameFront}
+            <span style={{
+              background: 'linear-gradient(90deg, #2563FF, #EF3340)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
+              {nameLast}
+            </span>
+          </div>
+
+          <div style={{
+            fontFamily: 'Inter, sans-serif', fontSize: 15,
+            color: '#475569', marginBottom: 20,
+          }}>
+            Keep grinding. Consistency builds greatness.
+          </div>
+
+          {/* Stat pills */}
+          <div className="hero-pills" style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <HeroPill color="#16A34A" label={`Top 18% this week`} />
+            <HeroPill color="#2563FF" label={`+${xpToday} XP today`} />
+            <HeroPill color="#EF3340" label={`${displayStreak} day streak`} />
+          </div>
         </div>
       </div>
 
-      {/* ══ ROW 1: BANNER + NEXT REWARD ══════════════════════ */}
-      <div style={{ display: 'flex', gap: 16, alignItems: 'stretch' }} className="row1-grid">
+      {/* ══ QUICK STATS (4 cards) ════════════════════════════════ */}
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}>
+        <QuickStatCard
+          iconBg="#EAF2FF" icon={<Clock size={22} color="#2563FF" />}
+          title="Practice Time" value={practiceTimeWeek} sub="This week"
+        />
+        <QuickStatCard
+          iconBg="#FFF0F2" icon={<Calendar size={22} color="#EF3340" />}
+          title="Sessions" value={sessionsThisWeek} sub="This week"
+        />
+        <QuickStatCard
+          iconBg="#EAF2FF" icon={<BarChart2 size={22} color="#2563FF" />}
+          title="Matches Logged" value={matchesThisWeek} sub="This week"
+        />
+        <QuickStatCard
+          iconBg="#FFF0F2" icon={<Trophy size={22} color="#EF3340" />}
+          title="Current Streak" value={`${displayStreak} days`} sub="Keep it going!"
+        />
+      </div>
 
-        {/* Featured Banner */}
-        <div style={{
-          flex: 1, height: 220,
-          borderRadius: 16, overflow: 'hidden',
-          position: 'relative',
-          border: '1px solid #1B2A45',
-          background: '#0D1528',
-        }}>
-          <img
-            src="/assets/dashboard-hero.png"
-            alt=""
-            style={{
-              position: 'absolute', top: 0, left: 0,
-              width: '100%', height: '100%',
-              objectFit: 'cover', objectPosition: 'center center',
-              display: 'block', opacity: 1,
-            }}
-          />
-          {/* Dark gradient + CTA button */}
-          <div style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0,
-            padding: '20px 24px', zIndex: 10,
-            background: 'linear-gradient(to top, rgba(5,8,22,0.92) 0%, rgba(5,8,22,0.4) 70%, transparent 100%)',
-          }}>
+      {/* ══ MAIN 2-COL GRID ══════════════════════════════════════ */}
+      <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
+
+        {/* ── LEFT COLUMN ─────────────────── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
+
+          {/* Performance Overview */}
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 20, color: '#0B1224' }}>
+                Performance Overview
+              </span>
+              <select style={{
+                background: '#F8FAFD', border: '1px solid #E3E9F3',
+                borderRadius: 8, padding: '6px 10px',
+                fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569',
+                cursor: 'pointer', outline: 'none',
+              }}>
+                <option>This Week</option>
+                <option>Last Week</option>
+              </select>
+            </div>
+
+            <div style={{ height: 240, marginBottom: 16 }}>
+              {weeklyChartData.some(d => d.value > 0) ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={weeklyChartData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#2563FF" stopOpacity={0.2} />
+                        <stop offset="100%" stopColor="#2563FF" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#EDF1F7" vertical={false} />
+                    <XAxis dataKey="day" tick={{ fontFamily: 'Inter', fontSize: 12, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                    <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tickFormatter={v => `${v}%`} tick={{ fontFamily: 'Inter', fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                    <Tooltip
+                      contentStyle={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 10, fontFamily: 'Inter', fontSize: 13 }}
+                      formatter={v => [`${v}%`, 'Activity']}
+                      labelStyle={{ color: '#64748B' }}
+                      itemStyle={{ color: '#2563FF' }}
+                    />
+                    <Area type="monotone" dataKey="value" stroke="#2563FF" strokeWidth={2.5} fill="url(#blueGrad)" dot={{ fill: '#2563FF', r: 4, strokeWidth: 0 }} activeDot={{ r: 5, fill: '#EF3340' }} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div style={{
+                  height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: '#F8FAFF', borderRadius: 12,
+                }}>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#64748B', textAlign: 'center' }}>
+                    Start training to build your performance history.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* 4 metric cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
+              <MetricCard label="K/D RATIO"     value={scrimStats.kd}                color="#2563FF" />
+              <MetricCard label="WIN RATE"      value={`${scrimStats.winRate}%`}     color="#F59E0B" />
+              <MetricCard label="AVG PLACEMENT" value={scrimStats.avgPlacement || '—'} color="#EF3340" />
+              <MetricCard label="HEADSHOT RATE" value={`${scrimStats.hsPct}%`}       color="#2563FF" />
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#EAF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Activity size={15} color="#2563FF" />
+                </div>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224' }}>Recent Activity</span>
+              </div>
+              <Link to="/training" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#2563FF', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
+                View All <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            {recentActivity.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#64748B' }}>
+                  Your activity will appear here once you start training.
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {recentActivity.map((item, i) => (
+                  <div key={item.id || i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{
+                      width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+                      background: item.type === 'session' ? '#EAF2FF' : '#F0EDFF',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {item.type === 'session'
+                        ? <Target size={18} color="#2563FF" />
+                        : <Crosshair size={18} color="#5B3DF5" />
+                      }
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 14, color: '#0B1224', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {item.title}
+                      </div>
+                      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B' }}>
+                        {item.sub}{item.duration ? ` · ${formatDuration(item.duration)}` : ''}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      {item.type === 'session' ? (
+                        <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13, color: '#16A34A' }}>+{item.xp} XP</div>
+                      ) : (
+                        <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13, color: '#2563FF' }}>#{item.position || '—'}/{item.kills || 0}K</div>
+                      )}
+                      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#94A3B8' }}>{formatRelative(item.timestamp)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── RIGHT COLUMN ────────────────── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+          {/* Today's Focus */}
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#EAF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Zap size={15} color="#2563FF" />
+                </div>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224' }}>Today's Focus</span>
+              </div>
+              <Link to="/training" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#2563FF', textDecoration: 'none' }}>View All →</Link>
+            </div>
+
+            {/* Focus icon + title */}
+            <div style={{
+              width: 56, height: 56, borderRadius: '50%',
+              background: '#EAF2FF',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginBottom: 12,
+            }}>
+              <Target size={28} color="#2563FF" />
+            </div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224', marginBottom: 8 }}>
+              {priorityFocus ? priorityFocus.name : 'Log Matches'}
+            </div>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#64748B', lineHeight: 1.6, marginBottom: 16 }}>
+              {priorityFocus
+                ? `Flagged ${priorityFocus.count}× in matches. Drill it to improve.`
+                : 'Log a few matches to unlock AI-powered focus recommendations.'}
+            </p>
+
             <button
               onClick={() => navigate('/training')}
               style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: 'rgba(13,21,40,0.85)',
-                border: '1px solid #1B2A45',
-                borderRadius: 8, padding: '8px 16px',
-                fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
-                color: '#F8FAFC', cursor: 'pointer',
-                backdropFilter: 'blur(8px)',
-                transition: 'border-color 0.2s ease',
+                width: '100%', height: 46,
+                background: 'linear-gradient(90deg, #2563FF, #1677FF, #EF3340)',
+                color: '#FFFFFF',
+                fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 14,
+                border: 'none', borderRadius: 9, cursor: 'pointer',
+                transition: 'opacity 0.2s ease',
               }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = '#3B82F6'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = '#1B2A45'}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
             >
-              <Target size={14} color="#3B82F6" />
-              Go to Training Center
+              Start Training →
             </button>
           </div>
-        </div>
 
-        {/* Today's Focus Card */}
-        <div style={{
-          width: 280, flexShrink: 0, height: 220,
-          background: '#0D1528', border: '1px solid #1B2A45',
-          borderRadius: 16, padding: 20,
-          display: 'flex', flexDirection: 'column',
-        }}>
-          <div style={{
-            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
-            color: '#94A3B8', letterSpacing: '0.12em', textTransform: 'uppercase',
-            marginBottom: 14,
-          }}>
-            Today's Focus
-          </div>
-
-          {priorityFocus ? (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                <div style={{
-                  width: 48, height: 48, borderRadius: 12,
-                  background: 'rgba(239,68,68,0.15)',
-                  border: '1px solid rgba(239,68,68,0.3)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0,
-                  filter: 'drop-shadow(0 0 8px rgba(239,68,68,0.25))',
-                }}>
-                  <AlertTriangle size={22} color="#EF4444" />
+          {/* Activity Calendar */}
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#EAF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Zap size={15} color="#2563FF" />
                 </div>
-                <div>
-                  <div style={{
-                    fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 18,
-                    color: '#F8FAFC', lineHeight: 1.2,
-                  }}>
-                    {priorityFocus.name}
-                  </div>
-                  <div style={{
-                    fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
-                    color: '#EF4444', marginTop: 2,
-                  }}>
-                    Flagged {priorityFocus.count}× in matches
-                  </div>
-                </div>
+                <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224' }}>Activity Calendar</span>
               </div>
-              <div style={{
-                fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 13,
-                color: '#94A3B8', lineHeight: 1.5, flex: 1,
-              }}>
-                {priorityModule
-                  ? `Drill "${priorityModule.name}" to address this weakness.`
-                  : 'Hit the Training Center and run targeted drills on this area.'}
-              </div>
-            </>
-          ) : (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                <div style={{
-                  width: 48, height: 48, borderRadius: 12,
-                  background: 'rgba(34,211,238,0.12)',
-                  border: '1px solid rgba(34,211,238,0.25)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0,
-                }}>
-                  <Brain size={22} color="#22D3EE" />
-                </div>
-                <div style={{
-                  fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 18,
-                  color: '#F8FAFC', lineHeight: 1.2,
-                }}>
-                  Log Matches
-                </div>
-              </div>
-              <div style={{
-                fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 13,
-                color: '#94A3B8', lineHeight: 1.5, flex: 1,
-              }}>
-                Log a few matches to unlock AI-powered focus recommendations.
-              </div>
-            </>
-          )}
-
-          <button
-            onClick={() => navigate('/training')}
-            style={{
-              marginTop: 'auto', width: '100%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              background: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(34,211,238,0.15) 100%)',
-              border: '1px solid rgba(59,130,246,0.4)',
-              borderRadius: 8, padding: '10px',
-              fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
-              color: '#93C5FD', cursor: 'pointer',
-              transition: 'border-color 0.2s ease, color 0.2s ease',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#3B82F6'; e.currentTarget.style.color = '#F8FAFC' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(59,130,246,0.4)'; e.currentTarget.style.color = '#93C5FD' }}
-          >
-            <Target size={14} /> Start Training
-          </button>
-        </div>
-      </div>
-
-      {/* ══ ROW 2: PERFORMANCE + QUICK STATS + CALENDAR ══════ */}
-      <div style={{ display: 'flex', gap: 16 }} className="row2-grid">
-
-        {/* Performance Overview */}
-        <div style={{
-          flex: 1.5, background: '#0D1528', border: '1px solid #1B2A45',
-          borderRadius: 12, padding: 20, minWidth: 0,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-            <span style={{
-              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
-              color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
-            }}>
-              Performance Overview
-            </span>
-            <select style={{
-              background: '#101A30', border: '1px solid #1B2A45',
-              borderRadius: 6, padding: '4px 8px',
-              fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
-              color: '#CBD5E1', cursor: 'pointer', outline: 'none',
-              maxWidth: 100,
-            }}>
-              <option>This Week</option>
-              <option>Last Week</option>
-            </select>
-          </div>
-
-          <div style={{ position: 'relative', marginBottom: 16 }}>
-            <ResponsiveContainer width="100%" height={140}>
-              <LineChart data={weeklyChartData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1B2A45" />
-                <XAxis
-                  dataKey="day"
-                  tick={{ fontFamily: 'Inter', fontSize: 11, fill: '#94A3B8' }}
-                  axisLine={false} tickLine={false}
-                />
-                <YAxis
-                  domain={[0, 100]}
-                  ticks={[0, 25, 50, 75, 100]}
-                  tickFormatter={v => `${v}%`}
-                  tick={{ fontFamily: 'Inter', fontSize: 10, fill: '#94A3B8' }}
-                  axisLine={false} tickLine={false}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: '#101A30', border: '1px solid #1B2A45',
-                    borderRadius: 8, fontFamily: 'Inter', fontSize: 12,
-                  }}
-                  formatter={v => [`${v}%`, 'Activity']}
-                  labelStyle={{ color: '#94A3B8' }}
-                  itemStyle={{ color: '#3B82F6' }}
-                />
-                <Line
-                  type="monotone" dataKey="value"
-                  stroke="#3B82F6" strokeWidth={2}
-                  dot={{ fill: '#3B82F6', r: 4, strokeWidth: 0 }}
-                  activeDot={{ r: 5, fill: '#22D3EE' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* 4 mini stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
-            <MiniStat label="K/D Ratio"    value={scrimStats.kd}         color="#3B82F6" />
-            <MiniStat label="Accuracy"     value="—"                     color="#22D3EE" />
-            <MiniStat label="Headshot %"   value={`${scrimStats.hsPct}%`} color="#7C3AED" />
-            <MiniStat label="Win Rate"     value={`${scrimStats.winRate}%`} color="#22C55E" />
-          </div>
-        </div>
-
-        {/* Quick Stats */}
-        <div style={{
-          flex: 1, background: '#0D1528', border: '1px solid #1B2A45',
-          borderRadius: 12, padding: 20, minWidth: 0,
-        }}>
-          <div style={{
-            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
-            color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
-            marginBottom: 16,
-          }}>
-            Quick Stats
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <QuickStatCard icon={<Clock size={16} color="#22D3EE" />}   label="Practice Time"   value={practiceTimeWeek} sub="This week" />
-            <QuickStatCard icon={<Calendar size={16} color="#3B82F6" />} label="Sessions"        value={sessionsThisWeek} sub="This week" />
-            <QuickStatCard icon={<Crosshair size={16} color="#EF4444" />} label="Matches"        value={matchesThisWeek} sub="This week" />
-            <QuickStatCard icon={<MapPin size={16} color="#7C3AED" />}  label="Maps Played"     value={mapsThisWeek}    sub="This week" />
-          </div>
-        </div>
-
-        {/* Activity Calendar */}
-        <div style={{
-          flex: 1, background: '#0D1528', border: '1px solid #1B2A45',
-          borderRadius: 12, padding: 20, minWidth: 0,
-        }}>
-          <div style={{
-            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
-            color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
-            marginBottom: 2,
-          }}>
-            Activity Calendar
-          </div>
-          <div style={{
-            fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
-            color: '#94A3B8', marginBottom: 14,
-          }}>
-            14-Day Activity
-          </div>
-
-          {/* Day labels */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 4, marginBottom: 4 }}>
-            {['M','T','W','T','F','S','S'].map((l, i) => (
-              <div key={i} style={{
-                textAlign: 'center',
-                fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#94A3B8',
-              }}>
-                {l}
-              </div>
-            ))}
-          </div>
-
-          {/* 7×2 grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 4 }}>
-            {activityGrid.map(d => {
-              const total = d.drills + d.matches
-              const bg = total === 0 ? '#1B2A45' : total === 1 ? 'rgba(59,130,246,0.3)' : '#3B82F6'
-              return (
-                <div
-                  key={d.key}
-                  title={`${d.key}: ${total} activities`}
-                  style={{
-                    width: '100%', aspectRatio: '1/1',
-                    borderRadius: 6, background: bg,
-                    cursor: 'default',
-                  }}
-                />
-              )
-            })}
-          </div>
-
-          {/* Legend */}
-          <div style={{
-            display: 'flex', gap: 10, marginTop: 12,
-            fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#94A3B8',
-          }}>
-            {[['#3B82F6','Active'],['rgba(59,130,246,0.3)','Low'],['#1B2A45','None']].map(([c, l]) => (
-              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <div style={{ width: 10, height: 10, borderRadius: 2, background: c }} />
-                {l}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ══ ROW 3: MODULES + RECENT ACTIVITY + COACH AI ══════ */}
-      <div style={{ display: 'flex', gap: 16 }} className="row3-grid">
-
-        {/* Training Modules */}
-        <div style={{
-          flex: 1.5, background: '#0D1528', border: '1px solid #1B2A45',
-          borderRadius: 12, padding: 20, minWidth: 0,
-        }}>
-          <div style={{
-            fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
-            color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
-            marginBottom: 16,
-          }}>
-            Training Modules
-          </div>
-          <div className="training-modules-grid" style={{ gap: 10, marginBottom: 10 }}>
-            {[
-              { name: 'ADS',         sub: 'Improve Aim',      Icon: Crosshair, color: '#3B82F6', grad: 'linear-gradient(135deg,rgba(59,130,246,0.25),rgba(59,130,246,0.08))' },
-              { name: 'SPRAY',       sub: 'Control Recoil',   Icon: Flame,     color: '#22D3EE', grad: 'linear-gradient(135deg,rgba(34,211,238,0.25),rgba(34,211,238,0.08))' },
-              { name: 'CAR SPRAY',   sub: 'Vehicle Spray',    Icon: Car,       color: '#7C3AED', grad: 'linear-gradient(135deg,rgba(124,58,237,0.25),rgba(124,58,237,0.08))' },
-              { name: 'CLOSE RANGE', sub: 'Reflex Training',  Icon: Zap,       color: '#EF4444', grad: 'linear-gradient(135deg,rgba(239,68,68,0.25),rgba(239,68,68,0.08))' },
-            ].map(({ name, sub, Icon, color, grad }) => (
-              <div
-                key={name}
-                onClick={() => navigate('/training')}
-                style={{
-                  background: '#101A30', border: '1px solid #1B2A45',
-                  borderRadius: 10, padding: 16,
-                  textAlign: 'center', cursor: 'pointer',
-                  transition: 'border-color 0.2s ease, transform 0.15s ease',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.transform = 'translateY(-2px)' }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#1B2A45'; e.currentTarget.style.transform = 'none' }}
-              >
-                <div style={{
-                  width: 44, height: 44, borderRadius: 12,
-                  background: grad,
-                  border: `1px solid ${color}30`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  filter: `drop-shadow(0 2px 8px ${color}40)`,
-                }}>
-                  <Icon size={20} color={color} />
-                </div>
-                <div style={{
-                  fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 13,
-                  color: '#F8FAFC',
-                }}>
-                  {name}
-                </div>
-                <div style={{
-                  fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
-                  color: '#94A3B8',
-                }}>
-                  {sub}
-                </div>
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={() => navigate('/training')}
-            style={{
-              width: '100%', padding: '10px',
-              background: 'transparent', border: '1px dashed #1B2A45',
-              borderRadius: 8, cursor: 'pointer',
-              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
-              color: '#94A3B8',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              transition: 'border-color 0.2s ease, color 0.2s ease',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#3B82F6'; e.currentTarget.style.color = '#F8FAFC' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#1B2A45'; e.currentTarget.style.color = '#94A3B8' }}
-          >
-            <Plus size={15} /> Custom Module
-          </button>
-        </div>
-
-        {/* Recent Activity */}
-        <div style={{
-          flex: 1, background: '#0D1528', border: '1px solid #1B2A45',
-          borderRadius: 12, padding: 20, minWidth: 0,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <span style={{
-              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
-              color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
-            }}>
-              Recent Activity
-            </span>
-            <Link to="/training" style={{
-              fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#3B82F6',
-              display: 'flex', alignItems: 'center', gap: 2, textDecoration: 'none',
-            }}>
-              View All <ArrowRight size={12} />
-            </Link>
-          </div>
-
-          {recentActivity.length === 0 ? (
-            <div style={{
-              textAlign: 'center', paddingTop: 32,
-              fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#94A3B8',
-            }}>
-              No activity yet. Start training!
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B' }}>14-Day Activity</span>
             </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {recentActivity.map((item, i) => (
-                <div key={item.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                    background: item.type === 'session' ? 'rgba(59,130,246,0.12)' : 'rgba(124,58,237,0.12)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    {item.type === 'session'
-                      ? <Target size={16} color="#3B82F6" />
-                      : <Crosshair size={16} color="#7C3AED" />
-                    }
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
-                      color: '#F8FAFC',
-                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                    }}>
-                      {item.title}
-                    </div>
-                    <div style={{
-                      fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
-                      color: '#94A3B8',
-                    }}>
-                      {item.sub}{item.duration ? ` · ${formatDuration(item.duration)}` : ''}
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    {item.type === 'session' ? (
-                      <div style={{
-                        fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
-                        color: '#22C55E',
-                      }}>
-                        +{item.xp} XP
-                      </div>
-                    ) : (
-                      <div style={{
-                        fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
-                        color: '#3B82F6',
-                      }}>
-                        #{item.position || '—'}/{item.kills || 0}K
-                      </div>
-                    )}
-                    <div style={{
-                      fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
-                      color: '#64748B',
-                    }}>
-                      {formatRelative(item.timestamp)}
-                    </div>
-                  </div>
+
+            {/* Day labels */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 4, marginBottom: 6 }}>
+              {['M','T','W','T','F','S','S'].map((l, i) => (
+                <div key={i} style={{
+                  textAlign: 'center',
+                  fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11,
+                  color: '#64748B', textTransform: 'uppercase',
+                }}>
+                  {l}
                 </div>
               ))}
             </div>
-          )}
-        </div>
 
-        {/* Coach AI Insights */}
-        <div style={{
-          flex: 1, background: '#0D1528', border: '1px solid #1B2A45',
-          borderRadius: 12, padding: 20, minWidth: 0,
-          display: 'flex', flexDirection: 'column',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <span style={{
-              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 12,
-              color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.10em',
-            }}>
-              Coach AI Insights
-            </span>
-            <span style={{
-              background: 'rgba(124,58,237,0.2)', color: '#7C3AED',
-              fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 10,
-              borderRadius: 999, padding: '3px 8px',
-              border: '1px solid rgba(124,58,237,0.3)',
-            }}>
-              BETA
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
-            <div style={{
-              width: 48, height: 48, borderRadius: '50%', flexShrink: 0,
-              background: 'rgba(124,58,237,0.15)',
-              border: '1px solid rgba(124,58,237,0.25)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Brain size={24} color="#7C3AED" />
+            {/* 7×2 grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 4 }}>
+              {activityGrid.map((d, idx) => {
+                const total = d.drills + d.matches
+                const isToday = d.key === new Date().toISOString().split('T')[0]
+                let bg = '#F1F4F9'
+                if (total >= 2) bg = 'linear-gradient(135deg, #2563FF, #5B3DF5)'
+                else if (total === 1) bg = 'rgba(37,99,255,0.25)'
+                return (
+                  <div
+                    key={d.key}
+                    title={`${d.key}: ${total} activities`}
+                    style={{
+                      width: '100%', aspectRatio: '1/1',
+                      borderRadius: 9,
+                      background: bg,
+                      border: isToday ? '2px solid #2563FF' : '2px solid transparent',
+                      cursor: 'default',
+                      transition: 'transform 0.15s ease',
+                    }}
+                  />
+                )
+              })}
             </div>
-            <div style={{
-              fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 14,
-              color: heatmapData.length > 0 ? '#CBD5E1' : '#94A3B8', lineHeight: 1.6,
-              flex: 1,
-            }}>
-              {heatmapData.length > 0
-                ? `Focus on your ${heatmapData[0].name.toLowerCase()} performance. You've flagged this ${heatmapData[0].count}× — drill it consistently.`
-                : 'Log matches to unlock AI insights.'
-              }
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 12, fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#64748B' }}>
+              {[['linear-gradient(135deg,#2563FF,#5B3DF5)', 'Training'], ['rgba(37,99,255,0.25)', 'Low'], ['#F1F4F9', 'None']].map(([c, l]) => (
+                <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: 2, background: c }} />
+                  {l}
+                </div>
+              ))}
             </div>
           </div>
 
-          {heatmapData.length > 0 && (
-            <div style={{
-              borderTop: '1px solid #1B2A45',
-              marginTop: 'auto', paddingTop: 16,
-            }}>
-              <div style={{
-                fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
-                color: '#94A3B8', marginBottom: 8,
-              }}>
-                Recommended Drill
+          {/* Quick Actions */}
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#EAF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Zap size={15} color="#2563FF" />
               </div>
-              <div
-                onClick={() => navigate('/training')}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  cursor: 'pointer',
-                }}
-              >
-                <span style={{
-                  fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14,
-                  color: '#F8FAFC',
-                }}>
-                  {priorityModule?.name || heatmapData[0]?.name || 'Training Center'}
-                </span>
-                <ChevronRight size={16} color="#3B82F6" />
-              </div>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224' }}>Quick Actions</span>
             </div>
-          )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                { label: 'Start Training',  icon: <Target size={20} color="#2563FF" />,  to: '/training' },
+                { label: 'Log Match',       icon: <Crosshair size={20} color="#EF3340" />, to: '/match-logger' },
+                { label: 'View Roadmap',    icon: <Map size={20} color="#5B3DF5" />,     to: '/roadmap' },
+                { label: 'Ask AI Coach',    icon: <Brain size={20} color="#F59E0B" />,    to: '/ai-coach' },
+              ].map(({ label, icon, to }) => (
+                <button
+                  key={label}
+                  onClick={() => navigate(to)}
+                  style={{
+                    height: 52,
+                    border: '1px solid #E5EAF3',
+                    borderRadius: 12,
+                    padding: '0 16px',
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    background: 'transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                    width: '100%',
+                    textAlign: 'left',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = '#2563FF'
+                    e.currentTarget.style.background = '#EEF4FF'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = '#E5EAF3'
+                    e.currentTarget.style.background = 'transparent'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  {icon}
+                  <span style={{ flex: 1, fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: '#0B1224' }}>
+                    {label}
+                  </span>
+                  <ChevronRight size={16} color="#64748B" />
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
       <style>{`
         @media (max-width: 1100px) {
-          .row2-grid, .row3-grid { flex-direction: column !important; }
+          .main-grid { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 700px) {
-          .row1-grid { flex-direction: column !important; }
-          .row1-grid > div:last-child { width: 100% !important; height: auto !important; }
+          .stats-grid { grid-template-columns: repeat(2,1fr) !important; }
         }
-        .training-modules-grid {
-          display: grid;
-          /* minmax(0, 1fr) — not plain 1fr — so a card's own content
-             (e.g. "CLOSE RANGE" not wrapping) can never force its
-             track wider than its equal share, which is exactly what
-             was pushing the 4th card off the right edge on mobile. */
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-        @media (min-width: 480px) {
-          .training-modules-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-          }
+        @media (max-width: 420px) {
+          .stats-grid { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 480px) {
-          .stat-pills-row {
+          .hero-pills {
             flex-wrap: nowrap !important;
             overflow-x: auto;
             scroll-snap-type: x proximity;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
             -ms-overflow-style: none;
-            margin: 0 -12px;
-            padding: 0 12px 4px;
           }
-          .stat-pills-row::-webkit-scrollbar { display: none; }
-          .stat-pills-row > * { scroll-snap-align: start; flex-shrink: 0; }
+          .hero-pills::-webkit-scrollbar { display: none; }
+          .hero-pills > * { scroll-snap-align: start; flex-shrink: 0; }
         }
       `}</style>
     </div>
   )
 }
 
+/* ── Card style constant ──────────────────────────────────── */
+const cardStyle = {
+  background: '#FFFFFF',
+  border: '1px solid #E5EAF3',
+  borderRadius: 16,
+  padding: 24,
+  boxShadow: '0 4px 18px rgba(31,41,55,0.04)',
+  transition: 'box-shadow 0.2s ease',
+}
+
 /* ── Sub-components ──────────────────────────────────────── */
-function TopPill({ icon, label }) {
+function HeroPill({ color, label }) {
   return (
     <div style={{
+      height: 38,
+      padding: '0 14px',
+      borderRadius: 999,
+      background: 'rgba(255,255,255,0.85)',
+      border: '1px solid #DCE5F4',
+      backdropFilter: 'blur(8px)',
       display: 'inline-flex', alignItems: 'center', gap: 6,
-      background: 'rgba(13,21,40,0.6)',
-      border: '1px solid #1B2A45',
-      borderRadius: 20, padding: '5px 12px',
       fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13,
-      color: '#CBD5E1', whiteSpace: 'nowrap',
+      color: '#0B1224', whiteSpace: 'nowrap',
     }}>
-      {icon}{label}
+      <span style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }} />
+      {label}
     </div>
   )
 }
 
-function MiniStat({ label, value, color }) {
+function QuickStatCard({ iconBg, icon, title, value, sub }) {
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid #E5EAF3',
+        borderRadius: 14,
+        padding: 20,
+        boxShadow: '0 4px 18px rgba(31,41,55,0.04)',
+        cursor: 'default',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.transform = 'translateY(-2px)'
+        e.currentTarget.style.boxShadow = '0 8px 30px rgba(37,99,255,0.08)'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = '0 4px 18px rgba(31,41,55,0.04)'
+      }}
+    >
       <div style={{
-        fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 18,
-        color: color || '#F8FAFC', lineHeight: 1, marginBottom: 4,
+        width: 44, height: 44, borderRadius: 12,
+        background: iconBg,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        marginBottom: 14,
       }}>
-        {value}
+        {icon}
       </div>
-      <div style={{
-        fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
-        color: '#94A3B8',
-      }}>
-        {label}
-      </div>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: '#0B1224', marginBottom: 6 }}>{title}</div>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: 28, color: '#0B1224', lineHeight: 1, marginBottom: 4 }}>{value}</div>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13, color: '#64748B' }}>{sub}</div>
     </div>
   )
 }
 
-function QuickStatCard({ icon, label, value, sub }) {
+function MetricCard({ label, value, color }) {
   return (
     <div style={{
-      background: '#101A30', border: '1px solid #1B2A45',
-      borderRadius: 8, padding: 12,
+      border: '1px solid #E5EAF3',
+      borderRadius: 12,
+      padding: 16,
+      textAlign: 'center',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-        {icon}
-        <span style={{
-          fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
-          color: '#94A3B8',
-        }}>
-          {label}
-        </span>
-      </div>
       <div style={{
-        fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 20,
-        color: '#F8FAFC', lineHeight: 1, marginBottom: 4,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8,
       }}>
-        {value}
+        <span style={{ width: 8, height: 8, borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />
+        <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 11, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.10em' }}>{label}</span>
       </div>
-      <div style={{
-        fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 11,
-        color: '#94A3B8',
-      }}>
-        {sub}
-      </div>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 24, color: '#0B1224', lineHeight: 1, marginBottom: 4 }}>{value}</div>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#94A3B8' }}>—</div>
     </div>
   )
 }

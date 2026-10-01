@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Menu, Bell } from 'lucide-react'
+import { Menu, Bell, Search, ChevronDown } from 'lucide-react'
 import { useAvatar } from '../hooks/useAvatar.js'
 import { getInitials } from '../utils/helpers.js'
 import { getDisplayName } from '../utils/storage.js'
@@ -14,6 +14,7 @@ export default function TopBar({ title }) {
   const { xp } = useUserData()
   const { unreadCount } = useNotifications()
   const [panelOpen, setPanelOpen] = useState(false)
+  const [searchFocused, setSearchFocused] = useState(false)
 
   function openMobileSidebar() {
     window.dispatchEvent(new Event('esports-elite:sidebar-open'))
@@ -25,142 +26,169 @@ export default function TopBar({ title }) {
   return (
     <>
       <header style={{
-        background: 'var(--header)',
-        borderBottom: '1px solid var(--border)',
+        background: 'rgba(255,255,255,0.94)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderBottom: '1px solid #E5EAF3',
+        height: 76,
         position: 'sticky',
         top: 0,
         zIndex: 20,
-        padding: '0 clamp(12px, 4vw, 24px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 32px',
+        gap: 16,
       }}>
+
+        {/* ── LEFT: mobile menu + search ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, maxWidth: 520 }}>
+          <button
+            onClick={openMobileSidebar}
+            aria-label="Open menu"
+            className="mobile-menu-btn"
+            style={{
+              padding: 4,
+              background: 'transparent', border: 'none',
+              cursor: 'pointer', color: '#64748B',
+              display: 'none', flexShrink: 0,
+            }}
+          >
+            <Menu size={20} />
+          </button>
+
+          {/* Search bar */}
+          <div style={{
+            flex: 1,
+            height: 44,
+            background: '#F8FAFD',
+            border: `1px solid ${searchFocused ? '#2563FF' : '#E3E9F3'}`,
+            borderRadius: 10,
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '0 16px',
+            transition: 'border-color 0.15s ease',
+            cursor: 'text',
+          }}
+            className="topbar-search"
+          >
+            <Search size={20} color="#94A3B8" style={{ flexShrink: 0 }} />
+            <input
+              type="text"
+              placeholder="Search training modules, guides, or matches..."
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              style={{
+                flex: 1, border: 'none', background: 'transparent', outline: 'none',
+                fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#0B1224',
+              }}
+            />
+          </div>
+        </div>
+
+        {/* ── RIGHT: bell + avatar + CTA ── */}
         <div style={{
           display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
+          alignItems: 'center',
           gap: 16,
-          padding: '16px 0 14px',
+          flexShrink: 0,
         }}>
-
-          {/* ── LEFT: mobile menu button only ── */}
-          <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-            <button
-              onClick={openMobileSidebar}
-              aria-label="Open menu"
-              className="mobile-menu-btn"
-              style={{
-                padding: 4,
-                background: 'transparent', border: 'none',
-                cursor: 'pointer', color: 'var(--text-subtle)',
-                display: 'none',
-              }}
-            >
-              <Menu size={20} />
-            </button>
-          </div>
-
-          {/* ── RIGHT: bell + avatar + CTA ── */}
-          <div className="topbar-actions" style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            gap: 10,
-            flex: '1 1 auto',
-            minWidth: 0,
-            overflowX: 'auto',
-          }}>
-            {/* Bell */}
-            <button
-              onClick={() => setPanelOpen(true)}
-              aria-label="Notifications"
-              style={{
-                position: 'relative',
-                padding: 8, background: 'transparent',
-                border: 'none', cursor: 'pointer',
-                color: 'var(--text-subtle)',
-                display: 'flex',
-                flexShrink: 0,
-                transition: 'color 0.15s ease',
-              }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-subtle)'}
-            >
-              <Bell size={18} />
-              {unreadCount > 0 && (
-                <span style={{
-                  position: 'absolute', top: 4, right: 4,
-                  width: 7, height: 7, borderRadius: '50%',
-                  background: 'var(--blue)',
-                }} />
-              )}
-            </button>
-
-            {/* Avatar */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-              {avatar ? (
-                <img
-                  src={avatar}
-                  alt=""
-                  style={{
-                    width: 34, height: 34, borderRadius: '50%',
-                    objectFit: 'cover',
-                    border: '1px solid var(--border)',
-                  }}
-                />
-              ) : (
-                <div style={{
-                  width: 34, height: 34, borderRadius: '50%',
-                  background: 'rgba(59,130,246,0.12)',
-                  border: '1px solid var(--border)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'Oxanium, sans-serif',
-                  fontWeight: 700, fontSize: 12,
-                  color: 'var(--blue)',
-                }}>
-                  {initials}
-                </div>
-              )}
+          {/* Bell */}
+          <button
+            onClick={() => setPanelOpen(true)}
+            aria-label="Notifications"
+            style={{
+              position: 'relative',
+              width: 40, height: 40,
+              background: '#F8FAFF',
+              border: '1px solid #E5EAF3',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#475569',
+              flexShrink: 0,
+              transition: 'color 0.15s ease, border-color 0.15s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#2563FF'; e.currentTarget.style.borderColor = '#2563FF' }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#E5EAF3' }}
+          >
+            <Bell size={20} />
+            {unreadCount > 0 && (
               <span style={{
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 500, fontSize: 13,
-                color: 'var(--text-muted)',
-                display: 'none',
-              }} className="topbar-name">
-                {displayName}
-              </span>
-            </div>
+                position: 'absolute', top: 6, right: 6,
+                width: 8, height: 8, borderRadius: '50%',
+                background: '#2563FF',
+                border: '2px solid #fff',
+              }} />
+            )}
+          </button>
 
-            {/* Start Training CTA */}
-            <button
-              type="button"
-              onClick={() => navigate('/training')}
-              style={{
-                background: 'linear-gradient(135deg, var(--blue-bright) 0%, var(--blue) 100%)',
-                color: '#fff',
-                fontFamily: 'Oxanium, sans-serif',
+          {/* Divider */}
+          <div style={{ width: 1, height: 24, background: '#E5EAF3', flexShrink: 0 }} />
+
+          {/* Avatar + name */}
+          <div
+            style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', flexShrink: 0 }}
+            onClick={() => navigate('/profile')}
+          >
+            {avatar ? (
+              <img
+                src={avatar}
+                alt=""
+                style={{
+                  width: 40, height: 40, borderRadius: '50%',
+                  objectFit: 'cover', border: '1px solid #E5EAF3',
+                }}
+              />
+            ) : (
+              <div style={{
+                width: 40, height: 40, borderRadius: '50%',
+                background: '#EAF2FF',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'Inter, sans-serif',
                 fontWeight: 700, fontSize: 14,
-                padding: '10px 18px',
-                borderRadius: 8,
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: 6,
-                whiteSpace: 'nowrap',
+                color: '#2563FF',
                 flexShrink: 0,
-                position: 'relative',
-                zIndex: 10,
-                pointerEvents: 'auto',
-                transition: 'opacity 0.2s ease, box-shadow 0.2s ease',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.opacity = '0.9'
-                e.currentTarget.style.boxShadow = '0 0 20px rgba(37,99,235,0.4)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.opacity = '1'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              ▶ Start Training
-            </button>
+              }}>
+                {initials}
+              </div>
+            )}
+            <span className="topbar-name" style={{
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 600, fontSize: 15,
+              color: '#0B1224',
+            }}>
+              {displayName}
+            </span>
+            <ChevronDown size={16} color="#64748B" className="topbar-name" />
           </div>
+
+          {/* Divider */}
+          <div style={{ width: 1, height: 24, background: '#E5EAF3', flexShrink: 0 }} className="topbar-name" />
+
+          {/* Start Training CTA */}
+          <button
+            type="button"
+            onClick={() => navigate('/training')}
+            style={{
+              background: 'linear-gradient(90deg, #2563FF, #EF3340)',
+              color: '#FFFFFF',
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 600, fontSize: 14,
+              padding: '0 24px',
+              height: 44,
+              borderRadius: 10,
+              border: 'none',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              boxShadow: '0 4px 14px rgba(37,99,255,0.25)',
+              transition: 'opacity 0.2s ease, transform 0.2s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.opacity = '0.92'; e.currentTarget.style.transform = 'scale(1.01)' }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)' }}
+          >
+            Start Training →
+          </button>
         </div>
       </header>
 
@@ -170,14 +198,14 @@ export default function TopBar({ title }) {
         @media (max-width: 768px) {
           .mobile-menu-btn { display: flex !important; }
           .topbar-name { display: none !important; }
+          .topbar-search { display: none !important; }
         }
         @media (min-width: 769px) {
-          .topbar-name { display: inline !important; }
+          .topbar-name { display: inline-flex !important; }
+          .topbar-search { display: flex !important; }
         }
-        .topbar-actions { scrollbar-width: none; -ms-overflow-style: none; }
-        .topbar-actions::-webkit-scrollbar { display: none; }
+        input::placeholder { color: #94A3B8; }
       `}</style>
     </>
   )
 }
-

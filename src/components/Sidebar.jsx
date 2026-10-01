@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
-  Home, Target, User, ChevronLeft, ChevronRight,
-  LogOut, Crosshair, X, ClipboardList, BarChart2, Bell, Shield,
-  Users, Map, Trophy, CalendarClock, BookOpen, ChevronDown, Settings,
-  Award, Bot, Compass,
+  LayoutDashboard, Target, ChevronLeft, ChevronRight,
+  LogOut, Crosshair, X, BarChart2, Bell, Shield,
+  Users, Map, Trophy, Calendar, BookOpen, Settings,
+  Award, Brain, Compass, Gamepad2, CreditCard, Crown,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useAvatar } from '../hooks/useAvatar.js'
@@ -25,16 +25,17 @@ const NAV_SECTIONS = [
   {
     title: 'Main',
     items: [
-      { to: '/dashboard', label: 'Dashboard', icon: Home },
-      { to: '/roadmap',   label: 'Roadmap',   icon: Compass },
+      { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { to: '/roadmap',   label: 'Roadmap',   icon: Map },
     ],
   },
   {
     title: 'Training',
     items: [
       { to: '/training',      label: 'Training Center', icon: Target },
-      { to: '/ai-coach',      label: 'AI Coach',        icon: Bot },
-      { to: '/scheduler',     label: 'Scheduler',       icon: CalendarClock },
+      { to: '/ai-coach',      label: 'AI Coach',        icon: Brain },
+      { to: '/scheduler',     label: 'Scheduler',       icon: Calendar },
+      { to: '/match-logger',  label: 'Match Logger',    icon: Gamepad2 },
       { to: '/analytics',     label: 'Analytics',       icon: BarChart2 },
       { to: '/training-plan', label: 'Training Plan',   icon: BookOpen },
     ],
@@ -46,23 +47,10 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    title: 'Esports',
+    title: 'Account',
     items: [
-      { to: '/tournaments',  label: 'Tournaments',  icon: Trophy },
-      { to: '/leaderboards', label: 'Leaderboards', icon: Award },
-    ],
-  },
-  {
-    title: 'Game Knowledge',
-    items: [
-      { to: '/map-knowledge', label: 'Map Knowledge', icon: Map },
-      { to: '/weapons',       label: 'Weapons Guide',  icon: Crosshair },
-    ],
-  },
-  {
-    title: 'Profile',
-    items: [
-      { to: '/profile', label: 'My Profile', icon: User },
+      { to: '/billing',  label: 'Billing',  icon: CreditCard },
+      { to: '/profile',  label: 'Settings', icon: Settings },
     ],
   },
 ]
@@ -137,25 +125,22 @@ export default function Sidebar({ collapsed, onToggle }) {
   const isMobile = viewport === 'mobile'
   const isTablet = viewport === 'tablet'
   const labelsHidden = isTablet || (!isMobile && collapsed)
-  const sidebarWidth = isMobile ? 260 : isTablet ? 60 : (collapsed ? 60 : 220)
+  const sidebarWidth = isMobile ? 260 : isTablet ? 60 : (collapsed ? 60 : 250)
 
   const sidebarStyle = {
     position: 'fixed',
     left: 0, top: 0,
-    /* dvh tracks the browser's actual visible viewport (shrinks
-       when a mobile toolbar is showing) instead of the old 100vh,
-       which is pinned to the tallest possible viewport and can let
-       a fixed drawer's bottom edge sit below the visible fold. */
     height: '100dvh',
     width: sidebarWidth,
-    background: 'var(--sidebar)',
-    borderRight: '1px solid var(--border)',
+    background: '#FFFFFF',
+    borderRight: '1px solid #E5EAF3',
     zIndex: isMobile ? 9999 : 50,
     display: 'flex',
     flexDirection: 'column',
     transition: 'transform 0.25s ease, width 0.25s ease',
     transform: isMobile && !mobileOpen ? 'translateX(-100%)' : 'translateX(0)',
     overflow: 'hidden',
+    boxShadow: '2px 0 16px rgba(15,23,42,0.04)',
   }
 
   return (
@@ -165,41 +150,30 @@ export default function Sidebar({ collapsed, onToggle }) {
           onClick={() => setMobileOpen(false)}
           style={{
             position: 'fixed', inset: 0, zIndex: 9998,
-            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+            background: 'rgba(11,18,36,0.5)', backdropFilter: 'blur(4px)',
           }}
         />
       )}
 
       <aside className="sidebar" style={sidebarStyle}>
 
-        {/* ── Logo row ─────────────────────── */}
+        {/* ── Brand row ─────────────────────── */}
         <div style={{
-          height: 60, padding: '0 16px',
-          borderBottom: '1px solid var(--border)',
-          display: 'flex', alignItems: 'center', gap: 10,
+          height: 78,
+          padding: '18px 24px',
+          borderBottom: '1px solid #E5EAF3',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
           flexShrink: 0,
         }}>
           {!logoFailed && (
             <img
               src="/assets/logo.png"
-              alt=""
-              style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }}
+              alt="Esports Elite"
+              style={{ height: 40, width: 'auto', objectFit: 'contain', flexShrink: 0 }}
               onError={(e) => { e.currentTarget.style.display = 'none'; setLogoFailed(true) }}
             />
-          )}
-          {!labelsHidden && (
-            <span style={{
-              fontFamily: 'Oxanium, sans-serif',
-              fontWeight: 700, fontSize: 14,
-              color: 'var(--text-primary)',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              flex: 1,
-            }}>
-              Esports Elite
-            </span>
           )}
           {isMobile && (
             <button
@@ -208,7 +182,7 @@ export default function Sidebar({ collapsed, onToggle }) {
               style={{
                 marginLeft: 'auto', padding: 6,
                 background: 'transparent', border: 'none',
-                cursor: 'pointer', color: 'var(--text-subtle)',
+                cursor: 'pointer', color: '#64748B',
                 display: 'flex',
               }}
             >
@@ -218,21 +192,21 @@ export default function Sidebar({ collapsed, onToggle }) {
         </div>
 
         {/* ── Nav ──────────────────────────── */}
-        <nav style={{ flex: 1, padding: '12px 8px', overflowY: 'auto' }}>
+        <nav style={{ flex: 1, overflowY: 'auto', paddingTop: 8, paddingBottom: 8 }}>
           {NAV_SECTIONS.map(section => (
-            <div key={section.title} style={{ marginBottom: 16 }}>
+            <div key={section.title} style={{ marginBottom: 4 }}>
               {!labelsHidden && (
                 <div style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontWeight: 500, fontSize: 11,
-                  textTransform: 'uppercase', letterSpacing: '0.10em',
-                  color: 'var(--text-subtle)',
-                  padding: '0 8px 6px',
+                  fontFamily: 'Rajdhani, sans-serif',
+                  fontWeight: 600, fontSize: 10,
+                  textTransform: 'uppercase', letterSpacing: '0.15em',
+                  color: '#64748B',
+                  padding: '20px 20px 6px',
                 }}>
                   {section.title}
                 </div>
               )}
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                 {section.items.map(item => {
                   const Icon = item.icon
                   return (
@@ -243,19 +217,36 @@ export default function Sidebar({ collapsed, onToggle }) {
                         style={({ isActive }) => ({
                           display: 'flex',
                           alignItems: 'center',
-                          gap: 10,
-                          padding: labelsHidden ? '10px 0' : '10px 16px',
+                          gap: 12,
+                          height: 44,
+                          padding: labelsHidden ? '0' : '0 14px',
                           justifyContent: labelsHidden ? 'center' : 'flex-start',
-                          borderRadius: isActive ? '0 8px 8px 0' : '8px',
-                          background: isActive ? 'rgba(59,130,246,0.10)' : 'transparent',
-                          borderLeft: isActive ? '3px solid var(--blue)' : '3px solid transparent',
-                          color: isActive ? 'var(--text-primary)' : 'var(--text-subtle)',
+                          margin: '2px 10px',
+                          borderRadius: 10,
+                          background: isActive
+                            ? 'linear-gradient(90deg, #EEF4FF, #F7F9FF)'
+                            : 'transparent',
+                          borderLeft: isActive ? '3px solid #2563FF' : '3px solid transparent',
+                          color: isActive ? '#2563FF' : '#475569',
                           fontFamily: 'Inter, sans-serif',
                           fontWeight: 500, fontSize: 14,
                           textDecoration: 'none',
                           transition: 'all 0.15s ease',
                           cursor: 'pointer',
+                          position: 'relative',
                         })}
+                        onMouseEnter={e => {
+                          if (!e.currentTarget.style.background.includes('EEF4FF')) {
+                            e.currentTarget.style.background = '#F8FAFF'
+                            e.currentTarget.style.color = '#0B1224'
+                          }
+                        }}
+                        onMouseLeave={e => {
+                          if (!e.currentTarget.style.background.includes('EEF4FF')) {
+                            e.currentTarget.style.background = 'transparent'
+                            e.currentTarget.style.color = '#475569'
+                          }
+                        }}
                       >
                         {({ isActive }) => (
                           <>
@@ -264,7 +255,7 @@ export default function Sidebar({ collapsed, onToggle }) {
                               strokeWidth={2}
                               style={{
                                 flexShrink: 0,
-                                color: isActive ? 'var(--blue)' : 'currentColor',
+                                color: isActive ? '#2563FF' : '#64748B',
                               }}
                             />
                             {!labelsHidden && (
@@ -281,25 +272,26 @@ export default function Sidebar({ collapsed, onToggle }) {
           ))}
 
           {isAdmin && !labelsHidden && (
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 4 }}>
               <div style={{
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 500, fontSize: 11,
-                textTransform: 'uppercase', letterSpacing: '0.10em',
-                color: 'var(--text-subtle)',
-                padding: '0 8px 6px',
+                fontFamily: 'Rajdhani, sans-serif',
+                fontWeight: 600, fontSize: 10,
+                textTransform: 'uppercase', letterSpacing: '0.15em',
+                color: '#64748B',
+                padding: '20px 20px 6px',
               }}>
                 Admin
               </div>
               <NavLink
                 to="/admin"
                 style={({ isActive }) => ({
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '10px 16px',
-                  borderRadius: isActive ? '0 8px 8px 0' : '8px',
-                  background: isActive ? 'rgba(59,130,246,0.10)' : 'transparent',
-                  borderLeft: isActive ? '3px solid var(--blue)' : '3px solid transparent',
-                  color: isActive ? 'var(--text-primary)' : 'var(--text-subtle)',
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  height: 44, padding: '0 14px',
+                  margin: '2px 10px',
+                  borderRadius: 10,
+                  background: isActive ? 'linear-gradient(90deg, #EEF4FF, #F7F9FF)' : 'transparent',
+                  borderLeft: isActive ? '3px solid #2563FF' : '3px solid transparent',
+                  color: isActive ? '#2563FF' : '#475569',
                   fontFamily: 'Inter, sans-serif',
                   fontWeight: 500, fontSize: 14,
                   textDecoration: 'none',
@@ -308,7 +300,7 @@ export default function Sidebar({ collapsed, onToggle }) {
               >
                 {({ isActive }) => (
                   <>
-                    <Shield size={18} strokeWidth={2} style={{ flexShrink: 0, color: isActive ? 'var(--blue)' : 'currentColor' }} />
+                    <Shield size={18} strokeWidth={2} style={{ flexShrink: 0, color: isActive ? '#2563FF' : '#64748B' }} />
                     <span>Admin Panel</span>
                   </>
                 )}
@@ -317,14 +309,52 @@ export default function Sidebar({ collapsed, onToggle }) {
           )}
         </nav>
 
+        {/* ── Upgrade card ─────────────────── */}
+        {!labelsHidden && (
+          <div style={{
+            margin: '0 10px 4px',
+            background: 'linear-gradient(135deg, #EEF4FF, #FFF0F3)',
+            border: '1px solid #DCE5FA',
+            borderRadius: 12,
+            padding: 14,
+            flexShrink: 0,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <Crown size={20} color="#2563FF" />
+              <span style={{
+                fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 14,
+                color: '#0B1224',
+              }}>
+                Upgrade to Elite
+              </span>
+            </div>
+            <p style={{
+              fontFamily: 'Inter, sans-serif', fontSize: 13,
+              color: '#64748B', lineHeight: 1.5, marginBottom: 8,
+            }}>
+              Unlock AI Coach, advanced analytics and more.
+            </p>
+            <button
+              onClick={() => navigate('/billing')}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
+                color: '#EF3340', padding: 0,
+              }}
+            >
+              Upgrade →
+            </button>
+          </div>
+        )}
+
         {/* ── User card ────────────────────── */}
         {!labelsHidden && (
           <div style={{
-            padding: '12px 16px',
-            borderTop: '1px solid var(--border)',
+            padding: 16,
+            borderTop: '1px solid #E5EAF3',
             flexShrink: 0,
           }}>
-            {/* Avatar + name + level row */}
+            {/* Avatar + name + level */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               {avatar ? (
                 <img
@@ -332,19 +362,17 @@ export default function Sidebar({ collapsed, onToggle }) {
                   alt=""
                   style={{
                     width: 40, height: 40, borderRadius: '50%',
-                    objectFit: 'cover',
-                    border: '1px solid var(--border)',
+                    objectFit: 'cover', border: '1px solid #E5EAF3',
                     flexShrink: 0,
                   }}
                 />
               ) : (
                 <div style={{
                   width: 40, height: 40, borderRadius: '50%',
-                  background: 'rgba(59,130,246,0.10)',
-                  border: '1px solid var(--border)',
+                  background: '#EAF2FF',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 14,
-                  color: 'var(--blue)',
+                  fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 14,
+                  color: '#2563FF',
                   flexShrink: 0,
                 }}>
                   {initials}
@@ -352,165 +380,108 @@ export default function Sidebar({ collapsed, onToggle }) {
               )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
-                  fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
-                  color: '#F8FAFC',
+                  fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14,
+                  color: '#0B1224',
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                   marginBottom: 4,
                 }}>
                   {displayName}
                 </div>
-                {/* Level badge pill */}
                 <span style={{
                   display: 'inline-block',
-                  background: '#101A30', border: '1px solid #1B2A45',
+                  background: '#EAF2FF',
                   borderRadius: 999, padding: '2px 8px',
-                  fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 11,
-                  color: '#3B82F6',
+                  fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 10,
+                  color: '#2563FF',
+                  textTransform: 'uppercase', letterSpacing: '0.05em',
                 }}>
                   Level {levelNum + 1}
                 </span>
               </div>
             </div>
 
-            {/* XP bar */}
-            <div style={{ marginBottom: 4 }}>
-              <div style={{
-                width: '100%', height: 3,
-                background: 'var(--border)',
-                borderRadius: 2,
-                overflow: 'hidden',
-              }}>
-                <div style={{
-                  height: '100%', width: `${xpPct}%`,
-                  background: '#3B82F6',
-                  borderRadius: 2,
-                  boxShadow: '0 0 6px rgba(59,130,246,0.5)',
-                  transition: 'width 0.4s ease',
-                }} />
-              </div>
-            </div>
+            {/* XP label + bar */}
             <div style={{
-              fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 10,
-              color: '#94A3B8', marginBottom: 10,
+              fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 12,
+              color: '#64748B', marginBottom: 6,
             }}>
               {xp.toLocaleString()} / {(ceil || xp).toLocaleString()} XP
             </div>
+            <div style={{
+              width: '100%', height: 4,
+              background: '#E5EAF3',
+              borderRadius: 999, overflow: 'hidden', marginBottom: 10,
+            }}>
+              <div style={{
+                height: '100%', width: `${xpPct}%`,
+                background: 'linear-gradient(90deg, #2563FF, #5B3DF5)',
+                borderRadius: 999,
+                transition: 'width 0.4s ease',
+              }} />
+            </div>
 
-            {/* Icons row: settings + notifications + logout */}
-            <div style={{ display: 'flex', gap: 4 }}>
-              <button
-                onClick={() => navigate('/profile')}
-                title="Settings"
-                style={{
-                  flex: 1, padding: '7px 0',
-                  background: 'transparent',
-                  border: '1px solid var(--border)',
-                  borderRadius: 6,
-                  cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'var(--text-subtle)',
-                  transition: 'all 0.15s ease',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--divider)' }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-subtle)'; e.currentTarget.style.borderColor = 'var(--border)' }}
-              >
-                <Settings size={15} />
-              </button>
-              <button
-                onClick={() => setPanelOpen(true)}
-                title="Notifications"
-                style={{
-                  flex: 1, padding: '7px 0',
-                  background: 'transparent',
-                  border: '1px solid var(--border)',
-                  borderRadius: 6,
-                  cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  gap: 4,
-                  color: 'var(--text-subtle)',
-                  position: 'relative',
-                  transition: 'all 0.15s ease',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--divider)' }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-subtle)'; e.currentTarget.style.borderColor = 'var(--border)' }}
-              >
-                <Bell size={15} />
-                {unreadCount > 0 && (
-                  <span style={{
-                    position: 'absolute', top: 4, right: 10,
-                    width: 7, height: 7, borderRadius: '50%',
-                    background: 'var(--blue)',
-                  }} />
-                )}
-              </button>
-              <button
-                onClick={logout}
-                title="Logout"
-                style={{
-                  flex: 1, padding: '7px 0',
-                  background: 'transparent',
-                  border: '1px solid var(--border)',
-                  borderRadius: 6,
-                  cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'var(--text-subtle)',
-                  transition: 'all 0.15s ease',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.color = 'var(--danger)'; e.currentTarget.style.borderColor = 'var(--danger)' }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-subtle)'; e.currentTarget.style.borderColor = 'var(--border)' }}
-              >
-                <LogOut size={15} />
-              </button>
+            {/* Icon buttons row */}
+            <div style={{ display: 'flex', gap: 6 }}>
+              {[
+                { icon: <Settings size={16} />, title: 'Settings', onClick: () => navigate('/profile') },
+                { icon: <Bell size={16} />, title: 'Notifications', onClick: () => setPanelOpen(true), badge: unreadCount > 0 },
+                { icon: <LogOut size={16} />, title: 'Logout', onClick: logout, danger: true },
+              ].map(({ icon, title, onClick, badge, danger }) => (
+                <button
+                  key={title}
+                  onClick={onClick}
+                  title={title}
+                  aria-label={title}
+                  style={{
+                    flex: 1, height: 32,
+                    background: '#F8FAFF',
+                    border: '1px solid #E5EAF3',
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#64748B',
+                    position: 'relative',
+                    transition: 'color 0.15s ease, border-color 0.15s ease',
+                    minWidth: 32, maxWidth: 32,
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.color = danger ? '#EF3340' : '#2563FF'
+                    e.currentTarget.style.borderColor = danger ? '#EF3340' : '#2563FF'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.color = '#64748B'
+                    e.currentTarget.style.borderColor = '#E5EAF3'
+                  }}
+                >
+                  {icon}
+                  {badge && (
+                    <span style={{
+                      position: 'absolute', top: 4, right: 4,
+                      width: 6, height: 6, borderRadius: '50%',
+                      background: '#2563FF',
+                    }} />
+                  )}
+                </button>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Collapsed: icon-only bottom row */}
+        {/* Collapsed icon-only bottom */}
         {labelsHidden && !isMobile && (
           <div style={{
             padding: '8px 0 12px',
-            borderTop: '1px solid var(--border)',
+            borderTop: '1px solid #E5EAF3',
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
           }}>
-            <button
-              onClick={() => navigate('/profile')}
-              title="Settings"
-              style={{
-                padding: '9px', background: 'transparent',
-                border: 'none', cursor: 'pointer',
-                color: 'var(--text-subtle)', display: 'flex',
-              }}
-            >
+            <button onClick={() => navigate('/profile')} title="Settings" style={{ padding: 9, background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex' }}>
               <Settings size={16} />
             </button>
-            <button
-              onClick={() => setPanelOpen(true)}
-              title="Notifications"
-              style={{
-                padding: '9px', background: 'transparent',
-                border: 'none', cursor: 'pointer',
-                color: 'var(--text-subtle)',
-                display: 'flex', position: 'relative',
-              }}
-            >
+            <button onClick={() => setPanelOpen(true)} title="Notifications" style={{ padding: 9, background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex', position: 'relative' }}>
               <Bell size={16} />
-              {unreadCount > 0 && (
-                <span style={{
-                  position: 'absolute', top: 6, right: 6,
-                  width: 6, height: 6, borderRadius: '50%',
-                  background: 'var(--blue)',
-                }} />
-              )}
+              {unreadCount > 0 && <span style={{ position: 'absolute', top: 6, right: 6, width: 6, height: 6, borderRadius: '50%', background: '#2563FF' }} />}
             </button>
-            <button
-              onClick={logout}
-              title="Logout"
-              style={{
-                padding: '9px', background: 'transparent',
-                border: 'none', cursor: 'pointer',
-                color: 'var(--text-subtle)', display: 'flex',
-              }}
-            >
+            <button onClick={logout} title="Logout" style={{ padding: 9, background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex' }}>
               <LogOut size={16} />
             </button>
           </div>
@@ -522,30 +493,29 @@ export default function Sidebar({ collapsed, onToggle }) {
             onClick={onToggle}
             title={collapsed ? 'Expand' : 'Collapse'}
             style={{
-              position: 'absolute', top: 18, right: -12,
+              position: 'absolute', top: 24, right: -12,
               width: 24, height: 24, borderRadius: '50%',
-              background: '#101A30',
-              border: '1px solid #1B2A45',
-              color: 'var(--text-subtle)',
+              background: '#FFFFFF',
+              border: '1px solid #E5EAF3',
+              color: '#64748B',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer', zIndex: 51,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.45)',
-              transition: 'border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease',
+              boxShadow: '0 2px 8px rgba(15,23,42,0.1)',
+              transition: 'border-color 0.15s ease, color 0.15s ease',
             }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = '#3B82F6'
-              e.currentTarget.style.color = '#3B82F6'
-              e.currentTarget.style.boxShadow = '0 0 12px rgba(59,130,246,0.35)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = '#1B2A45'
-              e.currentTarget.style.color = 'var(--text-subtle)'
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.45)'
-            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#2563FF'; e.currentTarget.style.color = '#2563FF' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5EAF3'; e.currentTarget.style.color = '#64748B' }}
           >
             {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
           </button>
         )}
+
+        {/* Subtle bottom gradient */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: 120,
+          background: 'linear-gradient(to top, rgba(37,99,255,0.03), transparent)',
+          pointerEvents: 'none',
+        }} />
       </aside>
 
       <NotificationPanel open={panelOpen} onClose={() => setPanelOpen(false)} />
