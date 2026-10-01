@@ -13,6 +13,7 @@ import {
   updateProfile,
   signInWithPopup,
   sendPasswordResetEmail,
+  GoogleAuthProvider,
 } from 'firebase/auth'
 import { STORAGE_KEYS } from '../utils/constants.js'
 import { writeLS } from '../hooks/useLocalStorage.js'
@@ -309,9 +310,10 @@ export default function Login() {
   }
 
   async function handleGoogleSignIn() {
-    clearAllErrors(); setSubmitting(true)
+    clearAllErrors()
     try {
-      const result = await signInWithPopup(auth, googleProvider)
+      const provider = new GoogleAuthProvider()
+      const result = await signInWithPopup(auth, provider)
       const fbUser = result?.user
       if (fbUser) {
         const localUser = {
@@ -326,20 +328,22 @@ export default function Login() {
       }
       navigate(nextUrl, { replace: true })
     } catch (error) {
-      const code = error?.code
-      if (code === 'auth/popup-blocked') {
-        setFieldError('form', 'Popup was blocked. Please allow popups for this site and try again.')
-      } else if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
-        // user dismissed — no error message needed
+      console.error('Google sign-in error:', error)
+      if (error.code === 'auth/popup-blocked') {
+        setFieldError('form', 'Popup blocked. Please allow popups for this site and try again.')
+      } else if (error.code === 'auth/cancelled-popup-request' || error.code === 'auth/popup-closed-by-user') {
+        // user dismissed — no message needed
       } else {
-        setFieldError('form', 'Google sign in failed. Please try again.')
+        setFieldError('form', error.message || 'Google sign-in failed. Please try again.')
       }
-    } finally { setSubmitting(false) }
+    }
   }
 
   return (
     <PageTransition>
       <style>{GLOBAL_CSS}</style>
+      {/* Top gradient accent bar */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg, #1769FF 0%, #7137FF 50%, #FF1838 100%)', zIndex: 999, pointerEvents: 'none' }} />
       <div className="ee-layout">
 
         {/* ══════════════════════════════════════
@@ -353,7 +357,7 @@ export default function Login() {
         >
           {/* Glow layers */}
           <div style={{ position: 'absolute', top: -120, left: -120, width: 500, height: 500, background: 'radial-gradient(circle, rgba(23,105,255,0.1) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
-          <div style={{ position: 'absolute', top: -80, right: -80, width: 350, height: 350, background: 'radial-gradient(circle, rgba(255,24,56,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+          <div style={{ position: 'absolute', top: -60, right: -60, width: 350, height: 350, background: 'radial-gradient(circle, rgba(255,24,56,0.12) 0%, transparent 60%)', pointerEvents: 'none', zIndex: 0 }} />
           <div style={{ position: 'absolute', bottom: -100, left: '50%', transform: 'translateX(-50%)', width: 400, height: 400, background: 'radial-gradient(circle, rgba(113,55,255,0.06) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(23,105,255,0.06) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none', zIndex: 0 }} />
 
@@ -464,7 +468,7 @@ export default function Login() {
         >
           {/* Corner tints */}
           <div style={{ position: 'absolute', top: 0, right: 0, width: 250, height: 250, background: 'radial-gradient(circle at top right, rgba(23,105,255,0.05), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
-          <div style={{ position: 'absolute', bottom: 0, left: 0, width: 200, height: 200, background: 'radial-gradient(circle at bottom left, rgba(255,24,56,0.04), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+          <div style={{ position: 'absolute', bottom: 0, left: 0, width: 250, height: 250, background: 'radial-gradient(circle at bottom left, rgba(255,24,56,0.07), transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
 
           {/* Top-right switch */}
           <div
@@ -581,14 +585,13 @@ function FieldError({ children }) {
   )
 }
 
-function GoogleButton({ onClick, disabled }) {
+function GoogleButton({ onClick }) {
   return (
     <motion.button
       type="button"
       onClick={onClick}
-      disabled={disabled}
       className="ee-g-btn"
-      whileHover={disabled ? {} : { scale: 1.01 }}
+      whileHover={{ scale: 1.01 }}
     >
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
         <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
