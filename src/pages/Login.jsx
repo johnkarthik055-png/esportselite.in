@@ -107,14 +107,14 @@ const GLOBAL_CSS = `
   }
   .ee-left {
     flex:0 0 55%; display:flex; flex-direction:column; justify-content:center;
-    padding:56px 48px; overflow:hidden; position:relative;
-    background:linear-gradient(160deg,#07111F 0%,#0B1A35 50%,#0D1E3D 100%);
+    padding:48px 48px; overflow:hidden; position:relative; min-height:100vh;
+    background:linear-gradient(160deg,#020D1F 0%,#07111F 40%,#0D1628 100%);
   }
   .ee-right {
     flex:0 0 45%; display:flex; flex-direction:column;
     justify-content:center; align-items:center;
     padding:48px 56px; background:#FFFFFF; min-height:100vh; position:relative;
-    overflow-y:auto;
+    overflow-y:auto; border-left:1px solid rgba(23,105,255,0.15);
   }
   .ee-mobile-logo { display:none; }
   .ee-topbar-right { display:flex; }
@@ -340,25 +340,29 @@ export default function Login() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
           {/* Glow effects — absolute, behind content */}
-          <div style={{ position: 'absolute', bottom: -80, left: -80, width: 500, height: 500, background: 'radial-gradient(circle, rgba(23,105,255,0.12) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
-          <div style={{ position: 'absolute', top: -80, right: -80, width: 400, height: 400, background: 'radial-gradient(circle, rgba(113,55,255,0.08) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+          <div style={{ position: 'absolute', top: -60, left: '50%', transform: 'translateX(-50%)', width: 400, height: 400, background: 'radial-gradient(circle, rgba(23,105,255,0.18) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+          <div style={{ position: 'absolute', top: -40, right: -40, width: 300, height: 300, background: 'radial-gradient(circle, rgba(255,24,56,0.12) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+          <div style={{ position: 'absolute', bottom: -60, left: -60, width: 350, height: 350, background: 'radial-gradient(circle, rgba(113,55,255,0.1) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px)', backgroundSize: '32px 32px', pointerEvents: 'none', zIndex: 0 }} />
 
           {/* Content wrapper — above glows */}
           <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column' }}>
 
-          {/* 1. Logo — standalone, no text beside it */}
-          <img
+          {/* 1. Logo — floating animation, centered */}
+          <motion.img
             src="/assets/logo.png" alt="Esports Elite"
-            style={{ height: 120, width: 'auto', display: 'block', marginBottom: 32, objectFit: 'contain' }}
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ height: 140, width: 'auto', display: 'block', margin: '0 auto 24px auto', objectFit: 'contain', filter: 'drop-shadow(0 0 24px rgba(23,105,255,0.4)) drop-shadow(0 0 48px rgba(255,24,56,0.2))' }}
             onError={e => { e.currentTarget.style.display = 'none' }}
           />
 
           {/* 2. Platform pill */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
-            <div style={{ width: 6, height: 6, background: '#1769FF', borderRadius: '50%', flexShrink: 0 }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <div style={{ width: 6, height: 6, background: '#1769FF', borderRadius: '50%', flexShrink: 0, boxShadow: '0 0 6px #1769FF' }} />
             <span style={{
               fontFamily: "'Rajdhani', sans-serif", fontWeight: 600,
-              fontSize: 11, color: '#536174', letterSpacing: '0.12em', textTransform: 'uppercase',
+              fontSize: 11, color: '#8899AA', letterSpacing: '0.14em', textTransform: 'uppercase',
             }}>
               INDIA'S #1 BGMI TRAINING PLATFORM
             </span>
@@ -376,8 +380,8 @@ export default function Login() {
                 {word === 'GRIND' ? (
                   <span style={{
                     fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
-                    fontSize: 56, lineHeight: 0.95, display: 'block',
-                    background: 'linear-gradient(90deg, #1769FF, #7137FF)',
+                    fontSize: 60, lineHeight: 0.9, display: 'block',
+                    background: 'linear-gradient(90deg, #1769FF, #7137FF, #FF1838)',
                     WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
                   }}>
@@ -386,31 +390,32 @@ export default function Login() {
                 ) : (
                   <span style={{
                     fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
-                    fontSize: 56, color: '#FFFFFF', lineHeight: 0.95, display: 'block',
+                    fontSize: 60, color: '#FFFFFF', lineHeight: 0.9, display: 'block',
                   }}>
                     {word}
                   </span>
                 )}
               </motion.div>
             ))}
-            <div style={{ width: 56, height: 3, background: '#1769FF', marginTop: 16 }} />
+            <div style={{ width: 64, height: 3, background: 'linear-gradient(90deg, #1769FF, #7137FF)', borderRadius: 2, marginTop: 16, marginBottom: 20 }} />
           </div>
 
           {/* 4. Description */}
           <p style={{
-            fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#8899AA',
-            lineHeight: 1.65, maxWidth: 340, margin: '0 0 28px',
+            fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#536174',
+            lineHeight: 1.65, maxWidth: 320, margin: '0 0 32px',
           }}>
             Sign in to continue your training journey with AI coaching, structured roadmaps and real-time match analytics.
           </p>
 
           {/* 5. Feature icons row */}
-          <div style={{ display: 'flex', gap: 32 }}>
+          <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}>
             {FEATURE_ITEMS.map(({ Icon, label, sub }) => (
               <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: '50%',
-                  background: 'rgba(23,105,255,0.15)',
+                  background: 'rgba(23,105,255,0.12)',
+                  border: '1px solid rgba(23,105,255,0.2)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
                   <Icon size={20} color="#1769FF" />
@@ -441,10 +446,13 @@ export default function Login() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
         >
+          {/* Top-right corner accent */}
+          <div style={{ position: 'absolute', top: 0, right: 0, width: 200, height: 200, background: 'radial-gradient(circle at top right, rgba(23,105,255,0.04), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+
           {/* Top-right strip — absolute inside right panel */}
           <div
             className="ee-topbar-right"
-            style={{ position: 'absolute', top: 24, right: 24, alignItems: 'center', gap: 12 }}
+            style={{ position: 'absolute', top: 24, right: 24, alignItems: 'center', gap: 12, zIndex: 1 }}
           >
             <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#536174' }}>
               {mode === 'signin' ? 'New to Esports Elite?' : 'Already have an account?'}
@@ -721,9 +729,9 @@ function SignInView({
             type="submit" disabled={submitting}
             whileHover={{ scale: submitting ? 1 : 1.01 }}
             whileTap={{ scale: submitting ? 1 : 0.99 }}
-            style={{ width: '100%', background: submitting ? '#4A90D9' : '#1769FF', color: '#FFFFFF', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 20, letterSpacing: '0.04em', padding: 14, borderRadius: 10, border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 200ms, box-shadow 200ms' }}
-            onMouseEnter={e => { if (!submitting) { e.currentTarget.style.background = '#1254CC'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(23,105,255,0.3)' } }}
-            onMouseLeave={e => { e.currentTarget.style.background = submitting ? '#4A90D9' : '#1769FF'; e.currentTarget.style.boxShadow = 'none' }}
+            style={{ width: '100%', background: submitting ? '#4A90D9' : 'linear-gradient(135deg, #1769FF 0%, #1254CC 100%)', color: '#FFFFFF', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 20, letterSpacing: '0.04em', padding: 14, borderRadius: 10, border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all 250ms', boxShadow: submitting ? 'none' : '0 4px 24px rgba(23,105,255,0.35)' }}
+            onMouseEnter={e => { if (!submitting) { e.currentTarget.style.boxShadow = '0 6px 32px rgba(23,105,255,0.5)'; e.currentTarget.style.transform = 'translateY(-1px)' } }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = submitting ? 'none' : '0 4px 24px rgba(23,105,255,0.35)'; e.currentTarget.style.transform = 'none' }}
           >
             {submitting ? <><Loader size={16} style={{ animation: 'ee-spin 1s linear infinite' }} /> Signing in…</> : <>Sign in <ArrowRight size={18} /></>}
           </motion.button>
