@@ -177,21 +177,49 @@ export default function ScreenshotImport({
 
   if (!open) {
     return (
-      <div className="si-bar">
-        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setOpen(true)}>
-          <ImageIcon size={14} /> Import from screenshot
+      <div style={{
+        background: 'linear-gradient(135deg,#EEF4FF,#F0EEFF)',
+        border: '1px solid #DCE5FA', borderRadius: 12,
+        padding: '16px 18px', marginBottom: 16,
+        display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap',
+      }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: 10, flexShrink: 0,
+          background: 'rgba(37,99,255,0.1)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <ImageIcon size={20} style={{ color: '#2563FF' }} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 15, color: '#0B1224' }}>
+            AI Screenshot Import
+          </div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#64748B', marginTop: 2 }}>
+            {matchType}{matchType === 'Classic' && subMode ? ` · ${SUBMODE_LABEL[subMode] || subMode}` : ''} — reads only the fields this mode needs. You review before saving.
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          style={{
+            background: '#2563FF', color: '#FFFFFF', border: 'none',
+            borderRadius: 8, padding: '8px 16px', flexShrink: 0,
+            fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+            boxShadow: '0 2px 8px rgba(37,99,255,0.2)',
+            transition: 'opacity 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = '0.85' }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
+        >
+          <ImageIcon size={14} /> Import
         </button>
-        <span className="si-hint">
-          {matchType}
-          {matchType === 'Classic' && subMode ? ` · ${SUBMODE_LABEL[subMode] || subMode}` : ''}
-          {' '}— reads only the fields this mode needs. You review before saving.
-        </span>
       </div>
     )
   }
 
   return (
-    <div className="si-panel glass clip-corner-sm">
+    <div className="si-panel" style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 12 }}>
       <div className="si-head">
         <div className="si-title">
           <ImageIcon size={15} /> Import {matchType} from screenshot
@@ -327,28 +355,26 @@ export default function ScreenshotImport({
       )}
 
       <style>{`
-        .si-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
-        .si-hint { font-size:11px; color:var(--text-subtle); }
         .si-panel { padding:16px; margin-bottom:16px; }
         .si-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-        .si-title { display:flex; align-items:center; gap:7px; font-family:'DM Sans',sans-serif; font-weight:700; font-size:13px; color:var(--text-primary); }
+        .si-title { display:flex; align-items:center; gap:7px; font-family:'Inter',sans-serif; font-weight:700; font-size:13px; color:#0B1224; }
         .si-body { display:flex; flex-direction:column; gap:12px; }
-        .si-center { align-items:center; padding:20px 0; color:var(--text-muted); }
-        .si-p { font-size:12px; color:var(--text-muted); line-height:1.6; margin:0; }
+        .si-center { align-items:center; padding:20px 0; color:#64748B; }
+        .si-p { font-size:12px; color:#64748B; line-height:1.6; margin:0; }
         .si-file { cursor:pointer; align-self:flex-start; }
         .si-spin { animation: si-spin 0.9s linear infinite; }
         @keyframes si-spin { to { transform: rotate(360deg); } }
-        .si-error { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--red); background:var(--red-ghost); border:1px solid rgba(232,0,28,0.25); padding:8px 10px; border-radius:var(--radius-sm); }
-        .si-review-note { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:600; color:var(--amber); background:var(--amber-tint); border:1px solid rgba(245,158,11,0.3); padding:8px 10px; border-radius:var(--radius-sm); }
-        .si-warn { font-size:11.5px; color:var(--text-muted); background:var(--bg-elevated); border:1px solid var(--border); padding:6px 9px; border-radius:var(--radius-sm); }
+        .si-error { display:flex; align-items:center; gap:8px; font-size:12px; color:#EF3340; background:rgba(239,51,64,0.06); border:1px solid rgba(239,51,64,0.2); padding:8px 10px; border-radius:8px; }
+        .si-review-note { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:600; color:#F59E0B; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); padding:8px 10px; border-radius:8px; }
+        .si-warn { font-size:11.5px; color:#64748B; background:#F8FAFD; border:1px solid #E5EAF3; padding:6px 9px; border-radius:8px; }
         .si-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; }
-        .si-field label { display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-subtle); margin-bottom:4px; }
+        .si-field label { display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:#64748B; margin-bottom:4px; }
         .si-players { display:flex; flex-direction:column; gap:6px; }
-        .si-players-head { font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-subtle); margin-top:4px; }
-        .si-player { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-elevated); }
+        .si-players-head { font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:#64748B; margin-top:4px; }
+        .si-player { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:6px 8px; border:1px solid #E5EAF3; border-radius:8px; background:#F8FAFD; }
         .si-player-unmatched { border-color:rgba(245,158,11,0.45); }
-        .si-player-name { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-primary); flex:1; min-width:140px; }
-        .si-player-src { color:var(--text-subtle); font-size:11px; }
+        .si-player-name { display:flex; align-items:center; gap:6px; font-size:12px; color:#0B1224; flex:1; min-width:140px; }
+        .si-player-src { color:#64748B; font-size:11px; }
         .si-player-kills { width:70px; padding:5px 8px; }
         .si-player-assign { flex:1; min-width:150px; padding:5px 8px; }
         .si-actions { display:flex; justify-content:space-between; gap:10px; margin-top:6px; }
