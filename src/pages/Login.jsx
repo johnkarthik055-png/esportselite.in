@@ -103,18 +103,18 @@ const GLOBAL_CSS = `
   @keyframes ee-spin{to{transform:rotate(360deg)}}
 
   .ee-layout {
-    display:flex; flex-direction:row; min-height:100vh; background:#F0F4FF;
+    display:flex; flex-direction:row; min-height:100vh; background:#FFFFFF;
   }
   .ee-left {
     flex:0 0 55%; display:flex; flex-direction:column; justify-content:center;
-    padding:48px 48px; overflow:hidden; position:relative; min-height:100vh;
-    background:#FFFFFF;
+    padding:56px 48px; overflow:hidden; position:relative; min-height:100vh;
+    background:#FFFFFF; border-right:1px solid rgba(23,105,255,0.1);
   }
   .ee-right {
     flex:0 0 45%; display:flex; flex-direction:column;
     justify-content:center; align-items:center;
     padding:48px 56px; background:#FFFFFF; min-height:100vh; position:relative;
-    overflow-y:auto; border-left:1px solid rgba(23,105,255,0.12);
+    overflow:hidden;
   }
   .ee-mobile-logo { display:none; }
   .ee-topbar-right { display:flex; }
@@ -176,11 +176,17 @@ const GLOBAL_CSS = `
   .ee-sec-btn:hover:not(:disabled) { background:#EEF2F7; border-color:#B0BEC5; }
 `
 
-const HEADING_WORDS = ['WHERE', 'GRIND', 'BECOMES', 'GREATNESS.']
 const FEATURE_ITEMS = [
   { Icon: BarChart2, label: 'TRACK',   sub: 'Your Progress' },
   { Icon: Target,    label: 'IMPROVE', sub: 'With AI Coaching' },
   { Icon: Users,     label: 'CLIMB',   sub: 'With Your Squad' },
+]
+
+const HEADING_CFG = [
+  { word: 'WHERE',      delay: 0.25, gradient: false },
+  { word: 'GRIND',      delay: 0.3,  gradient: true  },
+  { word: 'BECOMES',    delay: 0.35, gradient: false },
+  { word: 'GREATNESS.', delay: 0.4,  gradient: false },
 ]
 
 export default function Login() {
@@ -334,146 +340,143 @@ export default function Login() {
   return (
     <PageTransition>
       <style>{GLOBAL_CSS}</style>
-
       <div className="ee-layout">
 
-        {/* ════════════════════════════════════════
-            LEFT PANEL — flex column, no absolute positioning
-        ════════════════════════════════════════ */}
+        {/* ══════════════════════════════════════
+            LEFT PANEL
+        ══════════════════════════════════════ */}
         <motion.div
           className="ee-left"
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          {/* Glow effects — absolute, behind content */}
-          <div style={{ position: 'absolute', top: -100, left: -100, width: 500, height: 500, background: 'radial-gradient(circle, rgba(23,105,255,0.12) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
-          <div style={{ position: 'absolute', top: -80, right: -80, width: 400, height: 400, background: 'radial-gradient(circle, rgba(255,24,56,0.08) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
-          <div style={{ position: 'absolute', bottom: -80, left: '50%', transform: 'translateX(-50%)', width: 400, height: 400, background: 'radial-gradient(circle, rgba(113,55,255,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(23,105,255,0.07) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none', zIndex: 0 }} />
+          {/* Glow layers */}
+          <div style={{ position: 'absolute', top: -120, left: -120, width: 500, height: 500, background: 'radial-gradient(circle, rgba(23,105,255,0.1) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+          <div style={{ position: 'absolute', top: -80, right: -80, width: 350, height: 350, background: 'radial-gradient(circle, rgba(255,24,56,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+          <div style={{ position: 'absolute', bottom: -100, left: '50%', transform: 'translateX(-50%)', width: 400, height: 400, background: 'radial-gradient(circle, rgba(113,55,255,0.06) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(23,105,255,0.06) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none', zIndex: 0 }} />
 
-          {/* Content wrapper — above glows */}
+          {/* Content */}
           <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column' }}>
 
-          {/* 1. Logo — floating animation, centered */}
-          <motion.img
-            src="/assets/logo.png" alt="Esports Elite"
-            animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ height: 130, width: 'auto', display: 'block', margin: '0 auto 28px auto', objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(23,105,255,0.25)) drop-shadow(0 0 40px rgba(255,24,56,0.15))' }}
-            onError={e => { e.currentTarget.style.display = 'none' }}
-          />
+            {/* 1. Logo */}
+            <motion.img
+              src="/assets/logo.png"
+              alt="Esports Elite"
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ height: 130, width: 'auto', display: 'block', marginBottom: 32, objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(23,105,255,0.2)) drop-shadow(0 0 40px rgba(255,24,56,0.12))' }}
+              onError={e => { e.currentTarget.style.display = 'none' }}
+            />
 
-          {/* 2. Platform pill */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-            <div style={{ width: 6, height: 6, background: '#1769FF', borderRadius: '50%', flexShrink: 0, boxShadow: '0 0 6px #1769FF' }} />
-            <span style={{
-              fontFamily: "'Rajdhani', sans-serif", fontWeight: 600,
-              fontSize: 11, color: '#536174', letterSpacing: '0.14em', textTransform: 'uppercase',
-            }}>
-              INDIA'S #1 BGMI TRAINING PLATFORM
-            </span>
-          </div>
+            {/* 2. Platform pill */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 28 }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}
+            >
+              <div style={{ width: 6, height: 6, background: '#1769FF', borderRadius: '50%', flexShrink: 0, boxShadow: '0 0 6px rgba(23,105,255,0.6)' }} />
+              <span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 600, fontSize: 11, color: '#536174', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                INDIA&apos;S #1 BGMI TRAINING PLATFORM
+              </span>
+            </motion.div>
 
-          {/* 3. Heading block */}
-          <div style={{ marginBottom: 20 }}>
-            {HEADING_WORDS.map((word, i) => (
-              <motion.div
-                key={word}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 + i * 0.05, ease: [0.22, 1, 0.36, 1], duration: 0.5 }}
-              >
-                {word === 'GRIND' ? (
-                  <span style={{
-                    fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
-                    fontSize: 56, lineHeight: 0.9, display: 'block',
-                    background: 'linear-gradient(90deg, #1769FF, #7137FF, #FF1838)',
-                    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}>
-                    {word}
-                  </span>
-                ) : (
-                  <span style={{
-                    fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900,
-                    fontSize: 56, color: '#111827', lineHeight: 0.9, display: 'block',
-                  }}>
-                    {word}
-                  </span>
-                )}
-              </motion.div>
-            ))}
-            <div style={{ width: 64, height: 3, background: 'linear-gradient(90deg, #1769FF, #FF1838)', borderRadius: 2, marginTop: 16, marginBottom: 20 }} />
-          </div>
+            {/* 3. Heading */}
+            <div style={{ marginBottom: 0 }}>
+              {HEADING_CFG.map(({ word, delay, gradient }) => (
+                <motion.span
+                  key={word}
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay, type: 'spring', stiffness: 300, damping: 30 }}
+                  style={{
+                    display: 'block',
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 900,
+                    fontSize: 58,
+                    lineHeight: 0.92,
+                    ...(gradient ? {
+                      background: 'linear-gradient(90deg, #1769FF, #7137FF, #FF1838)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    } : { color: '#111827' }),
+                  }}
+                >
+                  {word}
+                </motion.span>
+              ))}
+            </div>
 
-          {/* 4. Description */}
-          <p style={{
-            fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#536174',
-            lineHeight: 1.65, maxWidth: 320, margin: '0 0 32px',
-          }}>
-            Sign in to continue your training journey with AI coaching, structured roadmaps and real-time match analytics.
-          </p>
+            {/* 4. Animated underline */}
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: 72 }}
+              transition={{ delay: 0.5, duration: 0.5, ease: 'easeOut' }}
+              style={{ height: 3, background: 'linear-gradient(90deg, #1769FF, #FF1838)', borderRadius: 2, marginTop: 16, marginBottom: 20 }}
+            />
 
-          {/* 5. Feature icons row */}
-          <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}>
-            {FEATURE_ITEMS.map(({ Icon, label, sub }) => (
-              <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                <div style={{
-                  width: 44, height: 44, borderRadius: '50%',
-                  background: 'rgba(23,105,255,0.08)',
-                  border: '1px solid rgba(23,105,255,0.15)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Icon size={20} color="#1769FF" />
+            {/* 5. Description */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#536174', lineHeight: 1.65, maxWidth: 320, margin: '0 0 36px' }}
+            >
+              Sign in to continue your training journey with AI coaching, structured roadmaps and real-time match analytics.
+            </motion.p>
+
+            {/* 6. Feature icons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, type: 'spring', stiffness: 260, damping: 28 }}
+              style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}
+            >
+              {FEATURE_ITEMS.map(({ Icon, label, sub }) => (
+                <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(23,105,255,0.08)', border: '1px solid rgba(23,105,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon size={20} color="#1769FF" />
+                  </div>
+                  <div style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 600, fontSize: 11, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center' }}>
+                    {label}
+                  </div>
+                  <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#536174', textAlign: 'center' }}>
+                    {sub}
+                  </div>
                 </div>
-                <div style={{
-                  fontFamily: "'Rajdhani', sans-serif", fontWeight: 600,
-                  fontSize: 11, color: '#111827',
-                  textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center',
-                }}>
-                  {label}
-                </div>
-                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#536174', textAlign: 'center' }}>
-                  {sub}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </motion.div>
 
-          </div>{/* end content wrapper */}
+          </div>
         </motion.div>
 
-        {/* ════════════════════════════════════════
+        {/* ══════════════════════════════════════
             RIGHT PANEL
-        ════════════════════════════════════════ */}
+        ══════════════════════════════════════ */}
         <motion.div
           className="ee-right"
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
         >
-          {/* Right panel subtle tints */}
-          <div style={{ position: 'absolute', top: 0, right: 0, width: 300, height: 300, background: 'radial-gradient(circle at top right, rgba(23,105,255,0.05), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+          {/* Corner tints */}
+          <div style={{ position: 'absolute', top: 0, right: 0, width: 250, height: 250, background: 'radial-gradient(circle at top right, rgba(23,105,255,0.05), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
           <div style={{ position: 'absolute', bottom: 0, left: 0, width: 200, height: 200, background: 'radial-gradient(circle at bottom left, rgba(255,24,56,0.04), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 
-          {/* Top-right strip — absolute inside right panel */}
+          {/* Top-right switch */}
           <div
             className="ee-topbar-right"
-            style={{ position: 'absolute', top: 24, right: 24, alignItems: 'center', gap: 12, zIndex: 1 }}
+            style={{ position: 'absolute', top: 24, right: 24, alignItems: 'center', gap: 12, zIndex: 10 }}
           >
             <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#536174' }}>
               {mode === 'signin' ? 'New to Esports Elite?' : 'Already have an account?'}
             </span>
             <button
               onClick={mode === 'signin' ? switchToSignUp : switchToSignIn}
-              style={{
-                border: '1.5px solid #1769FF', color: '#1769FF',
-                fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 14,
-                padding: '8px 18px', borderRadius: 8, background: 'transparent',
-                cursor: 'pointer', transition: 'background 200ms, color 200ms',
-                display: 'flex', alignItems: 'center', gap: 4,
-              }}
+              style={{ border: '1.5px solid #1769FF', color: '#1769FF', fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 14, padding: '8px 18px', borderRadius: 8, background: 'transparent', cursor: 'pointer', transition: 'background 200ms, color 200ms', display: 'flex', alignItems: 'center', gap: 4 }}
               onMouseEnter={e => { e.currentTarget.style.background = '#1769FF'; e.currentTarget.style.color = '#FFFFFF' }}
               onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#1769FF' }}
             >
@@ -482,16 +485,25 @@ export default function Login() {
           </div>
 
           {/* Mobile logo */}
-          <div className="ee-mobile-logo" style={{ justifyContent: 'center', marginBottom: 24 }}>
-            <img
-              src="/assets/logo.png" alt="Esports Elite"
-              style={{ height: 48, width: 'auto', objectFit: 'contain', display: 'block', margin: '0 auto' }}
+          <div className="ee-mobile-logo" style={{ flexDirection: 'column', alignItems: 'center', marginBottom: 24, width: '100%' }}>
+            <motion.img
+              src="/assets/logo.png"
+              alt="Esports Elite"
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ height: 72, width: 'auto', display: 'block', margin: '0 auto 8px', filter: 'drop-shadow(0 0 16px rgba(23,105,255,0.2))' }}
               onError={e => { e.currentTarget.style.display = 'none' }}
             />
+            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 24, color: '#111827', textAlign: 'center' }}>
+              ESPORTS ELITE
+            </div>
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 600, fontSize: 11, color: '#1769FF', textAlign: 'center', letterSpacing: '0.1em', marginBottom: 4 }}>
+              India&apos;s BGMI Training Platform
+            </div>
           </div>
 
           {/* Form area */}
-          <div style={{ width: '100%', maxWidth: 400 }}>
+          <div style={{ width: '100%', maxWidth: 400, position: 'relative', zIndex: 1 }}>
             <AnimatePresence mode="wait">
               {mode === 'signin' ? (
                 <motion.div
@@ -554,11 +566,7 @@ export default function Login() {
 function ErrorBox({ children }) {
   if (!children) return null
   return (
-    <div style={{
-      background: 'rgba(255,24,56,0.06)', border: '1px solid rgba(255,24,56,0.2)',
-      color: '#FF1838', padding: '10px 14px', borderRadius: 8,
-      fontSize: 13, fontFamily: "'Inter', sans-serif", lineHeight: 1.5, marginBottom: 12,
-    }}>
+    <div style={{ background: 'rgba(255,24,56,0.06)', border: '1px solid rgba(255,24,56,0.2)', color: '#FF1838', padding: '10px 14px', borderRadius: 8, fontSize: 13, fontFamily: "'Inter', sans-serif", lineHeight: 1.5, marginBottom: 12 }}>
       {children}
     </div>
   )
@@ -575,7 +583,13 @@ function FieldError({ children }) {
 
 function GoogleButton({ onClick, disabled }) {
   return (
-    <button type="button" onClick={onClick} disabled={disabled} className="ee-g-btn">
+    <motion.button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="ee-g-btn"
+      whileHover={disabled ? {} : { scale: 1.01 }}
+    >
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
         <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
         <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2.01c-.72.48-1.63.76-2.7.76-2.08 0-3.84-1.4-4.47-3.29H1.83v2.07A8 8 0 0 0 8.98 17z"/>
@@ -583,7 +597,7 @@ function GoogleButton({ onClick, disabled }) {
         <path fill="#EA4335" d="M8.98 3.58c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.48c.64-1.87 2.4-3.9 4.48-3.9z"/>
       </svg>
       Continue with Google
-    </button>
+    </motion.button>
   )
 }
 
@@ -610,29 +624,45 @@ function SignInView({
 
   return (
     <>
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} style={{ marginBottom: 20 }}>
-        <span style={{
-          display: 'inline-block', fontFamily: "'Rajdhani', sans-serif", fontWeight: 600,
-          fontSize: 11, color: '#1769FF', border: '1px solid rgba(23,105,255,0.25)',
-          borderRadius: 20, padding: '4px 14px', letterSpacing: '0.08em', textTransform: 'uppercase',
-        }}>
+      {/* Pill */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 28 }}
+        style={{ marginBottom: 24 }}
+      >
+        <span style={{ display: 'inline-block', fontFamily: "'Rajdhani', sans-serif", fontWeight: 600, fontSize: 11, color: '#1769FF', border: '1px solid rgba(23,105,255,0.25)', borderRadius: 20, padding: '4px 14px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           BGMI Training Platform
         </span>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} style={{ marginBottom: 28 }}>
-        <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 44, color: '#111827', lineHeight: 1, marginBottom: 6 }}>
-          Welcome back
-        </h1>
-        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#536174', lineHeight: 1.5 }}>
-          Sign in to continue your training
-        </p>
-      </motion.div>
+      {/* Heading */}
+      <motion.h1
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25, type: 'spring', stiffness: 280, damping: 28 }}
+        style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 44, color: '#111827', lineHeight: 1, marginBottom: 6, marginTop: 0 }}
+      >
+        Welcome back
+      </motion.h1>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#536174', lineHeight: 1.5, marginBottom: 28, marginTop: 0 }}
+      >
+        Sign in to continue your training
+      </motion.p>
 
       <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {/* Email */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.35, type: 'spring', stiffness: 280, damping: 28 }}
+        >
           <label className="ee-lbl" htmlFor="si-email">Email</label>
           <div style={{ position: 'relative' }}>
             <InputIcon icon={Mail} />
@@ -648,7 +678,11 @@ function SignInView({
         </motion.div>
 
         {/* Password */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4, type: 'spring', stiffness: 280, damping: 28 }}
+        >
           <label className="ee-lbl" htmlFor="si-password">Password</label>
           <div style={{ position: 'relative' }}>
             <InputIcon icon={Lock} />
@@ -677,7 +711,7 @@ function SignInView({
                 style={{ marginTop: 12, padding: 14, background: '#F7F9FC', border: '1.5px solid #DCE4EF', borderRadius: 10 }}
               >
                 <p style={{ fontSize: 12, color: '#536174', marginBottom: 10, lineHeight: 1.5, fontFamily: "'Inter', sans-serif" }}>
-                  Enter your account email and we'll send a reset link.
+                  Enter your account email and we&apos;ll send a reset link.
                 </p>
                 <input type="email" value={forgotEmail} onChange={e => { setForgotEmail(e.target.value); setForgotError('') }}
                   className="ee-inp no-icon" placeholder="your@email.com" autoComplete="email"
@@ -711,8 +745,11 @@ function SignInView({
         </motion.div>
 
         {/* Remember + Forgot */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.45 }}
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, marginTop: 4 }}
         >
           <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#536174', cursor: 'pointer' }}>
             <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} style={{ accentColor: '#1769FF', width: 15, height: 15 }} />
@@ -732,18 +769,18 @@ function SignInView({
         <ErrorBox>{errors.form}</ErrorBox>
 
         {/* Sign in button */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}>
-          <motion.button
-            type="submit" disabled={submitting}
-            whileHover={{ scale: submitting ? 1 : 1.01 }}
-            whileTap={{ scale: submitting ? 1 : 0.99 }}
-            style={{ width: '100%', background: submitting ? '#4A90D9' : 'linear-gradient(135deg, #1769FF 0%, #1254CC 100%)', color: '#FFFFFF', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 20, letterSpacing: '0.04em', padding: 14, borderRadius: 10, border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all 250ms', boxShadow: submitting ? 'none' : '0 4px 24px rgba(23,105,255,0.35)' }}
-            onMouseEnter={e => { if (!submitting) { e.currentTarget.style.boxShadow = '0 6px 32px rgba(23,105,255,0.5)'; e.currentTarget.style.transform = 'translateY(-1px)' } }}
-            onMouseLeave={e => { e.currentTarget.style.boxShadow = submitting ? 'none' : '0 4px 24px rgba(23,105,255,0.35)'; e.currentTarget.style.transform = 'none' }}
-          >
-            {submitting ? <><Loader size={16} style={{ animation: 'ee-spin 1s linear infinite' }} /> Signing in…</> : <>Sign in <ArrowRight size={18} /></>}
-          </motion.button>
-        </motion.div>
+        <motion.button
+          type="submit"
+          disabled={submitting}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, type: 'spring', stiffness: 280, damping: 28 }}
+          whileHover={submitting ? {} : { scale: 1.01, boxShadow: '0 6px 28px rgba(23,105,255,0.45)' }}
+          whileTap={submitting ? {} : { scale: 0.99 }}
+          style={{ width: '100%', background: submitting ? '#4A90D9' : 'linear-gradient(135deg, #1769FF 0%, #1254CC 100%)', color: '#FFFFFF', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 20, letterSpacing: '0.04em', padding: 14, borderRadius: 10, border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: submitting ? 'none' : '0 4px 20px rgba(23,105,255,0.3)' }}
+        >
+          {submitting ? <><Loader size={16} style={{ animation: 'ee-spin 1s linear infinite' }} /> Signing in…</> : <>Sign in <ArrowRight size={18} /></>}
+        </motion.button>
 
         {/* OR divider */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '4px 0' }}>
@@ -779,13 +816,23 @@ function SignUpView({
 }) {
   return (
     <>
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} style={{ marginBottom: 20 }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 28 }}
+        style={{ marginBottom: 20 }}
+      >
         <span style={{ display: 'inline-block', fontFamily: "'Rajdhani', sans-serif", fontWeight: 600, fontSize: 11, color: '#1769FF', border: '1px solid rgba(23,105,255,0.25)', borderRadius: 20, padding: '4px 14px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           BGMI Training Platform
         </span>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} style={{ marginBottom: 28 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25, type: 'spring', stiffness: 280, damping: 28 }}
+        style={{ marginBottom: 28 }}
+      >
         <button type="button" onClick={onBackToSignIn}
           style={{ background: 'transparent', border: 'none', padding: '0 0 10px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: "'Inter', sans-serif", fontSize: 13, color: '#536174' }}
           onMouseEnter={e => e.currentTarget.style.color = '#1769FF'}
@@ -793,10 +840,12 @@ function SignUpView({
         >
           <ArrowLeft size={14} /> Back to sign in
         </button>
-        <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 44, color: '#111827', lineHeight: 1, marginBottom: 6 }}>
+        <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 44, color: '#111827', lineHeight: 1, marginBottom: 6, marginTop: 0 }}>
           Create account
         </h1>
-        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#536174', lineHeight: 1.5 }}>Start your training journey today</p>
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#536174', lineHeight: 1.5, margin: 0 }}>
+          Start your training journey today
+        </p>
       </motion.div>
 
       <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -809,12 +858,14 @@ function SignUpView({
         <ErrorBox>{errors.form}</ErrorBox>
 
         <motion.button
-          type="submit" disabled={submitting}
-          whileHover={{ scale: submitting ? 1 : 1.01 }}
-          whileTap={{ scale: submitting ? 1 : 0.99 }}
-          style={{ width: '100%', background: submitting ? '#4A90D9' : 'linear-gradient(135deg, #1769FF 0%, #1254CC 100%)', color: '#FFFFFF', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 20, letterSpacing: '0.04em', padding: 14, borderRadius: 10, border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all 250ms', boxShadow: submitting ? 'none' : '0 4px 20px rgba(23,105,255,0.3)' }}
-          onMouseEnter={e => { if (!submitting) { e.currentTarget.style.boxShadow = '0 6px 28px rgba(23,105,255,0.45)'; e.currentTarget.style.transform = 'translateY(-1px)' } }}
-          onMouseLeave={e => { e.currentTarget.style.boxShadow = submitting ? 'none' : '0 4px 20px rgba(23,105,255,0.3)'; e.currentTarget.style.transform = 'none' }}
+          type="submit"
+          disabled={submitting}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, type: 'spring', stiffness: 280, damping: 28 }}
+          whileHover={submitting ? {} : { scale: 1.01, boxShadow: '0 6px 28px rgba(23,105,255,0.45)' }}
+          whileTap={submitting ? {} : { scale: 0.99 }}
+          style={{ width: '100%', background: submitting ? '#4A90D9' : 'linear-gradient(135deg, #1769FF 0%, #1254CC 100%)', color: '#FFFFFF', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 20, letterSpacing: '0.04em', padding: 14, borderRadius: 10, border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: submitting ? 'none' : '0 4px 20px rgba(23,105,255,0.3)' }}
         >
           {submitting ? <><Loader size={16} style={{ animation: 'ee-spin 1s linear infinite' }} /> Creating…</> : <>Create account <ArrowRight size={18} /></>}
         </motion.button>
@@ -846,7 +897,11 @@ function SignUpView({
 
 function IconField({ id, label, value, onChange, placeholder, type, autoComplete, icon: Icon, error, delay = 0 }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, ease: [0.22, 1, 0.36, 1] }}>
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay, type: 'spring', stiffness: 280, damping: 28 }}
+    >
       <label className="ee-lbl" htmlFor={id}>{label}</label>
       <div style={{ position: 'relative' }}>
         {Icon && <InputIcon icon={Icon} />}
@@ -862,7 +917,11 @@ function IconField({ id, label, value, onChange, placeholder, type, autoComplete
 
 function IconPwdField({ id, label, value, onChange, show, setShow, placeholder, autoComplete, error, delay = 0 }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, ease: [0.22, 1, 0.36, 1] }}>
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay, type: 'spring', stiffness: 280, damping: 28 }}
+    >
       <label className="ee-lbl" htmlFor={id}>{label}</label>
       <div style={{ position: 'relative' }}>
         <InputIcon icon={Lock} />
