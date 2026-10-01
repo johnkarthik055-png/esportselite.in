@@ -166,11 +166,11 @@ export default function RoadmapOverview() {
 
         {currentStage && (
           <button
-            className="btn btn-primary rmo-hero-cta"
+            className="rmo-hero-cta"
             onClick={() => navigate(`/roadmap/${currentStage.id}`)}
           >
-            {currentStage.state === 'in_progress' ? 'Resume' : 'Start'} Stage {currentStage.order}
-            <ChevronRight size={15} />
+            <span className="rmo-cta-label">{currentStage.state === 'in_progress' ? 'Resume' : 'Start'} Stage {currentStage.order}</span>
+            <span className="rmo-cta-arrow" aria-hidden>→</span>
           </button>
         )}
       </header>
@@ -334,13 +334,16 @@ function StageRow({ stage, index, isLast, onOpen, gated }) {
         {!isLast && <span className="rmo-rail-line" />}
       </div>
 
+      <div
+        className={`rmo-card-shell rmo-card-shell--${state}`}
+        style={{ animationDelay: `${Math.min(index, 6) * 0.055}s` }}
+      >
       <button
         type="button"
         className={`rmo-card ${inProgress ? 'rmo-card--current' : ''} ${locked ? 'rmo-card--locked' : ''}`}
         disabled={locked}
         onClick={locked ? undefined : onOpen}
         aria-disabled={locked}
-        style={{ animationDelay: `${Math.min(index, 6) * 0.055}s` }}
       >
         {inProgress && <span className="rmo-current-ribbon">Current stage</span>}
         <span className="rmo-card-icon" aria-hidden>{icon}</span>
@@ -366,6 +369,7 @@ function StageRow({ stage, index, isLast, onOpen, gated }) {
           </span>
         )}
       </button>
+      </div>
     </li>
   )
 }
@@ -478,7 +482,13 @@ const styles = `
   .rmo-opp-card {
     background: #FFFFFF; border: 1px solid #E5EAF3;
     border-radius: 12px; padding: 14px 16px;
-    box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(15,23,42,0.04);
+  }
+  .rmo-opportunity-grid .rmo-opp-card:nth-child(1) {
+    border-left: 3px solid rgba(239,51,64,0.45);
+  }
+  .rmo-opportunity-grid .rmo-opp-card:nth-child(2) {
+    border-left: 3px solid rgba(37,99,255,0.35);
   }
   .rmo-opp-head {
     display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
@@ -503,7 +513,30 @@ const styles = `
   }
   .rmo-progress-head--xp span { display: inline-flex; align-items: center; gap: 5px; }
 
-  .rmo-hero-cta { align-self: flex-start; margin-top: 14px; }
+  .rmo-hero-cta {
+    align-self: flex-start; margin-top: 14px;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: linear-gradient(90deg, #2563FF 0%, #EF3340 100%);
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 14px;
+    padding: 10px 10px 10px 20px;
+    border-radius: 999px; border: none; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(37,99,255,0.28), inset 0 1px 0 rgba(255,255,255,0.12);
+    transition: transform 0.2s cubic-bezier(0.23,1,0.32,1), box-shadow 0.2s ease;
+  }
+  .rmo-hero-cta:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 28px rgba(37,99,255,0.38), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+  .rmo-hero-cta:active { transform: scale(0.98); }
+  .rmo-cta-arrow {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.23,1,0.32,1);
+  }
+  .rmo-hero-cta:hover .rmo-cta-arrow { transform: translateX(2px) scale(1.08); }
 
   /* ── Tool / link cards ── */
   .road-links {
@@ -515,17 +548,21 @@ const styles = `
     display: flex; align-items: center; gap: 12px;
     cursor: pointer; text-align: left;
     transition: transform 0.2s cubic-bezier(0.23,1,0.32,1), border-color 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(15,23,42,0.04);
   }
   .road-link:hover {
     transform: translateY(-2px);
     border-color: #2563FF;
-    box-shadow: 0 8px 24px rgba(37,99,255,0.08);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 8px 24px rgba(37,99,255,0.09);
   }
   .road-link-icon {
     width: 40px; height: 40px; border-radius: 10px;
     background: #EAF2FF; color: #2563FF;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.23,1,0.32,1);
+  }
+  .road-link:hover .road-link-icon {
+    transform: translateX(2px) translateY(-1px) scale(1.06);
   }
   .road-link-body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
   .road-link-title { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: #0B1224; }
@@ -570,35 +607,59 @@ const styles = `
   .rmo-row--completed .rmo-node { border-color: #16A34A; background: #16A34A; color: #fff; }
   .rmo-row--completed .rmo-rail-line { background: #16A34A; }
 
-  /* ── Stage cards ── */
-  .rmo-card {
-    flex: 1; min-width: 0; text-align: left; cursor: pointer;
-    display: flex; align-items: center; gap: 13px;
-    background: #FFFFFF; border: 1px solid #E5EAF3;
-    border-radius: 14px; padding: 16px 18px; margin-bottom: 12px;
-    box-shadow: 0 2px 8px rgba(15,23,42,0.04);
-    transition: border-color 0.15s ease, transform 0.2s cubic-bezier(0.23,1,0.32,1), box-shadow 0.2s ease;
+  /* ── Stage card shells (outer bezel) ── */
+  .rmo-card-shell {
+    flex: 1; min-width: 0; margin-bottom: 12px;
+    background: rgba(37,99,255,0.012);
+    border: 1px solid rgba(37,99,255,0.05);
+    border-radius: 17px; padding: 3px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     animation: rmo-fadeup 0.35s cubic-bezier(0.23,1,0.32,1) both;
   }
-  .rmo-card:hover:not(:disabled) {
-    border-color: #2563FF;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(37,99,255,0.08);
+  .rmo-card-shell--locked {
+    background: transparent;
+    border-color: #E5EAF3;
   }
-  .rmo-row--completed .rmo-card { border-color: rgba(22,163,74,0.25); }
-
-  /* Available: LEFT border accent */
-  .rmo-row--available .rmo-card {
+  .rmo-card-shell--completed {
+    background: rgba(22,163,74,0.01);
+    border-color: rgba(22,163,74,0.1);
+  }
+  .rmo-card-shell--available {
+    background: rgba(37,99,255,0.018);
+    border: 1px solid rgba(37,99,255,0.08);
     border-left: 3px solid #2563FF;
-    padding-left: 15px;
+  }
+  .rmo-card-shell--in_progress {
+    background: rgba(37,99,255,0.03);
+    border-color: rgba(37,99,255,0.15);
+    box-shadow: 0 0 0 3px rgba(37,99,255,0.05), 0 8px 28px rgba(37,99,255,0.08);
+  }
+  .rmo-card-shell:has(.rmo-card:hover:not(:disabled)) {
+    border-color: rgba(37,99,255,0.22);
+    box-shadow: 0 6px 20px rgba(37,99,255,0.09);
+  }
+  .rmo-card-shell--in_progress:has(.rmo-card:hover:not(:disabled)) {
+    box-shadow: 0 0 0 3px rgba(37,99,255,0.06), 0 10px 32px rgba(37,99,255,0.12);
   }
 
-  /* Current stage: dominant card */
+  /* ── Stage cards (inner core) ── */
+  .rmo-card {
+    width: 100%; box-sizing: border-box; text-align: left; cursor: pointer;
+    display: flex; align-items: center; gap: 13px;
+    background: #FFFFFF; border: none;
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+    transition: transform 0.2s cubic-bezier(0.23,1,0.32,1);
+  }
+  .rmo-card:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .rmo-row--completed .rmo-card { background: rgba(22,163,74,0.01); }
+
+  /* Current stage: dominant inner */
   .rmo-card--current {
     padding: 20px 20px 20px 22px;
-    border-color: #2563FF;
-    background: linear-gradient(135deg, rgba(37,99,255,0.035), #FFFFFF 60%);
-    box-shadow: 0 0 0 1px rgba(37,99,255,0.15), 0 8px 28px rgba(37,99,255,0.09);
+    background: linear-gradient(135deg, rgba(37,99,255,0.04), #FFFFFF 60%);
     position: relative;
   }
   .rmo-card--current .rmo-card-icon { font-size: 30px; }
@@ -700,8 +761,11 @@ const styles = `
     .rmo-hero {
       animation: rmo-fadein 0.2s ease both;
     }
-    .rmo-card {
+    .rmo-card-shell {
       animation: rmo-fadein 0.15s ease both !important;
+    }
+    .rmo-card {
+      animation: none !important;
     }
     .road-bar-fill {
       animation: none;

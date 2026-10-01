@@ -112,7 +112,9 @@ export default function RoadmapStage() {
 
       {/* ── Stage header ── */}
       <div className="road-stage-head">
-        <span className="road-stage-emoji" aria-hidden>{stage.icon}</span>
+        <div className="road-stage-emoji-wrap" aria-hidden>
+          <span className="road-stage-emoji">{stage.icon}</span>
+        </div>
         <div className="road-stage-headtext">
           <div className="road-stage-kicker">
             STAGE {String(stage.order).padStart(2, '0')}
@@ -267,6 +269,10 @@ const styles = `
     from { opacity: 0; }
     to   { opacity: 1; }
   }
+  @keyframes rst-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(37,99,255,0.12); }
+    50% { box-shadow: 0 0 0 6px rgba(37,99,255,0.04), 0 0 0 3px rgba(37,99,255,0.16); }
+  }
 
   .road-stage-wrap {
     display: flex; flex-direction: column; gap: 16px;
@@ -276,18 +282,31 @@ const styles = `
   /* ── Breadcrumb ── */
   .road-back {
     align-self: flex-start; display: inline-flex; align-items: center; gap: 6px;
-    background: transparent; border: none; padding: 0; cursor: pointer;
-    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: #2563FF;
-    transition: opacity 0.15s ease;
+    background: rgba(37,99,255,0.06); border: 1px solid rgba(37,99,255,0.1);
+    border-radius: 999px; padding: 7px 16px 7px 12px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: #2563FF;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
   }
-  .road-back:hover { opacity: 0.75; text-decoration: underline; }
+  .road-back:hover {
+    background: rgba(37,99,255,0.1);
+    border-color: rgba(37,99,255,0.18);
+    transform: translateX(-2px);
+  }
 
   /* ── Stage header ── */
   .road-stage-head {
-    display: flex; gap: 14px; align-items: flex-start;
+    display: flex; gap: 16px; align-items: flex-start;
     animation: rst-fadeup 0.4s cubic-bezier(0.23,1,0.32,1) both;
   }
-  .road-stage-emoji { font-size: 32px; line-height: 1; flex-shrink: 0; }
+  .road-stage-emoji-wrap {
+    width: 72px; height: 72px; flex-shrink: 0;
+    background: linear-gradient(145deg, #EAF2FF 0%, #F0EDFF 100%);
+    border: 1px solid rgba(37,99,255,0.1);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 16px rgba(37,99,255,0.07);
+  }
+  .road-stage-emoji { font-size: 34px; line-height: 1; }
   .road-stage-headtext { min-width: 0; }
   .road-stage-kicker {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
@@ -337,6 +356,7 @@ const styles = `
   .road-tstep.is-current .road-tstep-dot {
     border-color: #2563FF; background: #2563FF; color: #fff;
     box-shadow: 0 0 0 3px rgba(37,99,255,0.12);
+    animation: rst-pulse 2.2s ease-in-out infinite;
   }
   .road-tstep.is-past { color: #64748B; }
   .road-tstep.is-past .road-tstep-dot { border-color: #16A34A; background: #16A34A; color: #fff; }
@@ -376,6 +396,9 @@ const styles = `
   @media (prefers-reduced-motion: reduce) {
     .road-stage-head, .road-tracker {
       animation: rst-fadein 0.2s ease both;
+    }
+    .road-tstep.is-current .road-tstep-dot {
+      animation: none;
     }
   }
 `
