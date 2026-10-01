@@ -16,7 +16,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions'
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyD8KitIGBVidSAGkHgzC-A2AVypiIE_7n4',
   authDomain:
-    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'esports-elite-daf06.firebaseapp.com',
+    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'app.esportselite.in',
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'esports-elite-daf06',
   storageBucket:
     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ||

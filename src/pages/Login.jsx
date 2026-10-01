@@ -313,32 +313,18 @@ export default function Login() {
   async function handleGoogleSignIn() {
     if (googleLoading) return
     clearAllErrors()
+    setGoogleLoading(true)
     try {
-      setGoogleLoading(true)
       const provider = new GoogleAuthProvider()
       provider.setCustomParameters({ prompt: 'select_account' })
-      const result = await signInWithPopup(auth, provider)
-      const fbUser = result?.user
-      if (fbUser) {
-        const localUser = {
-          id: fbUser.uid || 'user-' + uid(),
-          username: fbUser.displayName || (fbUser.email || '').split('@')[0] || 'Player',
-          email: fbUser.email || '',
-          phone: fbUser.phoneNumber || '', password: '', createdAt: Date.now(),
-        }
-        upsertLocalUser(localUser); setLocalSession(localUser)
-        writeLS(STORAGE_KEYS.USER, { username: localUser.username, email: localUser.email, phone: localUser.phone, ign: '', igId: '' })
-        await setupUserProfile(fbUser)
-      }
-      navigate(nextUrl, { replace: true })
+      await signInWithPopup(auth, provider)
+      // onAuthStateChanged in AuthContext handles navigation after successful sign-in
     } catch (error) {
       console.error('Google sign-in error:', error)
+      if (error.code === 'auth/popup-closed-by-user') return
+      if (error.code === 'auth/cancelled-popup-request') return
       if (error.code === 'auth/popup-blocked') {
-        setFieldError('form', 'Popup blocked. Please allow popups for app.esportselite.in and try again.')
-      } else if (error.code === 'auth/popup-closed-by-user') {
-        setFieldError('form', 'Sign-in popup was closed. Please try again.')
-      } else if (error.code === 'auth/cancelled-popup-request') {
-        // silent — user opened another popup
+        setFieldError('form', 'Popup blocked. Allow popups for app.esportselite.in and try again.')
       } else {
         setFieldError('form', error.message || 'Google sign-in failed. Please try again.')
       }
