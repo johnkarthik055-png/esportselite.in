@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Target, ClipboardList, Plus, RotateCcw, Sparkles, CalendarClock,
   CheckCircle2, ArrowRight, Swords, Skull, Star, TrendingUp, Flame,
@@ -154,20 +155,46 @@ export default function Training() {
       <TodayPlanBanner />
 
       {/* ── Page header ── */}
-      <div className="tc-page-header" style={{ marginBottom: 20, marginTop: 4 }}>
-        <h1 style={{
-          fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 40,
-          color: '#0B1224', margin: '0 0 4px', letterSpacing: '0.02em', textTransform: 'uppercase',
-        }}>
-          Training Center
-        </h1>
-        <p style={{
-          fontFamily: 'Inter, sans-serif', fontWeight: 400,
-          fontSize: 15, color: '#64748B', margin: 0,
-        }}>
-          Track your practice, improve and dominate.
-        </p>
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          background: 'linear-gradient(135deg, #F7F9FD 0%, #EEF4FF 60%, #FFF0F2 100%)',
+          borderRadius: 16, padding: 32,
+          position: 'relative', overflow: 'hidden',
+          marginBottom: 20, marginTop: 4,
+        }}
+      >
+        {/* Dot grid overlay */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(37,99,255,0.06) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none', zIndex: 0 }} />
+        {/* Blue glow */}
+        <div style={{ position: 'absolute', top: -60, left: -60, width: 300, height: 300, background: 'radial-gradient(circle, rgba(37,99,255,0.1) 0%, transparent 65%)', pointerEvents: 'none' }} />
+        {/* Red glow */}
+        <div style={{ position: 'absolute', bottom: -40, right: -40, width: 250, height: 250, background: 'radial-gradient(circle, rgba(239,51,64,0.07) 0%, transparent 65%)', pointerEvents: 'none' }} />
+        {/* Content */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <h1 style={{
+            fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 48,
+            color: '#0B1224', margin: 0, letterSpacing: '0.02em', textTransform: 'uppercase',
+            lineHeight: 1,
+          }}>
+            Training Center
+          </h1>
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            style={{ width: 64, height: 3, background: 'linear-gradient(90deg,#2563FF,#EF3340)', borderRadius: 2, marginTop: 12, marginBottom: 12, transformOrigin: 'left' }}
+          />
+          <p style={{
+            fontFamily: 'Inter, sans-serif', fontWeight: 400,
+            fontSize: 15, color: '#64748B', margin: 0,
+          }}>
+            Track your practice, improve and dominate.
+          </p>
+        </div>
+      </motion.div>
 
       {/* ── Tab switcher ── */}
       <div
@@ -175,11 +202,14 @@ export default function Training() {
         className="tc-tab-switcher"
         style={{
           display: 'inline-flex',
-          background: '#F1F5F9',
-          borderRadius: 10,
+          background: '#FFFFFF',
+          border: '1px solid #E5EAF3',
+          borderRadius: 12,
           padding: 4,
           marginBottom: 24,
           alignSelf: 'flex-start',
+          gap: 4,
+          position: 'relative',
         }}
       >
         {TABS.map(t => {
@@ -190,11 +220,11 @@ export default function Training() {
               key={t.id}
               onClick={() => setTab(t.id)}
               style={{
-                background: active ? '#FFFFFF' : 'transparent',
+                background: active ? 'linear-gradient(135deg,#2563FF,#5B3DF5)' : 'transparent',
                 border: 'none',
-                borderRadius: active ? 8 : 8,
-                color: active ? '#0B1224' : '#64748B',
-                padding: '8px 20px',
+                borderRadius: 8,
+                color: active ? '#FFFFFF' : '#64748B',
+                padding: '10px 24px',
                 fontSize: 14,
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: active ? 600 : 500,
@@ -202,12 +232,12 @@ export default function Training() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 8,
-                boxShadow: active ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+                boxShadow: active ? '0 4px 12px rgba(37,99,255,0.25)' : 'none',
                 transition: 'all 0.15s ease',
                 whiteSpace: 'nowrap',
               }}
-              onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#0B1224' }}
-              onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#64748B' }}
+              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = '#F8FAFF'; e.currentTarget.style.color = '#0B1224' } }}
+              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748B' } }}
             >
               <Icon size={15} /> {t.label}
             </button>
@@ -949,9 +979,7 @@ function TrainingStyles() {
       }
 
       /* ── Entrance animations ── */
-      .tc-page-header {
-        animation: tc-fadeup 0.45s cubic-bezier(0.23,1,0.32,1) both;
-      }
+      /* tc-page-header handled by motion.div — no CSS animation needed */
       .tc-tab-switcher {
         animation: tc-fadeup 0.4s cubic-bezier(0.23,1,0.32,1) 0.07s both;
       }
