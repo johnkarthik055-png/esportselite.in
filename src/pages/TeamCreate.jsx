@@ -85,7 +85,7 @@ export default function TeamCreate() {
                 color: active ? 'var(--text-primary)' : 'var(--text-subtle)',
                 padding: '8px 14px',
                 borderRadius: 4,
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: 13,
                 fontWeight: 500,
                 cursor: 'pointer',
@@ -378,7 +378,7 @@ function JoinTab({ uid, onDone }) {
             maxLength={6}
             placeholder="XXXXXX"
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontSize: 22,
               letterSpacing: '0.3em',
               textAlign: 'center',

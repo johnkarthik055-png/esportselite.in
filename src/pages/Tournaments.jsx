@@ -147,7 +147,7 @@ function Header({ typeFilter, onTypeFilter, statusFilter, onStatusFilter }) {
         <div>
           <h1
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontWeight: 400,
               fontSize: 28,
               letterSpacing: '0.04em',
@@ -158,7 +158,7 @@ function Header({ typeFilter, onTypeFilter, statusFilter, onStatusFilter }) {
           >
             Tournaments
           </h1>
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
             Live standings and results
           </div>
         </div>
@@ -211,7 +211,7 @@ function FeaturedCard({ tournament, onOpen }) {
 
       <h2
         style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontWeight: 400,
           fontSize: 26,
           letterSpacing: '0.04em',
@@ -221,13 +221,13 @@ function FeaturedCard({ tournament, onOpen }) {
       >
         {tournament.name}
       </h2>
-      <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)' }}>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)' }}>
         {tournament.organizer || '—'}
       </div>
 
       <div
         style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontSize: 22,
           letterSpacing: '0.04em',
           color: 'var(--gold)',
@@ -278,7 +278,7 @@ function TournamentCard({ tournament, onOpen }) {
       <div>
         <div
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 20,
             letterSpacing: '0.04em',
@@ -288,7 +288,7 @@ function TournamentCard({ tournament, onOpen }) {
         >
           {tournament.name}
         </div>
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
           {tournament.organizer || '—'}
         </div>
       </div>
@@ -341,7 +341,7 @@ function InfoRow({ tournament, compact }) {
         display: 'grid',
         gridTemplateColumns: compact ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
         gap: compact ? 6 : 10,
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
         fontSize: 13,
         color: 'var(--text-muted)',
       }}
@@ -395,10 +395,10 @@ function ErrorState({ message }) {
     <div className="card" style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
       <AlertTriangle size={18} style={{ color: 'var(--red)', flexShrink: 0, marginTop: 2 }} />
       <div>
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, color: 'var(--text-primary)' }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: 'var(--text-primary)' }}>
           Couldn't load tournaments
         </div>
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
           {message}
         </div>
       </div>
@@ -467,7 +467,7 @@ function segBtnStyle(active) {
     color: active ? 'var(--text-primary)' : 'var(--text-subtle)',
     padding: '8px 14px',
     borderRadius: 4,
-    fontFamily: 'DM Sans, sans-serif',
+    fontFamily: 'Inter, sans-serif',
     fontSize: 13,
     fontWeight: 500,
     cursor: 'pointer',

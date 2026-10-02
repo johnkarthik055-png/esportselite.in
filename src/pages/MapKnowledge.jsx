@@ -313,7 +313,7 @@ function createLabelIcon(name) {
     className: 'mk-label-marker',
     html: `<div style="
       color: white;
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: 11px;
       font-weight: 600;
       text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.9);
@@ -336,7 +336,7 @@ function createPolygonLabelIcon(name, fontSize) {
     className: 'mk-polygon-label',
     html: `<div style="
       color: white;
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: ${fontSize}px;
       font-weight: 700;
       text-shadow:
@@ -717,7 +717,7 @@ function TabButton({ active, onClick, children }) {
         border: `1px solid ${active ? 'var(--red)' : 'var(--border)'}`,
         borderRadius: 6,
         padding: '7px 14px',
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
         fontSize: 13,
         fontWeight: 600,
         cursor: 'pointer',
@@ -744,7 +744,7 @@ function OverlayPill({ active, onClick, children }) {
         border: `1px solid ${active ? 'var(--blue)' : '#1B2A45'}`,
         borderRadius: 8,
         padding: '7px 12px',
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
         fontSize: 12,
         fontWeight: 600,
         cursor: 'pointer',
@@ -1242,7 +1242,7 @@ function SearchCard({ search, onSearch, results, onPick }) {
             border: '1px solid var(--border)',
             borderRadius: 6,
             color: 'var(--text-primary)',
-            fontFamily: 'DM Sans, sans-serif',
+            fontFamily: 'Inter, sans-serif',
             fontSize: 13,
           }}
         />
@@ -1261,7 +1261,7 @@ function SearchCard({ search, onSearch, results, onPick }) {
                 borderRadius: 6,
                 cursor: 'pointer',
                 color: 'var(--text-primary)',
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: 13,
                 display: 'flex',
                 alignItems: 'center',
@@ -1306,7 +1306,7 @@ function LayersCard({ visibleLayers, onToggleLayer, counts }) {
                 cursor: 'pointer',
                 width: '100%',
                 textAlign: 'left',
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: 13,
                 color: 'var(--text-primary)',
               }}
@@ -1401,7 +1401,7 @@ function PinDetailCard({ pin, onClose, isAdmin, mapId }) {
       </span>
 
       <h3 style={{
-        fontFamily: 'Bebas Neue, sans-serif',
+        fontFamily: 'Barlow Condensed, sans-serif',
         fontWeight: 400, fontSize: 22, letterSpacing: '0.04em',
         textTransform: 'uppercase',
         color: 'var(--text-primary)', margin: '10px 0 6px',
@@ -1435,7 +1435,7 @@ function PinDetailCard({ pin, onClose, isAdmin, mapId }) {
 
       {pin.notes && (
         <p style={{
-          fontFamily: 'DM Sans, sans-serif',
+          fontFamily: 'Inter, sans-serif',
           fontSize: 13, lineHeight: 1.6,
           color: 'var(--text-muted)', margin: 0,
         }}>
@@ -1511,7 +1511,7 @@ function MapInfoCard({ map, pins }) {
   return (
     <div className="card">
       <SectionLabel>Map Info</SectionLabel>
-      <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
         {map.name}
       </div>
       <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{map.size}</div>
@@ -1924,7 +1924,7 @@ function DevPanel({ mapId, pins, polygons, mousePos, user }) {
           borderTop: '1px dashed var(--border)',
         }}>
           <div style={{
-            fontFamily: 'DM Sans, sans-serif',
+            fontFamily: 'Inter, sans-serif',
             fontSize: 10,
             fontWeight: 700,
             textTransform: 'uppercase',
@@ -2182,7 +2182,7 @@ const modalFieldStyle = {
   gap: 6,
 }
 const modalLabelStyle = {
-  fontFamily: 'DM Sans, sans-serif',
+  fontFamily: 'Inter, sans-serif',
   fontSize: 11,
   fontWeight: 600,
   textTransform: 'uppercase',
@@ -2196,7 +2196,7 @@ const modalLabelStyle = {
 function SectionLabel({ children, small }) {
   return (
     <div style={{
-      fontFamily: 'DM Sans, sans-serif',
+      fontFamily: 'Inter, sans-serif',
       fontSize: small ? 10 : 11,
       fontWeight: 600, textTransform: 'uppercase',
       letterSpacing: '0.10em',
@@ -2218,7 +2218,7 @@ function Collapsible({ title, open, onToggle, children }) {
           width: '100%', display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', cursor: 'pointer',
           padding: 0, color: 'var(--text-primary)',
-          fontFamily: 'DM Sans, sans-serif', fontSize: 12,
+          fontFamily: 'Inter, sans-serif', fontSize: 12,
           fontWeight: 600, textTransform: 'uppercase',
           letterSpacing: '0.10em', marginBottom: open ? 10 : 0,
         }}
@@ -2241,7 +2241,7 @@ const inputStyle = {
   border: '1px solid var(--border)',
   borderRadius: 6,
   color: 'var(--text-primary)',
-  fontFamily: 'DM Sans, sans-serif',
+  fontFamily: 'Inter, sans-serif',
   fontSize: 13,
   padding: '7px 10px',
   outline: 'none',
@@ -2315,7 +2315,7 @@ function MapStyles() {
         border: 1px solid var(--border);
         border-radius: 5px;
         color: var(--text-subtle);
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Inter', sans-serif;
         font-size: 11px;
         font-weight: 600;
         letter-spacing: 0.02em;
@@ -2558,7 +2558,7 @@ function MapStyles() {
         border-bottom: 1px solid #1B2A45;
         cursor: pointer;
         color: var(--text-primary);
-        font-family: 'Oxanium', sans-serif;
+        font-family: 'Barlow Condensed', sans-serif;
         font-weight: 700;
         font-size: 12px;
         letter-spacing: 0.06em;

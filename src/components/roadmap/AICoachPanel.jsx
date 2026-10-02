@@ -109,17 +109,17 @@ const styles = `
     display: flex; align-items: center; justify-content: center;
   }
   .aicp-title {
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 11.5px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11.5px;
     letter-spacing: 0.05em; text-transform: uppercase; color: var(--violet);
   }
   .aicp-flag {
     margin-left: auto;
-    font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 600;
+    font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 600;
     letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-subtle);
     border: 1px solid var(--border); border-radius: 999px; padding: 2px 7px;
   }
   .aicp-blurb {
-    font-family: 'DM Sans', sans-serif; font-size: 12px; line-height: 1.6;
+    font-family: 'Inter', sans-serif; font-size: 12px; line-height: 1.6;
     color: var(--text-subtle); margin: 0;
   }
   .aicp--compact .aicp-blurb { font-size: 11.5px; }
@@ -127,14 +127,14 @@ const styles = `
   .aicp-suggestions { margin-top: 10px; }
   .aicp-suggestions-label {
     display: inline-flex; align-items: center; gap: 5px; margin-bottom: 7px;
-    font-family: 'DM Sans', sans-serif; font-size: 10px; text-transform: uppercase;
+    font-family: 'Inter', sans-serif; font-size: 10px; text-transform: uppercase;
     letter-spacing: 0.06em; color: var(--text-subtle);
   }
   .aicp-suggestions ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
   .aicp-chip {
     background: var(--bg-elevated); border: 1px solid var(--border);
     border-radius: 999px; padding: 5px 10px; cursor: default;
-    font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--text-muted);
+    font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-muted);
     text-align: left;
   }
   .aicp.is-enabled .aicp-chip { cursor: pointer; }

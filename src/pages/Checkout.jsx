@@ -137,7 +137,7 @@ export default function Checkout() {
       <Shell>
         <div style={{ textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
           <CheckCircle size={56} style={{ color: '#22C55E', marginBottom: 24 }} />
-          <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 40, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 40, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
             Payment received!
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 15, marginBottom: 8 }}>
@@ -159,7 +159,7 @@ export default function Checkout() {
       <Shell>
         <div style={{ textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
           <AlertCircle size={56} style={{ color: 'var(--red)', marginBottom: 24 }} />
-          <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 40, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 40, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
             Something went wrong
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 15, marginBottom: 32 }}>{errorMsg}</p>
@@ -176,7 +176,7 @@ export default function Checkout() {
     return (
       <Shell>
         <div style={{ textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
-          <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 40, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 40, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
             Subscribe to Esports Elite
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 15, marginBottom: 32 }}>

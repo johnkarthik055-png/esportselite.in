@@ -91,7 +91,7 @@ export default function TeamPractice({ team, members, myRole, teamId }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
         <h2
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 24,
             letterSpacing: '0.04em',
@@ -218,7 +218,7 @@ function PracticeCard({
         >
           <div
             style={{
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontSize: 10,
               fontWeight: 600,
               textTransform: 'uppercase',
@@ -230,7 +230,7 @@ function PracticeCard({
           </div>
           <div
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontSize: 32,
               letterSpacing: '0.04em',
               color: 'var(--text-primary)',
@@ -244,7 +244,7 @@ function PracticeCard({
 
         {/* Middle */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: 'var(--text-primary)' }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15, color: 'var(--text-primary)' }}>
             {p.title || 'Practice'}
           </div>
           <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>{p.time || 'Time TBD'}</div>
@@ -394,7 +394,7 @@ function PracticeModal({ open, onClose, onSubmit, initial }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <Calendar size={18} style={{ color: 'var(--text-muted)' }} />
-            <h3 style={{ fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400, fontSize: 22, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-primary)', margin: 0 }}>
+            <h3 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400, fontSize: 22, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-primary)', margin: 0 }}>
               {initial ? 'Edit Practice' : 'Schedule Practice'}
             </h3>
           </div>
@@ -462,7 +462,7 @@ function Avatar({ name, size = 32 }) {
         background: 'var(--bg-surface)',
         border: '1px solid var(--border)',
         color: 'var(--text-primary)',
-        fontFamily: 'Bebas Neue, sans-serif',
+        fontFamily: 'Barlow Condensed, sans-serif',
         fontSize: Math.round(size * 0.45),
         letterSpacing: '0.04em',
         display: 'flex', alignItems: 'center', justifyContent: 'center',

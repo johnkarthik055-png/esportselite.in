@@ -275,7 +275,7 @@ function DangerZone({ team, members, teamId, uid, onTeamDeleted }) {
 
       {/* Transfer ownership */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
           <Crown size={13} style={{ marginRight: 6, verticalAlign: 'middle', color: 'var(--text-muted)' }} />
           Transfer ownership
         </div>
@@ -308,7 +308,7 @@ function DangerZone({ team, members, teamId, uid, onTeamDeleted }) {
 
       {/* Delete team */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
           <Trash2 size={13} style={{ marginRight: 6, verticalAlign: 'middle', color: 'var(--text-muted)' }} />
           Delete team
         </div>
@@ -371,7 +371,7 @@ function LeaveCard({ team, myRole, teamId, uid, onDone }) {
       <div className="card" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
         <AlertTriangle size={18} style={{ color: 'var(--amber)', flexShrink: 0 }} />
         <div>
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
             Owners can't leave directly
           </div>
           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.6 }}>
@@ -436,7 +436,7 @@ function LogoUploader({ value, tag, onChange, disabled }) {
         ) : (
           <span
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontSize: 28,
               letterSpacing: '0.04em',
               color: 'var(--text-primary)',
@@ -588,7 +588,7 @@ function DangerBtn({ onClick, disabled, label }) {
         background: 'transparent',
         border: `1px solid ${hover && !disabled ? 'var(--red)' : 'var(--border)'}`,
         color: hover && !disabled ? 'var(--red)' : 'var(--text-primary)',
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
         fontSize: 13,
         fontWeight: 600,
         cursor: disabled ? 'not-allowed' : 'pointer',

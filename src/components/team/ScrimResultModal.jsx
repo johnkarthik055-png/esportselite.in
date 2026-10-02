@@ -69,7 +69,7 @@ export default function ScrimResultModal({ open, onClose, scrim, teamId }) {
             <div>
               <h3
                 style={{
-                  fontFamily: 'Bebas Neue, sans-serif',
+                  fontFamily: 'Barlow Condensed, sans-serif',
                   fontWeight: 400,
                   fontSize: 22,
                   letterSpacing: '0.04em',
@@ -167,7 +167,7 @@ function ResultButton({ label, tint, active, onClick }) {
         color: active ? map.color : 'var(--text-muted)',
         borderRadius: 'var(--radius-sm)',
         cursor: 'pointer',
-        fontFamily: 'Bebas Neue, sans-serif',
+        fontFamily: 'Barlow Condensed, sans-serif',
         fontSize: 22,
         letterSpacing: '0.06em',
         textTransform: 'uppercase',

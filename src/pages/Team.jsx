@@ -113,7 +113,7 @@ export default function Team() {
                 color: active ? 'var(--text-primary)' : 'var(--text-subtle)',
                 padding: '8px 14px',
                 borderRadius: 4,
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: 13,
                 fontWeight: 500,
                 cursor: 'pointer',
@@ -213,7 +213,7 @@ function TeamHeader({ team, members, myRole, onLeave, leaving }) {
               <span
                 className="badge"
                 style={{
-                  fontFamily: 'Bebas Neue, sans-serif',
+                  fontFamily: 'Barlow Condensed, sans-serif',
                   fontSize: 13,
                   letterSpacing: '0.10em',
                   textTransform: 'uppercase',
@@ -224,7 +224,7 @@ function TeamHeader({ team, members, myRole, onLeave, leaving }) {
               </span>
               <h1
                 style={{
-                  fontFamily: 'Bebas Neue, sans-serif',
+                  fontFamily: 'Barlow Condensed, sans-serif',
                   fontWeight: 400,
                   fontSize: 32,
                   letterSpacing: '0.04em',
@@ -287,7 +287,7 @@ function TeamAvatar({ team }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'Bebas Neue, sans-serif',
+        fontFamily: 'Barlow Condensed, sans-serif',
         fontSize: 22,
         letterSpacing: '0.04em',
         color: 'var(--text-primary)',
@@ -321,7 +321,7 @@ function NoTeamState({ onCreate }) {
         <div
           className="heading"
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontSize: 24,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',

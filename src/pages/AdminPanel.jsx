@@ -88,7 +88,7 @@ export default function AdminPanel() {
             <Shield size={22} style={{ color: 'var(--text-muted)' }} />
             Admin Panel
           </h1>
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-subtle)', marginTop: 4 }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'var(--text-subtle)', marginTop: 4 }}>
             Signed in as {user.email}
           </div>
         </div>
@@ -121,7 +121,7 @@ export default function AdminPanel() {
                 padding: '8px 14px',
                 borderRadius: 4,
                 fontSize: 13,
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontWeight: 500,
                 cursor: 'pointer',
                 display: 'inline-flex',
@@ -1071,7 +1071,7 @@ function MaintenanceTab({ adminEmail }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <h3
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontWeight: 400,
               fontSize: 22,
               letterSpacing: '0.04em',
@@ -1107,7 +1107,7 @@ function MaintenanceTab({ adminEmail }) {
             height: 46,
             border: '1px solid',
             borderRadius: 'var(--radius-sm)',
-            fontFamily: 'DM Sans, sans-serif',
+            fontFamily: 'Inter, sans-serif',
             fontWeight: 600,
             fontSize: 14,
             display: 'inline-flex',
@@ -1183,7 +1183,7 @@ function StatTile({ icon, value, label }) {
       </div>
       <div
         style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontWeight: 400,
           fontSize: 38,
           letterSpacing: '0.04em',
@@ -1208,7 +1208,7 @@ function Avatar({ name }) {
         background: 'var(--bg-elevated)',
         border: '1px solid var(--border)',
         color: 'var(--text-primary)',
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
         fontWeight: 700,
         fontSize: 12,
         display: 'flex',
@@ -1236,7 +1236,7 @@ function DangerBtn({ onClick, label }) {
         background: 'var(--bg-elevated)',
         border: `1px solid ${hover ? 'var(--red)' : 'var(--border)'}`,
         color: hover ? 'var(--red)' : 'var(--text-primary)',
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
         fontSize: 12,
         fontWeight: 600,
         cursor: 'pointer',

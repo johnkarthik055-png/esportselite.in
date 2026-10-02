@@ -121,7 +121,7 @@ function VerifyingState() {
       />
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text-muted)' }}>
         <Loader2 size={16} className="animate-spin" />
-        <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}>
+        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13 }}>
           Verifying reset link…
         </span>
       </div>
@@ -148,7 +148,7 @@ function InvalidState({ message, onRetry }) {
       <AlertCircle size={48} style={{ color: 'var(--red)', margin: '0 auto 14px' }} />
       <h1
         style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontWeight: 400,
           fontSize: 24,
           letterSpacing: '0.06em',
@@ -159,7 +159,7 @@ function InvalidState({ message, onRetry }) {
       >
         Link Expired or Invalid
       </h1>
-      <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 20 }}>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 20 }}>
         {message || 'This password reset link has expired or already been used. Please request a new one.'}
       </p>
       <button onClick={onRetry} className="btn btn-primary" style={{ width: '100%', minHeight: 42 }}>
@@ -223,7 +223,7 @@ function ResetForm({ email, oobCode, logoFailed, setLogoFailed, onSuccess }) {
         )}
         <div
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 26,
             letterSpacing: '0.06em',
@@ -233,11 +233,11 @@ function ResetForm({ email, oobCode, logoFailed, setLogoFailed, onSuccess }) {
         >
           Reset Password
         </div>
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
           Enter your new password below
         </div>
         {email && (
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-subtle)', marginTop: 6 }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'var(--text-subtle)', marginTop: 6 }}>
             for {email}
           </div>
         )}
@@ -405,7 +405,7 @@ function SuccessState({ onSignIn }) {
       <CheckCircle2 size={48} style={{ color: 'var(--green)', margin: '0 auto 14px' }} />
       <h1
         style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontWeight: 400,
           fontSize: 28,
           letterSpacing: '0.06em',
@@ -416,13 +416,13 @@ function SuccessState({ onSignIn }) {
       >
         Password Reset!
       </h1>
-      <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 20 }}>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 20 }}>
         Your password has been updated successfully. You can now sign in with your new password.
       </p>
       <button onClick={onSignIn} className="btn btn-primary" style={{ width: '100%', minHeight: 42 }}>
         Sign In <ArrowRight size={14} />
       </button>
-      <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-subtle)', marginTop: 12 }}>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'var(--text-subtle)', marginTop: 12 }}>
         Redirecting in {safeCount}s…
       </div>
     </div>

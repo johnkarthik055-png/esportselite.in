@@ -75,7 +75,7 @@ export default function TodaysScheduleCard() {
 
       <div>
         <div style={{
-          fontFamily: 'DM Sans, sans-serif',
+          fontFamily: 'Inter, sans-serif',
           fontSize: 13,
           fontWeight: 600,
           color: 'var(--text-primary)',

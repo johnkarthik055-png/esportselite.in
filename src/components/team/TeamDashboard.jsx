@@ -102,7 +102,7 @@ export default function TeamDashboard({ team, members, teamId }) {
                       padding: '12px 14px',
                     }}
                   >
-                    <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>
                       {a.title}
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.5 }}>
@@ -186,7 +186,7 @@ export default function TeamDashboard({ team, members, teamId }) {
                 <div
                   className="heading"
                   style={{
-                    fontFamily: 'Bebas Neue, sans-serif',
+                    fontFamily: 'Barlow Condensed, sans-serif',
                     fontSize: 22,
                     letterSpacing: '0.04em',
                     textTransform: 'uppercase',
@@ -292,7 +292,7 @@ function TeamAvatar({ team }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'Bebas Neue, sans-serif',
+        fontFamily: 'Barlow Condensed, sans-serif',
         fontSize: 20,
         letterSpacing: '0.06em',
         color: 'var(--text-primary)',
@@ -307,7 +307,7 @@ function TeamAvatar({ team }) {
 function UpcomingRow({ title, when, sub }) {
   return (
     <div>
-      <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
         {title}
       </div>
       <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>{when || '—'}</div>

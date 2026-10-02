@@ -131,7 +131,7 @@ export default function IGLDashboard({ team, members, myRole, teamId }) {
             >
               {heatmap.focus.slice(0, 3).map((f) => (
                 <div key={f.name} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
                     {f.name}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.55 }}>
@@ -247,7 +247,7 @@ function PlayerCard({ m, stats }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontSize: 18,
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
@@ -311,7 +311,7 @@ function PlayerCard({ m, stats }) {
           border: 'none',
           cursor: 'pointer',
           color: 'var(--text-muted)',
-          fontFamily: 'DM Sans, sans-serif',
+          fontFamily: 'Inter, sans-serif',
           fontSize: 12,
           fontWeight: 600,
           padding: 0,
@@ -410,7 +410,7 @@ function SectionHeading({ children }) {
   return (
     <h2
       style={{
-        fontFamily: 'Bebas Neue, sans-serif',
+        fontFamily: 'Barlow Condensed, sans-serif',
         fontWeight: 400,
         fontSize: 22,
         letterSpacing: '0.04em',
@@ -441,7 +441,7 @@ function OverviewTile({ icon, label, value, sub }) {
       </div>
       <div
         style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontSize: 26,
           letterSpacing: '0.04em',
           color: 'var(--text-primary)',
@@ -470,7 +470,7 @@ function Mini({ label, value }) {
         textAlign: 'center',
       }}
     >
-      <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)', lineHeight: 1 }}>
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)', lineHeight: 1 }}>
         {value}
       </div>
       <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500 }}>
@@ -489,7 +489,7 @@ function Avatar({ name, size = 40 }) {
         background: 'var(--bg-elevated)',
         border: '1px solid var(--border)',
         color: 'var(--text-primary)',
-        fontFamily: 'Bebas Neue, sans-serif',
+        fontFamily: 'Barlow Condensed, sans-serif',
         fontSize: Math.round(size * 0.45),
         letterSpacing: '0.04em',
         display: 'flex', alignItems: 'center', justifyContent: 'center',

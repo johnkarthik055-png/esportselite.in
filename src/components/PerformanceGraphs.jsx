@@ -219,12 +219,12 @@ export default function PerformanceGraphs() {
               <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
               <XAxis
                 dataKey="date"
-                tick={{ fill: '#9999AA', fontSize: 11, fontFamily: 'Share Tech Mono' }}
+                tick={{ fill: '#9999AA', fontSize: 11, fontFamily: 'SF Mono' }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: '#9999AA', fontSize: 11, fontFamily: 'Share Tech Mono' }}
+                tick={{ fill: '#9999AA', fontSize: 11, fontFamily: 'SF Mono' }}
                 axisLine={false}
                 tickLine={false}
                 allowDecimals={false}
@@ -267,14 +267,14 @@ export default function PerformanceGraphs() {
               <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
               <XAxis
                 dataKey="date"
-                tick={{ fill: '#9999AA', fontSize: 11, fontFamily: 'Share Tech Mono' }}
+                tick={{ fill: '#9999AA', fontSize: 11, fontFamily: 'SF Mono' }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
                 reversed
                 domain={[1, placementMax]}
-                tick={{ fill: '#9999AA', fontSize: 11, fontFamily: 'Share Tech Mono' }}
+                tick={{ fill: '#9999AA', fontSize: 11, fontFamily: 'SF Mono' }}
                 axisLine={false}
                 tickLine={false}
                 allowDecimals={false}
@@ -333,12 +333,12 @@ export default function PerformanceGraphs() {
               <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
               <XAxis
                 dataKey="date"
-                tick={{ fill: '#9999AA', fontSize: 11, fontFamily: 'Share Tech Mono' }}
+                tick={{ fill: '#9999AA', fontSize: 11, fontFamily: 'SF Mono' }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: '#9999AA', fontSize: 11, fontFamily: 'Share Tech Mono' }}
+                tick={{ fill: '#9999AA', fontSize: 11, fontFamily: 'SF Mono' }}
                 axisLine={false}
                 tickLine={false}
                 allowDecimals={false}

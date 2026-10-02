@@ -52,7 +52,7 @@ export default function TeamStats({ team, members, teamId }) {
       <section style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <h2
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 24,
             letterSpacing: '0.04em',
@@ -134,7 +134,7 @@ export default function TeamStats({ team, members, teamId }) {
       <section style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <h2
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 24,
             letterSpacing: '0.04em',
@@ -196,7 +196,7 @@ function StatTile({ icon, label, value, accent }) {
       </div>
       <div
         style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontWeight: 400,
           fontSize: 32,
           letterSpacing: '0.04em',
@@ -225,7 +225,7 @@ function PlayerStatCard({ m, data }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontSize: 18,
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
@@ -282,7 +282,7 @@ function Mini({ label, value }) {
     >
       <div
         style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontSize: 18,
           letterSpacing: '0.04em',
           color: 'var(--text-primary)',
@@ -304,7 +304,7 @@ function Avatar({ name }) {
         background: 'var(--bg-elevated)',
         border: '1px solid var(--border)',
         color: 'var(--text-primary)',
-        fontFamily: 'Bebas Neue, sans-serif',
+        fontFamily: 'Barlow Condensed, sans-serif',
         fontSize: 15,
         letterSpacing: '0.04em',
         display: 'flex', alignItems: 'center', justifyContent: 'center',

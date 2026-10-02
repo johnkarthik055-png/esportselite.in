@@ -74,7 +74,7 @@ export default function TeamScrims({ team, members, myRole, teamId }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
         <h2
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 24,
             letterSpacing: '0.04em',
@@ -213,7 +213,7 @@ function ScrimCard({ s, canManage, onEdit, onDelete, onSaveResult }) {
           </div>
           <div
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontWeight: 400,
               fontSize: 20,
               letterSpacing: '0.04em',
@@ -263,17 +263,17 @@ function ScrimCard({ s, canManage, onEdit, onDelete, onSaveResult }) {
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', fontSize: 13 }}>
             <div>
               <span className="label" style={{ marginRight: 6 }}>Kills</span>
-              <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 18, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+              <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
                 {s.result.ourKills}
               </span>
               <span style={{ color: 'var(--text-subtle)', margin: '0 6px' }}>vs</span>
-              <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 18, letterSpacing: '0.04em', color: 'var(--text-muted)' }}>
+              <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, letterSpacing: '0.04em', color: 'var(--text-muted)' }}>
                 {s.result.opponentKills}
               </span>
             </div>
             <div>
               <span className="label" style={{ marginRight: 6 }}>Placement</span>
-              <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 18, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+              <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
                 #{s.result.placement || '—'}
               </span>
             </div>
@@ -318,7 +318,7 @@ function InfoBox({ label, value, onClick, trailing, note }) {
     >
       <div style={{ flex: 1, minWidth: 0 }}>
         <div className="label" style={{ fontSize: 10 }}>{label}</div>
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-primary)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-primary)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {value}
         </div>
         {note && <div style={{ fontSize: 10, color: 'var(--green)', marginTop: 2 }}>{note}</div>}
@@ -386,7 +386,7 @@ function ScrimModal({ open, onClose, onSubmit, initial }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <Swords size={18} style={{ color: 'var(--text-muted)' }} />
-            <h3 style={{ fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400, fontSize: 22, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-primary)', margin: 0 }}>
+            <h3 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400, fontSize: 22, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-primary)', margin: 0 }}>
               {initial ? 'Edit Scrim' : 'Schedule Scrim'}
             </h3>
           </div>

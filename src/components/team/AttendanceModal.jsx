@@ -38,7 +38,7 @@ export default function AttendanceModal({ open, onClose, practice, members, team
             <div>
               <h3
                 style={{
-                  fontFamily: 'Bebas Neue, sans-serif',
+                  fontFamily: 'Barlow Condensed, sans-serif',
                   fontWeight: 400,
                   fontSize: 22,
                   letterSpacing: '0.04em',
@@ -126,7 +126,7 @@ function StatusBtn({ label, tint, active, onClick }) {
       style={{
         padding: '4px 10px',
         borderRadius: 'var(--radius-sm)',
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
         fontSize: 11,
         fontWeight: 600,
         cursor: 'pointer',
@@ -150,7 +150,7 @@ function Avatar({ name }) {
         background: 'var(--bg-surface)',
         border: '1px solid var(--border)',
         color: 'var(--text-primary)',
-        fontFamily: 'Bebas Neue, sans-serif',
+        fontFamily: 'Barlow Condensed, sans-serif',
         fontSize: 14,
         letterSpacing: '0.04em',
         display: 'flex', alignItems: 'center', justifyContent: 'center',

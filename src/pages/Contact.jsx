@@ -34,7 +34,7 @@ export default function Contact() {
           <Reveal>
             <h1
               style={{
-                fontFamily: 'Bebas Neue, sans-serif',
+                fontFamily: 'Barlow Condensed, sans-serif',
                 fontWeight: 400,
                 fontSize: 48,
                 letterSpacing: '0.04em',
@@ -47,7 +47,7 @@ export default function Contact() {
             </h1>
             <p
               style={{
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: 13,
                 color: 'var(--text-subtle)',
                 marginTop: 8,
@@ -141,7 +141,7 @@ function ChannelCard({ icon, title, description, buttonLabel, href, isMailto }) 
         <div style={{ minWidth: 0 }}>
           <div
             style={{
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontWeight: 600,
               fontSize: 15,
               color: 'var(--text-primary)',
@@ -214,7 +214,7 @@ function ContactForm() {
     >
       <div
         style={{
-          fontFamily: 'DM Sans, sans-serif',
+          fontFamily: 'Inter, sans-serif',
           fontWeight: 600,
           fontSize: 15,
           color: 'var(--text-primary)',

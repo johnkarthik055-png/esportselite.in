@@ -145,7 +145,7 @@ export default function TrainingPlan() {
                 padding: '8px 14px',
                 borderRadius: 4,
                 fontSize: 13,
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontWeight: 500,
                 cursor: 'pointer',
                 display: 'inline-flex',
@@ -316,7 +316,7 @@ function PlanFormModal({ open, initial, onClose, onSubmit }) {
             <div>
               <h3
                 style={{
-                  fontFamily: 'Bebas Neue, sans-serif',
+                  fontFamily: 'Barlow Condensed, sans-serif',
                   fontWeight: 700,
                   fontSize: 17,
                   color: 'var(--text-primary)',

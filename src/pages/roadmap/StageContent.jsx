@@ -396,7 +396,7 @@ const styles = `
   .rmc-quickinfo { display: flex; flex-direction: column; gap: 12px; }
   .rmc-quickinfo-hook {
     display: flex; align-items: flex-start; gap: 8px;
-    font-family: 'DM Sans', sans-serif; font-size: 13px; font-style: italic;
+    font-family: 'Inter', sans-serif; font-size: 13px; font-style: italic;
     line-height: 1.55; color: var(--text-primary);
   }
   .rmc-quickinfo-hook svg { color: var(--violet); flex-shrink: 0; margin-top: 2px; }
@@ -406,11 +406,11 @@ const styles = `
   .rmc-quickinfo-item { display: flex; gap: 8px; align-items: flex-start; min-width: 0; }
   .rmc-quickinfo-item svg { color: var(--text-subtle); flex-shrink: 0; margin-top: 2px; }
   .rmc-quickinfo-k {
-    font-family: 'DM Sans', sans-serif; font-size: 10px; text-transform: uppercase;
+    font-family: 'Inter', sans-serif; font-size: 10px; text-transform: uppercase;
     letter-spacing: 0.06em; color: var(--text-subtle);
   }
   .rmc-quickinfo-v {
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 12px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 12px;
     color: var(--text-primary); line-height: 1.4; margin-top: 1px;
   }
 
@@ -419,17 +419,17 @@ const styles = `
     border-radius: var(--radius); padding: 12px 14px;
   }
   .rmc-rail-label {
-    font-family: 'DM Sans', sans-serif; font-size: 10.5px;
+    font-family: 'Inter', sans-serif; font-size: 10.5px;
     text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-subtle);
     margin-bottom: 9px;
   }
   .rmc-rail-pills { display: flex; flex-wrap: wrap; gap: 6px; }
-  .rmc-rail-note { font-family: 'DM Sans', sans-serif; font-size: 11px; line-height: 1.5; color: var(--text-subtle); margin-top: 9px; }
+  .rmc-rail-note { font-family: 'Inter', sans-serif; font-size: 11px; line-height: 1.5; color: var(--text-subtle); margin-top: 9px; }
   .rmc-pill {
     display: inline-flex; align-items: center; gap: 4px;
     background: var(--bg-elevated); border: 1px solid var(--border);
     border-radius: 999px; padding: 5px 11px; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 11.5px; color: var(--text-muted);
+    font-family: 'Inter', sans-serif; font-size: 11.5px; color: var(--text-muted);
     transition: border-color 0.12s ease, color 0.12s ease;
   }
   .rmc-pill:hover { border-color: var(--border-light); color: var(--text-primary); }
@@ -438,15 +438,15 @@ const styles = `
 
   .rmc-lesson-head { margin-bottom: 12px; }
   .rmc-lesson-title {
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 18px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px;
     color: var(--text-primary);
   }
   .rmc-lesson-tag {
-    font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-style: italic;
+    font-family: 'Inter', sans-serif; font-size: 12.5px; font-style: italic;
     color: var(--violet); margin-top: 3px;
   }
   .rmc-intro {
-    font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.7;
+    font-family: 'Inter', sans-serif; font-size: 13.5px; line-height: 1.7;
     color: var(--text-muted); margin: 0 0 14px;
   }
 
@@ -454,38 +454,38 @@ const styles = `
   .rmc-tab {
     background: transparent; border: none; border-bottom: 2px solid transparent;
     padding: 8px 12px; margin-bottom: -1px; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 500;
+    font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 500;
     color: var(--text-subtle);
   }
   .rmc-tab.is-active { color: var(--text-primary); border-bottom-color: var(--violet); }
 
   .rmc-h {
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 14.5px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14.5px;
     color: var(--text-primary); margin: 18px 0 7px; scroll-margin-top: 80px;
   }
   .rmc-h:first-child { margin-top: 0; }
-  .rmc-p { font-family: 'DM Sans', sans-serif; font-size: 13px; line-height: 1.7; color: var(--text-muted); margin: 0 0 10px; }
+  .rmc-p { font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.7; color: var(--text-muted); margin: 0 0 10px; }
   .rmc-quote {
     margin: 12px 0; padding: 10px 14px; border-left: 3px solid var(--violet);
     background: var(--violet-tint); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    font-family: 'DM Sans', sans-serif; font-size: 13px; font-style: italic;
+    font-family: 'Inter', sans-serif; font-size: 13px; font-style: italic;
     line-height: 1.6; color: var(--text-primary);
   }
   .rmc-callout {
     display: flex; flex-direction: column; gap: 4px; margin: 14px 0 4px;
     padding: 12px 14px; border: 1px solid rgba(34,211,238,0.28);
     background: var(--cyan-tint); border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.6;
+    font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.6;
     color: var(--text-primary);
   }
   .rmc-callout-label {
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 10.5px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 10.5px;
     text-transform: uppercase; letter-spacing: 0.08em; color: var(--cyan);
   }
 
   .rmc-check, .rmc-keypoints { list-style: none; margin: 6px 0 12px; padding: 0; display: flex; flex-direction: column; gap: 9px; }
   .rmc-check li, .rmc-keypoints li {
-    display: flex; gap: 9px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+    display: flex; gap: 9px; font-family: 'Inter', sans-serif; font-size: 13px;
     line-height: 1.6; color: var(--text-muted);
   }
   .rmc-check li svg, .rmc-keypoints li svg { color: var(--green); flex-shrink: 0; margin-top: 3px; }
@@ -495,16 +495,16 @@ const styles = `
 
   .rmc-examples { display: flex; flex-direction: column; gap: 12px; }
   .rmc-example { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
-  .rmc-example-title { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 12.5px; color: var(--text-primary); margin-bottom: 5px; }
-  .rmc-example-text { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); }
+  .rmc-example-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 12.5px; color: var(--text-primary); margin-bottom: 5px; }
+  .rmc-example-text { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); }
 
   .rmc-soon {
     display: flex; flex-direction: column; align-items: center; text-align: center;
     gap: 8px; padding: 26px 18px; color: var(--text-subtle);
   }
   .rmc-soon--inline { padding: 18px; }
-  .rmc-soon-title { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-primary); }
-  .rmc-soon-body { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); max-width: 380px; }
+  .rmc-soon-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-primary); }
+  .rmc-soon-body { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); max-width: 380px; }
   .rmc-soon-body strong { color: var(--text-primary); }
 
   .rmc-continue { align-self: flex-start; }
@@ -512,12 +512,12 @@ const styles = `
 
   /* Right rail */
   .rmc-side-title {
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 12px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 12px;
     letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-primary);
     margin-bottom: 10px;
   }
   .rmc-side-empty, .rmc-placeholder {
-    font-family: 'DM Sans', sans-serif; font-size: 12px; line-height: 1.6;
+    font-family: 'Inter', sans-serif; font-size: 12px; line-height: 1.6;
     color: var(--text-subtle); margin: 0;
   }
   .rmc-ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -525,31 +525,31 @@ const styles = `
     width: 76px; height: 76px; border-radius: 50%; position: relative;
     display: flex; align-items: center; justify-content: center;
     background: conic-gradient(var(--violet) calc(var(--pct) * 1%), var(--bg-elevated) 0);
-    font-family: 'Oxanium', sans-serif; font-weight: 800; font-size: 15px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 15px;
     color: var(--text-primary);
   }
   .rmc-ring::after { content: ''; position: absolute; inset: 7px; border-radius: 50%; background: var(--bg-surface); }
   .rmc-ring span { position: relative; z-index: 1; }
-  .rmc-ring-caption { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--text-subtle); text-align: center; }
+  .rmc-ring-caption { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-subtle); text-align: center; }
 
   .rmc-jump { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
   .rmc-jump button {
     width: 100%; text-align: left; background: transparent; border: none;
     padding: 7px 8px; border-radius: var(--radius-sm); cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--text-muted);
+    font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--text-muted);
   }
   .rmc-jump button:hover { background: var(--bg-elevated); color: var(--text-primary); }
 
-  .rmc-notes { margin-bottom: 6px; font-family: 'DM Sans', sans-serif; resize: vertical; }
+  .rmc-notes { margin-bottom: 6px; font-family: 'Inter', sans-serif; resize: vertical; }
   .rmc-notes-foot {
     display: flex; justify-content: space-between; gap: 8px;
-    font-family: 'DM Sans', sans-serif; font-size: 10.5px; color: var(--text-subtle);
+    font-family: 'Inter', sans-serif; font-size: 10.5px; color: var(--text-subtle);
   }
 
   .rmc-coach { background: linear-gradient(160deg, rgba(124,58,237,0.10), rgba(59,130,246,0.05)); border-color: rgba(124,58,237,0.25); }
   .rmc-coach-head {
     display: flex; align-items: center; gap: 7px; margin-bottom: 8px;
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 11.5px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11.5px;
     letter-spacing: 0.05em; text-transform: uppercase; color: var(--violet);
   }
 `

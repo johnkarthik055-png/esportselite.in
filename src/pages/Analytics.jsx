@@ -161,10 +161,10 @@ export default function Analytics() {
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <AlertTriangle size={18} style={{ color: C.red, flexShrink: 0, marginTop: 2 }} />
           <div>
-            <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 600, color: C.text }}>
+            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 600, color: C.text }}>
               Couldn't load analytics
             </div>
-            <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, color: C.muted, marginTop: 4 }}>
+            <div style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, color: C.muted, marginTop: 4 }}>
               {error}
             </div>
           </div>
@@ -177,15 +177,15 @@ export default function Analytics() {
     return (
       <div style={{ ...cardStyle, textAlign: 'center', padding: '48px 24px' }}>
         <BarChart2 size={48} style={{ color: C.muted, opacity: 0.4, margin: '0 auto 16px' }} />
-        <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 20, color: C.text, marginBottom: 8 }}>
+        <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 20, color: C.text, marginBottom: 8 }}>
           No match data yet
         </div>
-        <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, color: C.muted, marginBottom: 20 }}>
+        <div style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, color: C.muted, marginBottom: 20 }}>
           Log matches in Training Center to see your performance analytics here.
         </div>
         <button
           onClick={() => navigate('/training')}
-          style={{ background: C.blue, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 13, fontFamily: 'Oxanium, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}
+          style={{ background: C.blue, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 13, fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}
         >
           Log a Match <ArrowRight size={13} />
         </button>
@@ -198,10 +198,10 @@ export default function Analytics() {
       {/* Page header */}
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div>
-          <h1 style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 26, color: C.text, margin: 0, marginBottom: 4, letterSpacing: '0.01em' }}>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 26, color: C.text, margin: 0, marginBottom: 4, letterSpacing: '0.01em' }}>
             Analytics Overview
           </h1>
-          <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, color: C.muted }}>
+          <div style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, color: C.muted }}>
             Track your performance. Identify weaknesses. Improve every day.
           </div>
         </div>
@@ -224,10 +224,10 @@ export default function Analytics() {
       {filtered.length === 0 ? (
         <div style={{ ...cardStyle, textAlign: 'center', padding: '36px 24px' }}>
           <Filter size={32} style={{ color: C.muted, opacity: 0.3, margin: '0 auto 12px' }} />
-          <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 16, color: C.text, marginBottom: 6 }}>
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 600, fontSize: 16, color: C.text, marginBottom: 6 }}>
             No matches in this filter window
           </div>
-          <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, color: C.muted }}>
+          <div style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, color: C.muted }}>
             Widen the date range or change the mode/map filter.
           </div>
         </div>
@@ -253,7 +253,7 @@ function FilterRow({ dateRange, onDateRange, modeFilter, onModeFilter, mapFilter
   const selectStyle = {
     background: C.card, border: `1px solid ${C.border}`, color: C.text,
     borderRadius: 8, padding: '8px 12px', fontSize: 13,
-    fontFamily: 'Inter, DM Sans, sans-serif', cursor: 'pointer', outline: 'none',
+    fontFamily: 'Inter, Inter, sans-serif', cursor: 'pointer', outline: 'none',
   }
 
   return (
@@ -267,7 +267,7 @@ function FilterRow({ dateRange, onDateRange, modeFilter, onModeFilter, mapFilter
       <select value={mapFilter} onChange={e => onMapFilter(e.target.value)} style={selectStyle}>
         {ALL_MAPS.map(m => <option key={m} value={m}>{m}</option>)}
       </select>
-      <div style={{ marginLeft: 'auto', fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 12, color: C.subtle }}>
+      <div style={{ marginLeft: 'auto', fontFamily: 'Inter, Inter, sans-serif', fontSize: 12, color: C.subtle }}>
         {filtered} of {total} match{total === 1 ? '' : 'es'}
       </div>
     </div>
@@ -349,14 +349,14 @@ function SummaryCard({ icon, iconColor, label, value, trend }) {
         {icon}
       </div>
       <div>
-        <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 11, fontWeight: 500, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
+        <div style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 11, fontWeight: 500, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
           {label}
         </div>
-        <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 26, color: C.text, lineHeight: 1 }}>
+        <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 26, color: C.text, lineHeight: 1 }}>
           {value}
         </div>
         {trend && arrow && (
-          <div style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 11, color: trendColor, marginTop: 4 }}>
+          <div style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 11, color: trendColor, marginTop: 4 }}>
             {arrow} {Math.abs(trend.delta)}{trend.suffix || ''} vs last period
           </div>
         )}
@@ -432,7 +432,7 @@ function TrendAndModeRow({ filtered }) {
                 </PieChart>
               </ResponsiveContainer>
               <div style={{ position: 'absolute', textAlign: 'center', pointerEvents: 'none' }}>
-                <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 700, fontSize: 22, color: C.text }}>{modeTotal}</div>
+                <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 22, color: C.text }}>{modeTotal}</div>
                 <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: C.muted }}>matches</div>
               </div>
             </div>
@@ -441,7 +441,7 @@ function TrendAndModeRow({ filtered }) {
                 <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ width: 10, height: 10, borderRadius: 2, background: MODE_COLORS[d.name] || PIE_COLORS[i % PIE_COLORS.length], flexShrink: 0 }} />
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: C.text, flex: 1 }}>{d.name}</span>
-                  <span style={{ fontFamily: 'Oxanium, sans-serif', fontSize: 13, color: C.muted }}>{d.value}</span>
+                  <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 13, color: C.muted }}>{d.value}</span>
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: C.subtle }}>{modeTotal > 0 ? `${Math.round((d.value / modeTotal) * 100)}%` : '—'}</span>
                 </div>
               ))}
@@ -490,7 +490,7 @@ function MapPerformanceRow({ filtered }) {
                 {meta.emoji}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 15, color: C.text, marginBottom: 4 }}>{d.map}</div>
+                <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 600, fontSize: 15, color: C.text, marginBottom: 4 }}>{d.map}</div>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                   <Stat label="Matches" value={d.count} />
                   <Stat label="Avg Kills" value={d.avgKills} />
@@ -567,7 +567,7 @@ function CombatAnalysisRow({ filtered }) {
                 <PolarGrid stroke={C.border} />
                 <PolarAngleAxis
                   dataKey="axis"
-                  tick={{ fill: C.muted, fontSize: 11, fontFamily: 'Inter, DM Sans, sans-serif' }}
+                  tick={{ fill: C.muted, fontSize: 11, fontFamily: 'Inter, Inter, sans-serif' }}
                 />
                 <PolarRadiusAxis angle={90} domain={[0, 100]} tick={false} axisLine={false} />
                 <Radar
@@ -586,7 +586,7 @@ function CombatAnalysisRow({ filtered }) {
               <div key={s.axis}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: C.text }}>{s.axis}</span>
-                  <span style={{ fontFamily: 'Oxanium, sans-serif', fontSize: 13, fontWeight: 600, color: scoreColor(s.value) }}>{s.value}/100</span>
+                  <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 13, fontWeight: 600, color: scoreColor(s.value) }}>{s.value}/100</span>
                 </div>
                 <div style={{ height: 4, background: C.border, borderRadius: 2, overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: `${s.value}%`, background: scoreColor(s.value), borderRadius: 2, transition: 'width 0.5s ease' }} />
@@ -652,12 +652,12 @@ function WeaknessAndWeaponsRow({ filtered }) {
                 <div key={d.name} style={{ background: '#0A1220', border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 14px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: tip ? 6 : 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ width: 20, height: 20, borderRadius: 4, background: `${pctColor}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, fontFamily: 'Oxanium, sans-serif', color: pctColor }}>
+                      <span style={{ width: 20, height: 20, borderRadius: 4, background: `${pctColor}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, fontFamily: 'Barlow Condensed, sans-serif', color: pctColor }}>
                         {i + 1}
                       </span>
                       <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: C.text }}>{d.name}</span>
                     </div>
-                    <span style={{ background: `${pctColor}18`, border: `1px solid ${pctColor}30`, color: pctColor, borderRadius: 5, padding: '2px 8px', fontSize: 11, fontFamily: 'Oxanium, sans-serif', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    <span style={{ background: `${pctColor}18`, border: `1px solid ${pctColor}30`, color: pctColor, borderRadius: 5, padding: '2px 8px', fontSize: 11, fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 600, whiteSpace: 'nowrap' }}>
                       {d.pct.toFixed(0)}% ({d.count})
                     </span>
                   </div>
@@ -697,9 +697,9 @@ function WeaknessAndWeaponsRow({ filtered }) {
                     {isTop && <span style={{ fontSize: 12 }}>🏆</span>}
                     <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: isTop ? C.text : C.muted, fontWeight: isTop ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.weapon}</span>
                   </div>
-                  <span style={{ fontFamily: 'Oxanium, sans-serif', fontSize: 14, fontWeight: 600, color: C.text, textAlign: 'right' }}>{d.kills}</span>
+                  <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 14, fontWeight: 600, color: C.text, textAlign: 'right' }}>{d.kills}</span>
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: C.muted, textAlign: 'right' }}>{d.matches}</span>
-                  <span style={{ fontFamily: 'Oxanium, sans-serif', fontSize: 13, color: C.green, textAlign: 'right' }}>{d.avgKills}</span>
+                  <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 13, color: C.green, textAlign: 'right' }}>{d.avgKills}</span>
                 </div>
               )
             })}
@@ -718,7 +718,7 @@ function SectionHeader({ label, sub, icon }) {
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.muted, marginBottom: sub ? 3 : 0 }}>
         {icon}
-        <span style={{ fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.10em', color: C.muted }}>
+        <span style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.10em', color: C.muted }}>
           {label}
         </span>
       </div>
@@ -733,14 +733,14 @@ function Stat({ label, value, color }) {
   return (
     <div>
       <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: C.subtle, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
-      <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 14, color: color || C.text }}>{value}</div>
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 600, fontSize: 14, color: color || C.text }}>{value}</div>
     </div>
   )
 }
 
 function ChartEmpty({ msg }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 160, fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, color: C.subtle }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 160, fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, color: C.subtle }}>
       {msg}
     </div>
   )
@@ -749,7 +749,7 @@ function ChartEmpty({ msg }) {
 function EmptyState({ msg, sub }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 16px', gap: 8, textAlign: 'center' }}>
-      <div style={{ fontFamily: 'Oxanium, sans-serif', fontWeight: 600, fontSize: 14, color: C.text }}>{msg}</div>
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 600, fontSize: 14, color: C.text }}>{msg}</div>
       {sub && <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: C.muted, lineHeight: 1.5 }}>{sub}</div>}
     </div>
   )
@@ -758,14 +758,14 @@ function EmptyState({ msg, sub }) {
 const axisProps = {
   stroke: C.border,
   tickLine: false,
-  tick: { fill: C.subtle, fontSize: 11, fontFamily: 'Inter, DM Sans, sans-serif' },
+  tick: { fill: C.subtle, fontSize: 11, fontFamily: 'Inter, Inter, sans-serif' },
 }
 
 function CustomTooltip({ active, payload, label, suffix }) {
   if (!active || !payload?.length) return null
   const p = payload[0]
   return (
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 12, color: C.text }}>
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: 'Inter, Inter, sans-serif', fontSize: 12, color: C.text }}>
       {label && <div style={{ color: C.subtle, marginBottom: 4, fontSize: 11 }}>{label}</div>}
       {payload.map((p, i) => (
         <div key={i} style={{ color: p.color || C.text, fontWeight: 600 }}>

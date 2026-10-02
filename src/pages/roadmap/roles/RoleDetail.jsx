@@ -193,28 +193,28 @@ export default function RoleDetail() {
       <style>{`
         .rdet-hero { display: flex; gap: 14px; align-items: flex-start; }
         .rdet-hero-emoji { font-size: 34px; line-height: 1; flex-shrink: 0; }
-        .rdet-hero-kicker { font-family: 'DM Sans', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-subtle); }
-        .rdet-hero-name { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 26px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-primary); margin: 3px 0 0; }
-        .rdet-hero-tag { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--violet); margin: 4px 0 0; }
+        .rdet-hero-kicker { font-family: 'Inter', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-subtle); }
+        .rdet-hero-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 400; font-size: 26px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-primary); margin: 3px 0 0; }
+        .rdet-hero-tag { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--violet); margin: 4px 0 0; }
         .rdet-toc { display: flex; flex-wrap: wrap; gap: 5px; }
-        .rdet-toc button { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 999px; padding: 5px 10px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 10.5px; color: var(--text-muted); }
+        .rdet-toc button { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 999px; padding: 5px 10px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 10.5px; color: var(--text-muted); }
         .rdet-toc button:hover { border-color: var(--violet); color: var(--text-primary); }
         .rdet-part { scroll-margin-top: 80px; }
-        .rdet-part-title { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 15px; color: var(--text-primary); margin: 0 0 10px; }
-        .rdet-lead { font-family: 'DM Sans', sans-serif; font-size: 13px; line-height: 1.7; color: var(--text-muted); margin: 0 0 10px; }
-        .rdet-mainjob { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 15px; color: var(--text-primary); padding: 12px 14px; background: var(--violet-tint); border: 1px solid rgba(124,58,237,0.25); border-radius: var(--radius-sm); }
+        .rdet-part-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; color: var(--text-primary); margin: 0 0 10px; }
+        .rdet-lead { font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.7; color: var(--text-muted); margin: 0 0 10px; }
+        .rdet-mainjob { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; color: var(--text-primary); padding: 12px 14px; background: var(--violet-tint); border: 1px solid rgba(124,58,237,0.25); border-radius: var(--radius-sm); }
         .rdet-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-        .rdet-list li { display: flex; gap: 9px; font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); }
+        .rdet-list li { display: flex; gap: 9px; font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); }
         .rdet-list li svg { color: var(--violet); flex-shrink: 0; margin-top: 3px; }
         .rdet-list--warn li svg { color: var(--amber); }
         .rdet-phases { display: flex; flex-direction: column; gap: 10px; }
         .rdet-phase { display: grid; grid-template-columns: 130px 1fr; gap: 12px; }
-        .rdet-phase-label { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--cyan); }
-        .rdet-phase-text { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); }
+        .rdet-phase-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--cyan); }
+        .rdet-phase-text { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); }
         @media (max-width: 560px) { .rdet-phase { grid-template-columns: 1fr; gap: 3px; } }
         .rdet-qlist { display: flex; flex-direction: column; gap: 16px; }
         .rdet-cta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 14px; border-radius: var(--radius); border: 1px solid rgba(124,58,237,0.3); background: var(--violet-tint); }
-        .rdet-cta-text { flex: 1; min-width: 180px; font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--text-muted); }
+        .rdet-cta-text { flex: 1; min-width: 180px; font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--text-muted); }
       `}</style>
     </div>
   )

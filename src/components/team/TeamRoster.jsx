@@ -167,7 +167,7 @@ function RoleSummary({ members }) {
   return (
     <div
       style={{
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
         fontSize: 12,
         color: 'var(--text-subtle)',
         padding: '4px 2px',
@@ -214,7 +214,7 @@ function MemberCard({
               background: 'var(--bg-elevated)',
               border: '1px solid var(--border)',
               color: 'var(--text-primary)',
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontSize: 18,
               letterSpacing: '0.04em',
               display: 'flex',
@@ -230,7 +230,7 @@ function MemberCard({
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontSize: 18,
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
@@ -443,7 +443,7 @@ function IgnSlot({ m, teamId, isSelf }) {
               border: '1px solid var(--border)',
               borderRadius: 'var(--radius-sm)',
               color: 'var(--text-primary)',
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontSize: 12,
               padding: '5px 8px',
             }}
@@ -531,7 +531,7 @@ function RoleSlot({ m, teamId, canManage }) {
                 gap: 3,
                 fontSize: 10,
                 color: 'var(--green)',
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontWeight: 600,
               }}
             >
@@ -551,7 +551,7 @@ function RoleSlot({ m, teamId, canManage }) {
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-sm)',
             color: 'var(--text-primary)',
-            fontFamily: 'DM Sans, sans-serif',
+            fontFamily: 'Inter, sans-serif',
             fontSize: 12,
             padding: '4px 8px',
             cursor: 'pointer',
@@ -606,7 +606,7 @@ function MiniStat({ label, value }) {
       <div className="label" style={{ fontSize: 10 }}>{label}</div>
       <div
         style={{
-          fontFamily: 'DM Sans, sans-serif',
+          fontFamily: 'Inter, sans-serif',
           fontWeight: 500,
           fontSize: 13,
           color: 'var(--text-primary)',
@@ -677,7 +677,7 @@ function InviteCard({ team, teamId, isOwner }) {
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-sm)',
             padding: '10px 18px',
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontSize: 32,
             letterSpacing: '0.3em',
             color: 'var(--text-primary)',
@@ -755,7 +755,7 @@ function DangerBtn({ onClick, disabled, label }) {
         background: 'var(--bg-elevated)',
         border: `1px solid ${hover ? 'var(--red)' : 'var(--border)'}`,
         color: hover ? 'var(--red)' : 'var(--text-primary)',
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
         fontSize: 12,
         fontWeight: 600,
         cursor: disabled ? 'not-allowed' : 'pointer',

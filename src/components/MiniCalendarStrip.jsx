@@ -135,7 +135,7 @@ function StatusIcon({ status, isToday }) {
         >
           <span
             className="text-bg-primary leading-none"
-            style={{ fontFamily: "'Bebas Neue', sans-serif", fontWeight: 800, fontSize: 10 }}
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 10 }}
           >
             !
           </span>

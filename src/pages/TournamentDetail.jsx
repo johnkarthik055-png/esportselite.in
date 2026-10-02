@@ -126,7 +126,7 @@ function BackLink({ onClick }) {
         alignItems: 'center',
         gap: 6,
         padding: 4,
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
         fontSize: 13,
       }}
     >
@@ -150,7 +150,7 @@ function TournamentHeader({ tournament }) {
       <div>
         <h1
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 32,
             letterSpacing: '0.04em',
@@ -161,7 +161,7 @@ function TournamentHeader({ tournament }) {
         >
           {tournament.name || 'Tournament'}
         </h1>
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-muted)', marginTop: 4 }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'var(--text-muted)', marginTop: 4 }}>
           {tournament.organizer || '—'}
         </div>
       </div>
@@ -199,7 +199,7 @@ function TournamentHeader({ tournament }) {
       {tournament.description && (
         <p
           style={{
-            fontFamily: 'DM Sans, sans-serif',
+            fontFamily: 'Inter, sans-serif',
             fontSize: 14,
             color: 'var(--text-muted)',
             lineHeight: 1.6,
@@ -227,7 +227,7 @@ function StatBlock({ icon, label, value, accent }) {
       }}
     >
       <span style={{
-        fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
+        fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600,
         textTransform: 'uppercase', letterSpacing: '0.08em',
         color: 'var(--text-subtle)',
         display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -237,7 +237,7 @@ function StatBlock({ icon, label, value, accent }) {
       </span>
       <span
         style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontWeight: 400,
           fontSize: 20,
           letterSpacing: '0.04em',
@@ -264,7 +264,7 @@ function OverallLeaderboard({ overall }) {
         <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Trophy size={15} style={{ color: 'var(--text-subtle)' }} />
           <span style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 20,
             letterSpacing: '0.04em',
@@ -366,7 +366,7 @@ function MatchTabs({ matches, active, onActive }) {
               border: 'none',
               padding: '10px 14px',
               cursor: 'pointer',
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontSize: 13,
               fontWeight: 500,
               color: isActive ? 'var(--text-primary)' : 'var(--text-subtle)',
@@ -406,7 +406,7 @@ function MatchDetail({ match }) {
     <div className="card">
       <div className="card-header">
         <div className="card-title" style={{
-          fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400,
+          fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400,
           fontSize: 20, letterSpacing: '0.04em',
         }}>
           {match.round || `Match ${match.matchNumber || ''}`}
@@ -475,7 +475,7 @@ function KillBoard({ rows }) {
         <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Crosshair size={15} style={{ color: 'var(--amber)' }} />
           <span style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 20,
             letterSpacing: '0.04em',
@@ -596,10 +596,10 @@ function ErrorState({ message, onBack }) {
       <div className="card" style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
         <AlertTriangle size={18} style={{ color: 'var(--red)', flexShrink: 0, marginTop: 2 }} />
         <div>
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, color: 'var(--text-primary)' }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: 'var(--text-primary)' }}>
             Couldn't load this tournament
           </div>
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
             {message}
           </div>
         </div>
