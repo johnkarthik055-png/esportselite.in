@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { motion, useReducedMotion } from 'framer-motion'
 import {
   ArrowLeft, Lock, Check, BookOpen, ClipboardList, BarChart3, Dumbbell, Flag,
   CalendarDays, Hammer,
@@ -25,6 +26,7 @@ const PHASES = [
 export default function RoadmapStage() {
   const { stageId } = useParams()
   const navigate = useNavigate()
+  const reduce = useReducedMotion()
   const {
     loading, getStage, dayCount,
     enterStage, setPhase, setActiveSection, markSectionViewed,
@@ -111,7 +113,12 @@ export default function RoadmapStage() {
       </button>
 
       {/* ── Stage header ── */}
-      <div className="road-stage-head">
+      <motion.div
+        className="road-stage-head"
+        initial={{ opacity: 0, y: reduce ? 0 : 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
         <div className="road-stage-emoji-wrap" aria-hidden>
           <span className="road-stage-emoji">{stage.icon}</span>
         </div>
@@ -121,13 +128,14 @@ export default function RoadmapStage() {
             <span className="road-daychip"><CalendarDays size={11} /> Day {dayCount}</span>
           </div>
           <h1 className="road-stage-title">{stage.title}</h1>
+          <div className="road-stage-accent" />
           <p className="road-stage-desc">{stage.description}</p>
         </div>
-      </div>
+      </motion.div>
 
       {hasContent ? (
         <>
-          <PhaseTracker current={phase} reachable={reachable} completed={isComplete} onJump={jumpPhase} />
+          <PhaseTracker current={phase} reachable={reachable} completed={isComplete} onJump={jumpPhase} reduce={reduce} />
 
           {phase === 'content' && (
             <StageContent
@@ -187,10 +195,17 @@ export default function RoadmapStage() {
 /* ============================================================
    PHASE TRACKER — all logic preserved, white theme applied
    ============================================================ */
-function PhaseTracker({ current, reachable, completed, onJump }) {
+function PhaseTracker({ current, reachable, completed, onJump, reduce }) {
   const currentIdx = PHASES.findIndex(p => p.id === current)
   return (
-    <div className="road-tracker" role="tablist" aria-label="Stage phases">
+    <motion.div
+      className="road-tracker"
+      role="tablist"
+      aria-label="Stage phases"
+      initial={{ opacity: 0, y: reduce ? 0 : 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+    >
       {PHASES.map((p, i) => {
         const Icon = p.icon
         const isCurrent = p.id === current
@@ -214,7 +229,7 @@ function PhaseTracker({ current, reachable, completed, onJump }) {
           </div>
         )
       })}
-    </div>
+    </motion.div>
   )
 }
 
@@ -260,15 +275,7 @@ function Notice({ icon, title, body, action, actionLabel }) {
    STYLES — white premium theme
    ============================================================ */
 const styles = `
-  /* ── Entry animation keyframes ── */
-  @keyframes rst-fadeup {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes rst-fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
+  /* ── Entry animation keyframes (page-level entrances are Framer Motion; JSX gates them via useReducedMotion) ── */
   @keyframes rst-pulse {
     0%, 100% { box-shadow: 0 0 0 3px rgba(37,99,255,0.12); }
     50% { box-shadow: 0 0 0 6px rgba(37,99,255,0.04), 0 0 0 3px rgba(37,99,255,0.16); }
@@ -296,7 +303,6 @@ const styles = `
   /* ── Stage header ── */
   .road-stage-head {
     display: flex; gap: 16px; align-items: flex-start;
-    animation: rst-fadeup 0.4s cubic-bezier(0.23,1,0.32,1) both;
   }
   .road-stage-emoji-wrap {
     width: 72px; height: 72px; flex-shrink: 0;
@@ -322,7 +328,12 @@ const styles = `
   }
   .road-stage-title {
     font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 40px;
-    letter-spacing: 0.02em; color: #0B1224; margin: 4px 0 0; line-height: 1.1;
+    text-transform: uppercase; letter-spacing: 0.02em; color: #0B1224; margin: 4px 0 0; line-height: 1.1;
+  }
+  .road-stage-accent {
+    width: 56px; height: 3px; margin: 10px 0 0;
+    background: linear-gradient(90deg, #2563FF 0%, #5B3DF5 50%, #EF3340 100%);
+    border-radius: 2px;
   }
   .road-stage-desc {
     font-family: 'Inter', sans-serif; font-size: 15px; color: #475569;
@@ -335,7 +346,6 @@ const styles = `
     background: #FFFFFF; border: 1px solid #E5EAF3;
     border-radius: 14px; padding: 12px 16px;
     box-shadow: 0 2px 8px rgba(15,23,42,0.04);
-    animation: rst-fadeup 0.4s cubic-bezier(0.23,1,0.32,1) 0.1s both;
   }
   .road-tracker::-webkit-scrollbar { display: none; }
   .road-tracker-item { display: flex; align-items: center; flex-shrink: 0; }
@@ -392,11 +402,8 @@ const styles = `
     font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; color: #64748B; max-width: 420px;
   }
 
-  /* ── Reduced motion ── */
+  /* ── Reduced motion (page-level entrances are gated via useReducedMotion in JSX) ── */
   @media (prefers-reduced-motion: reduce) {
-    .road-stage-head, .road-tracker {
-      animation: rst-fadein 0.2s ease both;
-    }
     .road-tstep.is-current .road-tstep-dot {
       animation: none;
     }

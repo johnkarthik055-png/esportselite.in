@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion, useReducedMotion } from 'framer-motion'
 import {
   Check, Lock, ChevronRight, Play, Zap, Flame, CalendarDays, Compass,
   ListTree, CalendarRange, Users, LineChart, ClipboardList, Target, Sparkles,
@@ -23,6 +24,7 @@ const PHASE_ACTION = {
 
 export default function RoadmapOverview() {
   const navigate = useNavigate()
+  const reduce = useReducedMotion()
   const [view, setView] = useState('stage')
   const {
     loading, stages, completedCount, totalStages, overallPct,
@@ -77,7 +79,12 @@ export default function RoadmapOverview() {
     <div className="road-wrap page-transition">
 
       {/* ── Hero ─────────────────────────────── */}
-      <header className="rmo-hero">
+      <motion.header
+        className="rmo-hero"
+        initial={{ opacity: 0, y: reduce ? 0 : 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      >
         {/* Decorative layers — pointer-events none, z-index 0 */}
         <div className="rmo-hero-dots" aria-hidden />
         <div className="rmo-hero-glow-blue" aria-hidden />
@@ -88,6 +95,12 @@ export default function RoadmapOverview() {
           <Compass size={14} /> YOUR ROADMAP TO PRO
         </div>
         <h1 className="rmo-title">THE ROAD TO ESPORTS</h1>
+        <motion.div
+          className="rmo-accent"
+          initial={{ scaleX: reduce ? 1 : 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        />
         <p className="rmo-hook">Find your level. Fix your weaknesses. Build your game.</p>
         <p className="rmo-sub">{ROADMAP_INTRO.purpose[1]}</p>
 
@@ -156,24 +169,42 @@ export default function RoadmapOverview() {
             <span>Overall Progress</span>
             <span className="rmo-progress-pct">{overallPct}%</span>
           </div>
-          <div className="road-bar"><div className="road-bar-fill" style={{ width: `${overallPct}%` }} /></div>
+          <div className="road-bar">
+            <motion.div
+              className="road-bar-fill"
+              style={{ width: `${overallPct}%`, transformOrigin: 'left center' }}
+              initial={{ scaleX: reduce ? 1 : 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            />
+          </div>
           <div className="rmo-progress-head rmo-progress-head--xp">
             <span><Zap size={12} /> {levelName} · Level {level + 1}</span>
             <span>{xp.toLocaleString()} / {(ceil || xp).toLocaleString()} XP</span>
           </div>
-          <div className="road-bar road-bar--xp"><div className="road-bar-fill road-bar-fill--xp" style={{ width: `${xpPct}%` }} /></div>
+          <div className="road-bar road-bar--xp">
+            <motion.div
+              className="road-bar-fill road-bar-fill--xp"
+              style={{ width: `${xpPct}%`, transformOrigin: 'left center' }}
+              initial={{ scaleX: reduce ? 1 : 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.7, delay: 0.52, ease: [0.22, 1, 0.36, 1] }}
+            />
+          </div>
         </div>
 
         {currentStage && (
-          <button
+          <motion.button
             className="rmo-hero-cta"
             onClick={() => navigate(`/roadmap/${currentStage.id}`)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <span className="rmo-cta-label">{currentStage.state === 'in_progress' ? 'Resume' : 'Start'} Stage {currentStage.order}</span>
             <span className="rmo-cta-arrow" aria-hidden>→</span>
-          </button>
+          </motion.button>
         )}
-      </header>
+      </motion.header>
 
       {/* ── Deeper area tool cards ── */}
       <div className="road-links">
@@ -235,6 +266,7 @@ export default function RoadmapOverview() {
                   isLast={i === stages.length - 1}
                   onOpen={() => navigate(`/roadmap/${s.id}`)}
                   gated={!isActive && !subLoading && i >= 3}
+                  reduce={reduce}
                 />
               ))}
             </ol>
@@ -257,7 +289,7 @@ export default function RoadmapOverview() {
 /* ============================================================
    STAGE ROW — all logic preserved, visual layer updated
    ============================================================ */
-function StageRow({ stage, index, isLast, onOpen, gated }) {
+function StageRow({ stage, index, isLast, onOpen, gated, reduce }) {
   const { state, order, title, description, icon } = stage
   const locked = state === 'locked'
   const done = state === 'completed'
@@ -334,9 +366,12 @@ function StageRow({ stage, index, isLast, onOpen, gated }) {
         {!isLast && <span className="rmo-rail-line" />}
       </div>
 
-      <div
+      <motion.div
         className={`rmo-card-shell rmo-card-shell--${state}`}
-        style={{ animationDelay: `${Math.min(index, 6) * 0.055}s` }}
+        initial={{ opacity: 0, y: reduce ? 0 : 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: Math.min(index, 6) * 0.055, ease: [0.22, 1, 0.36, 1] }}
+        whileHover={locked ? undefined : { y: -2 }}
       >
       <button
         type="button"
@@ -369,7 +404,7 @@ function StageRow({ stage, index, isLast, onOpen, gated }) {
           </span>
         )}
       </button>
-      </div>
+      </motion.div>
     </li>
   )
 }
@@ -379,17 +414,9 @@ function StageRow({ stage, index, isLast, onOpen, gated }) {
    ============================================================ */
 const styles = `
   /* ── Entry animation keyframes ── */
-  @keyframes rmo-fadeup {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
   @keyframes rmo-fadein {
     from { opacity: 0; }
     to   { opacity: 1; }
-  }
-  @keyframes rmo-bar-grow {
-    from { transform: scaleX(0); }
-    to   { transform: scaleX(1); }
   }
 
   /* ── Hero ── */
@@ -401,7 +428,6 @@ const styles = `
     padding: clamp(24px, 4vw, 40px);
     display: flex; flex-direction: column; gap: 10px;
     box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 16px 48px rgba(15,23,42,0.05);
-    animation: rmo-fadeup 0.5s cubic-bezier(0.23,1,0.32,1) both;
   }
   .rmo-hero-dots {
     position: absolute; inset: 0; pointer-events: none; z-index: 0;
@@ -429,9 +455,15 @@ const styles = `
     color: #64748B; font-weight: 600;
   }
   .rmo-title {
-    font-family: 'Anton', sans-serif; font-weight: 400;
-    font-size: clamp(24px, 5vw, 36px); line-height: 1;
-    letter-spacing: 0.03em; color: #0B1224; margin: 4px 0 0;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+    font-size: clamp(28px, 5.5vw, 48px); line-height: 1;
+    text-transform: uppercase; letter-spacing: 0.02em; color: #0B1224; margin: 4px 0 0;
+  }
+  .rmo-accent {
+    width: 64px; height: 3px;
+    background: linear-gradient(90deg, #2563FF 0%, #5B3DF5 50%, #EF3340 100%);
+    border-radius: 2px; transform-origin: left;
+    margin: 12px 0 2px;
   }
   .rmo-hook {
     font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px;
@@ -525,10 +557,8 @@ const styles = `
     transition: transform 0.2s cubic-bezier(0.23,1,0.32,1), box-shadow 0.2s ease;
   }
   .rmo-hero-cta:hover {
-    transform: scale(1.02);
     box-shadow: 0 6px 28px rgba(37,99,255,0.38), inset 0 1px 0 rgba(255,255,255,0.12);
   }
-  .rmo-hero-cta:active { transform: scale(0.98); }
   .rmo-cta-arrow {
     width: 32px; height: 32px; border-radius: 50%;
     background: rgba(255,255,255,0.2);
@@ -614,7 +644,6 @@ const styles = `
     border: 1px solid rgba(37,99,255,0.05);
     border-radius: 17px; padding: 3px;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    animation: rmo-fadeup 0.35s cubic-bezier(0.23,1,0.32,1) both;
   }
   .rmo-card-shell--locked {
     background: transparent;
@@ -649,10 +678,6 @@ const styles = `
     background: #FFFFFF; border: none;
     border-radius: 14px; padding: 16px 18px; margin-bottom: 0;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
-    transition: transform 0.2s cubic-bezier(0.23,1,0.32,1);
-  }
-  .rmo-card:hover:not(:disabled) {
-    transform: translateY(-1px);
   }
   .rmo-row--completed .rmo-card { background: rgba(22,163,74,0.01); }
 
@@ -727,7 +752,8 @@ const styles = `
   }
   .rmo-footer-quote strong { color: #0B1224; }
   .rmo-footer-stamp {
-    font-family: 'Anton', sans-serif; font-size: 24px; letter-spacing: 0.10em;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 24px; letter-spacing: 0.10em;
+    text-transform: uppercase;
     background: linear-gradient(90deg, #2563FF, #EF3340);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
@@ -742,35 +768,13 @@ const styles = `
     .rmo-card-title { font-size: 14.5px; }
   }
 
-  /* ── Progress bar grow (scaleX — no layout reflow) ── */
-  .road-bar-fill {
-    transform-origin: left center;
-    animation: rmo-bar-grow 0.7s cubic-bezier(0.23,1,0.32,1) 0.4s both;
-  }
-  .road-bar-fill--xp {
-    animation-delay: 0.52s;
-  }
-
   /* ── View content fade on tab switch ── */
   .rmo-view-content {
     animation: rmo-fadein 0.15s ease both;
   }
 
-  /* ── Reduced motion ── */
+  /* ── Reduced motion (JS-driven entrances are gated via useReducedMotion) ── */
   @media (prefers-reduced-motion: reduce) {
-    .rmo-hero {
-      animation: rmo-fadein 0.2s ease both;
-    }
-    .rmo-card-shell {
-      animation: rmo-fadein 0.15s ease both !important;
-    }
-    .rmo-card {
-      animation: none !important;
-    }
-    .road-bar-fill {
-      animation: none;
-      transform: none;
-    }
     .rmo-view-content {
       animation: none;
     }

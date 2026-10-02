@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { motion, useReducedMotion } from 'framer-motion'
 import {
   ArrowLeft, ArrowRight, Check, AlertTriangle, ChevronRight,
 } from 'lucide-react'
@@ -20,6 +21,8 @@ import AICoachPanel from '../../../components/roadmap/AICoachPanel.jsx'
  *   Role Assessment (part) / Role Readiness (screen)
  */
 
+const EASE = [0.22, 1, 0.36, 1]
+
 const PARTS = [
   { id: 'job',      title: 'Main Job' },
   { id: 'skills',   title: 'What Skills Does It Take?' },
@@ -35,6 +38,7 @@ const PARTS = [
 export default function RoleDetail() {
   const { roleId } = useParams()
   const navigate = useNavigate()
+  const reduce = useReducedMotion()
   const role = getRole(roleId)
   const { loading, roleData, saveRoleAnswer, submitRoleAssessment } = useRoles()
 
@@ -70,34 +74,48 @@ export default function RoleDetail() {
 
   return (
     <div className="roles-wrap page-transition">
-      <button className="roles-back" onClick={() => navigate('/roadmap/roles')}>
+      <motion.button
+        className="roles-back"
+        onClick={() => navigate('/roadmap/roles')}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+      >
         <ArrowLeft size={14} /> Role System
-      </button>
+      </motion.button>
 
-      <div className="card rdet-hero">
-        <span className="rdet-hero-emoji" aria-hidden>{role.icon}</span>
-        <div>
-          <div className="rdet-hero-kicker">Role</div>
-          <h1 className="rdet-hero-name">{role.name}</h1>
-          <p className="rdet-hero-tag">{d.whatItDoes}</p>
+      <motion.div
+        className="rdet-hero"
+        initial={{ opacity: 0, y: reduce ? 0 : 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: EASE }}
+      >
+        <div className="rdet-hero-dots" aria-hidden />
+        <div className="rdet-hero-glow" aria-hidden />
+        <div className="rdet-hero-inner">
+          <span className="rdet-hero-emoji" aria-hidden>{role.icon}</span>
+          <div>
+            <div className="rdet-hero-kicker">Role</div>
+            <h1 className="rdet-hero-name">{role.name}</h1>
+            <p className="rdet-hero-tag">{d.whatItDoes}</p>
+          </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="card">
+      <div className="card rdet-toc-card">
         <div className="rdet-toc">
           {PARTS.map(p => <button key={p.id} onClick={() => jump(p.id)}>{p.title}</button>)}
         </div>
       </div>
 
-      <Part id="job" title="Main Job">
+      <Part id="job" title="Main Job" index={0} reduce={reduce}>
         <div className="rdet-mainjob">{d.mainJob}</div>
       </Part>
 
-      <Part id="skills" title="What Skills Does It Take?">
+      <Part id="skills" title="What Skills Does It Take?" index={1} reduce={reduce}>
         <BulletList items={d.skills} />
       </Part>
 
-      <Part id="play" title="How Should You Play the Role?">
+      <Part id="play" title="How Should You Play the Role?" index={2} reduce={reduce}>
         <div className="rdet-phases">
           {d.howToPlay.map((ph, i) => (
             <div key={i} className="rdet-phase">
@@ -108,21 +126,21 @@ export default function RoleDetail() {
         </div>
       </Part>
 
-      <Part id="good" title="What Does Good Performance Look Like?">
+      <Part id="good" title="What Does Good Performance Look Like?" index={3} reduce={reduce}>
         <BulletList items={d.goodPerformance} />
       </Part>
 
-      <Part id="mistakes" title="Common Mistakes">
+      <Part id="mistakes" title="Common Mistakes" index={4} reduce={reduce}>
         <ul className="rdet-list rdet-list--warn">
           {d.commonMistakes.map((m, i) => <li key={i}><AlertTriangle size={14} /> <span>{m}</span></li>)}
         </ul>
       </Part>
 
-      <Part id="improve" title="How to Improve">
+      <Part id="improve" title="How to Improve" index={5} reduce={reduce}>
         <BulletList items={d.howToImprove} />
       </Part>
 
-      <Part id="bda" title="Before / During / After Check">
+      <Part id="bda" title="Before / During / After Check" index={6} reduce={reduce}>
         <div className="rdet-phases">
           <div className="rdet-phase"><div className="rdet-phase-label">Before</div><div className="rdet-phase-text">{ROLE_BDA_CHECK.before}</div></div>
           <div className="rdet-phase"><div className="rdet-phase-label">During</div><div className="rdet-phase-text">{ROLE_BDA_CHECK.during}</div></div>
@@ -130,7 +148,7 @@ export default function RoleDetail() {
         </div>
       </Part>
 
-      <Part id="assess" title="Role Assessment">
+      <Part id="assess" title="Role Assessment" index={7} reduce={reduce}>
         {loading ? (
           <div className="card skeleton" style={{ height: 200 }} />
         ) : (
@@ -157,22 +175,34 @@ export default function RoleDetail() {
                 )
               })}
             </div>
-            <button className="btn btn-primary" style={{ marginTop: 14 }} onClick={submit} disabled={!allAnswered}>
+            <motion.button
+              className="btn btn-primary"
+              style={{ marginTop: 14 }}
+              onClick={submit}
+              disabled={!allAnswered}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
               {allAnswered ? 'See My Role Readiness' : `${qs.length - answeredCount} left`} <ArrowRight size={14} />
-            </button>
+            </motion.button>
           </>
         )}
       </Part>
 
-      <Part id="ready" title="Role Readiness">
+      <Part id="ready" title="Role Readiness" index={8} reduce={reduce}>
         {data.result ? (
           <div className="rdet-cta">
             <span className="rdet-cta-text">
               Latest: <strong>{data.result.readinessLabel}</strong> ({data.result.score}%). Open the full breakdown and training plan.
             </span>
-            <button className="btn btn-primary btn-sm" onClick={() => navigate(`/roadmap/roles/${roleId}/readiness`)}>
+            <motion.button
+              className="btn btn-primary btn-sm"
+              onClick={() => navigate(`/roadmap/roles/${roleId}/readiness`)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
               Open Readiness <ChevronRight size={14} />
-            </button>
+            </motion.button>
           </div>
         ) : (
           <p className="rdet-lead">Complete the Role Assessment above to generate your readiness level (Exploring → Developing → Ready → Competitive) and a training plan.</p>
@@ -190,42 +220,25 @@ export default function RoleDetail() {
         <button className="btn btn-secondary" onClick={() => navigate('/roadmap/roles')}>All roles</button>
       </div>
 
-      <style>{`
-        .rdet-hero { display: flex; gap: 14px; align-items: flex-start; }
-        .rdet-hero-emoji { font-size: 34px; line-height: 1; flex-shrink: 0; }
-        .rdet-hero-kicker { font-family: 'Inter', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-subtle); }
-        .rdet-hero-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 400; font-size: 26px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-primary); margin: 3px 0 0; }
-        .rdet-hero-tag { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--violet); margin: 4px 0 0; }
-        .rdet-toc { display: flex; flex-wrap: wrap; gap: 5px; }
-        .rdet-toc button { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 999px; padding: 5px 10px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 10.5px; color: var(--text-muted); }
-        .rdet-toc button:hover { border-color: var(--violet); color: var(--text-primary); }
-        .rdet-part { scroll-margin-top: 80px; }
-        .rdet-part-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; color: var(--text-primary); margin: 0 0 10px; }
-        .rdet-lead { font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.7; color: var(--text-muted); margin: 0 0 10px; }
-        .rdet-mainjob { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; color: var(--text-primary); padding: 12px 14px; background: var(--violet-tint); border: 1px solid rgba(124,58,237,0.25); border-radius: var(--radius-sm); }
-        .rdet-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-        .rdet-list li { display: flex; gap: 9px; font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); }
-        .rdet-list li svg { color: var(--violet); flex-shrink: 0; margin-top: 3px; }
-        .rdet-list--warn li svg { color: var(--amber); }
-        .rdet-phases { display: flex; flex-direction: column; gap: 10px; }
-        .rdet-phase { display: grid; grid-template-columns: 130px 1fr; gap: 12px; }
-        .rdet-phase-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--cyan); }
-        .rdet-phase-text { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); }
-        @media (max-width: 560px) { .rdet-phase { grid-template-columns: 1fr; gap: 3px; } }
-        .rdet-qlist { display: flex; flex-direction: column; gap: 16px; }
-        .rdet-cta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 14px; border-radius: var(--radius); border: 1px solid rgba(124,58,237,0.3); background: var(--violet-tint); }
-        .rdet-cta-text { flex: 1; min-width: 180px; font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--text-muted); }
-      `}</style>
+      <style>{styles}</style>
     </div>
   )
 }
 
-function Part({ id, title, children }) {
+function Part({ id, title, children, index, reduce }) {
   return (
-    <section id={`rdet-${id}`} className="card rdet-part">
+    <motion.section
+      id={`rdet-${id}`}
+      className="card rdet-part"
+      initial={{ opacity: 0, y: reduce ? 0 : 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.35, delay: Math.min(index, 4) * 0.05, ease: EASE }}
+      whileHover={{ y: -2 }}
+    >
       <h2 className="rdet-part-title">{title}</h2>
       {children}
-    </section>
+    </motion.section>
   )
 }
 
@@ -236,3 +249,101 @@ function BulletList({ items }) {
     </ul>
   )
 }
+
+const styles = `
+  .roles-wrap { display: flex; flex-direction: column; gap: 16px; max-width: 1040px; margin: 0 auto; width: 100%; }
+  .roles-back {
+    align-self: flex-start; display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(37,99,255,0.06); border: 1px solid rgba(37,99,255,0.1);
+    border-radius: 999px; padding: 7px 16px 7px 12px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: #2563FF;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .roles-back:hover { background: rgba(37,99,255,0.1); border-color: rgba(37,99,255,0.18); }
+
+  /* ── Hero ── */
+  .rdet-hero {
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #F7F9FD 0%, #EEF4FF 60%, #FFF0F2 100%);
+    border: 1px solid #E5EAF3; border-radius: 18px;
+    padding: clamp(20px, 3.5vw, 32px);
+    box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 16px 48px rgba(15,23,42,0.05);
+  }
+  .rdet-hero-dots {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background-image: radial-gradient(circle, rgba(37,99,255,0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .rdet-hero-glow {
+    position: absolute; top: -60px; right: -60px; width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(91,61,245,0.10) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+  .rdet-hero-inner { position: relative; z-index: 1; display: flex; gap: 16px; align-items: flex-start; }
+  .rdet-hero-emoji { font-size: 38px; line-height: 1; flex-shrink: 0; }
+  .rdet-hero-kicker { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: #2563FF; }
+  .rdet-hero-name {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(26px, 4vw, 36px);
+    text-transform: uppercase; letter-spacing: 0.02em; color: #0B1224; margin: 3px 0 0; line-height: 1.05;
+  }
+  .rdet-hero-tag { font-family: 'Inter', sans-serif; font-size: 13.5px; line-height: 1.6; color: #475569; margin: 6px 0 0; max-width: 560px; }
+
+  /* ── TOC ── */
+  .rdet-toc-card { padding: 14px 16px; }
+  .rdet-toc { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rdet-toc button {
+    background: #F8FAFD; border: 1px solid #E5EAF3; border-radius: 999px; padding: 6px 12px;
+    cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 11px; color: #475569;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  .rdet-toc button:hover { border-color: #2563FF; color: #2563FF; background: #EEF4FF; }
+
+  /* ── Parts ── */
+  .rdet-part { scroll-margin-top: 90px; }
+  .rdet-part-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px; text-transform: uppercase; letter-spacing: 0.02em; color: #0B1224; margin: 0 0 12px; }
+  .rdet-lead { font-family: 'Inter', sans-serif; font-size: 13.5px; line-height: 1.7; color: #475569; margin: 0 0 10px; }
+  .rdet-mainjob {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; color: #0B1224;
+    padding: 14px 16px; background: #EEF4FF; border: 1px solid rgba(37,99,255,0.18); border-radius: 12px;
+  }
+  .rdet-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+  .rdet-list li { display: flex; gap: 9px; font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.6; color: #475569; }
+  .rdet-list li svg { color: #2563FF; flex-shrink: 0; margin-top: 3px; }
+  .rdet-list--warn li svg { color: #F59E0B; }
+  .rdet-phases { display: flex; flex-direction: column; gap: 12px; }
+  .rdet-phase { display: grid; grid-template-columns: 130px 1fr; gap: 12px; }
+  .rdet-phase-label { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5B3DF5; }
+  .rdet-phase-text { font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.6; color: #475569; }
+  @media (max-width: 560px) { .rdet-phase { grid-template-columns: 1fr; gap: 3px; } }
+
+  .rdet-qlist { display: flex; flex-direction: column; gap: 16px; }
+  .rdisc-q { border-top: 1px solid #E5EAF3; padding-top: 14px; }
+  .rdisc-q-prompt { display: flex; gap: 10px; align-items: flex-start; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13.5px; color: #0B1224; margin-bottom: 10px; }
+  .rdisc-q-idx {
+    width: 22px; height: 22px; flex-shrink: 0; border-radius: 50%; background: #EEF4FF; color: #2563FF;
+    display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
+  }
+  .rdisc-q-opts { display: flex; flex-direction: column; gap: 6px; margin-left: 32px; }
+  .rdisc-opt {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px;
+    border: 1px solid #E5EAF3; background: #F8FAFD; cursor: pointer; font-family: 'Inter', sans-serif;
+    font-size: 13px; color: #475569; transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .rdisc-opt:hover { border-color: rgba(37,99,255,0.3); }
+  .rdisc-opt.is-selected { border-color: #2563FF; background: #EEF4FF; color: #0B1224; font-weight: 600; }
+  .rdisc-opt input { display: none; }
+  .rdisc-opt-mark {
+    width: 16px; height: 16px; border-radius: 50%; border: 2px solid #CBD5E1; flex-shrink: 0;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .rdisc-opt.is-selected .rdisc-opt-mark { border-color: #2563FF; background: #2563FF; box-shadow: inset 0 0 0 3px #fff; }
+  .rdisc-q.is-missing .rdisc-q-prompt { color: #EF3340; }
+  .rdisc-q-miss { margin-left: 32px; margin-top: 6px; font-family: 'Inter', sans-serif; font-size: 11.5px; color: #EF3340; }
+
+  .rdet-cta {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 16px;
+    border-radius: 12px; border: 1px solid rgba(37,99,255,0.18); background: #EEF4FF;
+  }
+  .rdet-cta-text { flex: 1; min-width: 180px; font-family: 'Inter', sans-serif; font-size: 13px; color: #475569; }
+  .rdet-cta-text strong { color: #0B1224; }
+`
