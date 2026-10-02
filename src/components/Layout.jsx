@@ -23,7 +23,9 @@ const PAGE_TITLES = {
 
 export default function Layout() {
   const location = useLocation()
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return window.localStorage.getItem('sidebarCollapsed') === 'true' } catch { return false }
+  })
   const [toast, setToast] = useState('')
   const viewport = useViewport()
   const edgeRef = useRef({ x: 0, y: 0, active: false })
@@ -32,6 +34,10 @@ export default function Layout() {
   const title = PAGE_TITLES[location.pathname] || 'Esports Elite'
 
   useEffect(() => { bootTheme() }, [])
+
+  useEffect(() => {
+    try { window.localStorage.setItem('sidebarCollapsed', String(collapsed)) } catch { /* ignore */ }
+  }, [collapsed])
 
   /* Real measured TopBar height, exposed as --app-topbar-height below —
      TopBar's content (avatar, responsive padding) isn't a fixed
@@ -86,11 +92,11 @@ export default function Layout() {
     }
   }, [viewport])
 
-  /* Match new Sidebar widths: 220/60 expanded/collapsed */
+  /* Match Sidebar widths: 276/82 expanded/collapsed, 60 icon-rail on tablet */
   const mainMl =
     viewport === 'mobile' ? 0 :
     viewport === 'tablet' ? 60 :
-    collapsed ? 60 : 220
+    collapsed ? 82 : 276
 
   return (
     <div
@@ -115,7 +121,11 @@ export default function Layout() {
         '--app-topbar-height': `${topbarHeight}px`,
       }}
     >
-      <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(v => !v)} />
+      <Sidebar
+        collapsed={collapsed}
+        onToggle={() => setCollapsed(v => !v)}
+        onExpand={() => setCollapsed(false)}
+      />
       <div
         style={{
           display: 'flex', flexDirection: 'column',
@@ -142,7 +152,7 @@ export default function Layout() {
              it over, not just flex:1's default 100%. */
           width: `calc(100% - ${mainMl}px)`,
           marginLeft: mainMl,
-          transition: 'margin-left 0.25s ease, width 0.25s ease',
+          transition: 'margin-left 0.3s cubic-bezier(0.22, 1, 0.36, 1), width 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
         <div ref={topbarWrapRef}>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
@@ -6,6 +6,7 @@ import {
   LogOut, Crosshair, X, BarChart2, Bell, Shield,
   Users, Map, Trophy, Calendar, BookOpen, Settings,
   Award, Brain, Compass, Gamepad2, CreditCard, Crown,
+  Search,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useAvatar } from '../hooks/useAvatar.js'
@@ -72,13 +73,14 @@ function clearLocalAppData() {
 }
 
 const EO_SB = [0.23, 1, 0.32, 1]
+const WIDTH_EASE = [0.22, 1, 0.36, 1]
 const SB_ANIM = {
   navList: { hidden: {}, visible: { transition: { staggerChildren: 0.05, delayChildren: 0.1 } } },
   navItem: { hidden: { opacity: 0, transform: 'translateX(-12px)' }, visible: { opacity: 1, transform: 'translateX(0px)', transition: { duration: 0.3, ease: EO_SB } } },
   navItemReduced: { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.15 } } },
 }
 
-export default function Sidebar({ collapsed, onToggle }) {
+export default function Sidebar({ collapsed, onToggle, onExpand }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { user: authUser, logout: signOutFb } = useAuth()
@@ -88,6 +90,8 @@ export default function Sidebar({ collapsed, onToggle }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [panelOpen, setPanelOpen] = useState(false)
   const [logoFailed, setLogoFailed] = useState(false)
+  const searchInputRef = useRef(null)
+  const pendingFocusRef = useRef(false)
 
   const { avatar } = useAvatar()
   const { unreadCount } = useNotifications()
@@ -134,21 +138,54 @@ export default function Sidebar({ collapsed, onToggle }) {
   const isMobile = viewport === 'mobile'
   const isTablet = viewport === 'tablet'
   const labelsHidden = isTablet || (!isMobile && collapsed)
-  const sidebarWidth = isMobile ? 260 : isTablet ? 60 : (collapsed ? 60 : 250)
+  const sidebarWidth = isMobile ? 260 : isTablet ? 60 : (collapsed ? 82 : 276)
+
+  /* Cmd+K / Ctrl+K — focus the search input from anywhere in the app.
+     If the sidebar is currently icon-only, expand it first and defer
+     the focus until the text input has actually mounted. */
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault()
+        if (labelsHidden) {
+          if (!isTablet) {
+            pendingFocusRef.current = true
+            onExpand?.()
+          }
+        } else {
+          searchInputRef.current?.focus()
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [labelsHidden, isTablet, onExpand])
+
+  useEffect(() => {
+    if (!labelsHidden && pendingFocusRef.current) {
+      pendingFocusRef.current = false
+      searchInputRef.current?.focus()
+    }
+  }, [labelsHidden])
+
+  function handleSearchIconClick() {
+    if (isTablet) return
+    pendingFocusRef.current = true
+    onExpand?.()
+  }
 
   const sidebarStyle = {
     position: 'fixed',
     left: 0, top: 0,
     height: '100dvh',
-    width: sidebarWidth,
     background: '#FFFFFF',
     borderRight: '1px solid #E5EAF3',
     zIndex: isMobile ? 9999 : 50,
     display: 'flex',
     flexDirection: 'column',
-    transition: 'transform 0.25s ease, width 0.25s ease',
+    transition: 'transform 0.25s ease',
     transform: isMobile && !mobileOpen ? 'translateX(-100%)' : 'translateX(0)',
-    overflow: 'hidden',
+    overflow: 'visible',
     boxShadow: '2px 0 16px rgba(15,23,42,0.04)',
   }
 
@@ -164,15 +201,21 @@ export default function Sidebar({ collapsed, onToggle }) {
         />
       )}
 
-      <aside className="sidebar" style={sidebarStyle}>
+      <motion.aside
+        className="sidebar"
+        style={sidebarStyle}
+        animate={{ width: sidebarWidth }}
+        transition={{ duration: 0.3, ease: WIDTH_EASE }}
+      >
 
         {/* ── Brand row ─────────────────────── */}
         <div style={{
           height: 78,
-          padding: '18px 24px',
+          padding: labelsHidden ? '18px 0' : '18px 24px',
           borderBottom: '1px solid #E5EAF3',
           display: 'flex',
           alignItems: 'center',
+          justifyContent: labelsHidden ? 'center' : 'flex-start',
           gap: 10,
           flexShrink: 0,
         }}>
@@ -180,7 +223,11 @@ export default function Sidebar({ collapsed, onToggle }) {
             <img
               src="/assets/logo.png"
               alt="Esports Elite"
-              style={{ height: 40, width: 'auto', objectFit: 'contain', flexShrink: 0 }}
+              style={{
+                height: labelsHidden ? 28 : 40,
+                width: 'auto', objectFit: 'contain', flexShrink: 0,
+                transition: 'height 0.25s ease',
+              }}
               onError={(e) => { e.currentTarget.style.display = 'none'; setLogoFailed(true) }}
             />
           )}
@@ -200,8 +247,64 @@ export default function Sidebar({ collapsed, onToggle }) {
           )}
         </div>
 
+        {/* ── Search ───────────────────────── */}
+        {labelsHidden ? (
+          <div style={{ margin: '12px 0 4px', display: 'flex', justifyContent: 'center' }}>
+            <button
+              type="button"
+              onClick={handleSearchIconClick}
+              aria-label="Search"
+              title="Search (Ctrl+K)"
+              style={{
+                width: 36, height: 36, borderRadius: '50%',
+                background: '#F8FAFF', border: '1px solid #E5EAF3',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: '#64748B',
+                transition: 'color 0.15s ease, border-color 0.15s ease',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#2563FF'; e.currentTarget.style.borderColor = '#2563FF' }}
+              onMouseLeave={e => { e.currentTarget.style.color = '#64748B'; e.currentTarget.style.borderColor = '#E5EAF3' }}
+            >
+              <Search size={16} />
+            </button>
+          </div>
+        ) : (
+          <div style={{ margin: '12px 16px 4px', position: 'relative' }}>
+            <Search
+              size={16}
+              style={{
+                position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+                color: '#94A3B8', pointerEvents: 'none',
+              }}
+            />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search"
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                background: '#F8FAFF', border: '1px solid #E5EAF3',
+                borderRadius: 8, padding: '9px 44px 9px 36px',
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 13, color: '#0B1224', outline: 'none',
+                transition: 'border-color 0.15s ease',
+              }}
+              onFocus={(e) => { e.target.style.borderColor = '#2563FF' }}
+              onBlur={(e) => { e.target.style.borderColor = '#E5EAF3' }}
+            />
+            <kbd style={{
+              position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+              background: '#F1F5F9', border: '1px solid #E5EAF3', borderRadius: 4,
+              padding: '2px 6px', fontFamily: "'Inter', sans-serif", fontSize: 11,
+              color: '#94A3B8',
+            }}>
+              ⌘K
+            </kbd>
+          </div>
+        )}
+
         {/* ── Nav ──────────────────────────── */}
-        <nav style={{ flex: 1, overflowY: 'auto', paddingTop: 8, paddingBottom: 8 }}>
+        <nav style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingTop: 8, paddingBottom: 8 }}>
           {NAV_SECTIONS.map(section => (
             <div key={section.title} style={{ marginBottom: 4 }}>
               {!labelsHidden && (
@@ -223,10 +326,14 @@ export default function Sidebar({ collapsed, onToggle }) {
                 {section.items.map(item => {
                   const Icon = item.icon
                   return (
-                    <motion.li key={item.to} variants={reduce ? SB_ANIM.navItemReduced : SB_ANIM.navItem}>
+                    <motion.li
+                      key={item.to}
+                      variants={reduce ? SB_ANIM.navItemReduced : SB_ANIM.navItem}
+                      className="sb-navitem-wrap"
+                    >
                       <NavLink
                         to={item.to}
-                        title={labelsHidden ? item.label : undefined}
+                        aria-label={labelsHidden ? item.label : undefined}
                         style={({ isActive }) => ({
                           display: 'flex',
                           alignItems: 'center',
@@ -271,12 +378,22 @@ export default function Sidebar({ collapsed, onToggle }) {
                                 color: isActive ? '#2563FF' : '#64748B',
                               }}
                             />
-                            {!labelsHidden && (
-                              <span style={{ flex: 1 }}>{item.label}</span>
-                            )}
+                            <span style={{
+                              flex: labelsHidden ? '0 0 auto' : 1,
+                              width: labelsHidden ? 0 : 'auto',
+                              opacity: labelsHidden ? 0 : 1,
+                              overflow: 'hidden',
+                              whiteSpace: 'nowrap',
+                              transition: 'opacity 0.2s ease, width 0.2s ease',
+                            }}>
+                              {item.label}
+                            </span>
                           </>
                         )}
                       </NavLink>
+                      {labelsHidden && (
+                        <span className="sb-tooltip">{item.label}</span>
+                      )}
                     </motion.li>
                   )
                 })}
@@ -483,20 +600,39 @@ export default function Sidebar({ collapsed, onToggle }) {
         {/* Collapsed icon-only bottom */}
         {labelsHidden && !isMobile && (
           <div style={{
-            padding: '8px 0 12px',
+            padding: '12px 0',
             borderTop: '1px solid #E5EAF3',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
           }}>
-            <button onClick={() => navigate('/profile')} title="Settings" style={{ padding: 9, background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex' }}>
-              <Settings size={16} />
-            </button>
-            <button onClick={() => setPanelOpen(true)} title="Notifications" style={{ padding: 9, background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex', position: 'relative' }}>
-              <Bell size={16} />
-              {unreadCount > 0 && <span style={{ position: 'absolute', top: 6, right: 6, width: 6, height: 6, borderRadius: '50%', background: '#2563FF' }} />}
-            </button>
-            <button onClick={logout} title="Logout" style={{ padding: 9, background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex' }}>
-              <LogOut size={16} />
-            </button>
+            {avatar ? (
+              <img
+                src={avatar}
+                alt=""
+                style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1px solid #E5EAF3' }}
+              />
+            ) : (
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%',
+                background: '#EAF2FF',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 12,
+                color: '#2563FF',
+              }}>
+                {initials}
+              </div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => navigate('/profile')} title="Settings" style={{ padding: 9, background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex' }}>
+                <Settings size={16} />
+              </button>
+              <button onClick={() => setPanelOpen(true)} title="Notifications" style={{ padding: 9, background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex', position: 'relative' }}>
+                <Bell size={16} />
+                {unreadCount > 0 && <span style={{ position: 'absolute', top: 6, right: 6, width: 6, height: 6, borderRadius: '50%', background: '#2563FF' }} />}
+              </button>
+              <button onClick={logout} title="Logout" style={{ padding: 9, background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex' }}>
+                <LogOut size={16} />
+              </button>
+            </div>
           </div>
         )}
 
@@ -506,20 +642,20 @@ export default function Sidebar({ collapsed, onToggle }) {
             onClick={onToggle}
             title={collapsed ? 'Expand' : 'Collapse'}
             style={{
-              position: 'absolute', top: 24, right: -12,
-              width: 24, height: 24, borderRadius: '50%',
+              position: 'absolute', top: 78, right: -14,
+              width: 28, height: 28, borderRadius: '50%',
               background: '#FFFFFF',
-              border: '1px solid #E5EAF3',
+              border: '1.5px solid #E5EAF3',
               color: '#64748B',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', zIndex: 51,
-              boxShadow: '0 2px 8px rgba(15,23,42,0.1)',
+              cursor: 'pointer', zIndex: 10,
+              boxShadow: '0 2px 8px rgba(15,23,42,0.08)',
               transition: 'border-color 0.15s ease, color 0.15s ease',
             }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = '#2563FF'; e.currentTarget.style.color = '#2563FF' }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5EAF3'; e.currentTarget.style.color = '#64748B' }}
           >
-            {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
+            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
         )}
 
@@ -529,7 +665,45 @@ export default function Sidebar({ collapsed, onToggle }) {
           background: 'linear-gradient(to top, rgba(37,99,255,0.03), transparent)',
           pointerEvents: 'none',
         }} />
-      </aside>
+
+        <style>{`
+          .sb-navitem-wrap { position: relative; }
+          .sb-tooltip {
+            position: absolute;
+            left: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%) translateX(-4px);
+            background: #0B1224;
+            color: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 150ms ease, transform 150ms ease;
+            z-index: 60;
+          }
+          .sb-tooltip::before {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            width: 8px;
+            height: 8px;
+            background: #0B1224;
+          }
+          .sb-navitem-wrap:hover .sb-tooltip {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(-50%) translateX(0);
+          }
+        `}</style>
+      </motion.aside>
 
       <NotificationPanel open={panelOpen} onClose={() => setPanelOpen(false)} />
     </>
