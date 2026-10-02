@@ -162,7 +162,7 @@ export default function ScreenshotImport({
           <button type="button" className="btn btn-secondary btn-sm" disabled>
             <ImageIcon size={14} /> Import from screenshot
           </button>
-          <span style={{ fontSize: 11, color: 'var(--text-subtle)' }}>
+          <span style={{ fontSize: 11, fontFamily: 'Inter, sans-serif', color: '#64748B' }}>
             {matchType} — reads only the fields this mode needs.
           </span>
         </div>

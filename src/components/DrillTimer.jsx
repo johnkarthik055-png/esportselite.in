@@ -280,8 +280,8 @@ export default function DrillTimer({
       style={sortableStyle}
       className={`dt-row ${stateClass} ${isDragging ? 'is-dragging' : ''}`}
     >
-      {/* HEADER ROW */}
-      <div className="dt-head">
+      {/* SINGLE CONTROL ROW — grip | name/desc | controls */}
+      <div className="dt-main">
         <button
           {...attributes} {...listeners}
           className="dt-grip"
@@ -347,101 +347,102 @@ export default function DrillTimer({
           )}
         </div>
 
-        <DrillKebab
-          onEdit={() => onEditDrill?.(drill)}
-          onDelete={() => onDeleteDrill?.(drill)}
-          onDuplicate={() => onDuplicateDrill?.(drill)}
-        />
-      </div>
-
-      {/* DIVIDER */}
-      <div className="dt-divider" />
-
-      {/* TIMER / ACTION ROW */}
-      {isLocked ? (
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <motion.button
-            onClick={requestEdit}
-            className="dt-btn dt-btn--ghost"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <Unlock size={12} /> Edit
-          </motion.button>
-        </div>
-      ) : isEditing ? (
-        <div className="dt-edit-row">
-          <span className="dt-field-label">Duration</span>
-          <input
-            type="number" min="1" value={targetMinutes}
-            onChange={e => setTargetMinutes(e.target.value)}
-            className="dt-input" placeholder="min"
-          />
-          <span className="dt-unit">min</span>
-          <div className="dt-edit-actions">
+        {/* ── Control group — one cohesive cluster, no dead space ── */}
+        {isLocked ? (
+          <div className="dt-controls">
+            <span className="dt-check is-checked" aria-hidden>
+              <CheckCircle2 size={15} strokeWidth={2.6} />
+            </span>
+            <motion.button
+              onClick={requestEdit}
+              className="dt-btn dt-btn--ghost"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.15, ease: DT_EASE }}
+            >
+              <Unlock size={12} /> Edit
+            </motion.button>
+          </div>
+        ) : isEditing ? (
+          <div className="dt-controls">
+            {/* ONE unit label — the input carries no placeholder */}
+            <input
+              type="number" min="1" value={targetMinutes}
+              onChange={e => setTargetMinutes(e.target.value)}
+              className="dt-input"
+              aria-label="Duration in minutes"
+            />
+            <span className="dt-unit">min</span>
             <motion.button
               onClick={saveEdit}
               disabled={!targetMinutes || Number(targetMinutes) <= 0}
               className="dt-btn dt-btn--primary"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.15, ease: DT_EASE }}
             >
-              <Save size={13} /> Save Changes
+              <Save size={13} /> Save
             </motion.button>
             <motion.button
               onClick={cancelEdit}
               className="dt-btn dt-btn--ghost"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.15, ease: DT_EASE }}
             >
               <X size={13} /> Cancel
             </motion.button>
           </div>
-        </div>
-      ) : (
-        <div className="dt-timer-row">
-          {/* Circular start / pause with progress ring */}
-          <TimerButton
-            running={running}
-            pct={ringPct}
-            hasTarget={targetSec > 0}
-            onClick={running ? pause : start}
-          />
+        ) : (
+          <div className="dt-controls">
+            {/* Circular start / pause with progress ring */}
+            <TimerButton
+              running={running}
+              pct={ringPct}
+              hasTarget={targetSec > 0}
+              onClick={running ? pause : start}
+            />
 
-          {/* Live timer readout */}
-          <div className={`dt-time ${running ? 'is-running' : ''}`}>
-            {formatTime(seconds)}
-          </div>
+            {/* Live readout */}
+            <div className={`dt-time ${running ? 'is-running' : ''}`}>
+              {formatTime(seconds)}
+            </div>
 
-          {/* Manual minutes override */}
-          <div className="dt-min-wrap">
+            {/* Manual minutes override — ONE unit label, no placeholder */}
             <input
-              type="number" min="0" placeholder="min" value={targetMinutes}
+              type="number" min="0" value={targetMinutes}
               onChange={e => { setTargetMinutes(e.target.value); setDurationError('') }}
-              className={`dt-input dt-input--sm ${durationError ? 'has-error' : ''}`}
+              className={`dt-input ${durationError ? 'has-error' : ''}`}
               title="Manual duration in minutes (overrides timer)"
+              aria-label="Duration in minutes"
             />
             <span className="dt-unit">min</span>
+
+            {seconds > 0 && (
+              <button onClick={reset} className="dt-reset" title="Reset timer" aria-label="Reset timer">
+                <RotateCcw size={14} />
+              </button>
+            )}
+
+            {/* Completion toggle */}
+            <span className="dt-complete-wrap">
+              <CompleteButton onClick={complete} />
+              {confetti.map(p => (
+                <span key={p.id} className="confetti-particle" style={{
+                  top: '50%', left: '50%', background: p.color,
+                  '--tx': `${p.tx}px`, '--ty': `${p.ty}px`,
+                }} />
+              ))}
+            </span>
           </div>
+        )}
 
-          {/* Complete */}
-          <span className="dt-complete-wrap">
-            <CompleteButton onClick={complete} />
-            {confetti.map(p => (
-              <span key={p.id} className="confetti-particle" style={{
-                top: '50%', left: '50%', background: p.color,
-                '--tx': `${p.tx}px`, '--ty': `${p.ty}px`,
-              }} />
-            ))}
-          </span>
-
-          {seconds > 0 && (
-            <button onClick={reset} className="dt-reset" title="Reset timer" aria-label="Reset timer">
-              <RotateCcw size={14} />
-            </button>
-          )}
-        </div>
-      )}
+        <DrillKebab
+          onEdit={() => onEditDrill?.(drill)}
+          onDelete={() => onDeleteDrill?.(drill)}
+          onDuplicate={() => onDuplicateDrill?.(drill)}
+        />
+      </div>
 
       <AnimatePresence>
         {durationError && (
@@ -489,7 +490,7 @@ export default function DrillTimer({
 
 /* ─── 36px circular start/pause with a progress ring ─────────── */
 function TimerButton({ running, pct, hasTarget, onClick }) {
-  const size = 38
+  const size = 40
   const stroke = 3
   const r = (size - stroke) / 2
   const circumference = 2 * Math.PI * r
@@ -546,7 +547,7 @@ function CompleteButton({ onClick }) {
       className="dt-check"
       title="Complete drill (use timer or enter minutes above)"
       aria-label="Complete drill"
-      animate={popped && !reduce ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+      animate={popped && !reduce ? { scale: [1, 1.15, 1] } : { scale: 1 }}
       transition={{ duration: 0.38, ease: DT_EASE }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.94 }}
@@ -561,8 +562,8 @@ const DT_EASE = [0.22, 1, 0.36, 1]
 const drillStyles = `
   .dt-row {
     position: relative;
-    background: #F8FAFD; border: 1px solid #E5EAF3;
-    border-left: 3px solid #E5EAF3; border-radius: 12px; padding: 14px;
+    background: #FFFFFF; border: 1px solid #E5EAF3;
+    border-left: 3px solid #E5EAF3; border-radius: 12px; padding: 14px 18px;
     transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
   }
   @media (hover: hover) and (pointer: fine) {
@@ -582,10 +583,12 @@ const drillStyles = `
   }
   .dt-row.is-dragging { box-shadow: 0 14px 40px rgba(15,23,42,0.14); z-index: 10; }
 
-  /* ── Header ── */
-  .dt-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 11px; }
+  /* ── Single control row ──
+     The name block is the only flex-grow element; every control sits in
+     one tight cluster so there is no dead space mid-row. */
+  .dt-main { display: flex; align-items: center; gap: 12px; }
   .dt-grip {
-    margin-top: 2px; padding: 4px; border-radius: 7px; flex-shrink: 0;
+    padding: 4px; border-radius: 7px; flex-shrink: 0;
     background: transparent; border: none; color: #94A3B8;
     cursor: grab; touch-action: none; display: flex;
     transition: color 0.15s ease, background 0.15s ease;
@@ -655,17 +658,21 @@ const drillStyles = `
     font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
   }
 
-  .dt-divider { height: 1px; background: #E5EAF3; margin: 13px 0; }
-
-  /* ── Timer row ── */
-  .dt-timer-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  /* ── Controls cluster ── */
+  .dt-controls {
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+  }
 
   .dt-circle {
-    position: relative; width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    position: relative; width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
     border: none; cursor: pointer; padding: 0;
-    background: linear-gradient(135deg, #2563FF, #5B3DF5); color: #FFFFFF;
+    background: #2563FF; color: #FFFFFF;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 3px 12px rgba(37,99,255,0.3);
+    transition: background 0.18s ease, box-shadow 0.18s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .dt-circle:not(.is-running):hover { background: #1677FF; box-shadow: 0 5px 16px rgba(37,99,255,0.38); }
   }
   .dt-circle.is-running {
     background: linear-gradient(135deg, #F59E0B, #EF3340);
@@ -680,43 +687,52 @@ const drillStyles = `
   .dt-circle-icon { position: relative; display: flex; }
 
   .dt-time {
-    min-width: 92px; text-align: center;
-    background: #FFFFFF; border: 1px solid #E5EAF3; border-radius: 10px;
-    padding: 7px 12px;
-    font-family: 'Inter', sans-serif; font-weight: 800; font-size: 18px;
+    min-width: 76px; text-align: center; flex-shrink: 0;
+    background: #F8FAFD; border: 1px solid #E5EAF3; border-radius: 9px;
+    padding: 7px 10px;
+    font-family: 'Inter', sans-serif; font-weight: 800; font-size: 16px;
     font-variant-numeric: tabular-nums; color: #0B1224;
     transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
   }
   .dt-time.is-running { border-color: rgba(239,51,64,0.3); color: #EF3340; background: #FFF7ED; }
 
-  .dt-min-wrap { display: flex; align-items: center; gap: 6px; }
+  /* Compact duration field. Spinners are hidden so 56px is fully usable. */
   .dt-input {
-    width: 92px; box-sizing: border-box; text-align: center;
-    background: #FFFFFF; border: 1px solid #E5EAF3; border-radius: 10px;
-    padding: 8px 10px;
+    width: 56px; box-sizing: border-box; text-align: center; flex-shrink: 0;
+    background: #F8FAFF; border: 1px solid #DCE4F0; border-radius: 9px;
+    padding: 8px 6px;
     font-family: 'Inter', sans-serif; font-size: 13px; font-variant-numeric: tabular-nums;
-    color: #0B1224; outline: none; transition: border-color 0.15s ease;
+    color: #0B1224; outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    -moz-appearance: textfield;
   }
-  .dt-input--sm { width: 74px; }
-  .dt-input:focus { border-color: #2563FF; }
-  .dt-input::placeholder { color: #94A3B8; }
+  .dt-input::-webkit-outer-spin-button,
+  .dt-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .dt-input:focus { border-color: #2563FF; background: #FFFFFF; }
   .dt-input.has-error { border-color: #EF3340; }
-  .dt-unit { font-family: 'Inter', sans-serif; font-size: 11px; color: #94A3B8; }
-  .dt-field-label {
-    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 10px;
-    text-transform: uppercase; letter-spacing: 0.12em; color: #64748B;
+  @media (hover: hover) and (pointer: fine) {
+    .dt-input:hover:not(:focus) { border-color: #C7D7FB; }
+  }
+  /* The single unit label — sits immediately after the field, no duplicate
+     placeholder inside the input. */
+  .dt-unit {
+    font-family: 'Inter', sans-serif; font-weight: 400; font-size: 12px;
+    color: #94A3B8; flex-shrink: 0; margin-left: -6px;
   }
 
-  .dt-complete-wrap { margin-left: auto; position: relative; display: inline-flex; }
+  .dt-complete-wrap { position: relative; display: inline-flex; flex-shrink: 0; }
   .dt-check {
-    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; padding: 0;
-    background: rgba(22,163,74,0.1); border: 1.5px solid rgba(22,163,74,0.4);
-    color: #16A34A; cursor: pointer;
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; padding: 0;
+    background: #FFFFFF; border: 1.5px solid #E5EAF3;
+    color: #94A3B8; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
   }
+  .dt-check.is-checked {
+    background: #16A34A; border-color: #16A34A; color: #FFFFFF; cursor: default;
+  }
   @media (hover: hover) and (pointer: fine) {
-    .dt-check:hover { background: #16A34A; border-color: #16A34A; color: #FFFFFF; }
+    .dt-check:not(.is-checked):hover { background: #16A34A; border-color: #16A34A; color: #FFFFFF; }
   }
 
   .dt-reset {
@@ -728,10 +744,6 @@ const drillStyles = `
   @media (hover: hover) and (pointer: fine) {
     .dt-reset:hover { color: #0B1224; border-color: #C7D7FB; background: #F8FAFF; }
   }
-
-  /* ── Edit row ── */
-  .dt-edit-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
-  .dt-edit-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 
   .dt-btn {
     border-radius: 10px; padding: 8px 14px; cursor: pointer;
@@ -766,10 +778,18 @@ const drillStyles = `
     .dt-live-dot, .dt-circle.is-running { animation: none; }
   }
 
-  @media (max-width: 520px) {
-    .dt-time { min-width: 80px; font-size: 16px; }
-    .dt-complete-wrap { margin-left: 0; }
-    .dt-timer-row { gap: 8px; }
+  /* Below this width the single row can't hold name + controls, so the
+     control cluster drops to its own line and spans the full width while
+     staying one tight group. */
+  @media (max-width: 720px) {
+    .dt-main { flex-wrap: wrap; row-gap: 12px; }
+    .dt-head-text { flex-basis: 100%; order: 1; }
+    .dt-grip { order: 0; }
+    .dt-controls { order: 2; flex: 1; gap: 10px; }
+  }
+  @media (max-width: 420px) {
+    .dt-time { min-width: 68px; font-size: 15px; }
+    .dt-controls { gap: 8px; flex-wrap: wrap; }
   }
 `
 

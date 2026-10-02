@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { Plus, Quote } from 'lucide-react'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { uid } from '../utils/helpers.js'
+
+const EASE = [0.22, 1, 0.36, 1]
 
 /* Local key — not in STORAGE_KEYS yet so we keep it inline per the task scope. */
 const QUOTES_KEY = 'esportselite_quotes'
@@ -42,6 +45,7 @@ export default function MotivationCarousel() {
   const [draft, setDraft] = useState('')
   const [error, setError] = useState('')
   const [toast, setToast] = useState('')
+  const reduce = useReducedMotion()
 
   /* Seed defaults the first time the carousel mounts. */
   useEffect(() => {
@@ -197,55 +201,75 @@ export default function MotivationCarousel() {
           })}
         </div>
 
-        {/* Add custom quote */}
-        {!addOpen ? (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {/* Add custom quote — the trigger is a full-width text link pinned
+            under a hairline rule; the form it reveals animates its height
+            open INSIDE the card, so nothing can escape the boundary. */}
+        <div className="mc-add">
+          {!addOpen && (
             <button onClick={() => setAddOpen(true)} className="mc-add-btn">
-              <Plus size={12} /> Add your quote
+              <Plus size={11} /> Add your quote
             </button>
-          </div>
-        ) : (
-          <div className="mc-form">
-            <input
-              type="text"
-              autoFocus
-              maxLength={MAX_LEN}
-              value={draft}
-              onChange={e => {
-                setDraft(e.target.value)
-                if (error) setError('')
-              }}
-              placeholder="Type your motivation line…"
-              className="mc-input"
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  submitDraft()
-                }
-                if (e.key === 'Escape') {
-                  e.preventDefault()
-                  cancelDraft()
-                }
-              }}
-            />
-            <div className="mc-form-row">
-              <button
-                onClick={submitDraft}
-                disabled={!draft.trim()}
-                className="mc-btn mc-btn--primary"
+          )}
+
+          <AnimatePresence initial={false}>
+            {addOpen && (
+              <motion.div
+                key="form"
+                initial={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                animate={reduce ? { opacity: 1 } : { height: 'auto', opacity: 1 }}
+                exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                transition={reduce
+                  ? { duration: 0.15 }
+                  : {
+                      height: { type: 'spring', stiffness: 340, damping: 34 },
+                      opacity: { duration: 0.2, ease: EASE },
+                    }}
+                style={{ overflow: 'hidden' }}
               >
-                Add
-              </button>
-              <button onClick={cancelDraft} className="mc-btn mc-btn--ghost">
-                Cancel
-              </button>
-              <span className={`mc-count ${draft.length >= MAX_LEN ? 'is-max' : ''}`}>
-                {draft.length}/{MAX_LEN}
-              </span>
-            </div>
-            {error && <p className="mc-error">{error}</p>}
-          </div>
-        )}
+                <div className="mc-form">
+                  <input
+                    type="text"
+                    autoFocus
+                    maxLength={MAX_LEN}
+                    value={draft}
+                    onChange={e => {
+                      setDraft(e.target.value)
+                      if (error) setError('')
+                    }}
+                    placeholder="Type your motivation line…"
+                    className="mc-input"
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        submitDraft()
+                      }
+                      if (e.key === 'Escape') {
+                        e.preventDefault()
+                        cancelDraft()
+                      }
+                    }}
+                  />
+                  <div className="mc-form-row">
+                    <button
+                      onClick={submitDraft}
+                      disabled={!draft.trim()}
+                      className="mc-btn mc-btn--primary"
+                    >
+                      Add
+                    </button>
+                    <button onClick={cancelDraft} className="mc-btn mc-btn--ghost">
+                      Cancel
+                    </button>
+                    <span className={`mc-count ${draft.length >= MAX_LEN ? 'is-max' : ''}`}>
+                      {draft.length}/{MAX_LEN}
+                    </span>
+                  </div>
+                  {error && <p className="mc-error">{error}</p>}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {toast && (
           <div style={{ textAlign: 'center' }}>
@@ -255,10 +279,14 @@ export default function MotivationCarousel() {
       </div>
 
       <style>{`
+        /* Hard containment: the card owns its width, clips anything that
+           would escape, and min-width:0 stops a long unbroken quote from
+           forcing the sidebar wider than its track. */
         .mc-card {
           position: relative; overflow: hidden;
+          width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box;
           background: linear-gradient(135deg, #EEF4FF, #FFF0F3);
-          border: 1px solid #DCE5FA; border-radius: 16px;
+          border: 1px solid #DCE5FA; border-radius: 14px;
           box-shadow: 0 4px 20px rgba(15,23,42,0.04);
         }
         .mc-accent {
@@ -267,7 +295,8 @@ export default function MotivationCarousel() {
           pointer-events: none;
         }
         .mc-inner {
-          padding: 18px 20px 18px 22px;
+          padding: 20px; padding-left: 22px;
+          box-sizing: border-box; min-width: 0;
           display: flex; flex-direction: column; gap: 12px;
         }
         .mc-head {
@@ -282,14 +311,20 @@ export default function MotivationCarousel() {
           text-transform: uppercase; letter-spacing: 0.1em; color: #94A3B8;
         }
 
+        /* Reserved height so rotating to a shorter quote can't jump the
+           sidebar layout. */
         .mc-quote-wrap {
-          position: relative; min-height: 64px;
-          display: flex; align-items: center; gap: 10px;
+          position: relative; min-height: 78px; min-width: 0;
+          display: flex; align-items: flex-start; gap: 10px;
         }
-        .mc-quote-mark { color: #2563FF; opacity: 0.35; flex-shrink: 0; align-self: flex-start; margin-top: 2px; }
+        .mc-quote-mark { color: #2563FF; opacity: 0.35; flex-shrink: 0; margin-top: 3px; }
         .mc-quote {
-          margin: 0; font-family: 'Inter', sans-serif; font-weight: 500;
-          font-size: 14px; line-height: 1.6; color: #0B1224;
+          margin: 0; min-width: 0;
+          font-family: 'Inter', sans-serif; font-weight: 600;
+          font-size: 15px; line-height: 1.5; color: #0B1224;
+          /* A user-entered quote with no spaces would otherwise run past
+             the card edge and get clipped. */
+          overflow-wrap: anywhere; word-break: break-word;
           transition: opacity ${FADE_MS}ms ease;
         }
 
@@ -319,27 +354,44 @@ export default function MotivationCarousel() {
         }
         .mc-dot-remove:focus-visible { opacity: 1; }
 
+        /* Add-quote block: hairline rule above, full-width centred link. */
+        .mc-add {
+          min-width: 0; box-sizing: border-box;
+          padding-top: 12px; border-top: 1px solid rgba(37,99,255,0.1);
+        }
         .mc-add-btn {
-          background: transparent; border: none; cursor: pointer; padding: 4px 6px;
+          width: 100%; box-sizing: border-box;
+          background: transparent; border: none; cursor: pointer;
+          padding: 8px 0; text-align: center;
           font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 11px;
-          text-transform: uppercase; letter-spacing: 0.12em; color: #64748B;
-          display: inline-flex; align-items: center; gap: 5px;
-          transition: color 0.15s ease;
+          text-transform: uppercase; letter-spacing: 0.1em; color: #2563FF;
+          display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+          border-radius: 8px;
+          transition: color 0.15s ease, background 0.15s ease;
         }
         @media (hover: hover) and (pointer: fine) {
-          .mc-add-btn:hover { color: #2563FF; }
+          .mc-add-btn:hover { background: rgba(37,99,255,0.07); color: #1677FF; }
         }
 
-        .mc-form { display: flex; flex-direction: column; gap: 8px; }
-        .mc-input {
-          width: 100%; box-sizing: border-box;
-          background: #FFFFFF; border: 1px solid #E5EAF3; border-radius: 10px;
-          padding: 9px 12px; font-family: 'Inter', sans-serif; font-size: 13px;
-          color: #0B1224; outline: none; transition: border-color 0.15s ease;
+        .mc-form {
+          display: flex; flex-direction: column; gap: 8px;
+          min-width: 0; box-sizing: border-box; padding-top: 2px;
         }
-        .mc-input:focus { border-color: #2563FF; }
+        .mc-input {
+          width: 100%; max-width: 100%; box-sizing: border-box; min-width: 0;
+          background: #F8FAFF; border: 1px solid #DCE4F0; border-radius: 8px;
+          padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 13px;
+          color: #0B1224; outline: none;
+          transition: border-color 0.15s ease, background 0.15s ease;
+        }
+        .mc-input:focus { border-color: #2563FF; background: #FFFFFF; }
         .mc-input::placeholder { color: #94A3B8; }
-        .mc-form-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        @media (hover: hover) and (pointer: fine) {
+          .mc-input:hover:not(:focus) { border-color: #C7D7FB; }
+        }
+        .mc-form-row {
+          display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0;
+        }
         .mc-btn {
           border-radius: 8px; padding: 7px 16px; cursor: pointer;
           font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 11px;
