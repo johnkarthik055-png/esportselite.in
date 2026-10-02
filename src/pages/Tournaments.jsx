@@ -20,6 +20,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react'
+import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import {
   collection, onSnapshot, orderBy, query,
@@ -42,6 +43,14 @@ const STATUS_FILTERS = [
   { key: 'ongoing',   label: 'Ongoing' },
   { key: 'completed', label: 'Completed' },
 ]
+
+const cardStyle = {
+  background: '#FFFFFF',
+  border: '1px solid #E5EAF3',
+  borderRadius: 16,
+  padding: 20,
+  boxShadow: '0 4px 20px rgba(15,23,42,0.04)',
+}
 
 export default function Tournaments() {
   const navigate = useNavigate()
@@ -100,10 +109,35 @@ export default function Tournaments() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }} className="page-transition">
-      <Header
-        typeFilter={typeFilter} onTypeFilter={setTypeFilter}
-        statusFilter={statusFilter} onStatusFilter={setStatusFilter}
-      />
+      {/* Standard Page Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          background: 'linear-gradient(135deg, #F7F9FD 0%, #EEF4FF 60%, #FFF0F2 100%)',
+          borderRadius: 16, padding: 32, position: 'relative', overflow: 'hidden',
+        }}
+      >
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(37,99,255,0.06) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', top: -60, left: -60, width: 300, height: 300, background: 'radial-gradient(circle, rgba(37,99,255,0.1) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', bottom: -40, right: -40, width: 250, height: 250, background: 'radial-gradient(circle, rgba(239,51,64,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, color: '#2563FF', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Compete</div>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 48, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: 1, margin: 0 }}>Tournaments</h1>
+          <motion.div
+            initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            style={{ width: 64, height: 3, background: 'linear-gradient(90deg,#2563FF,#EF3340)', transformOrigin: 'left', borderRadius: 2, marginTop: 12, marginBottom: 12 }}
+          />
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#64748B', margin: '0 0 20px' }}>Live standings and results</p>
+          {/* Filters */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            <SegGroup filters={TYPE_FILTERS}   active={typeFilter}   onChange={setTypeFilter} />
+            <SegGroup filters={STATUS_FILTERS} active={statusFilter} onChange={setStatusFilter} />
+          </div>
+        </div>
+      </motion.div>
 
       {featured && (
         <FeaturedCard
@@ -138,7 +172,7 @@ export default function Tournaments() {
 }
 
 /* ============================================================
-   HEADER
+   SEG GROUP
    ============================================================ */
 function Header({ typeFilter, onTypeFilter, statusFilter, onStatusFilter }) {
   return (
@@ -174,13 +208,32 @@ function Header({ typeFilter, onTypeFilter, statusFilter, onStatusFilter }) {
 
 function SegGroup({ filters, active, onChange }) {
   return (
-    <div className="seg" style={segRowStyle}>
+    <div style={{
+      background: '#FFFFFF',
+      border: '1px solid #E5EAF3',
+      borderRadius: 8,
+      padding: 3,
+      display: 'inline-flex',
+      gap: 2,
+      flexWrap: 'wrap',
+    }}>
       {filters.map(f => (
         <button
           key={f.key}
           onClick={() => onChange(f.key)}
-          className={`seg-btn ${active === f.key ? 'active' : ''}`}
-          style={segBtnStyle(active === f.key)}
+          style={{
+            background: active === f.key ? 'linear-gradient(135deg,#2563FF,#5B3DF5)' : 'transparent',
+            border: 'none',
+            color: active === f.key ? '#fff' : '#64748B',
+            padding: '6px 14px',
+            borderRadius: 6,
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 13,
+            fontWeight: 500,
+            cursor: 'pointer',
+            transition: 'all 0.15s cubic-bezier(0.16, 1, 0.3, 1)',
+            boxShadow: active === f.key ? '0 2px 8px rgba(37,99,255,0.25)' : 'none',
+          }}
         >
           {f.label}
         </button>
@@ -195,16 +248,16 @@ function SegGroup({ filters, active, onChange }) {
 function FeaturedCard({ tournament, onOpen }) {
   return (
     <div
-      className="card"
       style={{
-        borderTop: '2px solid var(--red)',
+        ...cardStyle,
+        borderTop: '2px solid #EF3340',
         display: 'flex',
         flexDirection: 'column',
         gap: 10,
       }}
     >
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span className="badge badge-red" style={{ letterSpacing: '0.10em' }}>Featured</span>
+        <span style={badgeStyle('red', true)}>Featured</span>
         <TypeBadge type={tournament.type} />
         <StatusBadge status={tournament.status} />
       </div>
@@ -215,7 +268,8 @@ function FeaturedCard({ tournament, onOpen }) {
           fontWeight: 400,
           fontSize: 26,
           letterSpacing: '0.04em',
-          color: 'var(--text-primary)',
+          textTransform: 'uppercase',
+          color: '#0B1224',
           margin: 0,
         }}
       >
@@ -230,7 +284,7 @@ function FeaturedCard({ tournament, onOpen }) {
           fontFamily: 'Barlow Condensed, sans-serif',
           fontSize: 22,
           letterSpacing: '0.04em',
-          color: 'var(--gold)',
+          color: '#D97706',
         }}
       >
         {tournament.prizePool || 'No prize pool set'}
@@ -239,7 +293,7 @@ function FeaturedCard({ tournament, onOpen }) {
       <InfoRow tournament={tournament} />
 
       <div>
-        <button onClick={onOpen} className="btn btn-primary btn-sm">
+        <button onClick={onOpen} style={{ background: '#2563FF', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontFamily: 'Inter, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           View Standings <ArrowRight size={13} />
         </button>
       </div>
@@ -254,24 +308,25 @@ function TournamentCard({ tournament, onOpen }) {
   const [hover, setHover] = useState(false)
   return (
     <div
-      className="card"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onClick={onOpen}
       style={{
+        ...cardStyle,
         display: 'flex',
         flexDirection: 'column',
         gap: 10,
         cursor: 'pointer',
-        borderColor: hover ? 'var(--text-subtle)' : undefined,
-        transition: 'border-color 0.15s ease',
+        borderColor: hover ? '#2563FF' : '#E5EAF3',
+        boxShadow: hover ? '0 8px 24px rgba(37,99,255,0.1)' : cardStyle.boxShadow,
+        transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
       }}
     >
       <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
         <TypeBadge type={tournament.type} />
         <StatusBadge status={tournament.status} />
         {tournament.featured && (
-          <span className="badge badge-red" style={{ letterSpacing: '0.10em' }}>Featured</span>
+          <span style={badgeStyle('red', true)}>Featured</span>
         )}
       </div>
 
@@ -282,7 +337,8 @@ function TournamentCard({ tournament, onOpen }) {
             fontWeight: 400,
             fontSize: 20,
             letterSpacing: '0.04em',
-            color: 'var(--text-primary)',
+            textTransform: 'uppercase',
+            color: '#0B1224',
             lineHeight: 1.2,
           }}
         >
@@ -295,14 +351,13 @@ function TournamentCard({ tournament, onOpen }) {
 
       <InfoRow tournament={tournament} compact />
 
-      <div style={{ fontSize: 12, color: 'var(--text-subtle)' }}>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B' }}>
         {Number(tournament.totalMatches) || 0} matches played
       </div>
 
       <button
         onClick={(e) => { e.stopPropagation(); onOpen() }}
-        className="btn btn-secondary btn-sm"
-        style={{ width: '100%', marginTop: 4 }}
+        style={{ background: '#FFFFFF', color: '#0B1224', border: '1px solid #E5EAF3', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontFamily: 'Inter, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', marginTop: 4 }}
       >
         View Standings <ArrowRight size={13} />
       </button>
@@ -313,24 +368,50 @@ function TournamentCard({ tournament, onOpen }) {
 /* ============================================================
    REUSABLE BADGES + INFO ROW
    ============================================================ */
+function badgeStyle(color, strong) {
+  const map = {
+    red:    { bg: strong ? '#FEE2E2' : '#FEF3F2', text: '#EF3340', border: 'rgba(239,51,64,0.2)' },
+    blue:   { bg: '#EEF4FF', text: '#2563FF', border: 'rgba(37,99,255,0.2)' },
+    amber:  { bg: '#FEF3C7', text: '#D97706', border: 'rgba(217,119,6,0.2)' },
+    green:  { bg: '#DCFCE7', text: '#16A34A', border: 'rgba(22,163,74,0.2)' },
+    default:{ bg: '#F1F5F9', text: '#475569', border: '#E5EAF3' },
+  }
+  const c = map[color] || map.default
+  return {
+    background: c.bg,
+    color: c.text,
+    border: `1px solid ${c.border}`,
+    borderRadius: 20,
+    padding: '3px 10px',
+    fontSize: 10,
+    fontFamily: 'Rajdhani, sans-serif',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+  }
+}
+
 export function TypeBadge({ type }) {
-  if (type === 'community') return <span className="badge badge-blue">Community</span>
-  if (type === 'official')  return <span className="badge badge-amber">Official</span>
-  return <span className="badge">{String(type || 'Type').toUpperCase()}</span>
+  if (type === 'community') return <span style={badgeStyle('blue')}>Community</span>
+  if (type === 'official')  return <span style={badgeStyle('amber')}>Official</span>
+  return <span style={badgeStyle('default')}>{String(type || 'Type').toUpperCase()}</span>
 }
 
 export function StatusBadge({ status }) {
   if (status === 'ongoing') {
     return (
-      <span className="badge badge-green" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      <span style={{ ...badgeStyle('green'), display: 'inline-flex', alignItems: 'center', gap: 6 }}>
         <span className="mk-live-dot" />
         Live
       </span>
     )
   }
-  if (status === 'upcoming')  return <span className="badge">Upcoming</span>
-  if (status === 'completed') return <span className="badge">Ended</span>
-  return <span className="badge">{String(status || 'Status').toUpperCase()}</span>
+  if (status === 'upcoming')  return <span style={badgeStyle('default')}>Upcoming</span>
+  if (status === 'completed') return <span style={badgeStyle('default')}>Ended</span>
+  return <span style={badgeStyle('default')}>{String(status || 'Status').toUpperCase()}</span>
 }
 
 function InfoRow({ tournament, compact }) {
@@ -343,7 +424,7 @@ function InfoRow({ tournament, compact }) {
         gap: compact ? 6 : 10,
         fontFamily: 'Inter, sans-serif',
         fontSize: 13,
-        color: 'var(--text-muted)',
+        color: '#475569',
       }}
     >
       <InfoItem icon={<Calendar size={13} />}>
@@ -351,13 +432,13 @@ function InfoRow({ tournament, compact }) {
       </InfoItem>
       {!compact && (
         <InfoItem icon={<Trophy size={13} />}>
-          <span style={{ color: 'var(--gold)', fontWeight: 600 }}>
-            {tournament.prizePool || '—'}
+          <span style={{ color: '#D97706', fontWeight: 600 }}>
+            {tournament.prizePool || 'â€”'}
           </span>
         </InfoItem>
       )}
       <InfoItem icon={<MapIcon size={13} />}>
-        {maps.length ? maps.join(', ') : '—'}
+        {maps.length ? maps.join(', ') : 'â€”'}
       </InfoItem>
     </div>
   )
@@ -366,7 +447,7 @@ function InfoRow({ tournament, compact }) {
 function InfoItem({ icon, children }) {
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-      <span style={{ color: 'var(--text-subtle)', flexShrink: 0 }}>{icon}</span>
+      <span style={{ color: '#64748B', flexShrink: 0 }}>{icon}</span>
       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {children}
       </span>
@@ -381,10 +462,10 @@ function LoadingState() {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      minHeight: '40vh', gap: 10, color: 'var(--text-muted)',
+      minHeight: '40vh', gap: 10, color: '#475569',
     }}>
       <Loader2 size={18} className="animate-spin" />
-      <span style={{ fontSize: 13 }}>Loading tournaments…</span>
+      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13 }}>Loading tournamentsâ€¦</span>
       <PulseKeyframes />
     </div>
   )
@@ -392,8 +473,8 @@ function LoadingState() {
 
 function ErrorState({ message }) {
   return (
-    <div className="card" style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-      <AlertTriangle size={18} style={{ color: 'var(--red)', flexShrink: 0, marginTop: 2 }} />
+    <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: 20, boxShadow: '0 4px 20px rgba(15,23,42,0.04)', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+      <AlertTriangle size={18} style={{ color: '#EF3340', flexShrink: 0, marginTop: 2 }} />
       <div>
         <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: 'var(--text-primary)' }}>
           Couldn't load tournaments
@@ -408,12 +489,12 @@ function ErrorState({ message }) {
 
 function EmptyState({ hasFilters }) {
   return (
-    <div className="card empty-state">
-      <Trophy size={48} className="empty-state-icon" />
-      <div className="empty-state-title">
+    <div style={{ background: '#FFFFFF', border: '1px dashed #E5EAF3', borderRadius: 16, padding: 40, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+      <Trophy size={48} style={{ color: '#E5EAF3' }} />
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, color: '#0B1224', textTransform: 'uppercase' }}>
         {hasFilters ? 'No tournaments match your filters' : 'No tournaments yet'}
       </div>
-      <div className="empty-state-desc">
+      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#475569', maxWidth: 360 }}>
         {hasFilters
           ? 'Try switching the type or status filter back to All.'
           : 'Check back soon for upcoming tournaments and live standings.'}
@@ -423,7 +504,7 @@ function EmptyState({ hasFilters }) {
 }
 
 /* ============================================================
-   HELPERS + STYLE HOOKS
+   HELPERS
    ============================================================ */
 export function tsMs(v) {
   if (v && typeof v.toMillis === 'function') return v.toMillis()
@@ -439,7 +520,7 @@ export function tsMs(v) {
 export function fmtDateRange(start, end) {
   const s = fmtDate(start)
   const e = fmtDate(end)
-  if (s && e && s !== e) return `${s} → ${e}`
+  if (s && e && s !== e) return `${s} â†’ ${e}`
   return s || e || 'Date TBD'
 }
 
@@ -485,14 +566,14 @@ function PulseKeyframes() {
         display: inline-block;
         width: 6px; height: 6px;
         border-radius: 50%;
-        background: var(--green);
-        box-shadow: 0 0 0 0 rgba(0, 201, 110, 0.6);
+        background: #16A34A;
+        box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6);
         animation: ee-live-pulse 1.4s ease-out infinite;
       }
       @keyframes ee-live-pulse {
-        0%   { box-shadow: 0 0 0 0    rgba(0, 201, 110, 0.6); }
-        70%  { box-shadow: 0 0 0 10px rgba(0, 201, 110, 0); }
-        100% { box-shadow: 0 0 0 0    rgba(0, 201, 110, 0); }
+        0%   { box-shadow: 0 0 0 0    rgba(22, 163, 74, 0.6); }
+        70%  { box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
+        100% { box-shadow: 0 0 0 0    rgba(22, 163, 74, 0); }
       }
       .animate-spin { animation: ee-tourn-spin 0.9s linear infinite; }
       @keyframes ee-tourn-spin { to { transform: rotate(360deg); } }

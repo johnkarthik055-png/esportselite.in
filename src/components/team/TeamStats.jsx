@@ -6,6 +6,20 @@ import {
 import { db } from '../../utils/firebase.js'
 import { getScrims } from '../../utils/team.js'
 
+const cardStyle = {
+  background: '#FFFFFF',
+  border: '1px solid #E5EAF3',
+  borderRadius: 16,
+  padding: 20,
+  boxShadow: '0 4px 20px rgba(15,23,42,0.04)',
+}
+
+const badgeBase = {
+  borderRadius: 20, padding: '3px 10px', fontSize: 10,
+  fontFamily: 'Rajdhani, sans-serif', fontWeight: 600,
+  textTransform: 'uppercase', letterSpacing: '0.08em',
+}
+
 export default function TeamStats({ team, members, teamId }) {
   const [scrims, setScrims] = useState([])
   const [playerStats, setPlayerStats] = useState({})
@@ -64,13 +78,7 @@ export default function TeamStats({ team, members, teamId }) {
           Team stats
         </h2>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-            gap: 12,
-          }}
-        >
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
           <StatTile icon={<BarChart3 size={18} />} label="Total matches" value={totalMatches} />
           <StatTile icon={<Trophy size={18} />}    label="Wins"          value={wins}  accent="green" />
           <StatTile icon={<Percent size={18} />}   label="Win rate"      value={`${winRate}%`} />
@@ -80,46 +88,43 @@ export default function TeamStats({ team, members, teamId }) {
         </div>
 
         {/* Recent performance */}
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title">Recent performance</div>
-            <div className="label">Last 5 scrims</div>
+        <div style={cardStyle}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 16, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Recent performance</div>
+            <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B' }}>Last 5 scrims</div>
           </div>
           {loading ? (
             <LoadingRow />
           ) : recent.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-state-title">No scrim results yet</div>
-              <div className="empty-state-desc">Results will appear here as you save them.</div>
-            </div>
+            <EmptyState title="No scrim results yet" desc="Results will appear here as you save them." />
           ) : (
             <div style={{ overflowX: 'auto' }}>
-              <table className="table">
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Inter, sans-serif', fontSize: 13 }}>
                 <thead>
-                  <tr>
-                    <th>Opponent</th>
-                    <th>Result</th>
-                    <th>Kills</th>
-                    <th style={{ textAlign: 'right' }}>Placement</th>
+                  <tr style={{ borderBottom: '2px solid #E5EAF3' }}>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B' }}>Opponent</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B' }}>Result</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B' }}>Kills</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'right', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B' }}>Placement</th>
                   </tr>
                 </thead>
                 <tbody>
                   {recent.map(s => {
                     const won = s.result?.won
                     return (
-                      <tr key={s.id}>
-                        <td style={{ borderLeft: `3px solid ${won ? 'var(--green)' : 'var(--red)'}` }}>
+                      <tr key={s.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                        <td style={{ padding: '10px 12px', borderLeft: `3px solid ${won ? '#16A34A' : '#EF3340'}`, color: '#0B1224' }}>
                           {s.opponent || 'TBD'}
                         </td>
-                        <td>
+                        <td style={{ padding: '10px 12px' }}>
                           {won
-                            ? <span className="badge badge-green">WON</span>
-                            : <span className="badge badge-red">LOST</span>}
+                            ? <span style={{ ...badgeBase, background: '#DCFCE7', color: '#16A34A', border: '1px solid rgba(22,163,74,0.2)' }}>WON</span>
+                            : <span style={{ ...badgeBase, background: '#FEE2E2', color: '#EF3340', border: '1px solid rgba(239,51,64,0.2)' }}>LOST</span>}
                         </td>
-                        <td className="mono">
+                        <td style={{ padding: '10px 12px', color: '#475569' }}>
                           {s.result?.ourKills ?? 0} / {s.result?.opponentKills ?? 0}
                         </td>
-                        <td style={{ textAlign: 'right' }} className="mono">#{s.result?.placement ?? '—'}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right', color: '#475569' }}>#{s.result?.placement ?? 'â€”'}</td>
                       </tr>
                     )
                   })}
@@ -149,24 +154,14 @@ export default function TeamStats({ team, members, teamId }) {
         {loading ? (
           <LoadingRow />
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: 14,
-            }}
-          >
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
             {members.map(m => (
-              <PlayerStatCard
-                key={m.uid}
-                m={m}
-                data={playerStats[m.uid]}
-              />
+              <PlayerStatCard key={m.uid} m={m} data={playerStats[m.uid]} />
             ))}
           </div>
         )}
 
-        <div style={{ fontSize: 12, color: 'var(--text-subtle)', textAlign: 'center', marginTop: 4 }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B', textAlign: 'center', marginTop: 4 }}>
           Player stats are pulled from their personal match logs. Stats improve as they log more matches.
         </div>
       </section>
@@ -177,21 +172,19 @@ export default function TeamStats({ team, members, teamId }) {
 /* ============================================================ */
 function StatTile({ icon, label, value, accent }) {
   const color =
-    accent === 'green' ? 'var(--green)' :
-    accent === 'amber' ? 'var(--amber)' :
-    'var(--text-primary)'
+    accent === 'green' ? '#16A34A' :
+    accent === 'amber' ? '#F59E0B' :
+    '#0B1224'
   return (
-    <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div
-        style={{
-          width: 34, height: 34,
-          borderRadius: 'var(--radius-sm)',
-          background: 'var(--bg-elevated)',
-          border: '1px solid var(--border)',
-          color: 'var(--text-muted)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}
-      >
+    <div style={{ ...cardStyle, display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{
+        width: 34, height: 34,
+        borderRadius: 8,
+        background: '#EEF4FF',
+        border: '1px solid #E5EAF3',
+        color: '#2563FF',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
         {icon}
       </div>
       <div
@@ -206,7 +199,7 @@ function StatTile({ icon, label, value, accent }) {
       >
         {value}
       </div>
-      <div className="stat-label">{label}</div>
+      <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B' }}>{label}</div>
     </div>
   )
 }
@@ -214,12 +207,12 @@ function StatTile({ icon, label, value, accent }) {
 function PlayerStatCard({ m, data }) {
   const hasData = data && data.matches > 0
   const roleBadge =
-    m.role === 'owner' ? { className: 'badge badge-red', label: 'Owner' } :
-    m.role === 'igl'   ? { className: 'badge badge-amber', label: 'IGL' } :
-    { className: 'badge', label: 'Player' }
+    m.role === 'owner' ? { style: { background: '#FEE2E2', color: '#EF3340', border: '1px solid rgba(239,51,64,0.2)' }, label: 'Owner' } :
+    m.role === 'igl'   ? { style: { background: '#FEF3C7', color: '#D97706', border: '1px solid rgba(217,119,6,0.2)' }, label: 'IGL' } :
+    { style: { background: '#F1F5F9', color: '#475569', border: '1px solid #E5EAF3' }, label: 'Player' }
 
   return (
-    <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ ...cardStyle, display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <Avatar name={m.ign} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -237,21 +230,15 @@ function PlayerStatCard({ m, data }) {
           >
             {m.ign || 'Player'}
           </div>
-          <div style={{ fontSize: 11, color: 'var(--text-subtle)' }}>
-            {m.inGameRole || '—'}
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#64748B' }}>
+            {m.inGameRole || 'â€”'}
           </div>
         </div>
-        <span className={roleBadge.className}>{roleBadge.label}</span>
+        <span style={{ ...badgeBase, ...roleBadge.style }}>{roleBadge.label}</span>
       </div>
 
       {hasData ? (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
-            gap: 8,
-          }}
-        >
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: 8 }}>
           <Mini label="Matches" value={data.matches} />
           <Mini label="K/D" value={data.kd.toFixed(2)} />
           <Mini label="Avg dmg" value={Math.round(data.avgDamage)} />
@@ -259,9 +246,9 @@ function PlayerStatCard({ m, data }) {
           <Mini label="HS %" value={`${Math.round(data.headshotPct)}%`} />
         </div>
       ) : (
-        <div className="empty-state" style={{ padding: '18px 12px' }}>
-          <div className="empty-state-title">No match data</div>
-          <div className="empty-state-desc" style={{ fontSize: 12 }}>
+        <div style={{ textAlign: 'center', padding: '18px 12px' }}>
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 14, color: '#0B1224', textTransform: 'uppercase' }}>No match data</div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 4 }}>
             Logged matches will populate these stats.
           </div>
         </div>
@@ -290,7 +277,7 @@ function Mini({ label, value }) {
       >
         {value}
       </div>
-      <div className="stat-label" style={{ marginTop: 2 }}>{label}</div>
+      <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B', marginTop: 2 }}>{label}</div>
     </div>
   )
 }
@@ -316,10 +303,20 @@ function Avatar({ name }) {
   )
 }
 
+function EmptyState({ title, desc }) {
+  return (
+    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 14, color: '#0B1224', textTransform: 'uppercase' }}>{title}</div>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569', marginTop: 4 }}>{desc}</div>
+    </div>
+  )
+}
+
 function LoadingRow() {
   return (
-    <div style={{ padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: 'var(--text-muted)' }}>
-      <Loader2 size={16} className="animate-spin" /> <span style={{ fontSize: 13 }}>Loading…</span>
+    <div style={{ padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: '#475569' }}>
+      <Loader2 size={16} className="animate-spin" />
+      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13 }}>Loadingâ€¦</span>
       <style>{`.animate-spin{animation:ee-ts-spin .9s linear infinite}@keyframes ee-ts-spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   )
@@ -327,9 +324,6 @@ function LoadingRow() {
 
 /* ============================================================
    Best-effort per-player aggregation from users/{uid}/matches.
-   Each member's stats come from their own match log; if the
-   collectionGroup read is blocked by rules this fails soft with
-   `null` for every UID.
    ============================================================ */
 async function fetchPlayerStats(members) {
   const out = {}

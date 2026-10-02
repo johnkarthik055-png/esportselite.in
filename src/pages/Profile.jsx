@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from 'react'
+import { motion } from 'framer-motion'
 import {
   Pencil, Save, X, User, Mail, Phone, Crosshair, Hash, Moon, Settings,
   Trophy, Camera, Download, Upload, RotateCcw, Plus,
@@ -32,7 +33,7 @@ const DEFAULT_PROFILE = { username: 'Player', email: '', phone: '', ign: '', igI
 const MAX_IGNS = 3
 
 /* Players use several in-game names across matches. `igns` is the
-   source of truth (1–3 entries); legacy single `ign` is kept in sync
+   source of truth (1â€“3 entries); legacy single `ign` is kept in sync
    as igns[0] so older screens keep working. */
 function normalizeIgns(p) {
   const arr = Array.isArray(p?.igns) ? p.igns : []
@@ -55,6 +56,14 @@ function longestStreakFrom(daily) {
     if (diff === 1) { run += 1; if (run > best) best = run } else run = 1
   }
   return best
+}
+
+const cardStyle = {
+  background: '#FFFFFF',
+  border: '1px solid #E5EAF3',
+  borderRadius: 16,
+  padding: 20,
+  boxShadow: '0 4px 20px rgba(15,23,42,0.04)',
 }
 
 export default function Profile() {
@@ -217,7 +226,7 @@ export default function Profile() {
         Object.entries(data).forEach(([k, v]) => {
           if (typeof k === 'string' && k.startsWith('esportselite_')) localStorage.setItem(k, v)
         })
-        showToast('Data imported. Reloading…')
+        showToast('Data imported. Reloadingâ€¦')
         setTimeout(() => window.location.reload(), 800)
       } catch { showToast('Invalid backup file.') }
     }
@@ -232,31 +241,62 @@ export default function Profile() {
         if (k && k.startsWith('esportselite_')) toRemove.push(k)
       }
       toRemove.forEach(k => localStorage.removeItem(k))
-      showToast('Local data cleared. Reloading…')
+      showToast('Local data cleared. Reloadingâ€¦')
       setTimeout(() => window.location.reload(), 800)
     } catch { showToast('Reset failed.') }
   }
 
+  const btnPrimary = { background: '#2563FF', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontFamily: 'Inter, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }
+  const btnSecondary = { background: '#FFFFFF', color: '#0B1224', border: '1px solid #E5EAF3', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontFamily: 'Inter, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }
+  const btnSm = { padding: '6px 12px', fontSize: 12 }
+  const inputStyle = { background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 8, padding: '10px 12px', fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#0B1224', width: '100%', outline: 'none', boxSizing: 'border-box' }
+  const labelStyle = { fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }
+
   return (
     <>
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+      {/* Standard Page Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          background: 'linear-gradient(135deg, #F7F9FD 0%, #EEF4FF 60%, #FFF0F2 100%)',
+          borderRadius: 16, padding: 32, position: 'relative', overflow: 'hidden',
+        }}
+      >
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(37,99,255,0.06) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', top: -60, left: -60, width: 300, height: 300, background: 'radial-gradient(circle, rgba(37,99,255,0.1) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', bottom: -40, right: -40, width: 250, height: 250, background: 'radial-gradient(circle, rgba(239,51,64,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, color: '#2563FF', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Account</div>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 48, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: 1, margin: 0 }}>Profile</h1>
+          <motion.div
+            initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            style={{ width: 64, height: 3, background: 'linear-gradient(90deg,#2563FF,#EF3340)', transformOrigin: 'left', borderRadius: 2, marginTop: 12, marginBottom: 12 }}
+          />
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#64748B', margin: 0 }}>Manage your player identity and preferences.</p>
+        </div>
+      </motion.div>
+
       {/* Edit profile */}
-      <div className="card" style={{ maxWidth: 600, width: '100%', alignSelf: 'center' }}>
+      <div style={{ ...cardStyle, maxWidth: 600, width: '100%', alignSelf: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 18 }}>
           <AvatarUploader username={displayName} onToast={showToast} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div className="heading" style={{ fontSize: 18 }}>{displayName}</div>
+            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{displayName}</div>
             {ignList.length > 0 && (
-              <div className="mono" style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-                IGN: {ignList.join(' · ')}
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 2 }}>
+                IGN: {ignList.join(' Â· ')}
               </div>
             )}
-            <div style={{ fontSize: 12, color: 'var(--text-subtle)', marginTop: 2 }}>
-              Level {levelNum} — {getLevelName(levelNum)}
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B', marginTop: 2 }}>
+              Level {levelNum} â€” {getLevelName(levelNum)}
             </div>
           </div>
           {!editing && (
-            <button onClick={() => setEditing(true)} className="btn btn-secondary btn-sm">
+            <button onClick={() => setEditing(true)} style={{ ...btnSecondary, ...btnSm }}>
               <Pencil size={13} /> Edit
             </button>
           )}
@@ -274,7 +314,7 @@ export default function Profile() {
             const value = editing ? draft[f.key] : profile?.[f.key]
             return (
               <div key={f.key}>
-                <label className="label" style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                <label style={labelStyle}>
                   <Icon size={11} /> {f.label}
                 </label>
                 {editing ? (
@@ -283,17 +323,18 @@ export default function Profile() {
                     value={draft[f.key] || ''}
                     onChange={e => setDraft(d => ({ ...d, [f.key]: e.target.value }))}
                     placeholder={f.placeholder}
-                    className="input"
+                    style={inputStyle}
                   />
                 ) : (
                   <div
                     style={{
                       padding: '10px 12px',
-                      borderRadius: 'var(--radius-sm)',
-                      background: 'var(--bg-elevated)',
-                      border: '1px solid var(--border)',
-                      color: value ? 'var(--text-primary)' : 'var(--text-subtle)',
+                      borderRadius: 8,
+                      background: '#F8FAFD',
+                      border: '1px solid #E5EAF3',
+                      color: value ? '#0B1224' : '#94A3B8',
                       fontSize: 13,
+                      fontFamily: 'Inter, sans-serif',
                       minHeight: 40,
                       display: 'flex',
                       alignItems: 'center',
@@ -307,11 +348,11 @@ export default function Profile() {
           })}
         </div>
 
-        {/* In-game names (IGNs) — up to 3. Used by AI features to identify
+        {/* In-game names (IGNs) â€” up to 3. Used by AI features to identify
             which player in a screenshot is you. */}
         <div style={{ marginTop: 16 }}>
-          <label className="label" style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-            <Crosshair size={11} /> In-game names (IGNs) — up to {MAX_IGNS}
+          <label style={labelStyle}>
+            <Crosshair size={11} /> In-game names (IGNs) â€” up to {MAX_IGNS}
           </label>
 
           {editing ? (
@@ -323,14 +364,13 @@ export default function Profile() {
                     value={val}
                     onChange={e => setIgnAt(i, e.target.value)}
                     placeholder={i === 0 ? 'Primary in-game name' : `Alternate name ${i + 1}`}
-                    className="input"
-                    style={{ flex: 1 }}
+                    style={{ ...inputStyle, flex: 1 }}
                   />
                   {draftIgns.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeIgnAt(i)}
-                      className="btn btn-secondary btn-sm"
+                      style={{ ...btnSecondary, ...btnSm }}
                       aria-label={`Remove IGN ${i + 1}`}
                     >
                       <X size={13} />
@@ -342,8 +382,7 @@ export default function Profile() {
                 type="button"
                 onClick={addIgn}
                 disabled={draftIgns.length >= MAX_IGNS}
-                className="btn btn-secondary btn-sm"
-                style={{ alignSelf: 'flex-start' }}
+                style={{ ...btnSecondary, ...btnSm, alignSelf: 'flex-start' }}
               >
                 <Plus size={13} /> Add IGN
               </button>
@@ -354,14 +393,13 @@ export default function Profile() {
                 ignList.map((name, i) => (
                   <span
                     key={i}
-                    className="badge"
-                    style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
+                    style={{ background: '#F8FAFD', border: '1px solid #E5EAF3', borderRadius: 20, padding: '3px 12px', fontSize: 12, fontFamily: 'Inter, sans-serif', color: '#0B1224' }}
                   >
                     {name}
                   </span>
                 ))
               ) : (
-                <span style={{ fontSize: 13, color: 'var(--text-subtle)', fontStyle: 'italic' }}>Not set</span>
+                <span style={{ fontSize: 13, color: '#94A3B8', fontStyle: 'italic', fontFamily: 'Inter, sans-serif' }}>Not set</span>
               )}
             </div>
           )}
@@ -369,10 +407,10 @@ export default function Profile() {
 
         {editing && (
           <div style={{ display: 'flex', gap: 10, marginTop: 18, justifyContent: 'flex-end' }}>
-            <button onClick={cancel} className="btn btn-secondary">
+            <button onClick={cancel} style={btnSecondary}>
               <X size={13} /> Cancel
             </button>
-            <button onClick={save} className="btn btn-primary">
+            <button onClick={save} style={btnPrimary}>
               <Save size={13} /> Save
             </button>
           </div>
@@ -382,12 +420,13 @@ export default function Profile() {
           <div
             style={{
               marginTop: 14,
-              background: 'var(--green-tint)',
-              border: '1px solid rgba(0,201,110,0.4)',
-              color: 'var(--green)',
+              background: '#F0FDF4',
+              border: '1px solid rgba(22,163,74,0.3)',
+              color: '#16A34A',
               padding: '8px 12px',
-              borderRadius: 'var(--radius-sm)',
+              borderRadius: 8,
               fontSize: 13,
+              fontFamily: 'Inter, sans-serif',
             }}
           >
             Profile saved.
@@ -396,9 +435,9 @@ export default function Profile() {
       </div>
 
       {/* Stats summary */}
-      <div className="card" style={{ maxWidth: 600, width: '100%', alignSelf: 'center' }}>
-        <div className="card-header">
-          <div className="card-title">Stats summary</div>
+      <div style={{ ...cardStyle, maxWidth: 600, width: '100%', alignSelf: 'center' }}>
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 16, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Stats summary</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
           <Summary label="Practice" value={formatPracticeTime(stats.totalSeconds)} />
@@ -413,10 +452,9 @@ export default function Profile() {
       {/* Rank card */}
       <div style={{ maxWidth: 600, width: '100%', alignSelf: 'center' }}>
         <h3
-          className="section-heading"
-          style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B' }}
         >
-          <Trophy size={16} style={{ color: 'var(--text-subtle)' }} /> Rank card
+          <Trophy size={16} style={{ color: '#64748B' }} /> Rank card
         </h3>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div
@@ -467,7 +505,7 @@ export default function Profile() {
                     textTransform: 'uppercase',
                   }}
                 >
-                  Level {levelNum} — {getLevelName(levelNum)}
+                  Level {levelNum} â€” {getLevelName(levelNum)}
                 </div>
               </div>
             </div>
@@ -556,22 +594,24 @@ export default function Profile() {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 14 }}>
-          <button onClick={downloadRankCard} disabled={downloading} className="btn btn-primary">
-            <Camera size={14} /> {downloading ? 'Saving…' : 'Save as image'}
+          <button onClick={downloadRankCard} disabled={downloading} style={btnPrimary}>
+            <Camera size={14} /> {downloading ? 'Savingâ€¦' : 'Save as image'}
           </button>
         </div>
       </div>
 
       {/* Subscription */}
-      <div className="card" style={{ maxWidth: 600, width: '100%', alignSelf: 'center' }}>
-        <div className="card-header"><div className="card-title">Subscription</div></div>
+      <div style={{ ...cardStyle, maxWidth: 600, width: '100%', alignSelf: 'center' }}>
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 16, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Subscription</div>
+        </div>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <SubRow label="Plan" value={plan === 'pro' ? 'Pro' : 'Free'} />
           {isActive && <SubRow label="Renews" value={formatSubDate(expiresAt)} />}
           <SubRow
             label="Status"
             value={
-              <span className={isActive ? 'badge badge-green' : 'badge'}>
+              <span style={{ background: isActive ? '#DCFCE7' : '#F1F5F9', color: isActive ? '#16A34A' : '#64748B', border: `1px solid ${isActive ? 'rgba(22,163,74,0.2)' : '#E5EAF3'}`, borderRadius: 20, padding: '2px 12px', fontSize: 11, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 {isActive ? 'Active' : 'Free'}
               </span>
             }
@@ -580,17 +620,17 @@ export default function Profile() {
       </div>
 
       {/* Preferences */}
-      <div className="card" style={{ maxWidth: 600, width: '100%', alignSelf: 'center' }}>
-        <div className="card-header">
-          <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Settings size={15} style={{ color: 'var(--text-subtle)' }} /> Preferences
+      <div style={{ ...cardStyle, maxWidth: 600, width: '100%', alignSelf: 'center' }}>
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 16, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Settings size={15} style={{ color: '#64748B' }} /> Preferences
           </div>
         </div>
         <div
           style={{
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-sm)',
+            background: '#F8FAFD',
+            border: '1px solid #E5EAF3',
+            borderRadius: 8,
             padding: '14px 16px',
             display: 'flex',
             alignItems: 'center',
@@ -599,11 +639,11 @@ export default function Profile() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-            <Moon size={15} style={{ color: 'var(--text-subtle)', flexShrink: 0 }} />
+            <Moon size={15} style={{ color: '#64748B', flexShrink: 0 }} />
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>AMOLED theme</div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-                Pure black backgrounds — better battery on OLED screens.
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#0B1224' }}>AMOLED theme</div>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 2 }}>
+                Pure black backgrounds â€” better battery on OLED screens.
               </div>
             </div>
           </div>
@@ -613,7 +653,7 @@ export default function Profile() {
             style={{
               width: 40, height: 22,
               borderRadius: 999,
-              background: amoled ? 'var(--green)' : 'var(--border)',
+              background: amoled ? '#16A34A' : '#E5EAF3',
               border: 'none', cursor: 'pointer',
               position: 'relative', transition: 'background 0.2s',
               flexShrink: 0,
@@ -631,13 +671,15 @@ export default function Profile() {
       </div>
 
       {/* Data management */}
-      <div className="card" style={{ maxWidth: 600, width: '100%', alignSelf: 'center' }}>
-        <div className="card-header"><div className="card-title">Data management</div></div>
+      <div style={{ ...cardStyle, maxWidth: 600, width: '100%', alignSelf: 'center' }}>
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 16, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Data management</div>
+        </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button onClick={exportData} className="btn btn-secondary btn-sm">
+          <button onClick={exportData} style={{ ...btnSecondary, ...btnSm }}>
             <Download size={13} /> Export
           </button>
-          <button onClick={importData} className="btn btn-secondary btn-sm">
+          <button onClick={importData} style={{ ...btnSecondary, ...btnSm }}>
             <Upload size={13} /> Import
           </button>
           <ResetButton onClick={resetLocalData} />
@@ -661,11 +703,11 @@ export default function Profile() {
                 fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, fontWeight: 600,
               }}
             >
-              🧪 Seed Test Data (Dev Only)
+              ðŸ§ª Seed Test Data (Dev Only)
             </button>
           )}
         </div>
-        <div style={{ fontSize: 12, color: 'var(--text-subtle)', marginTop: 12 }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B', marginTop: 12 }}>
           Reset clears local cache on this device only. Your cloud data stays intact.
         </div>
       </div>
@@ -691,7 +733,7 @@ function ResetButton({ onClick }) {
       style={{
         display: 'inline-flex', alignItems: 'center', gap: 8,
         padding: '6px 12px',
-        borderRadius: 'var(--radius-sm)',
+        borderRadius: 8,
         background: 'transparent',
         border: `1px solid ${hover ? 'var(--red)' : 'var(--border)'}`,
         color: hover ? 'var(--red)' : 'var(--text-subtle)',
@@ -712,24 +754,24 @@ function Summary({ label, value }) {
   return (
     <div
       style={{
-        background: 'var(--bg-elevated)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-sm)',
+        background: '#F8FAFD',
+        border: '1px solid #E5EAF3',
+        borderRadius: 8,
         padding: '12px',
       }}
     >
-      <div className="stat-number" style={{ fontSize: 18 }}>{value}</div>
-      <div className="stat-label">{label}</div>
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, color: '#0B1224', letterSpacing: '0.02em' }}>{value}</div>
+      <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B', marginTop: 2 }}>{label}</div>
     </div>
   )
 }
 
 function formatSubDate(d) {
-  if (!d) return '—'
+  if (!d) return 'â€”'
   try {
     return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
   } catch {
-    return '—'
+    return 'â€”'
   }
 }
 
@@ -742,13 +784,13 @@ function SubRow({ label, value }) {
         justifyContent: 'space-between',
         gap: 12,
         padding: '10px 12px',
-        borderRadius: 'var(--radius-sm)',
-        background: 'var(--bg-elevated)',
-        border: '1px solid var(--border)',
+        borderRadius: 8,
+        background: '#F8FAFD',
+        border: '1px solid #E5EAF3',
       }}
     >
-      <span className="label">{label}</span>
-      <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{value}</span>
+      <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B' }}>{label}</span>
+      <span style={{ fontSize: 13, fontFamily: 'Inter, sans-serif', color: '#0B1224' }}>{value}</span>
     </li>
   )
 }

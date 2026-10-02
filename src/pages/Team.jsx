@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import {
   Users, LayoutGrid, Calendar, Swords, Megaphone, BarChart3,
@@ -47,7 +48,7 @@ export default function Team() {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 10, color: 'var(--text-muted)' }}>
         <Loader2 size={18} className="animate-spin" />
-        <span style={{ fontSize: 13 }}>Loading team…</span>
+        <span style={{ fontSize: 13 }}>Loading teamâ€¦</span>
         <style>{`.animate-spin { animation: ee-team-spin 0.9s linear infinite; } @keyframes ee-team-spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
@@ -79,6 +80,31 @@ export default function Team() {
   return (
     <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }} className="page-transition">
+      {/* Standard Page Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          background: 'linear-gradient(135deg, #F7F9FD 0%, #EEF4FF 60%, #FFF0F2 100%)',
+          borderRadius: 16, padding: 32, position: 'relative', overflow: 'hidden',
+        }}
+      >
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(37,99,255,0.06) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', top: -60, left: -60, width: 300, height: 300, background: 'radial-gradient(circle, rgba(37,99,255,0.1) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', bottom: -40, right: -40, width: 250, height: 250, background: 'radial-gradient(circle, rgba(239,51,64,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, color: '#2563FF', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 8 }}>Squad</div>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 48, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: 1, margin: 0 }}>My Team</h1>
+          <motion.div
+            initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            style={{ width: 64, height: 3, background: 'linear-gradient(90deg,#2563FF,#EF3340)', transformOrigin: 'left', borderRadius: 2, marginTop: 12, marginBottom: 12 }}
+          />
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#64748B', margin: 0 }}>Manage your squad and track performance together.</p>
+        </div>
+      </motion.div>
+
       <TeamHeader
         team={team}
         members={members}
@@ -87,15 +113,15 @@ export default function Team() {
         leaving={leaving}
       />
 
-      {/* Tabs */}
+      {/* Premium Tab Switcher */}
       <div
         style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-sm)',
-          padding: 3,
+          background: '#FFFFFF',
+          border: '1px solid #E5EAF3',
+          borderRadius: 12,
+          padding: 4,
           display: 'inline-flex',
-          gap: 2,
+          gap: 4,
           flexWrap: 'wrap',
           alignSelf: 'flex-start',
         }}
@@ -108,19 +134,21 @@ export default function Team() {
               key={t.id}
               onClick={() => setTab(t.id)}
               style={{
-                background: active ? 'var(--bg-elevated)' : 'transparent',
-                border: active ? '1px solid var(--border)' : '1px solid transparent',
-                color: active ? 'var(--text-primary)' : 'var(--text-subtle)',
+                background: active ? 'linear-gradient(135deg,#2563FF,#5B3DF5)' : 'transparent',
+                color: active ? '#FFFFFF' : '#64748B',
+                border: 'none',
+                borderRadius: 8,
                 padding: '8px 14px',
                 borderRadius: 4,
                 fontFamily: 'Inter, sans-serif',
                 fontSize: 13,
-                fontWeight: 500,
+                fontWeight: 600,
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                boxShadow: active ? '0 4px 12px rgba(37,99,255,0.25)' : 'none',
+                transition: 'all 0.2s ease',
               }}
             >
               <Icon size={14} /> {t.label}
@@ -141,7 +169,7 @@ export default function Team() {
           {!isActive && !subLoading && (
             <UpgradeOverlay
               title="Squad Performance Analysis"
-              description="See exactly where each player underperformed — positioning errors, kill contributions, damage breakdown, and what went wrong in each match."
+              description="See exactly where each player underperformed â€” positioning errors, kill contributions, damage breakdown, and what went wrong in each match."
               feature="squad-analysis"
             />
           )}
@@ -168,18 +196,23 @@ function TeamHeader({ team, members, myRole, onLeave, leaving }) {
     myRole === 'igl'   ? 'Your role: IGL' :
     'Your role: Player'
   const roleBadgeClass =
-    myRole === 'owner' ? 'badge badge-red' :
-    myRole === 'igl'   ? 'badge badge-amber' :
+    myRole === 'owner' ? 'badge' :
+    myRole === 'igl'   ? 'badge' :
     'badge'
+  const roleBadgeStyle =
+    myRole === 'owner' ? { background: '#FEE2E2', color: '#EF3340', borderColor: 'rgba(239,51,64,0.25)' } :
+    myRole === 'igl'   ? { background: '#FEF3C7', color: '#D97706', borderColor: 'rgba(217,119,6,0.25)' } :
+    { background: '#EEF4FF', color: '#2563FF', borderColor: 'rgba(37,99,255,0.2)' }
 
   return (
     <div
       style={{
         position: 'relative',
-        borderRadius: 'var(--radius-lg)',
+        borderRadius: 16,
         overflow: 'hidden',
-        border: '1px solid var(--border)',
-        background: 'var(--bg-surface)',
+        border: '1px solid #E5EAF3',
+        background: '#FFFFFF',
+        boxShadow: '0 4px 20px rgba(15,23,42,0.04)',
       }}
     >
       {team.banner && (
@@ -190,7 +223,7 @@ function TeamHeader({ team, members, myRole, onLeave, leaving }) {
             backgroundImage: `url(${team.banner})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: 0.2,
+            opacity: 0.12,
             pointerEvents: 'none',
           }}
         />
@@ -220,7 +253,7 @@ function TeamHeader({ team, members, myRole, onLeave, leaving }) {
                   color: 'var(--text-primary)',
                 }}
               >
-                [{team.tag || '—'}]
+                [{team.tag || 'â€”'}]
               </span>
               <h1
                 style={{
@@ -229,7 +262,7 @@ function TeamHeader({ team, members, myRole, onLeave, leaving }) {
                   fontSize: 32,
                   letterSpacing: '0.04em',
                   textTransform: 'uppercase',
-                  color: 'var(--text-primary)',
+                  color: '#0B1224',
                   margin: 0,
                 }}
               >
@@ -239,7 +272,7 @@ function TeamHeader({ team, members, myRole, onLeave, leaving }) {
             <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
               <span className="badge">{team.memberCount ?? members.length} / 6 members</span>
               <span className="badge">{team.region || 'Other'}</span>
-              <span className={roleBadgeClass}>{roleLabel}</span>
+              <span className={roleBadgeClass} style={roleBadgeStyle}>{roleLabel}</span>
             </div>
           </div>
         </div>
@@ -251,7 +284,7 @@ function TeamHeader({ team, members, myRole, onLeave, leaving }) {
               disabled={leaving}
               className="btn btn-secondary btn-sm"
             >
-              {leaving ? <><Loader2 size={13} className="animate-spin" /> Leaving…</> : <><LogOut size={13} /> Leave</>}
+              {leaving ? <><Loader2 size={13} className="animate-spin" /> Leavingâ€¦</> : <><LogOut size={13} /> Leave</>}
             </button>
           )}
         </div>
@@ -282,15 +315,15 @@ function TeamAvatar({ team }) {
       style={{
         width: 60, height: 60,
         borderRadius: 12,
-        background: 'var(--bg-elevated)',
-        border: '1px solid var(--border)',
+        background: '#EEF4FF',
+        border: '1px solid #E5EAF3',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: 'Barlow Condensed, sans-serif',
         fontSize: 22,
         letterSpacing: '0.04em',
-        color: 'var(--text-primary)',
+        color: '#2563FF',
         flexShrink: 0,
       }}
     >
@@ -305,40 +338,39 @@ function TeamAvatar({ team }) {
 function NoTeamState({ onCreate }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, padding: '40px 20px' }} className="page-transition">
-      <div className="card" style={{ maxWidth: 480, width: '100%', textAlign: 'center' }}>
+      <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: 32, boxShadow: '0 4px 20px rgba(15,23,42,0.04)', maxWidth: 480, width: '100%', textAlign: 'center' }}>
         <div
           style={{
             width: 56, height: 56, borderRadius: 12,
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border)',
+            background: '#EEF4FF',
+            border: '1px solid #E5EAF3',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'var(--text-subtle)',
+            color: '#2563FF',
             margin: '0 auto 14px',
           }}
         >
           <Users size={26} />
         </div>
         <div
-          className="heading"
           style={{
             fontFamily: 'Barlow Condensed, sans-serif',
             fontSize: 24,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
-            color: 'var(--text-primary)',
+            color: '#0B1224',
             marginBottom: 6,
           }}
         >
           You're not in a team yet
         </div>
-        <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 18 }}>
+        <div style={{ fontSize: 13, color: '#475569', lineHeight: 1.6, marginBottom: 18 }}>
           Create your own team or join one with an invite code from your captain.
         </div>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button onClick={onCreate} className="btn btn-primary btn-sm">
+          <button onClick={onCreate} style={{ background: '#2563FF', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontFamily: 'Inter, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <Plus size={13} /> Create Team
           </button>
-          <button onClick={onCreate} className="btn btn-secondary btn-sm">
+          <button onClick={onCreate} style={{ background: '#FFFFFF', color: '#0B1224', border: '1px solid #E5EAF3', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontFamily: 'Inter, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <LogIn size={13} /> Join Team
           </button>
         </div>

@@ -13,14 +13,22 @@ import {
 } from './Tournaments.jsx'
 
 const MEDAL_COLORS = {
-  1: 'var(--gold)',
+  1: '#D97706',
   2: '#C0C0C0',
   3: '#CD7F32',
 }
 const MEDAL_ROW_BG = {
-  1: 'rgba(255, 215, 0, 0.05)',
-  2: 'rgba(192, 192, 192, 0.05)',
-  3: 'rgba(205, 127, 50, 0.05)',
+  1: 'rgba(217, 119, 6, 0.04)',
+  2: 'rgba(192, 192, 192, 0.04)',
+  3: 'rgba(205, 127, 50, 0.04)',
+}
+
+const cardStyle = {
+  background: '#FFFFFF',
+  border: '1px solid #E5EAF3',
+  borderRadius: 16,
+  padding: 20,
+  boxShadow: '0 4px 20px rgba(15,23,42,0.04)',
 }
 
 export default function TournamentDetail() {
@@ -55,7 +63,7 @@ export default function TournamentDetail() {
       q,
       (snap) => setMatches(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
       (err) => {
-        /* Some matches might lack matchNumber — fall back to an
+        /* Some matches might lack matchNumber â€” fall back to an
            unordered fetch and sort client-side by createdAt. */
         // eslint-disable-next-line no-console
         console.warn('[TournamentDetail] ordered matches snapshot failed, retrying:', err)
@@ -120,7 +128,7 @@ function BackLink({ onClick }) {
         alignSelf: 'flex-start',
         background: 'transparent',
         border: 'none',
-        color: 'var(--text-muted)',
+        color: '#475569',
         cursor: 'pointer',
         display: 'inline-flex',
         alignItems: 'center',
@@ -138,12 +146,12 @@ function BackLink({ onClick }) {
 function TournamentHeader({ tournament }) {
   const maps = Array.isArray(tournament.maps) ? tournament.maps.filter(Boolean) : []
   return (
-    <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ ...cardStyle, display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
         <TypeBadge type={tournament.type} />
         <StatusBadge status={tournament.status} />
         {tournament.featured && (
-          <span className="badge badge-red" style={{ letterSpacing: '0.10em' }}>Featured</span>
+          <span style={{ background: '#FEE2E2', color: '#EF3340', border: '1px solid rgba(239,51,64,0.2)', borderRadius: 20, padding: '3px 10px', fontSize: 10, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Featured</span>
         )}
       </div>
 
@@ -154,7 +162,8 @@ function TournamentHeader({ tournament }) {
             fontWeight: 400,
             fontSize: 32,
             letterSpacing: '0.04em',
-            color: 'var(--text-primary)',
+            textTransform: 'uppercase',
+            color: '#0B1224',
             margin: 0,
             lineHeight: 1.1,
           }}
@@ -176,8 +185,8 @@ function TournamentHeader({ tournament }) {
         <StatBlock
           icon={<Trophy size={14} />}
           label="Prize Pool"
-          value={tournament.prizePool || '—'}
-          accent="var(--gold)"
+          value={tournament.prizePool || 'â€”'}
+          accent="#D97706"
         />
         <StatBlock
           icon={<Calendar size={14} />}
@@ -187,12 +196,12 @@ function TournamentHeader({ tournament }) {
         <StatBlock
           icon={<Layers size={14} />}
           label="Format"
-          value={tournament.format || '—'}
+          value={tournament.format || 'â€”'}
         />
         <StatBlock
           icon={<MapIcon size={14} />}
           label="Maps"
-          value={maps.length ? maps.join(', ') : '—'}
+          value={maps.length ? maps.join(', ') : 'â€”'}
         />
       </div>
 
@@ -201,7 +210,7 @@ function TournamentHeader({ tournament }) {
           style={{
             fontFamily: 'Inter, sans-serif',
             fontSize: 14,
-            color: 'var(--text-muted)',
+            color: '#475569',
             lineHeight: 1.6,
             margin: 0,
           }}
@@ -217,9 +226,9 @@ function StatBlock({ icon, label, value, accent }) {
   return (
     <div
       style={{
-        background: 'var(--bg-elevated)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-sm)',
+        background: '#F8FAFD',
+        border: '1px solid #E5EAF3',
+        borderRadius: 8,
         padding: '10px 12px',
         display: 'flex',
         flexDirection: 'column',
@@ -229,10 +238,10 @@ function StatBlock({ icon, label, value, accent }) {
       <span style={{
         fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600,
         textTransform: 'uppercase', letterSpacing: '0.08em',
-        color: 'var(--text-subtle)',
+        color: '#64748B',
         display: 'inline-flex', alignItems: 'center', gap: 6,
       }}>
-        <span style={{ color: 'var(--text-subtle)' }}>{icon}</span>
+        <span style={{ color: '#64748B' }}>{icon}</span>
         {label}
       </span>
       <span
@@ -241,7 +250,7 @@ function StatBlock({ icon, label, value, accent }) {
           fontWeight: 400,
           fontSize: 20,
           letterSpacing: '0.04em',
-          color: accent || 'var(--text-primary)',
+          color: accent || '#0B1224',
           lineHeight: 1.1,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -259,36 +268,38 @@ function StatBlock({ icon, label, value, accent }) {
    ============================================================ */
 function OverallLeaderboard({ overall }) {
   return (
-    <div className="card">
-      <div className="card-header">
-        <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Trophy size={15} style={{ color: 'var(--text-subtle)' }} />
+    <div style={cardStyle}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Trophy size={15} style={{ color: '#64748B' }} />
           <span style={{
             fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 20,
             letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: '#0B1224',
           }}>
             Overall Standings
           </span>
         </div>
-        <div className="label">{overall.length} team{overall.length === 1 ? '' : 's'}</div>
+        <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B' }}>{overall.length} team{overall.length === 1 ? '' : 's'}</div>
       </div>
       {overall.length === 0 ? (
         <EmptyBlock title="No standings yet" desc="Match results will roll up here as they're added." />
       ) : (
         <div className="mk-table-scroll">
-          <table className="table">
+          <table className="mk-light-table">
             <thead>
               <tr>
                 <th>Rank</th>
                 <th>Team</th>
-                <th className="mono">Matches</th>
-                <th className="mono">Kills</th>
-                <th className="mono">Placement Pts</th>
-                <th className="mono">Total Pts</th>
-                <th className="mono">WWC Pts</th>
-                <th className="mono">Chicken Dinners</th>
+                <th>Matches</th>
+                <th>Kills</th>
+                <th>Placement Pts</th>
+                <th>Total Pts</th>
+                <th>WWC Pts</th>
+                <th>Chicken Dinners</th>
               </tr>
             </thead>
             <tbody>
@@ -297,13 +308,13 @@ function OverallLeaderboard({ overall }) {
                   <td>
                     <RankCell rank={row.rank} />
                   </td>
-                  <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{row.teamName}</td>
-                  <td className="mono">{row.matchesPlayed}</td>
-                  <td className="mono" style={{ color: 'var(--amber)' }}>{row.totalKills}</td>
-                  <td className="mono">{row.totalPlacementPoints}</td>
-                  <td className="mono" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{row.totalPoints}</td>
-                  <td className="mono">{row.totalWWC || '—'}</td>
-                  <td className="mono">{row.chickenDinners || '—'}</td>
+                  <td style={{ fontWeight: 600, color: '#0B1224' }}>{row.teamName}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif' }}>{row.matchesPlayed}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif', color: '#F59E0B' }}>{row.totalKills}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif' }}>{row.totalPlacementPoints}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif', color: '#0B1224', fontWeight: 700 }}>{row.totalPoints}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif' }}>{row.totalWWC || 'â€”'}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif' }}>{row.chickenDinners || 'â€”'}</td>
                 </tr>
               ))}
             </tbody>
@@ -315,7 +326,7 @@ function OverallLeaderboard({ overall }) {
 }
 
 function RankCell({ rank }) {
-  const color = MEDAL_COLORS[rank] || 'var(--text-muted)'
+  const color = MEDAL_COLORS[rank] || '#475569'
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color, fontWeight: 700 }}>
       {rank === 1 && <Trophy size={13} />}
@@ -351,7 +362,7 @@ function MatchTabs({ matches, active, onActive }) {
         display: 'flex',
         gap: 4,
         overflowX: 'auto',
-        borderBottom: '1px solid var(--border)',
+        borderBottom: '1px solid #E5EAF3',
         paddingBottom: 1,
       }}
     >
@@ -369,8 +380,8 @@ function MatchTabs({ matches, active, onActive }) {
               fontFamily: 'Inter, sans-serif',
               fontSize: 13,
               fontWeight: 500,
-              color: isActive ? 'var(--text-primary)' : 'var(--text-subtle)',
-              borderBottom: `2px solid ${isActive ? 'var(--red)' : 'transparent'}`,
+              color: isActive ? '#0B1224' : '#64748B',
+              borderBottom: `2px solid ${isActive ? '#2563FF' : 'transparent'}`,
               marginBottom: -1,
               whiteSpace: 'nowrap',
               display: 'inline-flex',
@@ -379,7 +390,7 @@ function MatchTabs({ matches, active, onActive }) {
               flexShrink: 0,
             }}
           >
-            {t.accent && <Crosshair size={12} style={{ color: 'var(--amber)' }} />}
+            {t.accent && <Crosshair size={12} style={{ color: '#F59E0B' }} />}
             {t.label}
           </button>
         )
@@ -391,7 +402,7 @@ function MatchTabs({ matches, active, onActive }) {
 function MatchDetail({ match }) {
   if (!match) {
     return (
-      <div className="card">
+      <div style={cardStyle}>
         <EmptyBlock title="Pick a match" desc="Choose a match tab to see per-match standings." />
       </div>
     )
@@ -412,9 +423,9 @@ function MatchDetail({ match }) {
           {match.round || `Match ${match.matchNumber || ''}`}
         </div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-          {match.map && <span className="badge badge-blue">{match.map}</span>}
+          {match.map && <span style={{ background: '#EEF4FF', color: '#2563FF', border: '1px solid rgba(37,99,255,0.2)', borderRadius: 20, padding: '3px 10px', fontSize: 10, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{match.map}</span>}
           {match.date && (
-            <span className="badge" style={{ color: 'var(--text-muted)' }}>
+            <span style={{ background: '#F1F5F9', color: '#475569', border: '1px solid #E5EAF3', borderRadius: 20, padding: '3px 10px', fontSize: 10, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               {fmtDate(match.date)}
             </span>
           )}
@@ -429,14 +440,14 @@ function MatchDetail({ match }) {
         />
       ) : (
         <div className="mk-table-scroll">
-          <table className="table">
+          <table className="mk-light-table">
             <thead>
               <tr>
                 <th>Rank</th>
                 <th>Team</th>
-                <th className="mono">Kills</th>
-                <th className="mono">Placement Pts</th>
-                <th className="mono">Total Pts</th>
+                <th>Kills</th>
+                <th>Placement Pts</th>
+                <th>Total Pts</th>
                 <th>Notes</th>
               </tr>
             </thead>
@@ -444,11 +455,11 @@ function MatchDetail({ match }) {
               {rows.map((row, i) => (
                 <tr key={`${row.teamName}-${i}`} style={{ background: MEDAL_ROW_BG[row.rank] || undefined }}>
                   <td><RankCell rank={row.rank} /></td>
-                  <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{row.teamName || '—'}</td>
-                  <td className="mono" style={{ color: 'var(--amber)' }}>{Number(row.kills) || 0}</td>
-                  <td className="mono">{Number(row.placementPoints) || 0}</td>
-                  <td className="mono" style={{ fontWeight: 700 }}>{Number(row.totalPoints) || 0}</td>
-                  <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>{row.notes || '—'}</td>
+                  <td style={{ fontWeight: 600, color: '#0B1224' }}>{row.teamName || 'â€”'}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif', color: '#F59E0B' }}>{Number(row.kills) || 0}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif' }}>{Number(row.placementPoints) || 0}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700 }}>{Number(row.totalPoints) || 0}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif', color: '#475569', fontSize: 12 }}>{row.notes || 'â€”'}</td>
                 </tr>
               ))}
             </tbody>
@@ -460,9 +471,9 @@ function MatchDetail({ match }) {
 }
 
 function MatchStatusBadge({ status }) {
-  if (status === 'completed') return <span className="badge badge-green">Completed</span>
-  if (status === 'upcoming')  return <span className="badge">Upcoming</span>
-  return <span className="badge">{String(status || '').toUpperCase() || '—'}</span>
+  if (status === 'completed') return <span style={{ background: '#DCFCE7', color: '#16A34A', border: '1px solid rgba(22,163,74,0.2)', borderRadius: 20, padding: '3px 10px', fontSize: 10, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Completed</span>
+  if (status === 'upcoming')  return <span style={{ background: '#F1F5F9', color: '#475569', border: '1px solid #E5EAF3', borderRadius: 20, padding: '3px 10px', fontSize: 10, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Upcoming</span>
+  return <span style={{ background: '#F1F5F9', color: '#475569', border: '1px solid #E5EAF3', borderRadius: 20, padding: '3px 10px', fontSize: 10, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{String(status || '').toUpperCase() || 'â€”'}</span>
 }
 
 /* ============================================================
@@ -470,41 +481,43 @@ function MatchStatusBadge({ status }) {
    ============================================================ */
 function KillBoard({ rows }) {
   return (
-    <div className="card">
-      <div className="card-header">
-        <div className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Crosshair size={15} style={{ color: 'var(--amber)' }} />
+    <div style={cardStyle}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Crosshair size={15} style={{ color: '#F59E0B' }} />
           <span style={{
             fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 20,
             letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: '#0B1224',
           }}>
             Kill Leaderboard
           </span>
         </div>
-        <div className="label">Top {rows.length}</div>
+        <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B' }}>Top {rows.length}</div>
       </div>
       {rows.length === 0 ? (
         <EmptyBlock title="No kills logged" desc="Kill counts will appear here as matches are added." />
       ) : (
         <div className="mk-table-scroll">
-          <table className="table">
+          <table className="mk-light-table">
             <thead>
               <tr>
                 <th>Rank</th>
                 <th>Team</th>
-                <th className="mono">Total Kills</th>
-                <th className="mono">Avg / Match</th>
+                <th>Total Kills</th>
+                <th>Avg / Match</th>
               </tr>
             </thead>
             <tbody>
               {rows.map(row => (
                 <tr key={row.teamName} style={{ background: MEDAL_ROW_BG[row.rank] || undefined }}>
                   <td><RankCell rank={row.rank} /></td>
-                  <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{row.teamName}</td>
-                  <td className="mono" style={{ color: 'var(--amber)', fontWeight: 700 }}>{row.totalKills}</td>
-                  <td className="mono" style={{ color: 'var(--text-muted)' }}>{row.avg.toFixed(1)}</td>
+                  <td style={{ fontWeight: 600, color: '#0B1224' }}>{row.teamName}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif', color: '#F59E0B', fontWeight: 700 }}>{row.totalKills}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif', color: '#475569' }}>{row.avg.toFixed(1)}</td>
                 </tr>
               ))}
             </tbody>
@@ -580,10 +593,10 @@ function LoadingState() {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      minHeight: '40vh', gap: 10, color: 'var(--text-muted)',
+      minHeight: '40vh', gap: 10, color: '#475569',
     }}>
       <Loader2 size={18} className="animate-spin" />
-      <span style={{ fontSize: 13 }}>Loading tournament…</span>
+      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13 }}>Loading tournamentâ€¦</span>
       <TableStyles />
     </div>
   )
@@ -593,8 +606,8 @@ function ErrorState({ message, onBack }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }} className="page-transition">
       <BackLink onClick={onBack} />
-      <div className="card" style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-        <AlertTriangle size={18} style={{ color: 'var(--red)', flexShrink: 0, marginTop: 2 }} />
+      <div style={{ ...cardStyle, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+        <AlertTriangle size={18} style={{ color: '#EF3340', flexShrink: 0, marginTop: 2 }} />
         <div>
           <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: 'var(--text-primary)' }}>
             Couldn't load this tournament
@@ -612,10 +625,10 @@ function NotFoundState({ onBack }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }} className="page-transition">
       <BackLink onClick={onBack} />
-      <div className="card empty-state">
-        <Trophy size={48} className="empty-state-icon" />
-        <div className="empty-state-title">Tournament not found</div>
-        <div className="empty-state-desc">It may have been deleted or the link is out of date.</div>
+      <div style={{ ...cardStyle, textAlign: 'center', padding: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+        <Trophy size={48} style={{ color: '#E5EAF3' }} />
+        <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, color: '#0B1224', textTransform: 'uppercase' }}>Tournament not found</div>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#475569' }}>It may have been deleted or the link is out of date.</div>
       </div>
     </div>
   )
@@ -623,9 +636,9 @@ function NotFoundState({ onBack }) {
 
 function EmptyBlock({ title, desc }) {
   return (
-    <div className="empty-state">
-      <div className="empty-state-title">{title}</div>
-      <div className="empty-state-desc">{desc}</div>
+    <div style={{ textAlign: 'center', padding: '24px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 16, color: '#0B1224', textTransform: 'uppercase' }}>{title}</div>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569' }}>{desc}</div>
     </div>
   )
 }
@@ -637,7 +650,13 @@ function TableStyles() {
   return (
     <style>{`
       .mk-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .mk-table-scroll .table { min-width: 620px; }
+      .mk-table-scroll .mk-light-table { min-width: 620px; }
+      .mk-light-table { width: 100%; border-collapse: collapse; font-family: Inter, sans-serif; font-size: 13px; }
+      .mk-light-table thead tr { border-bottom: 2px solid #E5EAF3; }
+      .mk-light-table th { padding: 8px 12px; text-align: left; font-family: Rajdhani, sans-serif; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748B; white-space: nowrap; }
+      .mk-light-table td { padding: 10px 12px; border-bottom: 1px solid #F1F5F9; color: #475569; font-size: 13px; }
+      .mk-light-table tbody tr:hover { background: #F8FAFD; }
+      .mk-light-table tbody tr:last-child td { border-bottom: none; }
       .animate-spin { animation: ee-tourn-detail-spin 0.9s linear infinite; }
       @keyframes ee-tourn-detail-spin { to { transform: rotate(360deg); } }
     `}</style>

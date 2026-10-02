@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { collection, getDocs } from 'firebase/firestore'
 import {
@@ -15,18 +16,18 @@ import { db } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { DEFAULT_SUGGESTIONS } from '../utils/constants.js'
 
-/* ── palette ── */
+/* â”€â”€ palette â”€â”€ */
 const C = {
-  blue:   '#3B82F6',
-  cyan:   '#22D3EE',
-  violet: '#7C3AED',
-  green:  '#22C55E',
-  red:    '#EF4444',
+  blue:   '#2563FF',
+  cyan:   '#0EA5E9',
+  violet: '#5B3DF5',
+  green:  '#16A34A',
+  red:    '#EF3340',
   amber:  '#F59E0B',
-  card:   '#0D1528',
-  border: '#1B2A45',
-  text:   '#F8FAFC',
-  muted:  '#94A3B8',
+  card:   '#FFFFFF',
+  border: '#E5EAF3',
+  text:   '#0B1224',
+  muted:  '#475569',
   subtle: '#64748B',
 }
 
@@ -34,13 +35,13 @@ const MODE_COLORS = { Classic: C.blue, Scrims: C.amber, Tournament: C.violet }
 const PIE_COLORS  = [C.blue, C.amber, C.violet]
 
 const MAP_META = {
-  Erangel: { emoji: '🌿', color: C.green  },
-  Miramar: { emoji: '🏜', color: C.amber  },
-  Sanhok:  { emoji: '🌴', color: '#10B981' },
-  Vikendi: { emoji: '❄',  color: '#60A5FA' },
-  Livik:   { emoji: '🏔', color: '#A78BFA' },
-  Rondo:   { emoji: '🌊', color: C.cyan   },
-  Nusa:    { emoji: '🏝', color: '#F97316' },
+  Erangel: { emoji: 'ðŸŒ¿', color: C.green  },
+  Miramar: { emoji: 'ðŸœ', color: C.amber  },
+  Sanhok:  { emoji: 'ðŸŒ´', color: '#10B981' },
+  Vikendi: { emoji: 'â„',  color: '#60A5FA' },
+  Livik:   { emoji: 'ðŸ”', color: '#A78BFA' },
+  Rondo:   { emoji: 'ðŸŒŠ', color: C.cyan   },
+  Nusa:    { emoji: 'ðŸ', color: '#F97316' },
 }
 
 const WEAKNESS_TIPS = {
@@ -49,14 +50,14 @@ const WEAKNESS_TIPS = {
   decision: 'Review every rotation call after the match',
   rotation: 'Study zone movement and ring timing',
   position: 'Focus on early-game drop and end-game setup',
-  aim:      'Daily ADS drills — focus on flick shots',
+  aim:      'Daily ADS drills â€” focus on flick shots',
   recoil:   'Burst control drills in Spray Training module',
   vehicle:  'Car Spray drills improve vehicle combat',
   team:     'Record scrims to review team sync',
   sound:    'Use headphones and practice mini-map audio cues',
 }
 
-/* resolve weakness IDs → display names */
+/* resolve weakness IDs â†’ display names */
 const SUGGESTION_MAP = Object.fromEntries(
   DEFAULT_SUGGESTIONS.map(s => [s.id, s.name])
 )
@@ -87,7 +88,7 @@ export default function Analytics() {
   const [modeFilter, setModeFilter] = useState('All Modes')
   const [mapFilter, setMapFilter]   = useState('All Maps')
 
-  /* ── fetch all matches once (no orderBy — avoids silent exclusion) ── */
+  /* â”€â”€ fetch all matches once (no orderBy â€” avoids silent exclusion) â”€â”€ */
   useEffect(() => {
     let cancelled = false
     async function load() {
@@ -109,7 +110,7 @@ export default function Analytics() {
     return () => { cancelled = true }
   }, [user?.uid])
 
-  /* ── filtered set ── */
+  /* â”€â”€ filtered set â”€â”€ */
   const filtered = useMemo(() => {
     const opt = DATE_OPTIONS.find(o => o.id === dateRange)
     const cutoff = opt?.days ? Date.now() - opt.days * 86400000 : 0
@@ -121,7 +122,7 @@ export default function Analytics() {
     })
   }, [allMatches, dateRange, modeFilter, mapFilter])
 
-  /* ── prior period (equal-length window before current) ── */
+  /* â”€â”€ prior period (equal-length window before current) â”€â”€ */
   const priorPeriod = useMemo(() => {
     const opt = DATE_OPTIONS.find(o => o.id === dateRange)
     if (!opt?.days) return []
@@ -139,7 +140,7 @@ export default function Analytics() {
       totalKills:   filtered.reduce((s, m) => s + killsOf(m), 0),
       avgKills:     filtered.length ? (filtered.reduce((s, m) => s + killsOf(m), 0) / filtered.length).toFixed(2) : 0,
       avgPlacement: filtered.length ? (filtered.reduce((s, m) => s + (placementOf(m) || 0), 0) / filtered.length).toFixed(1) : 0,
-      winRate:      filtered.length ? ((filtered.filter(m => isWin(m)).length / filtered.length) * 100).toFixed(1) + '%' : '—',
+      winRate:      filtered.length ? ((filtered.filter(m => isWin(m)).length / filtered.length) * 100).toFixed(1) + '%' : 'â€”',
       avgDamage:    filtered.length ? Math.round(filtered.reduce((s, m) => s + damageOf(m), 0) / filtered.length) : 0,
     }
     const payload = { exportedAt: new Date().toISOString(), filters: { dateRange, modeFilter, mapFilter }, stats, matchCount: filtered.length }
@@ -157,7 +158,7 @@ export default function Analytics() {
 
   if (error) {
     return (
-      <div style={cardStyle}>
+      <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: 20, boxShadow: '0 4px 20px rgba(15,23,42,0.04)' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <AlertTriangle size={18} style={{ color: C.red, flexShrink: 0, marginTop: 2 }} />
           <div>
@@ -204,13 +205,13 @@ export default function Analytics() {
           <div style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, color: C.muted }}>
             Track your performance. Identify weaknesses. Improve every day.
           </div>
+          <button
+            onClick={exportReport}
+            style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', color: '#475569', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontFamily: 'Inter, sans-serif', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(15,23,42,0.04)' }}
+          >
+            <Download size={13} /> Export Report
+          </button>
         </div>
-        <button
-          onClick={exportReport}
-          style={{ background: 'transparent', border: `1px solid ${C.border}`, color: C.muted, borderRadius: 8, padding: '8px 16px', fontSize: 13, fontFamily: 'Inter, sans-serif', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}
-        >
-          <Download size={13} /> Export Report
-        </button>
       </div>
 
       {/* Filter row */}
@@ -251,7 +252,7 @@ export default function Analytics() {
    ================================================================ */
 function FilterRow({ dateRange, onDateRange, modeFilter, onModeFilter, mapFilter, onMapFilter, total, filtered }) {
   const selectStyle = {
-    background: C.card, border: `1px solid ${C.border}`, color: C.text,
+    background: '#FFFFFF', border: '1px solid #E5EAF3', color: '#0B1224',
     borderRadius: 8, padding: '8px 12px', fontSize: 13,
     fontFamily: 'Inter, Inter, sans-serif', cursor: 'pointer', outline: 'none',
   }
@@ -275,7 +276,7 @@ function FilterRow({ dateRange, onDateRange, modeFilter, onModeFilter, mapFilter
 }
 
 /* ================================================================
-   ROW 1 — 6 SUMMARY CARDS
+   ROW 1 â€” 6 SUMMARY CARDS
    ================================================================ */
 function SummaryRow({ filtered, prior }) {
   const total    = filtered.length
@@ -326,12 +327,12 @@ function SummaryRow({ filtered, prior }) {
       />
       <SummaryCard
         icon={<MapPin size={18} />} iconColor={C.red}
-        label="Avg Placement" value={avgPlace > 0 ? `#${avgPlace.toFixed(1)}` : '—'}
+        label="Avg Placement" value={avgPlace > 0 ? `#${avgPlace.toFixed(1)}` : 'â€”'}
         trend={pAvgPlace > 0 ? { delta: +(pAvgPlace - avgPlace).toFixed(1), higher: true, prefix: '#', reversed: true } : null}
       />
       <SummaryCard
         icon={<Zap size={18} />} iconColor={C.cyan}
-        label="Avg Damage" value={avgDmg > 0 ? avgDmg.toLocaleString() : '—'}
+        label="Avg Damage" value={avgDmg > 0 ? avgDmg.toLocaleString() : 'â€”'}
         trend={pAvgDmg > 0 ? { delta: avgDmg - pAvgDmg, higher: true } : null}
       />
     </div>
@@ -341,11 +342,11 @@ function SummaryRow({ filtered, prior }) {
 function SummaryCard({ icon, iconColor, label, value, trend }) {
   const improving = trend ? (trend.reversed ? trend.delta > 0 : trend.delta > 0) : null
   const trendColor = improving === null ? null : improving ? C.green : C.red
-  const arrow = improving === null ? null : improving ? '↑' : '↓'
+  const arrow = improving === null ? null : improving ? 'â†‘' : 'â†“'
 
   return (
     <div style={{ ...cardStyle, display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
-      <div style={{ width: 36, height: 36, borderRadius: 8, background: `${iconColor}18`, border: `1px solid ${iconColor}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: iconColor, flexShrink: 0 }}>
+      <div style={{ width: 36, height: 36, borderRadius: 8, background: `${iconColor}15`, border: `1px solid ${iconColor}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: iconColor, flexShrink: 0 }}>
         {icon}
       </div>
       <div>
@@ -366,7 +367,7 @@ function SummaryCard({ icon, iconColor, label, value, trend }) {
 }
 
 /* ================================================================
-   ROW 2 — PERFORMANCE TREND + MATCHES BY MODE
+   ROW 2 â€” PERFORMANCE TREND + MATCHES BY MODE
    ================================================================ */
 function TrendAndModeRow({ filtered }) {
   const trendData = useMemo(() => {
@@ -393,7 +394,7 @@ function TrendAndModeRow({ filtered }) {
     <div className="analytics-trend-row">
       {/* Performance trend */}
       <div style={cardStyle}>
-        <SectionHeader label="Performance Trend" sub="Last 30 matches · kills and placement" icon={<TrendingUp size={14} />} />
+        <SectionHeader label="Performance Trend" sub="Last 30 matches Â· kills and placement" icon={<TrendingUp size={14} />} />
         {trendData.length < 2 ? (
           <ChartEmpty msg="Log more matches to see trends" />
         ) : (
@@ -405,13 +406,13 @@ function TrendAndModeRow({ filtered }) {
               <Tooltip content={<CustomTooltip />} cursor={{ stroke: C.muted, strokeOpacity: 0.3 }} />
               <Legend formatter={v => <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: C.muted }}>{v}</span>} />
               <Line type="monotone" dataKey="kills" name="Kills" stroke={C.green} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
-              <Line type="monotone" dataKey="placement" name="Placement Score (25–pos)" stroke={C.blue} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
+              <Line type="monotone" dataKey="placement" name="Placement Score (25â€“pos)" stroke={C.blue} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         )}
       </div>
 
-      {/* Matches by mode — donut */}
+      {/* Matches by mode â€” donut */}
       <div style={{ ...cardStyle, display: 'flex', flexDirection: 'column' }}>
         <SectionHeader label="Matches by Mode" icon={<BarChart2 size={14} />} />
         {modeData.length === 0 ? <ChartEmpty msg="No matches logged yet" /> : (
@@ -454,7 +455,7 @@ function TrendAndModeRow({ filtered }) {
 }
 
 /* ================================================================
-   ROW 3 — MAP PERFORMANCE
+   ROW 3 â€” MAP PERFORMANCE
    ================================================================ */
 function MapPerformanceRow({ filtered }) {
   const mapData = useMemo(() => {
@@ -482,10 +483,10 @@ function MapPerformanceRow({ filtered }) {
       <SectionHeader label="Map Performance" sub="Sorted by match count" icon={<MapPin size={14} />} />
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10, marginTop: 4 }}>
         {mapData.map(d => {
-          const meta = MAP_META[d.map] || { emoji: '🗺', color: C.muted }
+          const meta = MAP_META[d.map] || { emoji: 'ðŸ—º', color: C.muted }
           const winColor = d.winRate >= 50 ? C.green : d.winRate >= 25 ? C.amber : C.red
           return (
-            <div key={d.map} style={{ background: '#0A1220', border: `1px solid ${C.border}`, borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div key={d.map} style={{ background: '#F8FAFD', border: '1px solid #E5EAF3', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{ width: 42, height: 42, borderRadius: 10, background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
                 {meta.emoji}
               </div>
@@ -506,7 +507,7 @@ function MapPerformanceRow({ filtered }) {
 }
 
 /* ================================================================
-   ROW 4 — COMBAT ANALYSIS (RADAR)
+   ROW 4 â€” COMBAT ANALYSIS (RADAR)
    ================================================================ */
 function CombatAnalysisRow({ filtered }) {
   const scores = useMemo(() => {
@@ -544,7 +545,7 @@ function CombatAnalysisRow({ filtered }) {
         <SectionHeader label="Combat Analysis" sub="Estimated from your match data" icon={<Activity size={14} />} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', background: `${C.amber}12`, border: `1px solid ${C.amber}30`, borderRadius: 6 }}>
           <Info size={11} style={{ color: C.amber }} />
-          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: C.amber }}>Derived scores — not directly tracked</span>
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: C.amber }}>Derived scores â€” not directly tracked</span>
         </div>
       </div>
 
@@ -601,7 +602,7 @@ function CombatAnalysisRow({ filtered }) {
 }
 
 /* ================================================================
-   ROW 5 — WEAKNESS BREAKDOWN + BEST WEAPONS
+   ROW 5 â€” WEAKNESS BREAKDOWN + BEST WEAPONS
    ================================================================ */
 function WeaknessAndWeaponsRow({ filtered }) {
   const weaknessData = useMemo(() => {
@@ -630,7 +631,7 @@ function WeaknessAndWeaponsRow({ filtered }) {
     return Object.values(byWeapon)
       .sort((a, b) => b.kills - a.kills)
       .slice(0, 5)
-      .map(d => ({ ...d, avgKills: d.matches > 0 ? (d.kills / d.matches).toFixed(1) : '—' }))
+      .map(d => ({ ...d, avgKills: d.matches > 0 ? (d.kills / d.matches).toFixed(1) : 'â€”' }))
   }, [filtered])
 
   return (
@@ -649,7 +650,7 @@ function WeaknessAndWeaponsRow({ filtered }) {
               const pctColor = d.pct >= 50 ? C.red : d.pct >= 30 ? C.amber : C.blue
               const tip = getTip(d.name)
               return (
-                <div key={d.name} style={{ background: '#0A1220', border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 14px' }}>
+                <div key={d.name} style={{ background: '#FFF0F2', border: '1px solid rgba(239,51,64,0.15)', borderRadius: 10, padding: '12px 14px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: tip ? 6 : 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ width: 20, height: 20, borderRadius: 4, background: `${pctColor}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, fontFamily: 'Barlow Condensed, sans-serif', color: pctColor }}>
@@ -694,7 +695,7 @@ function WeaknessAndWeaponsRow({ filtered }) {
               return (
                 <div key={d.weapon} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: '6px 16px', alignItems: 'center', padding: '8px 0', borderBottom: i < weaponData.length - 1 ? `1px solid ${C.border}30` : 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-                    {isTop && <span style={{ fontSize: 12 }}>🏆</span>}
+                    {isTop && <span style={{ fontSize: 12 }}>ðŸ†</span>}
                     <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: isTop ? C.text : C.muted, fontWeight: isTop ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.weapon}</span>
                   </div>
                   <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 14, fontWeight: 600, color: C.text, textAlign: 'right' }}>{d.kills}</span>
@@ -756,7 +757,7 @@ function EmptyState({ msg, sub }) {
 }
 
 const axisProps = {
-  stroke: C.border,
+  stroke: '#EDF1F7',
   tickLine: false,
   tick: { fill: C.subtle, fontSize: 11, fontFamily: 'Inter, Inter, sans-serif' },
 }
@@ -780,17 +781,17 @@ function LoadingSkeleton() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div className="analytics-6col">
-        {[0,1,2,3,4,5].map(i => <div key={i} className="skeleton" style={{ height: 110, borderRadius: 12 }} />)}
+        {[0,1,2,3,4,5].map(i => <div key={i} style={{ height: 110, borderRadius: 12, background: '#F1F5F9' }} />)}
       </div>
       <div className="analytics-2col">
-        {[0,1].map(i => <div key={i} className="skeleton" style={{ height: 280, borderRadius: 12 }} />)}
+        {[0,1].map(i => <div key={i} style={{ height: 280, borderRadius: 12, background: '#F1F5F9' }} />)}
       </div>
     </div>
   )
 }
 
 /* ================================================================
-   HELPERS — normalise fields across different match schemas
+   HELPERS â€” normalise fields across different match schemas
    ================================================================ */
 function tsOf(m) {
   if (!m) return 0
@@ -812,7 +813,7 @@ function tsOf(m) {
 }
 
 function fmtDate(ms) {
-  if (!ms) return '—'
+  if (!ms) return 'â€”'
   return new Date(ms).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
 }
 
@@ -889,7 +890,8 @@ function getTip(name) {
    STYLES
    ================================================================ */
 const cardStyle = {
-  background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20,
+  background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: 20,
+  boxShadow: '0 4px 20px rgba(15,23,42,0.04)',
 }
 
 function AnalyticsStyles() {
