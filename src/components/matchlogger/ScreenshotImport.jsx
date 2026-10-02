@@ -155,8 +155,8 @@ export default function ScreenshotImport({
 
   if (!isActive) {
     return (
-      <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 8, height: 120 }}>
-        {/* Blurred preview — just the collapsed bar so the overlay stays within this small area */}
+      <div style={{ position: 'relative', borderRadius: 8, minHeight: 320 }}>
+        {/* Blurred preview — decorative background behind the overlay card */}
         <div style={{ filter: 'blur(2px)', opacity: 0.45, pointerEvents: 'none', userSelect: 'none',
           display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', flexWrap: 'wrap' }}>
           <button type="button" className="btn btn-secondary btn-sm" disabled>
