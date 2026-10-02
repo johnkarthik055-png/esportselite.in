@@ -171,7 +171,7 @@ function Navbar({ scrolled, menuOpen, setMenuOpen, scrollTo, goLogin, goSignup }
               onError={(e) => { e.currentTarget.style.display = 'none'; setLogoFailed(true) }}
             />
           )}
-          <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400, fontSize: 20, color: 'var(--text-primary)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400, fontSize: 20, color: 'var(--text-primary)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Esports Elite
           </span>
         </button>
@@ -317,7 +317,7 @@ function Hero({ goSignup, scrollTo }) {
         <StaggerItem>
           <h1
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontWeight: 400,
               fontSize: 'clamp(56px, 9vw, 96px)',
               lineHeight: 0.95,
@@ -334,7 +334,7 @@ function Hero({ goSignup, scrollTo }) {
         <StaggerItem>
           <p
             style={{
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontWeight: 400,
               color: 'var(--text-muted)',
               fontSize: 17,
@@ -464,7 +464,7 @@ function StatCell({ value, label, force, ready, animate }) {
   return (
     <div style={{ textAlign: 'center' }}>
       {ready ? (
-        <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400, fontSize: 36, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+        <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400, fontSize: 36, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
           {display}
         </span>
       ) : (
@@ -504,7 +504,7 @@ function PartnersSection() {
           <div style={{ textAlign: 'center' }}>
             <p
               style={{
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "'Inter', sans-serif",
                 fontSize: 11,
                 fontWeight: 600,
                 letterSpacing: '0.14em',
@@ -517,7 +517,7 @@ function PartnersSection() {
             </p>
             <h2
               style={{
-                fontFamily: "'Bebas Neue', sans-serif",
+                fontFamily: "'Barlow Condensed', sans-serif",
                 fontSize: 'clamp(32px, 4vw, 48px)',
                 fontWeight: 400,
                 letterSpacing: '0.04em',
@@ -530,7 +530,7 @@ function PartnersSection() {
             </h2>
             <p
               style={{
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "'Inter', sans-serif",
                 fontSize: 14,
                 color: 'var(--text-muted)',
                 maxWidth: 440,
@@ -606,7 +606,7 @@ function PartnersSection() {
               <div>
                 <p
                   style={{
-                    fontFamily: "'Bebas Neue', sans-serif",
+                    fontFamily: "'Barlow Condensed', sans-serif",
                     fontSize: 26,
                     letterSpacing: '0.06em',
                     textTransform: 'uppercase',
@@ -618,7 +618,7 @@ function PartnersSection() {
                 </p>
                 <span
                   style={{
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: "'Inter', sans-serif",
                     fontSize: 11,
                     fontWeight: 600,
                     letterSpacing: '0.08em',
@@ -637,7 +637,7 @@ function PartnersSection() {
               {/* Quote */}
               <p
                 style={{
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   fontSize: 13,
                   color: 'var(--text-muted)',
                   lineHeight: 1.65,
@@ -651,7 +651,7 @@ function PartnersSection() {
               {/* Attribution */}
               <p
                 style={{
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   fontSize: 11,
                   color: 'var(--text-subtle)',
                 }}
@@ -699,7 +699,7 @@ function PartnersSection() {
               </div>
               <p
                 style={{
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   fontSize: 13,
                   fontWeight: 600,
                   color: 'var(--text-subtle)',
@@ -709,7 +709,7 @@ function PartnersSection() {
               </p>
               <p
                 style={{
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   fontSize: 12,
                   color: 'var(--text-subtle)',
                   maxWidth: 200,
@@ -723,7 +723,7 @@ function PartnersSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   fontSize: 12,
                   fontWeight: 600,
                   color: 'var(--text-muted)',
@@ -764,7 +764,7 @@ function FeaturesSection() {
         <Reveal>
           <h2
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontWeight: 400,
               fontSize: 'clamp(32px, 4vw, 52px)',
               letterSpacing: '0.04em',
@@ -824,7 +824,7 @@ function FeatureCard({ f, Icon }) {
       </div>
       <h3
         style={{
-          fontFamily: 'DM Sans, sans-serif',
+          fontFamily: 'Inter, sans-serif',
           fontWeight: 600,
           fontSize: 15,
           textTransform: 'none',
@@ -835,7 +835,7 @@ function FeatureCard({ f, Icon }) {
       >
         {f.title}
       </h3>
-      <p style={{ fontFamily: 'DM Sans, sans-serif', color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.6 }}>{f.desc}</p>
+      <p style={{ fontFamily: 'Inter, sans-serif', color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.6 }}>{f.desc}</p>
     </motion.article>
   )
 }
@@ -858,7 +858,7 @@ function HowItWorks() {
         <Reveal>
           <h2
             style={{
-              fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400,
+              fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400,
               fontSize: 'clamp(32px, 4vw, 52px)',
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
@@ -868,7 +868,7 @@ function HowItWorks() {
           >
             How it works
           </h2>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, marginBottom: 48 }}>
+          <p style={{ fontFamily: 'Inter, sans-serif', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, marginBottom: 48 }}>
             Three steps. Then you're training like a pro.
           </p>
         </Reveal>
@@ -887,7 +887,7 @@ function HowItWorks() {
                 <div className="card" style={{ height: '100%' }}>
                   <div
                     style={{
-                      fontFamily: 'Bebas Neue, sans-serif',
+                      fontFamily: 'Barlow Condensed, sans-serif',
                       fontWeight: 400,
                       fontSize: 64,
                       letterSpacing: '0.04em',
@@ -900,11 +900,11 @@ function HowItWorks() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                     <Icon size={16} style={{ color: 'var(--text-subtle)' }} />
-                    <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 16, textTransform: 'none', letterSpacing: '0.01em', color: 'var(--text-primary)' }}>
+                    <h3 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 16, textTransform: 'none', letterSpacing: '0.01em', color: 'var(--text-primary)' }}>
                       {step.title}
                     </h3>
                   </div>
-                  <p style={{ fontFamily: 'DM Sans, sans-serif', color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.6 }}>{step.desc}</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif', color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.6 }}>{step.desc}</p>
                 </div>
               </StaggerItem>
             )
@@ -925,7 +925,7 @@ function Testimonials() {
         <Reveal>
           <h2
             style={{
-              fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400,
+              fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400,
               fontSize: 'clamp(32px, 4vw, 52px)',
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
@@ -935,7 +935,7 @@ function Testimonials() {
           >
             What players are saying
           </h2>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, marginBottom: 40 }}>
+          <p style={{ fontFamily: 'Inter, sans-serif', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, marginBottom: 40 }}>
             Real results, from real BGMI grinders.
           </p>
         </Reveal>
@@ -953,10 +953,10 @@ function Testimonials() {
                 <div style={{ display: 'flex', gap: 2, color: 'var(--gold)', marginBottom: 12 }}>
                   {[1,2,3,4,5].map(n => <Star key={n} size={14} fill="var(--gold)" />)}
                 </div>
-                <p style={{ fontFamily: 'DM Sans, sans-serif', color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.6, marginBottom: 14 }}>
+                <p style={{ fontFamily: 'Inter, sans-serif', color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.6, marginBottom: 14 }}>
                   "{t.quote}"
                 </p>
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>
                   {t.name}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-subtle)' }}>{t.tier}</div>
@@ -1004,7 +1004,7 @@ function Pricing({ goSignup }) {
         <Reveal>
           <h2
             style={{
-              fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400,
+              fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400,
               fontSize: 'clamp(32px, 4vw, 52px)',
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
@@ -1014,7 +1014,7 @@ function Pricing({ goSignup }) {
           >
             Pricing
           </h2>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, marginBottom: 40 }}>
+          <p style={{ fontFamily: 'Inter, sans-serif', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, marginBottom: 40 }}>
             Simple. Start free today.
           </p>
         </Reveal>
@@ -1034,7 +1034,7 @@ function Pricing({ goSignup }) {
             <div
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
-                fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 11,
+                fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 11,
                 color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em',
               }}
             >
@@ -1042,7 +1042,7 @@ function Pricing({ goSignup }) {
             </div>
             <div
               style={{
-                fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400,
+                fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400,
                 fontSize: 52, letterSpacing: '0.04em',
                 marginTop: 12, color: 'var(--text-primary)',
                 lineHeight: 1,
@@ -1124,7 +1124,7 @@ function FinalCTA({ goSignup }) {
       <section style={{ padding: '80px 20px', textAlign: 'center' }}>
         <h2
           style={{
-            fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400,
+            fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400,
             fontSize: 'clamp(32px, 4vw, 52px)',
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
@@ -1134,7 +1134,7 @@ function FinalCTA({ goSignup }) {
         >
           Ready to train like a pro?
         </h2>
-        <p style={{ fontFamily: 'DM Sans, sans-serif', color: 'var(--text-muted)', fontSize: 14, marginBottom: 24 }}>
+        <p style={{ fontFamily: 'Inter, sans-serif', color: 'var(--text-muted)', fontSize: 14, marginBottom: 24 }}>
           Free to use. No credit card.
         </p>
         {/* Plain button — magnetic budget (2) already spent on hero + pricing CTAs. */}
@@ -1177,7 +1177,7 @@ function Footer({ scrollTo, goLogin, goSignup }) {
                   onError={(e) => { e.currentTarget.style.display = 'none'; setLogoFailed(true) }}
                 />
               )}
-              <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontWeight: 400, fontSize: 16, color: 'var(--text-primary)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400, fontSize: 16, color: 'var(--text-primary)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                 Esports Elite
               </span>
             </div>

@@ -140,7 +140,7 @@ export default function SquadCheckout() {
             }}>
               <CheckCircle size={32} style={{ color: '#22C55E' }} />
             </div>
-            <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 36, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 10 }}>
+            <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 36, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 10 }}>
               Squad Created!
             </h1>
             <p style={{ color: 'var(--text-muted)', fontSize: 15, lineHeight: 1.6 }}>
@@ -159,7 +159,7 @@ export default function SquadCheckout() {
               display: 'flex', alignItems: 'center', gap: 10,
             }}>
               <Users size={16} style={{ color: 'var(--blue)' }} />
-              <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 15, letterSpacing: '0.06em', color: 'var(--text-primary)' }}>
+              <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, letterSpacing: '0.06em', color: 'var(--text-primary)' }}>
                 SQUAD MEMBERS ({resultData.members.length})
               </span>
               <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--text-muted)' }}>
@@ -176,7 +176,7 @@ export default function SquadCheckout() {
                   width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
                   background: 'var(--bg-base)', border: '1px solid var(--border)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'Bebas Neue, sans-serif', fontSize: 13, color: 'var(--blue)',
+                  fontFamily: 'Barlow Condensed, sans-serif', fontSize: 13, color: 'var(--blue)',
                 }}>
                   {i === 0 ? 'O' : i + 1}
                 </div>
@@ -221,7 +221,7 @@ export default function SquadCheckout() {
       <Shell>
         <div style={{ textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
           <AlertCircle size={56} style={{ color: 'var(--red)', marginBottom: 24 }} />
-          <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 36, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 36, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
             Something went wrong
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 15, marginBottom: 32 }}>{errorMsg}</p>
@@ -249,7 +249,7 @@ export default function SquadCheckout() {
           }}>
             <Users size={24} />
           </div>
-          <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 36, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 8 }}>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 36, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 8 }}>
             Create Your Squad
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.6 }}>
@@ -295,7 +295,7 @@ export default function SquadCheckout() {
                         BEST
                       </span>
                     )}
-                    <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 20, lineHeight: 1 }}>{tier.size}</div>
+                    <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, lineHeight: 1 }}>{tier.size}</div>
                     <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 3, opacity: 0.7 }}>players</div>
                     <div style={{ fontSize: 11, marginTop: 4, color: selected ? '#93C5FD' : 'var(--text-muted)' }}>
                       ₹{tier.pricePerPlayer}

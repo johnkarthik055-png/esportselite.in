@@ -93,7 +93,7 @@ function tacticalBadgeIcon(tool, obj, isSelected) {
       min-width:22px; height:22px; padding:0 4px; box-sizing:border-box;
       background:${color}; opacity:${obj.opacity ?? DEFAULT_OPACITY};
       border-radius:5px; border:2px solid ${isSelected ? '#fff' : 'rgba(255,255,255,0.55)'};
-      color:#fff; font-family:'DM Sans',sans-serif; font-weight:800; font-size:9px;
+      color:#fff; font-family:'Inter',sans-serif; font-weight:800; font-size:9px;
       white-space:nowrap; cursor:pointer;
     ">${badge}</div>`,
     iconSize: [22, 22],

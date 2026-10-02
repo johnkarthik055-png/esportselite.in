@@ -64,7 +64,21 @@ export default function TeamStats({ team, members, teamId }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       {/* Team Stats section */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+<<<<<<< HEAD
         <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 24, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#0B1224', margin: 0 }}>
+=======
+        <h2
+          style={{
+            fontFamily: 'Barlow Condensed, sans-serif',
+            fontWeight: 400,
+            fontSize: 24,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: 'var(--text-primary)',
+            margin: 0,
+          }}
+        >
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           Team stats
         </h2>
 
@@ -127,7 +141,21 @@ export default function TeamStats({ team, members, teamId }) {
 
       {/* Player Stats section */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+<<<<<<< HEAD
         <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 24, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#0B1224', margin: 0 }}>
+=======
+        <h2
+          style={{
+            fontFamily: 'Barlow Condensed, sans-serif',
+            fontWeight: 400,
+            fontSize: 24,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: 'var(--text-primary)',
+            margin: 0,
+          }}
+        >
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           Player stats
         </h2>
 
@@ -167,7 +195,20 @@ function StatTile({ icon, label, value, accent }) {
       }}>
         {icon}
       </div>
+<<<<<<< HEAD
       <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 32, letterSpacing: '0.04em', color, lineHeight: 1 }}>
+=======
+      <div
+        style={{
+          fontFamily: 'Barlow Condensed, sans-serif',
+          fontWeight: 400,
+          fontSize: 32,
+          letterSpacing: '0.04em',
+          color,
+          lineHeight: 1,
+        }}
+      >
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         {value}
       </div>
       <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B' }}>{label}</div>
@@ -187,7 +228,22 @@ function PlayerStatCard({ m, data }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <Avatar name={m.ign} />
         <div style={{ flex: 1, minWidth: 0 }}>
+<<<<<<< HEAD
           <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#0B1224', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+=======
+          <div
+            style={{
+              fontFamily: 'Barlow Condensed, sans-serif',
+              fontSize: 18,
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              color: 'var(--text-primary)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             {m.ign || 'Player'}
           </div>
           <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#64748B' }}>
@@ -219,8 +275,27 @@ function PlayerStatCard({ m, data }) {
 
 function Mini({ label, value }) {
   return (
+<<<<<<< HEAD
     <div style={{ background: '#F8FAFD', border: '1px solid #E5EAF3', borderRadius: 8, padding: '8px 10px' }}>
       <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, letterSpacing: '0.04em', color: '#0B1224' }}>
+=======
+    <div
+      style={{
+        background: 'var(--bg-elevated)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '8px 10px',
+      }}
+    >
+      <div
+        style={{
+          fontFamily: 'Barlow Condensed, sans-serif',
+          fontSize: 18,
+          letterSpacing: '0.04em',
+          color: 'var(--text-primary)',
+        }}
+      >
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         {value}
       </div>
       <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748B', marginTop: 2 }}>{label}</div>
@@ -231,6 +306,7 @@ function Mini({ label, value }) {
 function Avatar({ name }) {
   const initial = (name || '?').trim().charAt(0).toUpperCase()
   return (
+<<<<<<< HEAD
     <div style={{
       width: 36, height: 36, borderRadius: '50%',
       background: '#EEF4FF',
@@ -243,6 +319,21 @@ function Avatar({ name }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       flexShrink: 0,
     }}>
+=======
+    <div
+      style={{
+        width: 36, height: 36, borderRadius: '50%',
+        background: 'var(--bg-elevated)',
+        border: '1px solid var(--border)',
+        color: 'var(--text-primary)',
+        fontFamily: 'Barlow Condensed, sans-serif',
+        fontSize: 15,
+        letterSpacing: '0.04em',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0,
+      }}
+    >
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
       {initial}
     </div>
   )

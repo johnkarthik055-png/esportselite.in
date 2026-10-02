@@ -56,7 +56,7 @@ export default function StatTooltip({ content, children }) {
             style={{
               background: '#1A1A24',
               border: '1px solid rgba(232,0,28,0.5)',
-              fontFamily: "'Bebas Neue', sans-serif",
+              fontFamily: "'Barlow Condensed', sans-serif",
               color: '#F0F0F0',
               minWidth: 220,
               maxWidth: 280,

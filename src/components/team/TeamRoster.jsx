@@ -183,7 +183,18 @@ function RoleSummary({ members }) {
   if (unassigned > 0) parts.push(`Unassigned ×${unassigned}`)
   if (parts.length === 0) return null
   return (
+<<<<<<< HEAD
     <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B', padding: '4px 2px' }}>
+=======
+    <div
+      style={{
+        fontFamily: 'Inter, sans-serif',
+        fontSize: 12,
+        color: 'var(--text-subtle)',
+        padding: '4px 2px',
+      }}
+    >
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
       {parts.join(' · ')}
     </div>
   )
@@ -218,11 +229,18 @@ function MemberCard({
           <div
             style={{
               width: 48, height: 48, borderRadius: '50%',
+<<<<<<< HEAD
               background: '#EEF4FF',
               border: '1px solid #E5EAF3',
               color: '#2563FF',
               fontFamily: 'Barlow Condensed, sans-serif',
               fontWeight: 900,
+=======
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
+              fontFamily: 'Barlow Condensed, sans-serif',
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
               fontSize: 18,
               letterSpacing: '0.04em',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -237,7 +255,10 @@ function MemberCard({
           <div
             style={{
               fontFamily: 'Barlow Condensed, sans-serif',
+<<<<<<< HEAD
               fontWeight: 900,
+=======
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
               fontSize: 18,
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
@@ -400,7 +421,20 @@ function IgnSlot({ m, teamId, isSelf }) {
             value={val}
             onChange={e => setDraft(d => { const n = [...d]; n[i] = e.target.value; return n })}
             placeholder={i === 0 ? 'Primary IGN' : `Alternate ${i + 1}`}
+<<<<<<< HEAD
             style={{ ...inputStyle, flex: 1 }}
+=======
+            style={{
+              flex: 1,
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--text-primary)',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 12,
+              padding: '5px 8px',
+            }}
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           />
           {draft.length > 1 && (
             <button
@@ -476,7 +510,21 @@ function RoleSlot({ m, teamId, canManage }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
           <span style={labelStyle}>In-game role</span>
           {savedAt > 0 && (
+<<<<<<< HEAD
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 10, color: '#16A34A', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>
+=======
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 3,
+                fontSize: 10,
+                color: 'var(--green)',
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 600,
+              }}
+            >
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
               <Check size={10} /> Saved
             </span>
           )}
@@ -486,7 +534,21 @@ function RoleSlot({ m, teamId, canManage }) {
           value={m.inGameRole || ''}
           onChange={(e) => change(e.target.value)}
           disabled={saving}
+<<<<<<< HEAD
           style={{ ...inputStyle, cursor: 'pointer', appearance: 'auto' }}
+=======
+          style={{
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-sm)',
+            color: 'var(--text-primary)',
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 12,
+            padding: '4px 8px',
+            cursor: 'pointer',
+            appearance: 'auto',
+          }}
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         >
           <option value="">Unassigned</option>
           {IN_GAME_ROLES.map((r) => (
@@ -511,9 +573,33 @@ function RoleSlot({ m, teamId, canManage }) {
 
 function MiniStat({ label, value }) {
   return (
+<<<<<<< HEAD
     <div style={{ background: '#F8FAFD', border: '1px solid #E5EAF3', borderRadius: 8, padding: '8px 10px' }}>
       <div style={labelStyle}>{label}</div>
       <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: 13, color: '#0B1224', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+=======
+    <div
+      style={{
+        background: 'var(--bg-elevated)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '8px 10px',
+      }}
+    >
+      <div className="label" style={{ fontSize: 10 }}>{label}</div>
+      <div
+        style={{
+          fontFamily: 'Inter, sans-serif',
+          fontWeight: 500,
+          fontSize: 13,
+          color: 'var(--text-primary)',
+          marginTop: 2,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         {value}
       </div>
     </div>
@@ -561,6 +647,7 @@ function InviteCard({ team, teamId, isOwner }) {
         <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 16, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Invite code</div>
       </div>
 
+<<<<<<< HEAD
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
         <div style={{
           background: '#F8FAFD',
@@ -573,6 +660,28 @@ function InviteCard({ team, teamId, isOwner }) {
           letterSpacing: '0.3em',
           color: '#0B1224',
         }}>
+=======
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+          flexWrap: 'wrap',
+        }}
+      >
+        <div
+          style={{
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-sm)',
+            padding: '10px 18px',
+            fontFamily: 'Barlow Condensed, sans-serif',
+            fontSize: 32,
+            letterSpacing: '0.3em',
+            color: 'var(--text-primary)',
+          }}
+        >
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           {code}
         </div>
 
@@ -624,10 +733,17 @@ function DangerBtn({ onClick, disabled, label }) {
       style={{
         display: 'inline-flex', alignItems: 'center', gap: 6,
         padding: '6px 12px',
+<<<<<<< HEAD
         borderRadius: 8,
         background: '#FFFFFF',
         border: `1px solid ${hover ? '#EF3340' : '#E5EAF3'}`,
         color: hover ? '#EF3340' : '#0B1224',
+=======
+        borderRadius: 'var(--radius-sm)',
+        background: 'var(--bg-elevated)',
+        border: `1px solid ${hover ? 'var(--red)' : 'var(--border)'}`,
+        color: hover ? 'var(--red)' : 'var(--text-primary)',
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         fontFamily: 'Inter, sans-serif',
         fontSize: 12,
         fontWeight: 600,

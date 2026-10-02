@@ -428,7 +428,7 @@ function Field({ label, children }) {
   return (
     <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <span style={{
-        fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
+        fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600,
         textTransform: 'uppercase', letterSpacing: '0.08em',
         color: 'var(--text-subtle)',
       }}>
@@ -474,7 +474,7 @@ function MatchesPanel({ tournament, onAddMatch, onEditMatch }) {
           background: 'transparent', border: 'none',
           width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           cursor: 'pointer', padding: 0, color: 'var(--text-primary)',
-          fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600,
+          fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600,
         }}
       >
         <span>
@@ -703,7 +703,7 @@ function MatchModal({ tournament, match, onClose, uid }) {
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <span style={{
-              fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
+              fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600,
               textTransform: 'uppercase', letterSpacing: '0.08em',
               color: 'var(--text-subtle)',
             }}>

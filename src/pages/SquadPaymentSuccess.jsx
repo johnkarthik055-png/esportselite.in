@@ -96,7 +96,7 @@ export default function SquadPaymentSuccess() {
       <Shell>
         <div style={{ textAlign: 'center', maxWidth: 480 }}>
           <AlertCircle size={56} style={{ color: '#EAB308', marginBottom: 24 }} />
-          <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 36, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 36, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
             Payment Not Completed
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 15, lineHeight: 1.6, marginBottom: 32 }}>
@@ -117,7 +117,7 @@ export default function SquadPaymentSuccess() {
       <Shell>
         <div style={{ textAlign: 'center', maxWidth: 480 }}>
           <AlertCircle size={56} style={{ color: 'var(--red)', marginBottom: 24 }} />
-          <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 36, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 36, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
             Confirmation Failed
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 15, lineHeight: 1.6, marginBottom: 8 }}>
@@ -147,7 +147,7 @@ export default function SquadPaymentSuccess() {
           <CheckCircle size={36} style={{ color: '#22C55E' }} />
         </div>
 
-        <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 40, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
+        <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 40, letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: 12 }}>
           Payment Confirmed!
         </h1>
 
@@ -163,7 +163,7 @@ export default function SquadPaymentSuccess() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
               <Users size={20} style={{ color: '#22C55E' }} />
-              <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 16, letterSpacing: '0.04em', color: '#22C55E' }}>
+              <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, letterSpacing: '0.04em', color: '#22C55E' }}>
                 SQUAD FULLY ACTIVATED
               </span>
             </div>
@@ -180,7 +180,7 @@ export default function SquadPaymentSuccess() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
               <Loader size={16} style={{ color: '#93C5FD' }} />
-              <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 14, letterSpacing: '0.04em', color: '#93C5FD' }}>
+              <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 14, letterSpacing: '0.04em', color: '#93C5FD' }}>
                 WAITING FOR OTHER MEMBERS
               </span>
             </div>

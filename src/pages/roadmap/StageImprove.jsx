@@ -146,7 +146,7 @@ export default function StageImprove({ stage, onBack, onContinue }) {
       <style>{`
         .rmi-wrap { display: flex; flex-direction: column; gap: 16px; }
         .rmi-pagehead {
-          font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 22px;
+          font-family: 'Barlow Condensed', sans-serif; font-weight: 400; font-size: 22px;
           letter-spacing: 0.02em; color: var(--text-primary);
         }
         .rmi-weakness {
@@ -155,33 +155,33 @@ export default function StageImprove({ stage, onBack, onContinue }) {
         }
         .rmi-weakness-head {
           display: flex; align-items: center; gap: 7px; margin-bottom: 8px;
-          font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 11px;
+          font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px;
           letter-spacing: 0.05em; text-transform: uppercase; color: var(--amber);
         }
         .rmi-weakness-name {
-          font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 26px;
+          font-family: 'Barlow Condensed', sans-serif; font-weight: 400; font-size: 26px;
           letter-spacing: 0.02em; color: var(--text-primary);
         }
-        .rmi-weakness-score { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+        .rmi-weakness-score { font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
         .rmi-section-head {
           display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
-          font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 11px;
+          font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px;
           letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-primary);
         }
-        .rmi-body { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.65; color: var(--text-muted); margin: 0; }
+        .rmi-body { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.65; color: var(--text-muted); margin: 0; }
         .rmi-body strong { color: var(--text-primary); font-weight: 600; }
         .rmi-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-        .rmi-list li { display: flex; gap: 9px; align-items: flex-start; font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.55; color: var(--text-muted); }
+        .rmi-list li { display: flex; gap: 9px; align-items: flex-start; font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.55; color: var(--text-muted); }
         .rmi-list-num {
           flex-shrink: 0; width: 18px; height: 18px; border-radius: 5px; margin-top: 1px;
           background: var(--violet-tint); color: var(--violet);
-          font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 10px;
+          font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 10px;
           display: flex; align-items: center; justify-content: center;
         }
         .rmi-drills { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
         .rmi-drills li {
           display: inline-flex; align-items: center; gap: 5px;
-          font-family: 'DM Sans', sans-serif; font-size: 11.5px; color: var(--text-muted);
+          font-family: 'Inter', sans-serif; font-size: 11.5px; color: var(--text-muted);
           background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px;
         }
         .rmi-train-cta { margin-top: 14px; }

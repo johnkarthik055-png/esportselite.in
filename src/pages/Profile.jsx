@@ -178,7 +178,7 @@ export default function Profile() {
         logging: false, imageTimeout: 0,
         onclone: (doc) => {
           const el = doc.getElementById('rank-card')
-          if (el) el.style.fontFamily = 'Bebas Neue, sans-serif'
+          if (el) el.style.fontFamily = 'Barlow Condensed, sans-serif'
         },
       })
       const link = document.createElement('a')
@@ -472,7 +472,7 @@ export default function Profile() {
               justifyContent: 'space-between',
               overflow: 'hidden',
               boxSizing: 'border-box',
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Inter, sans-serif',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -486,7 +486,7 @@ export default function Profile() {
               <div>
                 <div
                   style={{
-                    fontFamily: 'Bebas Neue, sans-serif',
+                    fontFamily: 'Barlow Condensed, sans-serif',
                     fontWeight: 400,
                     fontSize: '22px',
                     letterSpacing: '0.06em',
@@ -498,7 +498,7 @@ export default function Profile() {
                 </div>
                 <div
                   style={{
-                    fontFamily: 'DM Sans, sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: '11px',
                     color: '#8888A8',
                     letterSpacing: '0.08em',
@@ -552,7 +552,7 @@ export default function Profile() {
                 <div key={label}>
                   <div
                     style={{
-                      fontFamily: 'Bebas Neue, sans-serif',
+                      fontFamily: 'Barlow Condensed, sans-serif',
                       fontWeight: 400,
                       fontSize: '22px',
                       letterSpacing: '0.04em',
@@ -563,7 +563,7 @@ export default function Profile() {
                   </div>
                   <div
                     style={{
-                      fontFamily: 'DM Sans, sans-serif',
+                      fontFamily: 'Inter, sans-serif',
                       fontSize: '9px',
                       color: '#44445A',
                       letterSpacing: '0.10em',
@@ -579,7 +579,7 @@ export default function Profile() {
 
             <div
               style={{
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 position: 'absolute',
                 bottom: '12px',
                 right: '16px',
@@ -700,7 +700,7 @@ export default function Profile() {
                 marginTop: 20, padding: '10px 20px',
                 background: '#7C3AED', color: 'white',
                 borderRadius: 8, border: 'none', cursor: 'pointer',
-                fontFamily: 'Inter, DM Sans, sans-serif', fontSize: 13, fontWeight: 600,
+                fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, fontWeight: 600,
               }}
             >
               🧪 Seed Test Data (Dev Only)
@@ -735,8 +735,13 @@ function ResetButton({ onClick }) {
         padding: '6px 12px',
         borderRadius: 8,
         background: 'transparent',
+<<<<<<< HEAD
         border: `1px solid ${hover ? '#EF3340' : '#E5EAF3'}`,
         color: hover ? '#EF3340' : '#64748B',
+=======
+        border: `1px solid ${hover ? 'var(--red)' : 'var(--border)'}`,
+        color: hover ? 'var(--red)' : 'var(--text-subtle)',
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         fontFamily: 'Inter, sans-serif',
         fontWeight: 600,
         fontSize: 12,

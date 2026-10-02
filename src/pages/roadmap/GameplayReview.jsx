@@ -131,7 +131,7 @@ export default function GameplayReview() {
             </div>
           ))}
 
-          {error && <div style={{ color: 'var(--danger)', fontSize: 12, fontFamily: "'DM Sans', sans-serif" }}>{error}</div>}
+          {error && <div style={{ color: 'var(--danger)', fontSize: 12, fontFamily: "'Inter', sans-serif" }}>{error}</div>}
 
           <div className="gpr-actions">
             <button className="btn btn-primary" onClick={save} disabled={!canSave}>
@@ -145,7 +145,7 @@ export default function GameplayReview() {
               <Bot size={14} /> Ask AI Coach
             </button>
             {savedAt && <span className="gpr-saved-note">Saved.</span>}
-            <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-subtle)', fontFamily: "'DM Sans', sans-serif" }}>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-subtle)', fontFamily: "'Inter', sans-serif" }}>
               {filledCount}/{FIELDS.length} filled · fill at least one
             </span>
           </div>

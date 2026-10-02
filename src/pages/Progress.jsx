@@ -106,10 +106,10 @@ export default function Progress() {
       <div className="card" style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
         <AlertTriangle size={18} style={{ color: 'var(--red)', flexShrink: 0, marginTop: 2 }} />
         <div>
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 600, color: 'var(--text-primary)' }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: 'var(--text-primary)' }}>
             Couldn't load progress
           </div>
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
             {error}
           </div>
         </div>
@@ -147,7 +147,7 @@ export default function Progress() {
       <div>
         <h1
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 28,
             letterSpacing: '0.04em',
@@ -158,7 +158,7 @@ export default function Progress() {
         >
           Progress
         </h1>
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
           Your training journey so far
         </div>
       </div>
@@ -275,7 +275,7 @@ function XpProgressCard({ xp, currentLevel, nextLevel }) {
           justifyContent: 'space-between',
           alignItems: 'center',
           marginTop: 10,
-          fontFamily: 'DM Sans, sans-serif',
+          fontFamily: 'Inter, sans-serif',
           fontSize: 12,
           color: 'var(--text-muted)',
           gap: 8,
@@ -293,7 +293,7 @@ function XpProgressCard({ xp, currentLevel, nextLevel }) {
           style={{
             textAlign: 'center',
             marginTop: 8,
-            fontFamily: 'DM Sans, sans-serif',
+            fontFamily: 'Inter, sans-serif',
             fontSize: 12,
             color: 'var(--text-subtle)',
           }}
@@ -337,7 +337,7 @@ function XpProgressCard({ xp, currentLevel, nextLevel }) {
               />
               <div
                 style={{
-                  fontFamily: 'DM Sans, sans-serif',
+                  fontFamily: 'Inter, sans-serif',
                   fontSize: 10,
                   color: isCurrent ? 'var(--text-primary)' : 'var(--text-subtle)',
                   marginTop: 6,
@@ -448,7 +448,7 @@ function ActivityHeatmapCard({ dailySessions }) {
                   style={{
                     position: 'absolute',
                     left: col * (cellSize + cellGap),
-                    fontFamily: 'DM Sans, sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: 10,
                     color: 'var(--text-subtle)',
                   }}
@@ -468,7 +468,7 @@ function ActivityHeatmapCard({ dailySessions }) {
                 display: 'grid',
                 gridTemplateRows: `repeat(7, ${cellSize}px)`,
                 rowGap: cellGap,
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: 10,
                 color: 'var(--text-subtle)',
                 alignItems: 'center',
@@ -531,7 +531,7 @@ function ActivityHeatmapCard({ dailySessions }) {
               alignItems: 'center',
               justifyContent: 'flex-end',
               gap: 6,
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontSize: 11,
               color: 'var(--text-subtle)',
             }}
@@ -717,7 +717,7 @@ function PersonalBestsCard({ sessions, matches, streakCount }) {
             <span style={{ color: 'var(--gold)', display: 'inline-flex' }}>{it.icon}</span>
             <span
               style={{
-                fontFamily: 'Bebas Neue, sans-serif',
+                fontFamily: 'Barlow Condensed, sans-serif',
                 fontSize: 28,
                 letterSpacing: '0.04em',
                 color: 'var(--text-primary)',
@@ -728,7 +728,7 @@ function PersonalBestsCard({ sessions, matches, streakCount }) {
             </span>
             <span
               style={{
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 fontSize: 11,
                 fontWeight: 500,
                 textTransform: 'uppercase',
@@ -790,7 +790,7 @@ function LevelJourneyCard({ xp, currentLevel }) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: nodeColor,
-                    fontFamily: 'Bebas Neue, sans-serif',
+                    fontFamily: 'Barlow Condensed, sans-serif',
                     fontSize: 16,
                     letterSpacing: '0.04em',
                     flexShrink: 0,
@@ -815,7 +815,7 @@ function LevelJourneyCard({ xp, currentLevel }) {
               <div style={{ minWidth: 0 }}>
                 <div
                   style={{
-                    fontFamily: 'Bebas Neue, sans-serif',
+                    fontFamily: 'Barlow Condensed, sans-serif',
                     fontSize: 18,
                     letterSpacing: '0.04em',
                     color: isCurrent ? 'var(--text-primary)' : isDone ? 'var(--text-primary)' : 'var(--text-muted)',
@@ -823,7 +823,7 @@ function LevelJourneyCard({ xp, currentLevel }) {
                 >
                   {l.name}
                 </div>
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-subtle)' }}>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'var(--text-subtle)' }}>
                   {l.threshold.toLocaleString()} XP
                 </div>
               </div>
@@ -951,7 +951,7 @@ function StatTile({ icon, value, label, sub, valueColor }) {
       </div>
       <div className="stat-label">{label}</div>
       {sub && (
-        <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-subtle)' }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'var(--text-subtle)' }}>
           {sub}
         </div>
       )}
@@ -985,7 +985,7 @@ const axisProps = {
   tick: {
     fill: 'var(--text-subtle)',
     fontSize: 11,
-    fontFamily: 'DM Sans, sans-serif',
+    fontFamily: 'Inter, sans-serif',
   },
 }
 
@@ -998,7 +998,7 @@ function CustomTooltip({ active, payload, label }) {
         border: '1px solid var(--border)',
         borderRadius: 8,
         padding: '10px 14px',
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: "'Inter', sans-serif",
         fontSize: 12,
         color: 'var(--text-primary)',
       }}

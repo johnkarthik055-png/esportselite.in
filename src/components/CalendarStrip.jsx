@@ -117,7 +117,7 @@ export default function CalendarStrip({ context = 'training', onTodayAction }) {
             >
               <span
                 style={{
-                  fontFamily: 'DM Sans, sans-serif',
+                  fontFamily: 'Inter, sans-serif',
                   fontSize: 10,
                   fontWeight: 600,
                   textTransform: 'uppercase',
@@ -129,7 +129,7 @@ export default function CalendarStrip({ context = 'training', onTodayAction }) {
               </span>
               <span
                 style={{
-                  fontFamily: 'Bebas Neue, sans-serif',
+                  fontFamily: 'Barlow Condensed, sans-serif',
                   fontWeight: dayNumberWeight,
                   fontSize: 15,
                   color: dayNumberColor,
@@ -211,7 +211,7 @@ function DaySummary({ date, context, sessions, matches, onTodayAction }) {
           <CalendarIcon size={14} style={{ color: 'var(--text-subtle)' }} />
           <span
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontWeight: 700,
               fontSize: 14,
               color: 'var(--text-primary)',

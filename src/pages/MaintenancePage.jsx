@@ -25,7 +25,7 @@ export default function MaintenancePage({ message = '' }) {
         padding: '24px',
         zIndex: 9999,
         overflow: 'hidden',
-        fontFamily: "'Bebas Neue', sans-serif",
+        fontFamily: "'Barlow Condensed', sans-serif",
         textAlign: 'center',
       }}
     >
@@ -78,7 +78,7 @@ export default function MaintenancePage({ message = '' }) {
         style={{
           marginTop: '20px',
           marginBottom: 0,
-          fontFamily: "'Bebas Neue', sans-serif",
+          fontFamily: "'Barlow Condensed', sans-serif",
           fontWeight: 800,
           color: '#E8001C',
           fontSize: '28px',
@@ -94,7 +94,7 @@ export default function MaintenancePage({ message = '' }) {
         style={{
           marginTop: '14px',
           marginBottom: 0,
-          fontFamily: "'Bebas Neue', sans-serif",
+          fontFamily: "'Barlow Condensed', sans-serif",
           fontWeight: 400,
           color: '#E8E8F0',
           fontSize: '15px',
@@ -111,7 +111,7 @@ export default function MaintenancePage({ message = '' }) {
           style={{
             marginTop: '12px',
             marginBottom: 0,
-            fontFamily: "'Bebas Neue', sans-serif",
+            fontFamily: "'Barlow Condensed', sans-serif",
             fontWeight: 400,
             color: '#7777AA',
             fontSize: '13px',
@@ -128,7 +128,7 @@ export default function MaintenancePage({ message = '' }) {
         style={{
           marginTop: '20px',
           marginBottom: 0,
-          fontFamily: "'Bebas Neue', sans-serif",
+          fontFamily: "'Barlow Condensed', sans-serif",
           fontWeight: 600,
           color: '#E8E8F0',
           fontSize: '14px',
@@ -145,7 +145,7 @@ export default function MaintenancePage({ message = '' }) {
           left: 0,
           right: 0,
           textAlign: 'center',
-          fontFamily: "'Bebas Neue', sans-serif",
+          fontFamily: "'Barlow Condensed', sans-serif",
           fontWeight: 400,
           color: '#3E3E55',
           fontSize: '12px',

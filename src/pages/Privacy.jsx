@@ -88,7 +88,7 @@ export function LegalLayout({ title, subtitle, sections }) {
         <Reveal>
           <h1
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontWeight: 400,
               fontSize: 48,
               letterSpacing: '0.04em',
@@ -101,7 +101,7 @@ export function LegalLayout({ title, subtitle, sections }) {
           </h1>
           <p
             style={{
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontSize: 13,
               color: 'var(--text-subtle)',
               marginTop: 8,
@@ -121,7 +121,7 @@ export function LegalLayout({ title, subtitle, sections }) {
             >
               <h2
                 style={{
-                  fontFamily: 'Bebas Neue, sans-serif',
+                  fontFamily: 'Barlow Condensed, sans-serif',
                   fontWeight: 400,
                   fontSize: 24,
                   color: 'var(--text-primary)',
@@ -135,7 +135,7 @@ export function LegalLayout({ title, subtitle, sections }) {
               {section.contact ? (
                 <p
                   style={{
-                    fontFamily: 'DM Sans, sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: 14,
                     color: 'var(--text-muted)',
                     lineHeight: 1.75,
@@ -149,7 +149,7 @@ export function LegalLayout({ title, subtitle, sections }) {
               ) : (
                 <p
                   style={{
-                    fontFamily: 'DM Sans, sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: 14,
                     color: 'var(--text-muted)',
                     lineHeight: 1.75,
@@ -190,7 +190,7 @@ export function LegalLayout({ title, subtitle, sections }) {
                       borderLeft: `2px solid ${active ? 'var(--red)' : 'transparent'}`,
                       marginLeft: -14,
                       color: active ? 'var(--text-primary)' : 'var(--text-subtle)',
-                      fontFamily: 'DM Sans, sans-serif',
+                      fontFamily: 'Inter, sans-serif',
                       fontSize: 13,
                       textAlign: 'left',
                       lineHeight: 1.4,
@@ -254,7 +254,7 @@ export function LegalTopBar() {
         )}
         <span
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 16,
             color: 'var(--red)',
@@ -268,7 +268,7 @@ export function LegalTopBar() {
 
       <Link
         to="/"
-        style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', transition: 'color 0.15s' }}
+        style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)', transition: 'color 0.15s' }}
         onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
         onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
       >

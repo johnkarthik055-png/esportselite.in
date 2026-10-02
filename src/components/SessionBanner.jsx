@@ -55,7 +55,7 @@ export default function SessionBanner({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
           <span
             style={{
-              fontFamily: 'DM Sans, sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontWeight: 600,
               fontSize: 11,
               textTransform: 'uppercase',
@@ -77,7 +77,7 @@ export default function SessionBanner({
           <Clock size={14} />
           <span
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontWeight: 700,
               fontSize: 14,
               color: 'var(--text-primary)',

@@ -48,7 +48,7 @@ export default function EndSessionModal({
             <CheckCircle2 size={18} style={{ color: 'var(--green)' }} />
             <h3
               style={{
-                fontFamily: 'Bebas Neue, sans-serif',
+                fontFamily: 'Barlow Condensed, sans-serif',
                 fontWeight: 700,
                 fontSize: 17,
                 color: 'var(--text-primary)',
@@ -150,7 +150,7 @@ export default function EndSessionModal({
                       background: active ? 'var(--bg-elevated)' : 'transparent',
                       border: `1px solid ${active ? 'var(--text-subtle)' : 'var(--border)'}`,
                       color: active ? 'var(--text-primary)' : 'var(--text-muted)',
-                      fontFamily: 'DM Sans, sans-serif',
+                      fontFamily: 'Inter, sans-serif',
                       fontSize: 12,
                       fontWeight: 500,
                       cursor: 'pointer',
@@ -218,7 +218,7 @@ function Summary({ label, value }) {
     <div style={{ textAlign: 'center' }}>
       <div
         style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontWeight: 700,
           fontSize: 20,
           color: 'var(--text-primary)',

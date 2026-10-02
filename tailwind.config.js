@@ -61,10 +61,12 @@ export default {
       },
 
       fontFamily: {
-        heading: ['Oxanium', 'sans-serif'],
-        display: ['Oxanium', 'sans-serif'],
-        body:    ['Inter', 'system-ui', 'sans-serif'],
-        mono:    ['"Share Tech Mono"', 'monospace'],
+        heading:  ["'Barlow Condensed'", 'sans-serif'],
+        display:  ["'Anton'", 'sans-serif'],
+        body:     ["'Inter'", 'system-ui', 'sans-serif'],
+        label:    ["'Rajdhani'", 'sans-serif'],
+        mono:     ["'SF Mono'", "'Fira Code'", 'monospace'],
+        sans:     ["'Inter'", 'system-ui', 'sans-serif'],
       },
 
       borderRadius: {

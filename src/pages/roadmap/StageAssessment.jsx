@@ -244,11 +244,11 @@ function QuestionField({ q, index, value, missing, onChange }) {
 const styles = `
   .rma-open { display: flex; flex-direction: column; gap: 3px; }
   .rma-open-title {
-    font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 22px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 400; font-size: 22px;
     letter-spacing: 0.02em; color: var(--text-primary); margin: 0;
   }
   .rma-open-progress {
-    font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-subtle); margin: 0;
+    font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-subtle); margin: 0;
   }
 
   @media (min-width: 940px) {
@@ -256,31 +256,31 @@ const styles = `
   }
 
   .rma-card-head { margin-bottom: 16px; }
-  .rma-card-title { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 18px; color: var(--text-primary); }
-  .rma-card-tag { font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-style: italic; color: var(--violet); margin-top: 3px; }
+  .rma-card-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px; color: var(--text-primary); }
+  .rma-card-tag { font-family: 'Inter', sans-serif; font-size: 12.5px; font-style: italic; color: var(--violet); margin-top: 3px; }
 
   .rma-qlist { display: flex; flex-direction: column; gap: 18px; }
   .rma-q { border-top: 1px solid var(--border); padding-top: 16px; }
   .rma-q:first-child { border-top: none; padding-top: 0; }
   .rma-q-prompt {
     display: flex; gap: 9px; align-items: flex-start;
-    font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.55;
+    font-family: 'Inter', sans-serif; font-size: 13.5px; line-height: 1.55;
     color: var(--text-primary); margin-bottom: 11px;
   }
   .rma-q-kind { font-size: 11px; color: var(--text-subtle); font-style: italic; }
   .rma-q-idx {
     flex-shrink: 0; width: 20px; height: 20px; border-radius: 6px;
     background: var(--violet-tint); color: var(--violet);
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 11px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px;
     display: flex; align-items: center; justify-content: center; margin-top: 1px;
   }
   .rma-q-opts { display: flex; flex-direction: column; gap: 7px; }
-  .rma-q-text { font-family: 'DM Sans', sans-serif; resize: vertical; }
+  .rma-q-text { font-family: 'Inter', sans-serif; resize: vertical; }
   .rma-opt {
     display: flex; align-items: center; gap: 10px; padding: 10px 13px;
     border: 1px solid var(--border); border-radius: var(--radius-sm);
     background: var(--bg-elevated); cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--text-muted);
+    font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--text-muted);
     transition: border-color 0.12s ease, background 0.12s ease;
   }
   .rma-opt:hover { border-color: var(--border-light); }
@@ -297,14 +297,14 @@ const styles = `
   }
   .rma-opt.is-selected .rma-opt-mark--box::after { border-radius: 1px; }
   .rma-q.is-missing .rma-q-idx { background: var(--danger-tint); color: var(--danger); }
-  .rma-q-miss { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--danger); margin-top: 7px; }
+  .rma-q-miss { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--danger); margin-top: 7px; }
 
   .rma-soon {
     display: flex; flex-direction: column; align-items: center; text-align: center;
     gap: 8px; padding: 26px 18px; color: var(--text-subtle);
   }
-  .rma-soon-title { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-primary); }
-  .rma-soon-body { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); max-width: 380px; }
+  .rma-soon-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-primary); }
+  .rma-soon-body { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); max-width: 380px; }
 
   .rma-actions { display: flex; gap: 10px; flex-wrap: wrap; }
   .rma-actions .btn { flex: 1; min-width: 170px; }

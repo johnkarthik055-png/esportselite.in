@@ -77,7 +77,7 @@ export default function WeaponDetailModal({ open, weapon, onClose }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <h3
                   style={{
-                    fontFamily: 'Bebas Neue, sans-serif',
+                    fontFamily: 'Barlow Condensed, sans-serif',
                     fontWeight: 700,
                     fontSize: 22,
                     color: 'var(--text-primary)',
@@ -305,7 +305,7 @@ function SectionTitle({ icon, label }) {
         display: 'flex',
         alignItems: 'center',
         gap: 6,
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
         fontWeight: 600,
         fontSize: 11,
         textTransform: 'uppercase',
@@ -342,7 +342,7 @@ function StatBadge({ label, value, small }) {
       </div>
       <div
         style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontWeight: 700,
           fontSize: small ? 13 : 15,
           color: 'var(--text-primary)',
@@ -381,7 +381,7 @@ function DamageRow({ label, value }) {
       </span>
       <span
         style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontWeight: 700,
           fontSize: 16,
           color: 'var(--text-primary)',

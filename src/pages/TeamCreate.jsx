@@ -122,11 +122,19 @@ export default function TeamCreate() {
               key={t.id}
               onClick={() => setTab(t.id)}
               style={{
+<<<<<<< HEAD
                 background: active ? 'linear-gradient(135deg,#2563FF,#5B3DF5)' : 'transparent',
                 border: 'none',
                 color: active ? '#fff' : '#475569',
                 padding: '8px 16px',
                 borderRadius: 8,
+=======
+                background: active ? 'var(--bg-elevated)' : 'transparent',
+                border: active ? '1px solid var(--border)' : '1px solid transparent',
+                color: active ? 'var(--text-primary)' : 'var(--text-subtle)',
+                padding: '8px 14px',
+                borderRadius: 4,
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
                 fontFamily: 'Inter, sans-serif',
                 fontSize: 13,
                 fontWeight: 600,
@@ -349,6 +357,15 @@ function JoinTab({ uid, onDone }) {
             onChange={e => setCode(e.target.value.replace(/\s/g, '').toUpperCase().slice(0, 6))}
             maxLength={6}
             placeholder="XXXXXX"
+<<<<<<< HEAD
+=======
+            style={{
+              fontFamily: 'Barlow Condensed, sans-serif',
+              fontSize: 22,
+              letterSpacing: '0.3em',
+              textAlign: 'center',
+            }}
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           />
         </Field>
 

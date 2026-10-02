@@ -160,15 +160,15 @@ export default function RoleReadiness() {
         .rrdy-ladder { display: flex; flex-direction: column; gap: 6px; }
         .rrdy-rung { padding: 9px 11px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-elevated); }
         .rrdy-rung.is-current { border-color: var(--violet); background: var(--violet-tint); }
-        .rrdy-rung-label { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-primary); }
+        .rrdy-rung-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-primary); }
         .rrdy-rung.is-current .rrdy-rung-label { color: var(--violet); }
-        .rrdy-rung-def { display: block; font-family: 'DM Sans', sans-serif; font-size: 11.5px; line-height: 1.5; color: var(--text-muted); margin-top: 2px; }
-        .rrdy-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--text-subtle); margin: 10px 0 0; }
+        .rrdy-rung-def { display: block; font-family: 'Inter', sans-serif; font-size: 11.5px; line-height: 1.5; color: var(--text-muted); margin-top: 2px; }
+        .rrdy-note { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-subtle); margin: 10px 0 0; }
         .rrdy-checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
-        .rrdy-checklist li { display: flex; gap: 8px; font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--text-muted); }
+        .rrdy-checklist li { display: flex; gap: 8px; font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--text-muted); }
         .rrdy-checklist li svg { color: var(--green); flex-shrink: 0; margin-top: 2px; }
         .rrdy-loop { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
-        .rrdy-loop li { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.5; color: var(--text-muted); }
+        .rrdy-loop li { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.5; color: var(--text-muted); }
       `}</style>
     </div>
   )

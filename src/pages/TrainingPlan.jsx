@@ -162,7 +162,11 @@ export default function TrainingPlan() {
                 padding: '8px 16px',
                 fontSize: 13,
                 fontFamily: 'Inter, sans-serif',
+<<<<<<< HEAD
                 fontWeight: 600,
+=======
+                fontWeight: 500,
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -334,7 +338,7 @@ function PlanFormModal({ open, initial, onClose, onSubmit }) {
             <div>
               <h3
                 style={{
-                  fontFamily: 'Bebas Neue, sans-serif',
+                  fontFamily: 'Barlow Condensed, sans-serif',
                   fontWeight: 700,
                   fontSize: 17,
                   color: 'var(--text-primary)',

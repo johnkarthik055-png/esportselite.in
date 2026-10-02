@@ -342,7 +342,7 @@ function ScheduleHeader({ schedule, onTogglePause, onAbandon }) {
             <GenBadge generationType={schedule.generationType} />
           </div>
           <h2 style={cardTitleStyle}>{schedule.title || 'Training schedule'}</h2>
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-muted)', marginTop: 2 }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'var(--text-muted)', marginTop: 2 }}>
             {schedule.goal || '—'}
           </div>
         </div>
@@ -358,10 +358,17 @@ function ScheduleHeader({ schedule, onTogglePause, onAbandon }) {
 
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+<<<<<<< HEAD
           <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569' }}>
             Day {completed} of {total}
           </span>
           <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 20, letterSpacing: '0.04em', color: '#0B1224' }}>
+=======
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)' }}>
+            Day {completed} of {total}
+          </span>
+          <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             {percent}%
           </span>
         </div>
@@ -391,7 +398,10 @@ function MiniStat({ label, value, accent }) {
     }}>
       <div style={{
         fontFamily: 'Barlow Condensed, sans-serif',
+<<<<<<< HEAD
         fontWeight: 900,
+=======
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         fontSize: 22,
         letterSpacing: '0.04em',
         color: accent || '#0B1224',
@@ -400,8 +410,12 @@ function MiniStat({ label, value, accent }) {
         {value}
       </div>
       <div style={{
+<<<<<<< HEAD
         fontFamily: 'Rajdhani, sans-serif',
         fontWeight: 600,
+=======
+        fontFamily: 'Inter, sans-serif',
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         fontSize: 10,
         color: '#64748B',
         marginTop: 4,
@@ -453,7 +467,7 @@ function TodayTasksCard({ uid, schedule, day }) {
       <div className="card" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
         <Coffee size={22} style={{ color: 'var(--text-subtle)' }} />
         <div>
-          <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 18, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
             Rest day
           </div>
           <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
@@ -518,7 +532,7 @@ function TodayTasksCard({ uid, schedule, day }) {
       <div className="card-header">
         <div className="card-title">
           <span style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontSize: 20,
             letterSpacing: '0.04em',
           }}>
@@ -603,7 +617,7 @@ function TaskRow({ task, disabled, onToggle }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
           <span style={{
-            fontFamily: 'DM Sans, sans-serif',
+            fontFamily: 'Inter, sans-serif',
             fontSize: 13,
             fontWeight: 600,
             color: task.done ? 'var(--text-muted)' : 'var(--text-primary)',
@@ -711,7 +725,11 @@ function CalendarGrid({ days, todayId, selectedDayId, onSelect }) {
         <button onClick={prevMonth} style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 8, color: '#0B1224', padding: '4px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
           <ChevronLeft size={14} />
         </button>
+<<<<<<< HEAD
         <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, letterSpacing: '0.04em', color: '#0B1224', textTransform: 'uppercase' }}>
+=======
+        <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           {monthLabel}
         </span>
         <button onClick={nextMonth} style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 8, color: '#0B1224', padding: '4px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
@@ -724,7 +742,11 @@ function CalendarGrid({ days, todayId, selectedDayId, onSelect }) {
         {['Su','Mo','Tu','We','Th','Fr','Sa'].map(l => (
           <div key={l} style={{
             textAlign: 'center', fontSize: 10, fontWeight: 600,
+<<<<<<< HEAD
             fontFamily: 'Rajdhani, sans-serif', color: '#64748B',
+=======
+            fontFamily: 'Inter, sans-serif', color: 'var(--text-subtle)',
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             textTransform: 'uppercase', letterSpacing: '0.06em', padding: '2px 0',
           }}>{l}</div>
         ))}
@@ -791,7 +813,7 @@ function CalendarCell({ cell, isToday, isSelected, onClick }) {
     >
       {/* Date number */}
       <div style={{
-        fontFamily: 'Bebas Neue, sans-serif',
+        fontFamily: 'Barlow Condensed, sans-serif',
         fontSize: 14, letterSpacing: '0.04em', lineHeight: 1,
         color:
           status === 'done'   ? '#16A34A' :
@@ -806,7 +828,7 @@ function CalendarCell({ cell, isToday, isSelected, onClick }) {
       {/* Task pills (max 2) */}
       {inMonth && visible.map((t, i) => (
         <div key={i} style={{
-          fontSize: 9, fontFamily: 'DM Sans, sans-serif',
+          fontSize: 9, fontFamily: 'Inter, sans-serif',
           color: t.done ? 'var(--text-subtle)' : 'var(--text-muted)',
           background: 'var(--bg-surface)',
           borderRadius: 3, padding: '1px 4px',
@@ -819,7 +841,7 @@ function CalendarCell({ cell, isToday, isSelected, onClick }) {
       ))}
 
       {inMonth && more > 0 && (
-        <div style={{ fontSize: 9, color: 'var(--text-subtle)', fontFamily: 'DM Sans, sans-serif' }}>
+        <div style={{ fontSize: 9, color: 'var(--text-subtle)', fontFamily: 'Inter, sans-serif' }}>
           +{more} more
         </div>
       )}
@@ -854,7 +876,7 @@ function DayDetailPanel({ uid, schedule, day, isToday, onClose }) {
           <StatusBadge status={day.status} />
         </div>
         <h3 style={{
-          fontFamily: 'Bebas Neue, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontSize: 22,
           letterSpacing: '0.04em',
           color: 'var(--text-primary)',
@@ -942,7 +964,7 @@ function PastSchedules({ items, open, onToggle }) {
           width: '100%',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           cursor: 'pointer', padding: 0, color: 'var(--text-primary)',
-          fontFamily: 'DM Sans, sans-serif', fontSize: 12,
+          fontFamily: 'Inter, sans-serif', fontSize: 12,
           fontWeight: 600, textTransform: 'uppercase',
           letterSpacing: '0.10em', marginBottom: open ? 10 : 0,
         }}
@@ -1217,7 +1239,7 @@ function Step1({
               }}
             >
               <Icon size={20} style={{ color: active ? 'var(--red)' : 'var(--text-subtle)' }} />
-              <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 600 }}>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 600 }}>
                 {g.title}
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>
@@ -1383,7 +1405,7 @@ function Step3({ saving, loadingMsg, error, onAI, onRule, onCancel }) {
           gap: 12, padding: 24,
         }}>
           <Bot size={28} style={{ color: 'var(--blue)', animation: 'ee-sched-pulse 1.4s ease-in-out infinite' }} />
-          <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-primary)', textAlign: 'center' }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'var(--text-primary)', textAlign: 'center' }}>
             {loadingMsg}
           </div>
           <button onClick={onCancel} className="btn btn-secondary btn-sm" style={{ marginTop: 4 }}>
@@ -1767,7 +1789,7 @@ function extractJsonArray(raw) {
    REUSABLE STYLE BITS
    ============================================================ */
 const pageTitleStyle = {
-  fontFamily: 'Bebas Neue, sans-serif',
+  fontFamily: 'Barlow Condensed, sans-serif',
   fontWeight: 400, fontSize: 28,
   letterSpacing: '0.04em',
   textTransform: 'uppercase',
@@ -1775,18 +1797,18 @@ const pageTitleStyle = {
   margin: 0,
 }
 const pageSubtitleStyle = {
-  fontFamily: 'DM Sans, sans-serif',
+  fontFamily: 'Inter, sans-serif',
   fontSize: 13, color: 'var(--text-muted)', marginTop: 4,
 }
 const cardTitleStyle = {
-  fontFamily: 'Bebas Neue, sans-serif',
+  fontFamily: 'Barlow Condensed, sans-serif',
   fontWeight: 400, fontSize: 24,
   letterSpacing: '0.04em',
   color: 'var(--text-primary)',
   margin: 0,
 }
 const stepTitleStyle = {
-  fontFamily: 'DM Sans, sans-serif',
+  fontFamily: 'Inter, sans-serif',
   fontSize: 16, fontWeight: 600,
   color: 'var(--text-primary)',
   margin: 0,
@@ -1811,7 +1833,7 @@ function Field({ label, children }) {
   return (
     <label style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
       <span style={{
-        fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
+        fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600,
         textTransform: 'uppercase', letterSpacing: '0.08em',
         color: 'var(--text-subtle)',
       }}>
@@ -1825,7 +1847,7 @@ function Field({ label, children }) {
 function SectionLabel({ children }) {
   return (
     <div style={{
-      fontFamily: 'DM Sans, sans-serif',
+      fontFamily: 'Inter, sans-serif',
       fontSize: 11, fontWeight: 600,
       textTransform: 'uppercase', letterSpacing: '0.10em',
       color: 'var(--text-subtle)',

@@ -71,24 +71,24 @@ export default function RoleComparison() {
       <style>{`
         .rcmp-profiles { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
         .rcmp-profiles li { display: grid; grid-template-columns: 150px 1fr; gap: 12px; }
-        .rcmp-profile-k { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--violet); }
-        .rcmp-profile-v { font-family: 'DM Sans', sans-serif; font-size: 12px; line-height: 1.55; color: var(--text-muted); }
+        .rcmp-profile-k { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--violet); }
+        .rcmp-profile-v { font-family: 'Inter', sans-serif; font-size: 12px; line-height: 1.55; color: var(--text-muted); }
         @media (max-width: 560px) { .rcmp-profiles li { grid-template-columns: 1fr; gap: 2px; } }
-        .rcmp-note { font-family: 'DM Sans', sans-serif; font-size: 11.5px; line-height: 1.6; color: var(--text-subtle); margin: 0; }
+        .rcmp-note { font-family: 'Inter', sans-serif; font-size: 11.5px; line-height: 1.6; color: var(--text-subtle); margin: 0; }
 
         .rcmp-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
         .rcmp-card { display: flex; flex-direction: column; gap: 8px; text-align: left; cursor: pointer; }
         .rcmp-card:hover { border-color: var(--violet); }
         .rcmp-card-head { display: flex; align-items: center; gap: 8px; }
-        .rcmp-card-name { flex: 1; font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-primary); }
+        .rcmp-card-name { flex: 1; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-primary); }
         .rcmp-card-chev { color: var(--text-subtle); }
-        .rcmp-card-job { font-family: 'DM Sans', sans-serif; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
+        .rcmp-card-job { font-family: 'Inter', sans-serif; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
         .rcmp-card-job strong { color: var(--text-primary); font-weight: 600; }
         .rcmp-card-takes { display: flex; flex-wrap: wrap; gap: 4px; }
-        .rcmp-card-takes span { font-family: 'DM Sans', sans-serif; font-size: 10px; color: var(--text-subtle); background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 999px; padding: 2px 7px; }
+        .rcmp-card-takes span { font-family: 'Inter', sans-serif; font-size: 10px; color: var(--text-subtle); background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 999px; padding: 2px 7px; }
 
         .rcmp-means { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
-        .rcmp-means li { font-family: 'DM Sans', sans-serif; font-size: 12px; line-height: 1.6; color: var(--text-muted); }
+        .rcmp-means li { font-family: 'Inter', sans-serif; font-size: 12px; line-height: 1.6; color: var(--text-muted); }
       `}</style>
     </div>
   )

@@ -139,6 +139,10 @@ export default function Team() {
                 border: 'none',
                 borderRadius: 8,
                 padding: '8px 14px',
+<<<<<<< HEAD
+=======
+                borderRadius: 4,
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
                 fontFamily: 'Inter, sans-serif',
                 fontSize: 13,
                 fontWeight: 600,
@@ -245,7 +249,7 @@ function TeamHeader({ team, members, myRole, onLeave, leaving }) {
               <span
                 className="badge"
                 style={{
-                  fontFamily: 'Bebas Neue, sans-serif',
+                  fontFamily: 'Barlow Condensed, sans-serif',
                   fontSize: 13,
                   letterSpacing: '0.10em',
                   textTransform: 'uppercase',
@@ -257,7 +261,11 @@ function TeamHeader({ team, members, myRole, onLeave, leaving }) {
               <h1
                 style={{
                   fontFamily: 'Barlow Condensed, sans-serif',
+<<<<<<< HEAD
                   fontWeight: 900,
+=======
+                  fontWeight: 400,
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
                   fontSize: 32,
                   letterSpacing: '0.04em',
                   textTransform: 'uppercase',
@@ -320,7 +328,10 @@ function TeamAvatar({ team }) {
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: 'Barlow Condensed, sans-serif',
+<<<<<<< HEAD
         fontWeight: 900,
+=======
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         fontSize: 22,
         letterSpacing: '0.04em',
         color: '#2563FF',
@@ -354,7 +365,10 @@ function NoTeamState({ onCreate }) {
         <div
           style={{
             fontFamily: 'Barlow Condensed, sans-serif',
+<<<<<<< HEAD
             fontWeight: 900,
+=======
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             fontSize: 24,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',

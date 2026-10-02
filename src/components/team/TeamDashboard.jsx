@@ -112,7 +112,11 @@ export default function TeamDashboard({ team, members, teamId }) {
                       padding: '12px 14px',
                     }}
                   >
+<<<<<<< HEAD
                     <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13, color: '#0B1224' }}>
+=======
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
                       {a.title}
                     </div>
                     <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 4, lineHeight: 1.5 }}>
@@ -190,7 +194,10 @@ export default function TeamDashboard({ team, members, teamId }) {
                 <div
                   style={{
                     fontFamily: 'Barlow Condensed, sans-serif',
+<<<<<<< HEAD
                     fontWeight: 900,
+=======
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
                     fontSize: 22,
                     letterSpacing: '0.04em',
                     textTransform: 'uppercase',
@@ -294,7 +301,10 @@ function TeamAvatar({ team }) {
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: 'Barlow Condensed, sans-serif',
+<<<<<<< HEAD
         fontWeight: 900,
+=======
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         fontSize: 20,
         letterSpacing: '0.06em',
         color: '#2563FF',
@@ -309,7 +319,11 @@ function TeamAvatar({ team }) {
 function UpcomingRow({ title, when, sub }) {
   return (
     <div>
+<<<<<<< HEAD
       <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: '#0B1224' }}>
+=======
+      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         {title}
       </div>
       <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 4 }}>{when || '—'}</div>

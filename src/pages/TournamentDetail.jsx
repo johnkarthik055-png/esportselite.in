@@ -159,7 +159,11 @@ function TournamentHeader({ tournament }) {
         <h1
           style={{
             fontFamily: 'Barlow Condensed, sans-serif',
+<<<<<<< HEAD
             fontWeight: 900,
+=======
+            fontWeight: 400,
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             fontSize: 32,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
@@ -170,7 +174,11 @@ function TournamentHeader({ tournament }) {
         >
           {tournament.name || 'Tournament'}
         </h1>
+<<<<<<< HEAD
         <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#475569', marginTop: 4 }}>
+=======
+        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'var(--text-muted)', marginTop: 4 }}>
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           {tournament.organizer || '—'}
         </div>
       </div>
@@ -236,7 +244,11 @@ function StatBlock({ icon, label, value, accent }) {
       }}
     >
       <span style={{
+<<<<<<< HEAD
         fontFamily: 'Rajdhani, sans-serif', fontSize: 11, fontWeight: 600,
+=======
+        fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600,
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         textTransform: 'uppercase', letterSpacing: '0.08em',
         color: '#64748B',
         display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -247,7 +259,11 @@ function StatBlock({ icon, label, value, accent }) {
       <span
         style={{
           fontFamily: 'Barlow Condensed, sans-serif',
+<<<<<<< HEAD
           fontWeight: 900,
+=======
+          fontWeight: 400,
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           fontSize: 20,
           letterSpacing: '0.04em',
           color: accent || '#0B1224',
@@ -274,7 +290,11 @@ function OverallLeaderboard({ overall }) {
           <Trophy size={15} style={{ color: '#64748B' }} />
           <span style={{
             fontFamily: 'Barlow Condensed, sans-serif',
+<<<<<<< HEAD
             fontWeight: 900,
+=======
+            fontWeight: 400,
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             fontSize: 20,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
@@ -414,11 +434,19 @@ function MatchDetail({ match }) {
   ).map((row, i) => ({ ...row, rank: Number(row.rank) || (i + 1) }))
 
   return (
+<<<<<<< HEAD
     <div style={cardStyle}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
         <div style={{
           fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900,
           fontSize: 20, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#0B1224',
+=======
+    <div className="card">
+      <div className="card-header">
+        <div className="card-title" style={{
+          fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400,
+          fontSize: 20, letterSpacing: '0.04em',
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         }}>
           {match.round || `Match ${match.matchNumber || ''}`}
         </div>
@@ -487,7 +515,11 @@ function KillBoard({ rows }) {
           <Crosshair size={15} style={{ color: '#F59E0B' }} />
           <span style={{
             fontFamily: 'Barlow Condensed, sans-serif',
+<<<<<<< HEAD
             fontWeight: 900,
+=======
+            fontWeight: 400,
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             fontSize: 20,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
@@ -609,10 +641,17 @@ function ErrorState({ message, onBack }) {
       <div style={{ ...cardStyle, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
         <AlertTriangle size={18} style={{ color: '#EF3340', flexShrink: 0, marginTop: 2 }} />
         <div>
+<<<<<<< HEAD
           <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: '#0B1224' }}>
             Couldn't load this tournament
           </div>
           <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569', marginTop: 4 }}>
+=======
+          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: 'var(--text-primary)' }}>
+            Couldn't load this tournament
+          </div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
+>>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             {message}
           </div>
         </div>

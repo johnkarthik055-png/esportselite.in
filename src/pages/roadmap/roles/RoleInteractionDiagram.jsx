@@ -84,14 +84,14 @@ export default function RoleInteractionDiagram() {
       <style>{`
         .rdiag-flows { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
         .rdiag-flowline {
-          font-family: 'DM Sans', sans-serif; font-size: 12px; line-height: 1.6; color: var(--text-muted);
+          font-family: 'Inter', sans-serif; font-size: 12px; line-height: 1.6; color: var(--text-muted);
           padding: 9px 11px; border-radius: var(--radius-sm); background: var(--violet-tint);
           border: 1px solid rgba(124,58,237,0.2);
         }
         .rdiag-bda { display: flex; flex-direction: column; gap: 10px; }
-        .rdiag-bda-k { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--cyan); }
-        .rdiag-bda p { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); margin: 3px 0 0; }
-        .rdiag-bda-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--text-subtle); margin: 12px 0 0; }
+        .rdiag-bda-k { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--cyan); }
+        .rdiag-bda p { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); margin: 3px 0 0; }
+        .rdiag-bda-note { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-subtle); margin: 12px 0 0; }
       `}</style>
     </div>
   )

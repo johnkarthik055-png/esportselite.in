@@ -129,7 +129,7 @@ const styles = `
   }
   .roles-hero-kicker {
     display: inline-flex; align-items: center; gap: 6px;
-    font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600;
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
     text-transform: uppercase; letter-spacing: 0.16em; color: var(--violet);
   }
   .roles-hero .roles-title { margin: 4px 0 0; }
@@ -141,10 +141,10 @@ const styles = `
     background: var(--violet-tint); border: 1px solid rgba(124,58,237,0.25);
     display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
   }
-  .roles-result-label { font-family: 'DM Sans', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle); }
-  .roles-result-role { font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-primary); }
+  .roles-result-label { font-family: 'Inter', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle); }
+  .roles-result-role { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-primary); }
   .roles-result-role em { font-style: normal; font-weight: 400; font-size: 12px; color: var(--violet); }
-  .roles-result-sec { font-family: 'DM Sans', sans-serif; font-size: 11.5px; color: var(--text-subtle); }
+  .roles-result-sec { font-family: 'Inter', sans-serif; font-size: 11.5px; color: var(--text-subtle); }
 
   .roles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
   .roles-card {
@@ -159,44 +159,44 @@ const styles = `
   .roles-card-icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
   .roles-card-name {
     flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 14.5px; color: var(--text-primary);
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14.5px; color: var(--text-primary);
   }
   .roles-card-tag {
-    font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 600;
+    font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 600;
     letter-spacing: 0.05em; text-transform: uppercase; color: var(--violet);
     background: var(--violet-tint); border: 1px solid rgba(124,58,237,0.3);
     border-radius: 999px; padding: 1px 6px;
   }
   .roles-card-tag--sec { color: var(--text-subtle); background: var(--bg-elevated); border-color: var(--border); }
   .roles-card-chev { color: var(--text-subtle); flex-shrink: 0; }
-  .roles-card-job { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.5; color: var(--text-muted); }
+  .roles-card-job { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.5; color: var(--text-muted); }
   .roles-card-job strong { color: var(--text-primary); font-weight: 600; }
   .roles-card-takes { display: flex; flex-wrap: wrap; gap: 4px; }
   .roles-card-chip {
-    font-family: 'DM Sans', sans-serif; font-size: 10px; color: var(--text-subtle);
+    font-family: 'Inter', sans-serif; font-size: 10px; color: var(--text-subtle);
     background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 999px; padding: 2px 7px;
   }
   .roles-card-mistakes { display: flex; flex-direction: column; gap: 3px; }
   .roles-card-mistakes span {
-    display: flex; gap: 5px; font-family: 'DM Sans', sans-serif; font-size: 11px;
+    display: flex; gap: 5px; font-family: 'Inter', sans-serif; font-size: 11px;
     line-height: 1.4; color: var(--text-subtle);
   }
   .roles-card-mistakes svg { color: var(--amber); flex-shrink: 0; margin-top: 2px; }
   .roles-card-readiness {
     display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;
-    font-family: 'DM Sans', sans-serif; font-size: 10.5px; color: var(--green);
+    font-family: 'Inter', sans-serif; font-size: 10.5px; color: var(--green);
   }
 
   .roles-note { }
   .roles-note-head {
-    font-family: 'Oxanium', sans-serif; font-weight: 700; font-size: 12px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 12px;
     letter-spacing: 0.04em; text-transform: uppercase; color: var(--violet); margin-bottom: 8px;
   }
-  .roles-note p { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.65; color: var(--text-muted); margin: 0 0 8px; }
+  .roles-note p { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.65; color: var(--text-muted); margin: 0 0 8px; }
   .roles-note p:last-child { margin-bottom: 0; }
 
   .roles-final { background: linear-gradient(160deg, rgba(124,58,237,0.08), rgba(13,21,40,0.3)); border-color: rgba(124,58,237,0.25); }
-  .roles-final p { font-family: 'DM Sans', sans-serif; font-size: 12.5px; line-height: 1.7; color: var(--text-muted); margin: 0 0 8px; }
+  .roles-final p { font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.7; color: var(--text-muted); margin: 0 0 8px; }
   .roles-final p:last-child { margin-bottom: 0; }
-  .roles-final-last { font-family: 'Oxanium', sans-serif !important; font-weight: 700 !important; font-size: 13px !important; color: var(--text-primary) !important; }
+  .roles-final-last { font-family: 'Barlow Condensed', sans-serif !important; font-weight: 700 !important; font-size: 13px !important; color: var(--text-primary) !important; }
 `

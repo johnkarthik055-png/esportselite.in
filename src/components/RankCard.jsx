@@ -116,7 +116,7 @@ export default function RankCard() {
             </div>
             <div
               className="text-white tracking-[0.15em]"
-              style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 14 }}
+              style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 14 }}
             >
               ESPORTS ELITE
             </div>
@@ -145,7 +145,7 @@ export default function RankCard() {
                   width: 56,
                   height: 56,
                   background: 'linear-gradient(135deg, #E8001C, #FF2D44)',
-                  fontFamily: "'Bebas Neue',sans-serif",
+                  fontFamily: "'Barlow Condensed',sans-serif",
                   fontSize: 16,
                   boxShadow: '0 0 12px rgba(232,0,28,0.5)',
                 }}
@@ -157,7 +157,7 @@ export default function RankCard() {
               <div
                 className="text-white truncate"
                 style={{
-                  fontFamily: "'Bebas Neue',sans-serif",
+                  fontFamily: "'Barlow Condensed',sans-serif",
                   fontSize: 17,
                   letterSpacing: '0.03em',
                   fontWeight: 700,
@@ -169,7 +169,7 @@ export default function RankCard() {
                 ⚡ Level {level.level} —{' '}
                 <span
                   className="tracking-[0.1em]"
-                  style={{ fontFamily: "'Bebas Neue',sans-serif", fontWeight: 600 }}
+                  style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 600 }}
                 >
                   {level.name}
                 </span>
@@ -185,7 +185,7 @@ export default function RankCard() {
           {/* Stats grid */}
           <div
             className="grid grid-cols-2 gap-1 mt-2.5 text-[11px]"
-            style={{ fontFamily: "'Bebas Neue',sans-serif" }}
+            style={{ fontFamily: "'Barlow Condensed',sans-serif" }}
           >
             <div className="text-[#F0F0F0]">
               ⏱{' '}

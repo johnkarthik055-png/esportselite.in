@@ -74,7 +74,7 @@ export default function TeamAnnouncements({ team, members, myRole, teamId }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
         <h2
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 24,
             letterSpacing: '0.04em',
@@ -160,7 +160,7 @@ function AnnouncementCard({ a, canManage, onEdit, onDelete, onTogglePin }) {
                 <Pin size={12} /> Pinned
               </span>
             )}
-            <div style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
               {a.title}
             </div>
           </div>

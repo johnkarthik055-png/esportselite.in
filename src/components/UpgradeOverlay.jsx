@@ -44,7 +44,7 @@ export default function UpgradeOverlay({ title, description, feature }) {
         </span>
         <Lock size={36} color="#3B82F6" />
         <div style={{
-          fontFamily: 'Oxanium, sans-serif',
+          fontFamily: 'Barlow Condensed, sans-serif',
           fontWeight: 700,
           fontSize: 24,
           color: '#F8FAFC',
@@ -70,7 +70,7 @@ export default function UpgradeOverlay({ title, description, feature }) {
             color: '#fff',
             borderRadius: 8,
             padding: '12px 24px',
-            fontFamily: 'Oxanium, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 600,
             fontSize: 14,
             textDecoration: 'none',

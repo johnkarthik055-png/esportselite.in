@@ -95,7 +95,7 @@ export default function FeaturedTournamentCard() {
       <div>
         <div
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 400,
             fontSize: 18,
             letterSpacing: '0.04em',
@@ -113,7 +113,7 @@ export default function FeaturedTournamentCard() {
       {tournament.prizePool && (
         <div
           style={{
-            fontFamily: 'Bebas Neue, sans-serif',
+            fontFamily: 'Barlow Condensed, sans-serif',
             fontSize: 18,
             letterSpacing: '0.04em',
             color: 'var(--gold)',
@@ -143,7 +143,7 @@ export default function FeaturedTournamentCard() {
               }}
             >
               <span style={{
-                fontFamily: 'Bebas Neue, sans-serif',
+                fontFamily: 'Barlow Condensed, sans-serif',
                 fontSize: 16,
                 color: MEDAL_COLORS[row.rank] || 'var(--text-muted)',
                 minWidth: 22,

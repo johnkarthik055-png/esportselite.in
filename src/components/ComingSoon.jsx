@@ -28,7 +28,7 @@ export default function ComingSoon({ title }) {
           <h1
             className="text-gradient-red leading-none mb-5"
             style={{
-              fontFamily: "'Bebas Neue', sans-serif",
+              fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 800,
               fontSize: 'clamp(40px, 8vw, 64px)',
               letterSpacing: '0.04em',

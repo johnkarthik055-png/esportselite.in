@@ -71,7 +71,7 @@ export default function WeaponPicker({ selected = [], onChange }) {
           <Crosshair size={15} style={{ color: 'var(--text-muted)' }} />
           <span
             style={{
-              fontFamily: 'Bebas Neue, sans-serif',
+              fontFamily: 'Barlow Condensed, sans-serif',
               fontWeight: 700,
               fontSize: 13,
               color: 'var(--text-primary)',
@@ -155,7 +155,7 @@ export default function WeaponPicker({ selected = [], onChange }) {
                   />
                   <span
                     style={{
-                      fontFamily: 'Bebas Neue, sans-serif',
+                      fontFamily: 'Barlow Condensed, sans-serif',
                       fontWeight: 700,
                       fontSize: 13,
                       color: 'var(--text-primary)',
@@ -241,7 +241,7 @@ function SelectedChip({ weapon, onRemove }) {
         gap: 6,
         cursor: 'pointer',
         transition: 'border-color 0.15s',
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
       }}
     >
       {weapon}
@@ -287,7 +287,7 @@ function GunPill({ weapon, active, onClick }) {
         fontWeight,
         cursor: 'pointer',
         transition: 'background 0.15s, border-color 0.15s, color 0.15s',
-        fontFamily: 'DM Sans, sans-serif',
+        fontFamily: 'Inter, sans-serif',
       }}
     >
       {weapon}
