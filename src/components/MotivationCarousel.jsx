@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Quote } from 'lucide-react'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { uid } from '../utils/helpers.js'
 
@@ -109,7 +109,7 @@ export default function MotivationCarousel() {
     setDraft('')
     setError('')
     setAddOpen(false)
-    setToast('Quote added! 🔥')
+    setToast('Quote added')
     setTimeout(() => setToast(''), 2200)
   }
 
@@ -135,80 +135,50 @@ export default function MotivationCarousel() {
 
   if (list.length === 0) return null
 
+  /* Dots are capped visually so a long custom list can't blow out the card. */
+  const DOT_WINDOW = 8
+  const dotStart = Math.max(0, Math.min(safeIndex - Math.floor(DOT_WINDOW / 2), list.length - DOT_WINDOW))
+  const visibleDots = list.slice(Math.max(0, dotStart), Math.max(0, dotStart) + DOT_WINDOW)
+
   return (
     <section
-      className="relative glass clip-corner-sm overflow-hidden animate-fade-in"
+      className="mc-card"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Red left border accent */}
-      <div
-        className="absolute top-0 left-0 h-full w-1 bg-red-gradient pointer-events-none"
-        aria-hidden="true"
-      />
+      {/* Gradient left accent */}
+      <span className="mc-accent" aria-hidden />
 
-      <div className="px-5 sm:px-6 py-4 sm:py-5 pl-6 sm:pl-7 space-y-3">
+      <div className="mc-inner">
+        <div className="mc-head">
+          <span className="mc-label">Motivation</span>
+          {paused && list.length > 1 && <span className="mc-paused">Paused</span>}
+        </div>
+
         {/* Quote */}
-        <div className="min-h-[52px] sm:min-h-[58px] flex items-center justify-center">
+        <div className="mc-quote-wrap">
+          <Quote size={16} className="mc-quote-mark" aria-hidden />
           <p
-            className="font-body italic text-center"
-            style={{
-              color: '#CCCCDD',
-              fontSize: 'clamp(13px, 2.4vw, 15px)',
-              lineHeight: 1.55,
-              transition: `opacity ${FADE_MS}ms ease`,
-              opacity: visible ? 1 : 0,
-            }}
+            className="mc-quote"
+            style={{ opacity: visible ? 1 : 0 }}
           >
-            <span
-              className="mr-1 align-middle"
-              style={{
-                color: '#E8001C',
-                fontSize: '24px',
-                lineHeight: 1,
-                fontStyle: 'normal',
-              }}
-            >
-              ❝
-            </span>
             {current?.text}
-            <span
-              className="ml-1 align-middle"
-              style={{
-                color: '#E8001C',
-                fontSize: '24px',
-                lineHeight: 1,
-                fontStyle: 'normal',
-              }}
-            >
-              ❞
-            </span>
           </p>
         </div>
 
         {/* Dot indicators */}
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
-          {list.map((q, i) => {
+        <div className="mc-dots">
+          {visibleDots.map((q) => {
+            const i = list.indexOf(q)
             const active = i === safeIndex
             return (
-              <div
-                key={q.id}
-                className="relative group"
-                style={{ width: 24, height: 24 }}
-              >
+              <span key={q.id} className="mc-dot-wrap">
                 <button
                   onClick={() => goTo(i)}
                   aria-label={`Show quote ${i + 1}`}
-                  className="absolute inset-0 flex items-center justify-center"
-                >
-                  <span
-                    className={`block rounded-full transition-all ${
-                      active
-                        ? 'w-2.5 h-2.5 bg-accent-primary shadow-red-glow'
-                        : 'w-2 h-2 bg-border hover:bg-text-secondary'
-                    }`}
-                  />
-                </button>
+                  aria-current={active ? 'true' : undefined}
+                  className={`mc-dot ${active ? 'is-active' : ''}`}
+                />
                 {!q.isDefault && (
                   <button
                     onClick={e => {
@@ -217,28 +187,25 @@ export default function MotivationCarousel() {
                     }}
                     title="Remove quote"
                     aria-label="Remove custom quote"
-                    className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-bg-elevated border border-[rgba(232,0,28,0.5)] text-accent-secondary text-[10px] leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                    className="mc-dot-remove"
                   >
                     ×
                   </button>
                 )}
-              </div>
+              </span>
             )
           })}
         </div>
 
         {/* Add custom quote */}
         {!addOpen ? (
-          <div className="flex items-center justify-center">
-            <button
-              onClick={() => setAddOpen(true)}
-              className="text-[11px] sm:text-xs text-text-muted hover:text-accent-secondary inline-flex items-center gap-1 transition-all heading uppercase tracking-widest"
-            >
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button onClick={() => setAddOpen(true)} className="mc-add-btn">
               <Plus size={12} /> Add your quote
             </button>
           </div>
         ) : (
-          <div className="space-y-2 max-w-xl mx-auto w-full">
+          <div className="mc-form">
             <input
               type="text"
               autoFocus
@@ -248,8 +215,8 @@ export default function MotivationCarousel() {
                 setDraft(e.target.value)
                 if (error) setError('')
               }}
-              placeholder="Type your motivation line..."
-              className="input-field text-sm w-full"
+              placeholder="Type your motivation line…"
+              className="mc-input"
               onKeyDown={e => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
@@ -261,44 +228,143 @@ export default function MotivationCarousel() {
                 }
               }}
             />
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="mc-form-row">
               <button
                 onClick={submitDraft}
                 disabled={!draft.trim()}
-                className="btn-red px-4 py-2 rounded-md text-xs uppercase tracking-[0.15em] disabled:opacity-40 disabled:cursor-not-allowed"
+                className="mc-btn mc-btn--primary"
               >
                 Add
               </button>
-              <button
-                onClick={cancelDraft}
-                className="btn-outline px-4 py-2 rounded-md text-xs uppercase tracking-[0.15em]"
-              >
+              <button onClick={cancelDraft} className="mc-btn mc-btn--ghost">
                 Cancel
               </button>
-              <span
-                className={`text-[10px] ml-auto mono ${
-                  draft.length >= MAX_LEN
-                    ? 'text-accent-secondary'
-                    : 'text-text-muted'
-                }`}
-              >
+              <span className={`mc-count ${draft.length >= MAX_LEN ? 'is-max' : ''}`}>
                 {draft.length}/{MAX_LEN}
               </span>
             </div>
-            {error && (
-              <p className="text-[11px] text-accent-secondary">{error}</p>
-            )}
+            {error && <p className="mc-error">{error}</p>}
           </div>
         )}
 
         {toast && (
-          <div className="text-center">
-            <span className="toast-success px-3 py-1.5 rounded-md text-[11px] mono inline-block">
-              {toast}
-            </span>
+          <div style={{ textAlign: 'center' }}>
+            <span className="mc-toast">{toast}</span>
           </div>
         )}
       </div>
+
+      <style>{`
+        .mc-card {
+          position: relative; overflow: hidden;
+          background: linear-gradient(135deg, #EEF4FF, #FFF0F3);
+          border: 1px solid #DCE5FA; border-radius: 16px;
+          box-shadow: 0 4px 20px rgba(15,23,42,0.04);
+        }
+        .mc-accent {
+          position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+          background: linear-gradient(180deg, #2563FF 0%, #5B3DF5 50%, #EF3340 100%);
+          pointer-events: none;
+        }
+        .mc-inner {
+          padding: 18px 20px 18px 22px;
+          display: flex; flex-direction: column; gap: 12px;
+        }
+        .mc-head {
+          display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        }
+        .mc-label {
+          font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 11px;
+          text-transform: uppercase; letter-spacing: 0.14em; color: #2563FF;
+        }
+        .mc-paused {
+          font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 9.5px;
+          text-transform: uppercase; letter-spacing: 0.1em; color: #94A3B8;
+        }
+
+        .mc-quote-wrap {
+          position: relative; min-height: 64px;
+          display: flex; align-items: center; gap: 10px;
+        }
+        .mc-quote-mark { color: #2563FF; opacity: 0.35; flex-shrink: 0; align-self: flex-start; margin-top: 2px; }
+        .mc-quote {
+          margin: 0; font-family: 'Inter', sans-serif; font-weight: 500;
+          font-size: 14px; line-height: 1.6; color: #0B1224;
+          transition: opacity ${FADE_MS}ms ease;
+        }
+
+        .mc-dots { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; }
+        .mc-dot-wrap { position: relative; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; }
+        .mc-dot {
+          width: 7px; height: 7px; border-radius: 50%; padding: 0;
+          background: #C7D7FB; border: none; cursor: pointer;
+          transition: background 0.2s ease, width 0.2s ease, height 0.2s ease;
+        }
+        .mc-dot.is-active {
+          width: 10px; height: 10px;
+          background: linear-gradient(135deg, #2563FF, #5B3DF5);
+          box-shadow: 0 0 0 3px rgba(37,99,255,0.12);
+        }
+        @media (hover: hover) and (pointer: fine) {
+          .mc-dot:not(.is-active):hover { background: #94A3B8; }
+          .mc-dot-wrap:hover .mc-dot-remove { opacity: 1; }
+        }
+        .mc-dot-remove {
+          position: absolute; top: -3px; right: -3px;
+          width: 14px; height: 14px; border-radius: 50%;
+          background: #FFFFFF; border: 1px solid rgba(239,51,64,0.4);
+          color: #EF3340; font-size: 10px; line-height: 1; cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          opacity: 0; transition: opacity 0.15s ease;
+        }
+        .mc-dot-remove:focus-visible { opacity: 1; }
+
+        .mc-add-btn {
+          background: transparent; border: none; cursor: pointer; padding: 4px 6px;
+          font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 11px;
+          text-transform: uppercase; letter-spacing: 0.12em; color: #64748B;
+          display: inline-flex; align-items: center; gap: 5px;
+          transition: color 0.15s ease;
+        }
+        @media (hover: hover) and (pointer: fine) {
+          .mc-add-btn:hover { color: #2563FF; }
+        }
+
+        .mc-form { display: flex; flex-direction: column; gap: 8px; }
+        .mc-input {
+          width: 100%; box-sizing: border-box;
+          background: #FFFFFF; border: 1px solid #E5EAF3; border-radius: 10px;
+          padding: 9px 12px; font-family: 'Inter', sans-serif; font-size: 13px;
+          color: #0B1224; outline: none; transition: border-color 0.15s ease;
+        }
+        .mc-input:focus { border-color: #2563FF; }
+        .mc-input::placeholder { color: #94A3B8; }
+        .mc-form-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .mc-btn {
+          border-radius: 8px; padding: 7px 16px; cursor: pointer;
+          font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 11px;
+          text-transform: uppercase; letter-spacing: 0.12em;
+          transition: opacity 0.15s ease, border-color 0.15s ease;
+        }
+        .mc-btn--primary {
+          background: linear-gradient(135deg, #2563FF, #5B3DF5); color: #fff; border: none;
+          box-shadow: 0 2px 8px rgba(37,99,255,0.22);
+        }
+        .mc-btn--primary:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+        .mc-btn--ghost { background: #FFFFFF; border: 1px solid #E5EAF3; color: #475569; }
+        .mc-count {
+          margin-left: auto; font-family: 'Inter', sans-serif; font-size: 10.5px;
+          color: #94A3B8; font-variant-numeric: tabular-nums;
+        }
+        .mc-count.is-max { color: #EF3340; }
+        .mc-error { margin: 0; font-family: 'Inter', sans-serif; font-size: 11.5px; color: #EF3340; }
+
+        .mc-toast {
+          display: inline-block; padding: 5px 12px; border-radius: 999px;
+          background: rgba(22,163,74,0.1); border: 1px solid rgba(22,163,74,0.25);
+          color: #16A34A; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px;
+        }
+      `}</style>
     </section>
   )
 }

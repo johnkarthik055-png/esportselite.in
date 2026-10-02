@@ -1,14 +1,19 @@
-import { useState, useEffect } from 'react'
-import { ChevronDown, X, Crosshair } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { ChevronDown, X, Crosshair, Search, AlertTriangle } from 'lucide-react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { WEAPON_CATEGORIES } from '../utils/constants.js'
 
+const EASE = [0.22, 1, 0.36, 1]
+
 /**
- * Categorized weapon picker. Logic unchanged.
- * Visuals: neutral selected chips, muted "N active" badge, clear gun pills.
+ * Categorized, searchable weapon picker. Selection logic unchanged:
+ * up to 2 weapons, a third pick replaces the oldest.
  */
 export default function WeaponPicker({ selected = [], onChange }) {
   const [expanded, setExpanded] = useState(() => new Set(['AR']))
   const [toast, setToast] = useState('')
+  const [search, setSearch] = useState('')
+  const reduce = useReducedMotion()
 
   useEffect(() => {
     if (!toast) return
@@ -45,252 +50,308 @@ export default function WeaponPicker({ selected = [], onChange }) {
     onChange(selected.filter(g => g !== weapon))
   }
 
+  /* Search is purely a view filter — it never changes what is selected.
+     While searching, every category with a hit is force-opened so results
+     aren't hidden behind a collapsed row. */
+  const term = search.trim().toLowerCase()
+  const categories = useMemo(() => {
+    if (!term) return WEAPON_CATEGORIES.map(c => ({ ...c, shown: c.weapons }))
+    return WEAPON_CATEGORIES
+      .map(c => ({ ...c, shown: c.weapons.filter(w => w.toLowerCase().includes(term)) }))
+      .filter(c => c.shown.length > 0)
+  }, [term])
+
+  const totalHits = categories.reduce((n, c) => n + c.shown.length, 0)
+
   return (
-    <div
-      style={{
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius)',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          padding: '12px 16px',
-          borderBottom: '1px solid var(--border)',
-          background: 'var(--bg-elevated)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 10,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Crosshair size={15} style={{ color: 'var(--text-muted)' }} />
-          <span
-            style={{
-              fontFamily: 'Barlow Condensed, sans-serif',
-              fontWeight: 700,
-              fontSize: 13,
-              color: 'var(--text-primary)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.10em',
-            }}
-          >
-            Weapons
-          </span>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>(select up to 2)</span>
+    <div className="wp-wrap">
+      {/* ── Header ── */}
+      <div className="wp-head">
+        <div className="wp-head-row">
+          <span className="wp-head-icon"><Crosshair size={14} /></span>
+          <span className="wp-head-title">Weapons</span>
+          <span className="wp-head-hint">select up to 2</span>
         </div>
 
-        {/* Selected chip strip */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <span className="label">Selected:</span>
+        {/* Selected chips */}
+        <div className="wp-selected">
+          <span className="wp-selected-label">Selected</span>
           {selected.length === 0 ? (
-            <span style={{ fontSize: 12, color: 'var(--text-subtle)', fontStyle: 'italic' }}>none</span>
+            <span className="wp-selected-none">none yet</span>
           ) : (
-            selected.map(g => (
-              <SelectedChip key={g} weapon={g} onRemove={() => removeGun(g)} />
-            ))
+            <AnimatePresence initial={false}>
+              {selected.map(g => (
+                <motion.button
+                  key={g}
+                  onClick={() => removeGun(g)}
+                  title={`Remove ${g}`}
+                  aria-label={`Remove ${g}`}
+                  className="wp-chip"
+                  initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.85 }}
+                  animate={reduce ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+                  exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.85 }}
+                  transition={{ duration: 0.2, ease: EASE }}
+                >
+                  {g}
+                  <X size={12} />
+                </motion.button>
+              ))}
+            </AnimatePresence>
           )}
         </div>
       </div>
 
-      {/* Toast */}
-      {toast && (
-        <div
-          style={{
-            padding: '8px 16px',
-            background: 'var(--amber-tint)',
-            borderBottom: '1px solid rgba(245,158,11,0.25)',
-            color: 'var(--amber)',
-            fontSize: 12,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >
-          ⚠ {toast}
-        </div>
+      {/* ── Search ── */}
+      <div className="wp-search-wrap">
+        <Search size={14} className="wp-search-icon" aria-hidden />
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search weapons…"
+          className="wp-search"
+          aria-label="Search weapons"
+        />
+        {search && (
+          <button onClick={() => setSearch('')} className="wp-search-clear" aria-label="Clear search">
+            <X size={13} />
+          </button>
+        )}
+      </div>
+
+      {/* ── Toast ── */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            className="wp-toast"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.22, ease: EASE }}
+          >
+            <span className="wp-toast-inner">
+              <AlertTriangle size={13} /> {toast}
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Categories ── */}
+      <div>
+        {categories.length === 0 ? (
+          <div className="wp-empty">No weapon matches “{search.trim()}”.</div>
+        ) : (
+          categories.map((cat, idx) => {
+            const isOpen = term ? true : expanded.has(cat.id)
+            const selectedInCat = cat.weapons.filter(w => selected.includes(w)).length
+            return (
+              <div key={cat.id} className="wp-cat" style={{ borderTop: idx === 0 ? 'none' : '1px solid #E5EAF3' }}>
+                <button
+                  onClick={() => toggleCategory(cat.id)}
+                  className="wp-cat-head"
+                  aria-expanded={isOpen}
+                  disabled={!!term}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                    <motion.span
+                      animate={{ rotate: isOpen ? 0 : -90 }}
+                      transition={{ duration: reduce ? 0 : 0.2, ease: EASE }}
+                      style={{ display: 'flex', color: isOpen ? '#2563FF' : '#94A3B8' }}
+                    >
+                      <ChevronDown size={15} />
+                    </motion.span>
+                    <span className="wp-cat-label">{cat.label}</span>
+                    <span className="wp-cat-short">({cat.short})</span>
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 9, flexShrink: 0 }}>
+                    {selectedInCat > 0 && (
+                      <span className="wp-cat-active">{selectedInCat} active</span>
+                    )}
+                    <span className="wp-cat-count">{term ? cat.shown.length : cat.weapons.length}</span>
+                  </span>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={reduce
+                        ? { duration: 0.12 }
+                        : {
+                            height: { type: 'spring', stiffness: 340, damping: 34 },
+                            opacity: { duration: 0.18, ease: EASE },
+                          }}
+                      style={{ overflow: 'hidden' }}
+                    >
+                      <div className="wp-guns">
+                        {cat.shown.map(w => (
+                          <GunPill
+                            key={w}
+                            weapon={w}
+                            active={selected.includes(w)}
+                            onClick={() => toggleGun(w)}
+                          />
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      {term && totalHits > 0 && (
+        <div className="wp-hits">{totalHits} match{totalHits === 1 ? '' : 'es'}</div>
       )}
 
-      {/* Categories */}
-      <div>
-        {WEAPON_CATEGORIES.map((cat, idx) => {
-          const isOpen = expanded.has(cat.id)
-          const selectedInCat = cat.weapons.filter(w => selected.includes(w)).length
-          return (
-            <div
-              key={cat.id}
-              style={{
-                borderTop: idx === 0 ? 'none' : '1px solid var(--border)',
-              }}
-            >
-              <button
-                onClick={() => toggleCategory(cat.id)}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px 16px',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'background 0.15s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <ChevronDown
-                    size={15}
-                    style={{
-                      color: isOpen ? 'var(--text-muted)' : 'var(--text-subtle)',
-                      transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
-                      transition: 'transform 0.15s, color 0.15s',
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontFamily: 'Barlow Condensed, sans-serif',
-                      fontWeight: 700,
-                      fontSize: 13,
-                      color: 'var(--text-primary)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.10em',
-                    }}
-                  >
-                    {cat.label}
-                  </span>
-                  <span style={{ fontSize: 12, color: 'var(--text-subtle)' }}>({cat.short})</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  {selectedInCat > 0 && (
-                    <span
-                      style={{
-                        background: 'var(--bg-elevated)',
-                        border: '1px solid var(--border)',
-                        color: 'var(--text-muted)',
-                        padding: '2px 8px',
-                        borderRadius: 4,
-                        fontSize: 10,
-                        fontWeight: 600,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.04em',
-                      }}
-                    >
-                      {selectedInCat} active
-                    </span>
-                  )}
-                  <span
-                    className="mono"
-                    style={{ fontSize: 12, color: 'var(--text-subtle)' }}
-                  >
-                    {cat.weapons.length}
-                  </span>
-                </div>
-              </button>
-
-              {isOpen && (
-                <div style={{ padding: '4px 16px 16px' }} className="animate-fade-in">
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {cat.weapons.map(w => {
-                      const active = selected.includes(w)
-                      return (
-                        <GunPill
-                          key={w}
-                          weapon={w}
-                          active={active}
-                          onClick={() => toggleGun(w)}
-                        />
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
+      <style>{styles}</style>
     </div>
   )
 }
 
-/* Selected weapon chip (top strip) — neutral elevated style */
-function SelectedChip({ weapon, onRemove }) {
-  const [hover, setHover] = useState(false)
+/* Individual gun pill — neutral default, brand-blue active */
+function GunPill({ weapon, active, onClick }) {
   return (
-    <button
-      onClick={onRemove}
-      title="Remove"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        background: 'var(--bg-elevated)',
-        border: `1px solid ${hover ? 'var(--text-primary)' : 'var(--text-subtle)'}`,
-        color: 'var(--text-primary)',
-        padding: '3px 8px 3px 10px',
-        borderRadius: 999,
-        fontSize: 12,
-        fontWeight: 500,
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        cursor: 'pointer',
-        transition: 'border-color 0.15s',
-        fontFamily: 'Inter, sans-serif',
-      }}
+    <motion.button
+      onClick={onClick}
+      className={`wp-gun ${active ? 'is-active' : ''}`}
+      aria-pressed={active}
+      whileHover={{ y: -1 }}
+      whileTap={{ scale: 0.96 }}
+      transition={{ duration: 0.15, ease: EASE }}
     >
       {weapon}
-      <X size={12} style={{ color: 'var(--text-muted)' }} />
-    </button>
+    </motion.button>
   )
 }
 
-/* Individual gun pill — neutral default, distinct active */
-function GunPill({ weapon, active, onClick }) {
-  const [hover, setHover] = useState(false)
-
-  let background, borderColor, color, fontWeight
-  if (active) {
-    background = 'var(--bg-surface)'
-    borderColor = 'var(--text-primary)'
-    color = 'var(--text-primary)'
-    fontWeight = 600
-  } else if (hover) {
-    background = 'var(--bg-elevated)'
-    borderColor = 'var(--text-subtle)'
-    color = 'var(--text-primary)'
-    fontWeight = 500
-  } else {
-    background = 'var(--bg-elevated)'
-    borderColor = 'var(--border)'
-    color = 'var(--text-muted)'
-    fontWeight = 500
+const styles = `
+  .wp-wrap {
+    background: #FFFFFF; border: 1px solid #E5EAF3; border-radius: 14px; overflow: hidden;
   }
 
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        background,
-        border: `1px solid ${borderColor}`,
-        color,
-        padding: '5px 12px',
-        borderRadius: 'var(--radius-sm)',
-        fontSize: 12,
-        fontWeight,
-        cursor: 'pointer',
-        transition: 'background 0.15s, border-color 0.15s, color 0.15s',
-        fontFamily: 'Inter, sans-serif',
-      }}
-    >
-      {weapon}
-    </button>
-  )
-}
+  /* ── Header ── */
+  .wp-head {
+    padding: 13px 16px; background: #F8FAFD; border-bottom: 1px solid #E5EAF3;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .wp-head-row { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .wp-head-icon {
+    width: 26px; height: 26px; border-radius: 8px; background: #EAF2FF; color: #2563FF;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .wp-head-title {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 15px;
+    text-transform: uppercase; letter-spacing: 0.06em; color: #0B1224;
+  }
+  .wp-head-hint {
+    font-family: 'Inter', sans-serif; font-size: 11.5px; color: #94A3B8;
+  }
+
+  .wp-selected { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .wp-selected-label {
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: #64748B;
+  }
+  .wp-selected-none {
+    font-family: 'Inter', sans-serif; font-size: 11.5px; color: #94A3B8; font-style: italic;
+  }
+  .wp-chip {
+    background: #EAF2FF; border: 1px solid rgba(37,99,255,0.25); color: #2563FF;
+    padding: 3px 8px 3px 11px; border-radius: 999px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .wp-chip:hover { background: #FFF0F2; border-color: rgba(239,51,64,0.35); color: #EF3340; }
+  }
+
+  /* ── Search ── */
+  .wp-search-wrap {
+    position: relative; padding: 12px 16px; border-bottom: 1px solid #E5EAF3;
+  }
+  .wp-search-icon {
+    position: absolute; left: 28px; top: 50%; transform: translateY(-50%);
+    color: #94A3B8; pointer-events: none;
+  }
+  .wp-search {
+    width: 100%; box-sizing: border-box;
+    background: #F8FAFD; border: 1px solid #E5EAF3; border-radius: 10px;
+    padding: 8px 34px 8px 34px;
+    font-family: 'Inter', sans-serif; font-size: 13px; color: #0B1224;
+    outline: none; transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .wp-search:focus { border-color: #2563FF; background: #FFFFFF; }
+  .wp-search::placeholder { color: #94A3B8; }
+  .wp-search-clear {
+    position: absolute; right: 26px; top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #E5EAF3; border: none; color: #475569; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── Toast ── */
+  .wp-toast { overflow: hidden; background: #FFFBEB; border-bottom: 1px solid rgba(245,158,11,0.25); }
+  .wp-toast-inner {
+    display: flex; align-items: center; gap: 7px; padding: 9px 16px;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; color: #D97706;
+  }
+
+  /* ── Categories ── */
+  .wp-cat-head {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 12px 16px; background: transparent; border: none;
+    cursor: pointer; text-align: left; transition: background 0.15s ease;
+  }
+  .wp-cat-head:disabled { cursor: default; }
+  @media (hover: hover) and (pointer: fine) {
+    .wp-cat-head:not(:disabled):hover { background: #F8FAFF; }
+  }
+  .wp-cat-label {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 14px;
+    text-transform: uppercase; letter-spacing: 0.06em; color: #0B1224;
+  }
+  .wp-cat-short { font-family: 'Inter', sans-serif; font-size: 11.5px; color: #94A3B8; }
+  .wp-cat-active {
+    background: #EAF2FF; border: 1px solid rgba(37,99,255,0.2); color: #2563FF;
+    padding: 2px 8px; border-radius: 999px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 9.5px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .wp-cat-count {
+    font-family: 'Inter', sans-serif; font-size: 11.5px; color: #94A3B8;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .wp-guns { display: flex; flex-wrap: wrap; gap: 7px; padding: 2px 16px 16px; }
+  .wp-gun {
+    background: #F8FAFD; border: 1px solid #E5EAF3; color: #475569;
+    padding: 6px 13px; border-radius: 9px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .wp-gun:not(.is-active):hover { border-color: #C7D7FB; color: #0B1224; background: #F2F7FF; }
+  }
+  .wp-gun.is-active {
+    background: linear-gradient(135deg, #2563FF, #5B3DF5); border-color: transparent;
+    color: #FFFFFF; font-weight: 600;
+    box-shadow: 0 3px 10px rgba(37,99,255,0.26);
+  }
+
+  .wp-empty {
+    padding: 22px 16px; text-align: center;
+    font-family: 'Inter', sans-serif; font-size: 12.5px; color: #94A3B8;
+  }
+  .wp-hits {
+    padding: 0 16px 13px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: #94A3B8;
+  }
+`

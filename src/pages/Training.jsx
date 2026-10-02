@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import {
   Target, ClipboardList, Plus, RotateCcw, Sparkles, CalendarClock,
   CheckCircle2, ArrowRight, Swords, Skull, Star, TrendingUp, Flame,
   Trophy, Lightbulb, Clock, Zap, X,
-  Clipboard,
+  Clipboard, BarChart3,
 } from 'lucide-react'
 import {
   collection, getDocs, orderBy, query, updateDoc, doc,
@@ -27,7 +27,7 @@ import { useUserData } from '../hooks/useUserData.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { awardXP, XP_AWARDS } from '../utils/xp.js'
 import { saveDailySession } from '../utils/db.js'
-import { todayKey } from '../utils/helpers.js'
+import { todayKey, dateKey } from '../utils/helpers.js'
 
 import ModuleCard from '../components/ModuleCard.jsx'
 import CreateModuleModal from '../components/CreateModuleModal.jsx'
@@ -36,13 +36,21 @@ import SessionBanner from '../components/SessionBanner.jsx'
 import EndSessionModal from '../components/EndSessionModal.jsx'
 import TodayPlanBanner from '../components/TodayPlanBanner.jsx'
 import MatchLogger from '../components/MatchLogger.jsx'
+import MotivationCarousel from '../components/MotivationCarousel.jsx'
 
 const PLANS_KEY = 'esportselite_training_plans'
+
+/* Emil-style strong ease-out — the house curve for entrances. */
+const EASE = [0.22, 1, 0.36, 1]
 
 const TABS = [
   { id: 'modules', label: 'Training Modules', icon: Target },
   { id: 'logger',  label: 'Match Logger',     icon: ClipboardList },
 ]
+
+/* A soft daily target used only to render the hero completion ring:
+   three drills plus one logged match reads as a full day. */
+const DAILY_GOAL_UNITS = 4
 
 /* ── helpers ── */
 function timeAgo(ts) {
@@ -65,6 +73,48 @@ function findModuleIdByName(modules, moduleName) {
   return partial?.id || null
 }
 
+/* rAF count-up. Returns the live value; jumps straight to target when
+   reduced motion is on or the value isn't numeric. */
+function useCountUp(target, { duration = 900, enabled = true } = {}) {
+  const numeric = Number(target)
+  const isNum = Number.isFinite(numeric)
+  const [val, setVal] = useState(enabled && isNum ? 0 : numeric)
+
+  useEffect(() => {
+    if (!isNum) return
+    if (!enabled) { setVal(numeric); return }
+    let raf = 0
+    let start
+    const step = (t) => {
+      if (start === undefined) start = t
+      const p = Math.min(1, (t - start) / duration)
+      const eased = 1 - Math.pow(1 - p, 3)
+      setVal(numeric * eased)
+      if (p < 1) raf = requestAnimationFrame(step)
+    }
+    raf = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf)
+  }, [numeric, isNum, duration, enabled])
+
+  return isNum ? val : numeric
+}
+
+/* Renders a stat value that counts up on mount. `value` of null renders
+   the em-dash placeholder without any animation. */
+function CountStat({ value, prefix = '', suffix = '', decimals = 0, style }) {
+  const reduce = useReducedMotion()
+  const isEmpty = value === null || value === undefined || value === ''
+  const live = useCountUp(isEmpty ? 0 : value, { enabled: !reduce && !isEmpty })
+
+  if (isEmpty) return <span style={style}>—</span>
+
+  const shown = decimals > 0
+    ? live.toFixed(decimals)
+    : Math.round(live).toLocaleString()
+
+  return <span style={{ fontVariantNumeric: 'tabular-nums', ...style }}>{prefix}{shown}{suffix}</span>
+}
+
 /* ================================================================
    ROOT PAGE
    ================================================================ */
@@ -75,6 +125,7 @@ export default function Training() {
   const [endOpen, setEndOpen] = useState(false)
   const { user: authUser } = useAuth()
   const { refreshData, matches, sessions, xp, streak, profile } = useUserData()
+  const reduce = useReducedMotion()
 
   /* weapons selected in the active drill — written by ModuleCard via localStorage */
   const [sessionWeapons, setSessionWeapons] = useLocalStorage('ee_session_weapons', [])
@@ -91,6 +142,13 @@ export default function Training() {
     if (drillCount > 0 || matchCount > 0) return 'in_progress'
     return 'not_started'
   }, [trainingDaily.todaysStatus, matchesDaily.todaysStatus, drillCount, matchCount])
+
+  /* Hero ring: today's completion against the soft daily target. */
+  const todayPct = useMemo(() => {
+    if (combinedStatus === 'completed') return 100
+    const units = drillCount + matchCount
+    return Math.min(100, Math.round((units / DAILY_GOAL_UNITS) * 100))
+  }, [combinedStatus, drillCount, matchCount])
 
   useEffect(() => { refreshData(); /* eslint-disable-next-line */ }, [])
   useEffect(() => { if (focusModuleId) setTab('modules') }, [focusModuleId])
@@ -154,96 +212,14 @@ export default function Training() {
 
       <TodayPlanBanner />
 
-      {/* ── Page header ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        style={{
-          background: 'linear-gradient(135deg, #F7F9FD 0%, #EEF4FF 60%, #FFF0F2 100%)',
-          borderRadius: 16, padding: 32,
-          position: 'relative', overflow: 'hidden',
-          marginBottom: 20, marginTop: 4,
-        }}
-      >
-        {/* Dot grid overlay */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(37,99,255,0.06) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none', zIndex: 0 }} />
-        {/* Blue glow */}
-        <div style={{ position: 'absolute', top: -60, left: -60, width: 300, height: 300, background: 'radial-gradient(circle, rgba(37,99,255,0.1) 0%, transparent 65%)', pointerEvents: 'none' }} />
-        {/* Red glow */}
-        <div style={{ position: 'absolute', bottom: -40, right: -40, width: 250, height: 250, background: 'radial-gradient(circle, rgba(239,51,64,0.07) 0%, transparent 65%)', pointerEvents: 'none' }} />
-        {/* Content */}
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{
-            fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 48,
-            color: '#0B1224', margin: 0, letterSpacing: '0.02em', textTransform: 'uppercase',
-            lineHeight: 1,
-          }}>
-            Training Center
-          </h1>
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            style={{ width: 64, height: 3, background: 'linear-gradient(90deg,#2563FF,#EF3340)', borderRadius: 2, marginTop: 12, marginBottom: 12, transformOrigin: 'left' }}
-          />
-          <p style={{
-            fontFamily: 'Inter, sans-serif', fontWeight: 400,
-            fontSize: 15, color: '#64748B', margin: 0,
-          }}>
-            Track your practice, improve and dominate.
-          </p>
-        </div>
-      </motion.div>
+      <HeroHeader
+        pct={todayPct}
+        drillCount={drillCount}
+        matchCount={matchCount}
+        reduce={reduce}
+      />
 
-      {/* ── Tab switcher ── */}
-      <div
-        {...tabSwipe}
-        className="tc-tab-switcher"
-        style={{
-          display: 'inline-flex',
-          background: '#FFFFFF',
-          border: '1px solid #E5EAF3',
-          borderRadius: 12,
-          padding: 4,
-          marginBottom: 24,
-          alignSelf: 'flex-start',
-          gap: 4,
-          position: 'relative',
-        }}
-      >
-        {TABS.map(t => {
-          const Icon = t.icon
-          const active = tab === t.id
-          return (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              style={{
-                background: active ? 'linear-gradient(135deg,#2563FF,#5B3DF5)' : 'transparent',
-                border: 'none',
-                borderRadius: 8,
-                color: active ? '#FFFFFF' : '#64748B',
-                padding: '10px 24px',
-                fontSize: 14,
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: active ? 600 : 500,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                boxShadow: active ? '0 4px 12px rgba(37,99,255,0.25)' : 'none',
-                transition: 'all 0.15s ease',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = '#F8FAFF'; e.currentTarget.style.color = '#0B1224' } }}
-              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748B' } }}
-            >
-              <Icon size={15} /> {t.label}
-            </button>
-          )
-        })}
-      </div>
+      <TabSwitcher tab={tab} onChange={setTab} swipe={tabSwipe} />
 
       <div key={tab} className="tc-tab-content">
         {tab === 'modules' ? (
@@ -281,6 +257,130 @@ export default function Training() {
 }
 
 /* ================================================================
+   HERO HEADER — gradient field, layered depth, live completion ring
+   ================================================================ */
+function HeroHeader({ pct, drillCount, matchCount, reduce }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: reduce ? 0 : 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: EASE }}
+      className="tc-hero"
+    >
+      {/* Decorative layers — pointer-events none, below content */}
+      <div className="tc-hero-dots" aria-hidden />
+      <div className="tc-hero-glow-blue" aria-hidden />
+      <div className="tc-hero-glow-red" aria-hidden />
+
+      <div className="tc-hero-inner">
+        <div style={{ minWidth: 0 }}>
+          <div className="tc-hero-kicker">
+            <Sparkles size={13} /> Your Practice Hub
+          </div>
+          <h1 className="tc-hero-title">Training Center</h1>
+          <motion.div
+            className="tc-hero-accent"
+            initial={{ scaleX: reduce ? 1 : 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.25, ease: EASE }}
+          />
+          <p className="tc-hero-sub">Track your practice, improve and dominate.</p>
+        </div>
+
+        <CompletionRing
+          pct={pct}
+          drillCount={drillCount}
+          matchCount={matchCount}
+          reduce={reduce}
+        />
+      </div>
+    </motion.div>
+  )
+}
+
+/* Circular SVG progress — stroke-dashoffset animated from empty to pct. */
+function CompletionRing({ pct, drillCount, matchCount, reduce }) {
+  const size = 92
+  const stroke = 8
+  const r = (size - stroke) / 2
+  const circumference = 2 * Math.PI * r
+  const safePct = Math.max(0, Math.min(100, Number(pct) || 0))
+  const offset = circumference - (safePct / 100) * circumference
+
+  return (
+    <div className="tc-hero-ring">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
+        <circle
+          cx={size / 2} cy={size / 2} r={r}
+          fill="none" stroke="#E5EAF3" strokeWidth={stroke}
+        />
+        <motion.circle
+          cx={size / 2} cy={size / 2} r={r}
+          fill="none" stroke="#2563FF" strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          initial={{ strokeDashoffset: reduce ? offset : circumference }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1, delay: 0.35, ease: EASE }}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </svg>
+      <div className="tc-hero-ring-center">
+        <CountStat
+          value={safePct}
+          suffix="%"
+          style={{
+            fontFamily: 'Inter, sans-serif', fontWeight: 800,
+            fontSize: 20, color: '#0B1224', lineHeight: 1,
+          }}
+        />
+        <span className="tc-hero-ring-label">Today</span>
+      </div>
+      <div className="tc-hero-ring-meta">
+        {drillCount} drill{drillCount === 1 ? '' : 's'} · {matchCount} match{matchCount === 1 ? '' : 'es'}
+      </div>
+    </div>
+  )
+}
+
+/* ================================================================
+   TAB SWITCHER — sliding layoutId pill
+   ================================================================ */
+function TabSwitcher({ tab, onChange, swipe }) {
+  const reduce = useReducedMotion()
+  return (
+    <div {...swipe} className="tc-tab-switcher">
+      {TABS.map(t => {
+        const Icon = t.icon
+        const active = tab === t.id
+        return (
+          <button
+            key={t.id}
+            onClick={() => onChange(t.id)}
+            className={`tc-tab-btn ${active ? 'is-active' : ''}`}
+            aria-pressed={active}
+          >
+            {active && (
+              <motion.span
+                layoutId="trainingTab"
+                className="tc-tab-pill"
+                aria-hidden
+                transition={reduce
+                  ? { duration: 0 }
+                  : { type: 'spring', stiffness: 420, damping: 34 }}
+              />
+            )}
+            <span className="tc-tab-label">
+              <Icon size={15} /> {t.label}
+            </span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ================================================================
    TRAINING MODULES TAB — 2-column layout
    ================================================================ */
 function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, totalDuration, onWeaponsChange }) {
@@ -288,6 +388,7 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
     modules, addModule, updateModule, deleteModule, duplicateModule,
     restoreDefaults, reorderModules, reorderDrills,
   } = useModules()
+  const reduce = useReducedMotion()
 
   const [createOpen, setCreateOpen] = useState(false)
   const modulesRef  = useRef(null)
@@ -346,6 +447,7 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
   }
 
   const customCount = modules.filter(m => !m.isDefault).length
+  const totalDrills = modules.reduce((acc, m) => acc + (m.drills?.length || 0), 0)
 
   return (
     <div className="tc-two-col">
@@ -355,46 +457,50 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
         <CalendarStrip context="training" onTodayAction={scrollToModules} />
 
         <div id="training-modules-section" ref={modulesRef} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 600, color: '#0B1224' }}>
-                <Target size={15} style={{ color: '#2563FF' }} />
-                DRILLS ({modules.reduce((acc, m) => acc + (m.drills?.length || 0), 0)})
+          <div className="tc-section-head">
+            <div style={{ minWidth: 0 }}>
+              <div className="tc-section-title">
+                <span className="tc-section-icon"><Target size={14} /></span>
+                Training Blocks
               </div>
-              <div style={{ fontSize: 12, color: '#64748B', fontFamily: 'Inter, sans-serif', marginTop: 2 }}>
-                {modules.length} module{modules.length === 1 ? '' : 's'}
+              <div className="tc-section-meta">
+                {totalDrills} drill{totalDrills === 1 ? '' : 's'} across {modules.length} module{modules.length === 1 ? '' : 's'}
                 {customCount > 0 ? ` · ${customCount} custom` : ''}
               </div>
             </div>
-            <button
+            <motion.button
               onClick={() => setCreateOpen(true)}
               className="tc-pill-btn"
-              style={{
-                background: '#2563FF', border: 'none', borderRadius: 999,
-                color: '#fff', padding: '8px 10px 8px 20px', fontSize: 13,
-                fontFamily: 'Inter, sans-serif', fontWeight: 600,
-                cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8,
-                boxShadow: '0 4px 14px rgba(37,99,255,0.25), inset 0 1px 0 rgba(255,255,255,0.12)',
-                transition: 'opacity 0.18s cubic-bezier(0.23,1,0.32,1), transform 0.18s cubic-bezier(0.23,1,0.32,1)',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'scale(1.02)' }}
-              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)' }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
             >
               Add Drill
-              <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Plus size={13} />
-              </span>
-            </button>
+              <span className="tc-pill-btn-icon"><Plus size={13} /></span>
+            </motion.button>
           </div>
 
           {modules.length === 0 ? (
-            <div className="card empty-state">
-              <Sparkles size={28} className="empty-state-icon" />
-              <div className="empty-state-title">No modules yet</div>
-              <div className="empty-state-desc">Restore the defaults or build your own.</div>
-              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 10, flexWrap: 'wrap' }}>
-                <button onClick={() => setCreateOpen(true)} className="btn btn-primary btn-sm"><Plus size={13} /> Create module</button>
-                <button onClick={restoreDefaults} className="btn btn-secondary btn-sm"><RotateCcw size={13} /> Restore defaults</button>
+            <div className="tc-empty-card">
+              <LayeredIcon Icon={Sparkles} tint="#2563FF" />
+              <div className="tc-empty-title">No modules yet</div>
+              <div className="tc-empty-desc">Restore the defaults or build your own training block.</div>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 14, flexWrap: 'wrap' }}>
+                <motion.button
+                  onClick={() => setCreateOpen(true)}
+                  className="tc-btn-primary"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <Plus size={13} /> Create module
+                </motion.button>
+                <motion.button
+                  onClick={restoreDefaults}
+                  className="tc-btn-ghost"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <RotateCcw size={13} /> Restore defaults
+                </motion.button>
               </div>
             </div>
           ) : (
@@ -404,7 +510,13 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
                   {modules.map((m, i) => {
                     const isFocused = focusModuleId === m.id
                     return (
-                      <div key={m.id} ref={isFocused ? focusRowRef : undefined} className="tc-module-wrap" style={{ animationDelay: `${Math.min(i, 6) * 0.055}s` }}>
+                      <motion.div
+                        key={m.id}
+                        ref={isFocused ? focusRowRef : undefined}
+                        initial={{ opacity: 0, x: reduce ? 0 : -14 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.38, delay: Math.min(i, 6) * 0.05, ease: EASE }}
+                      >
                         <ModuleCard
                           module={m}
                           defaultOpen={isFocused || (!focusModuleId && i === 0)}
@@ -415,7 +527,7 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
                           todayPlan={planForModule(m.name)}
                           onWeaponsChange={onWeaponsChange}
                         />
-                      </div>
+                      </motion.div>
                     )
                   })}
                 </div>
@@ -425,18 +537,24 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
 
           {modules.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
-              <button onClick={restoreDefaults} className="btn btn-secondary btn-sm">
+              <motion.button
+                onClick={restoreDefaults}
+                className="tc-btn-ghost"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+              >
                 <RotateCcw size={13} /> Restore default modules
-              </button>
+              </motion.button>
             </div>
           )}
         </div>
       </div>
 
-      {/* ── Right column ── */}
+      {/* ── Right column — Training Intelligence ── */}
       <div className="tc-right" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <QuickStatsCard sessions={sessions} streak={streak} drillCount={drillCount} totalDuration={totalDuration} />
-        <MotivationalCard />
+        <ThisWeekChart sessions={sessions} />
+        <MotivationCarousel />
       </div>
 
       <CreateModuleModal
@@ -539,19 +657,11 @@ function TodayScheduledDrills({ uid }) {
 
   if (drillTasks.length === 0) {
     return (
-      <div style={{
-        background: '#FFFFFF', border: '1px solid #E5EAF3',
-        borderRadius: 12, padding: '14px 20px',
-        display: 'flex', alignItems: 'center', gap: 10,
-        boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
-      }}>
+      <div className="tc-note-card">
         <CalendarClock size={14} style={{ color: '#2563FF', flexShrink: 0 }} />
-        <span style={{ fontSize: 13, color: '#64748B', fontFamily: 'Inter, sans-serif' }}>
+        <span className="tc-note-text">
           No drills scheduled for today. Check your{' '}
-          <button
-            onClick={() => navigate('/scheduler')}
-            style={{ background: 'none', border: 'none', color: '#2563FF', cursor: 'pointer', fontSize: 13, padding: 0, fontFamily: 'inherit', fontWeight: 600 }}
-          >full plan</button>
+          <button onClick={() => navigate('/scheduler')} className="tc-inline-link">full plan</button>
           {' '}for other tasks.
         </span>
       </div>
@@ -559,176 +669,158 @@ function TodayScheduledDrills({ uid }) {
   }
 
   return (
-    <div style={{ background: 'rgba(37,99,255,0.012)', border: '1px solid rgba(37,99,255,0.06)', borderRadius: 17, padding: 3 }}>
-    <div style={{
-      background: '#FFFFFF',
-      borderRadius: 14, padding: 20,
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(15,23,42,0.04)',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+    <div className="tc-card">
+      <div className="tc-card-head">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', minWidth: 0 }}>
           <CalendarClock size={15} style={{ color: '#2563FF', flexShrink: 0 }} />
-          <span style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#64748B' }}>
-            Today's Scheduled Drills
-          </span>
-          <span style={{
-            background: '#EAF2FF', border: '1px solid rgba(37,99,255,0.2)',
-            color: '#2563FF', borderRadius: 4, padding: '2px 8px',
-            fontSize: 11, fontFamily: 'Inter, sans-serif', fontWeight: 500,
-          }}>
-            {data.planName}
-          </span>
+          <span className="tc-card-label">Today's Scheduled Drills</span>
+          <span className="tc-plan-chip">{data.planName}</span>
         </div>
-        <button
-          onClick={() => navigate('/scheduler')}
-          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#2563FF', fontSize: 12, fontFamily: 'Inter, sans-serif', display: 'flex', alignItems: 'center', gap: 4, padding: 0, flexShrink: 0, fontWeight: 600 }}
-        >
+        <button onClick={() => navigate('/scheduler')} className="tc-link-btn">
           View Full Plan <ArrowRight size={11} />
         </button>
       </div>
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {drillTasks.map((task, i) => (
-          <ScheduledDrillRow key={task.id} task={task} index={i} onToggle={(done) => markTaskDone(task.id, done)} onStart={() => startDrill(task)} />
+          <ScheduledDrillRow
+            key={task.id}
+            task={task}
+            index={i}
+            onToggle={(done) => markTaskDone(task.id, done)}
+            onStart={() => startDrill(task)}
+          />
         ))}
       </div>
+
       {allDrillsDone && (
-        <div style={{
-          marginTop: 12, padding: '8px 12px',
-          background: 'rgba(22,163,74,0.06)', border: '1px solid rgba(22,163,74,0.2)',
-          borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8,
-          color: '#16A34A', fontSize: 12, fontFamily: 'Inter, sans-serif',
-        }}>
+        <div className="tc-all-done">
           <CheckCircle2 size={13} />
           All drills done! Go to{' '}
-          <button
-            onClick={() => navigate('/scheduler')}
-            style={{ background: 'none', border: 'none', color: '#16A34A', cursor: 'pointer', fontSize: 12, padding: 0, fontWeight: 600, fontFamily: 'inherit' }}
-          >Scheduler</button>
+          <button onClick={() => navigate('/scheduler')} className="tc-inline-link tc-inline-link--green">Scheduler</button>
           {' '}to complete the day and earn XP.
         </div>
       )}
-    </div>
     </div>
   )
 }
 
 function ScheduledDrillRow({ task, index, onToggle, onStart }) {
+  const reduce = useReducedMotion()
   return (
-    <div className="tc-drill-row" style={{
-      display: 'flex', alignItems: 'flex-start', gap: 10,
-      padding: '10px 12px',
-      background: '#F8FAFD',
-      border: `1px solid ${task.done ? 'rgba(22,163,74,0.2)' : 'rgba(37,99,255,0.08)'}`,
-      borderLeft: `3px solid ${task.done ? 'rgba(22,163,74,0.45)' : 'rgba(37,99,255,0.2)'}`,
-      borderRadius: 8,
-      animationDelay: `${(index || 0) * 0.05}s`,
-    }}>
-      <button
-        type="button"
-        onClick={() => onToggle(!task.done)}
-        style={{
-          width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 2,
-          background: task.done ? '#16A34A' : 'transparent',
-          border: `1px solid ${task.done ? '#16A34A' : '#D0DAE8'}`,
-          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', transition: 'all 0.15s ease',
-        }}
-      >
-        {task.done && <CheckCircle2 size={11} strokeWidth={3} />}
-      </button>
+    <motion.div
+      className={`tc-drill-row ${task.done ? 'is-done' : ''}`}
+      initial={{ opacity: 0, y: reduce ? 0 : 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: (index || 0) * 0.04, ease: EASE }}
+    >
+      <CheckToggle done={!!task.done} onToggle={() => onToggle(!task.done)} />
+
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: task.description ? 3 : 0 }}>
-          <span style={{
-            fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 500,
-            color: task.done ? '#94A3B8' : '#0B1224',
-            textDecoration: task.done ? 'line-through' : 'none',
-          }}>{task.title || 'Drill'}</span>
-          {task.duration > 0 && (
-            <span style={{
-              background: '#F1F5F9', border: '1px solid #E5EAF3',
-              color: '#64748B', borderRadius: 4, padding: '1px 7px',
-              fontSize: 11, fontFamily: 'Inter, sans-serif',
-            }}>{task.duration} min</span>
-          )}
+          <span className={`tc-drill-name ${task.done ? 'is-done' : ''}`}>{task.title || 'Drill'}</span>
+          {task.duration > 0 && <span className="tc-dur-chip">{task.duration} min</span>}
         </div>
-        {task.description && (
-          <div style={{ fontSize: 12, fontFamily: 'Inter, sans-serif', color: '#94A3B8', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {task.description}
-          </div>
-        )}
+        {task.description && <div className="tc-drill-desc">{task.description}</div>}
       </div>
+
       {task.done ? (
-        <span style={{
-          border: '1px solid rgba(22,163,74,0.4)', color: '#16A34A',
-          borderRadius: 6, padding: '5px 12px', fontSize: 12,
-          fontFamily: 'Inter, sans-serif', fontWeight: 600,
-          flexShrink: 0, whiteSpace: 'nowrap',
-        }}>Completed ✓</span>
+        <span className="tc-done-badge">Completed</span>
       ) : (
-        <button
+        <motion.button
           onClick={onStart}
-          style={{
-            background: '#2563FF', color: '#fff', border: 'none',
-            borderRadius: 999, padding: '6px 8px 6px 14px', fontSize: 12,
-            fontFamily: 'Inter, sans-serif', fontWeight: 600,
-            cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap',
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            boxShadow: '0 2px 8px rgba(37,99,255,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
-            transition: 'opacity 0.18s cubic-bezier(0.23,1,0.32,1), transform 0.18s cubic-bezier(0.23,1,0.32,1)',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; e.currentTarget.style.transform = 'scale(1.03)' }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)' }}
+          className="tc-start-btn"
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
         >
           Start
-          <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ArrowRight size={11} />
-          </span>
-        </button>
+          <span className="tc-start-btn-icon"><ArrowRight size={11} /></span>
+        </motion.button>
       )}
-    </div>
+    </motion.div>
+  )
+}
+
+/* Completion toggle with a scale-pop + colour flash on commit. */
+function CheckToggle({ done, onToggle }) {
+  const reduce = useReducedMotion()
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-pressed={done}
+      aria-label={done ? 'Mark as not done' : 'Mark as done'}
+      className={`tc-check ${done ? 'is-done' : ''}`}
+    >
+      <AnimatePresence initial={false}>
+        {done && (
+          <motion.span
+            key="tick"
+            initial={reduce ? { opacity: 0 } : { scale: 0, opacity: 0 }}
+            animate={reduce ? { opacity: 1 } : { scale: [0, 1.2, 1], opacity: 1 }}
+            exit={reduce ? { opacity: 0 } : { scale: 0, opacity: 0 }}
+            transition={{ duration: reduce ? 0.15 : 0.32, ease: EASE }}
+            style={{ display: 'flex' }}
+          >
+            <CheckCircle2 size={12} strokeWidth={3} />
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </button>
   )
 }
 
 /* ================================================================
-   MATCH LOGGER TAB — stat row
+   MATCH LOGGER TAB — stat row with count-up numbers
    ================================================================ */
 function TodayMatchStatsRow({ matchCount, avgKills, avgPlacement, winRate, avgDamage }) {
+  const reduce = useReducedMotion()
   const cards = [
-    { Icon: Swords,     color: '#2563FF', label: 'Matches Logged', value: matchCount || '—' },
-    { Icon: Target,     color: '#2563FF', label: 'Avg Placement',  value: avgPlacement != null ? `#${avgPlacement}` : '—' },
-    { Icon: Skull,      color: '#EF3340', label: 'Avg Kills',      value: avgKills ?? '—' },
-    { Icon: Star,       color: '#F59E0B', label: 'Win Rate',       value: winRate != null ? `${winRate}%` : '—' },
-    { Icon: TrendingUp, color: '#16A34A', label: 'Avg Damage',     value: avgDamage != null ? avgDamage : '—' },
+    { Icon: Swords,     color: '#2563FF', tint: '#EAF2FF', label: 'Matches Logged', num: matchCount || null, prefix: '',  suffix: '',  decimals: 0 },
+    { Icon: Target,     color: '#5B3DF5', tint: '#F0EEFF', label: 'Avg Placement',  num: avgPlacement,        prefix: '#', suffix: '',  decimals: 0 },
+    { Icon: Skull,      color: '#EF3340', tint: '#FFF0F2', label: 'Avg Kills',      num: avgKills,            prefix: '',  suffix: '',  decimals: 1 },
+    { Icon: Star,       color: '#F59E0B', tint: '#FFFBEB', label: 'Win Rate',       num: winRate,             prefix: '',  suffix: '%', decimals: 0 },
+    { Icon: TrendingUp, color: '#16A34A', tint: '#F0FDF4', label: 'Avg Damage',     num: avgDamage,           prefix: '',  suffix: '',  decimals: 0 },
   ]
+
   return (
     <div className="match-logger-stats-row" style={{ gap: 10 }}>
-      {cards.map(({ Icon, color, label, value }) => (
-        <div key={label} className="tc-stat-card" style={{
-          background: '#FFFFFF', border: '1px solid #E5EAF3',
-          borderRadius: 12, padding: 16,
-          boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
-        }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: color === '#EF3340' ? '#FFF0F2' : color === '#F59E0B' ? '#FFFBEB' : color === '#16A34A' ? '#F0FDF4' : '#EAF2FF',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            marginBottom: 10,
-          }}>
+      {cards.map(({ Icon, color, tint, label, num, prefix, suffix, decimals }, i) => (
+        <motion.div
+          key={label}
+          className="tc-stat-card"
+          initial={{ opacity: 0, y: reduce ? 0 : 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: i * 0.055, ease: EASE }}
+          whileHover={{ y: -2 }}
+        >
+          <div className="tc-stat-icon" style={{ background: tint }}>
             <Icon size={18} style={{ color }} />
           </div>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#64748B', marginBottom: 4, lineHeight: 1.3, fontWeight: 500 }}>{label}</div>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 22, color: '#0B1224', lineHeight: 1 }}>{value}</div>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#94A3B8', marginTop: 4 }}>Today</div>
-        </div>
+          <div className="tc-stat-label">{label}</div>
+          <CountStat
+            value={num}
+            prefix={prefix}
+            suffix={suffix}
+            decimals={decimals}
+            style={{
+              fontFamily: 'Inter, sans-serif', fontWeight: 800,
+              fontSize: 24, color: '#0B1224', lineHeight: 1,
+              display: 'block',
+            }}
+          />
+          <div className="tc-stat-foot">Today</div>
+        </motion.div>
       ))}
     </div>
   )
 }
 
 /* ================================================================
-   RIGHT SIDEBAR — TRAINING MODULES TAB
+   RIGHT SIDEBAR — TRAINING INTELLIGENCE
    ================================================================ */
 function QuickStatsCard({ sessions, streak, drillCount, totalDuration }) {
+  const reduce = useReducedMotion()
   const totalSessions = Array.isArray(sessions) ? sessions.length : 0
   const totalMinutes  = Array.isArray(sessions) ? sessions.reduce((s, sess) => s + (Number(sess.durationSeconds || 0) / 60), 0) : 0
   const hours = Math.floor(totalMinutes / 60)
@@ -737,56 +829,114 @@ function QuickStatsCard({ sessions, streak, drillCount, totalDuration }) {
   const bestStreak    = streak?.longestStreak || streak?.bestStreak || 0
 
   const STATS = [
-    { Icon: Clock,         color: '#2563FF', label: 'Total Practice Time', value: `${hours}h ${mins}m` },
-    { Icon: CalendarClock, color: '#EF3340', label: 'Sessions Completed',  value: totalSessions },
-    { Icon: Target,        color: '#5B3DF5', label: 'Drills Completed',    value: totalSessions },
-    { Icon: Flame,         color: '#EF3340', label: 'Current Streak',      value: `${currentStreak}d` },
-    { Icon: Trophy,        color: '#F59E0B', label: 'Best Streak',         value: `${bestStreak}d` },
-    { Icon: TrendingUp,    color: '#16A34A', label: 'Consistency',         value: totalSessions > 0 ? `${Math.min(100, Math.round((currentStreak / 7) * 100))}%` : '—' },
+    { Icon: Clock,         color: '#2563FF', tint: '#EAF2FF', label: 'Practice Time', text: `${hours}h ${mins}m` },
+    { Icon: CalendarClock, color: '#5B3DF5', tint: '#F0EEFF', label: 'Sessions',      num: totalSessions },
+    { Icon: Target,        color: '#1677FF', tint: '#EAF2FF', label: 'Drills Done',   num: totalSessions },
+    { Icon: Flame,         color: '#EF3340', tint: '#FFF0F2', label: 'Streak',        num: currentStreak, suffix: 'd' },
+    { Icon: Trophy,        color: '#F59E0B', tint: '#FFFBEB', label: 'Best Streak',   num: bestStreak, suffix: 'd' },
+    { Icon: TrendingUp,    color: '#16A34A', tint: '#F0FDF4', label: 'Consistency',   num: totalSessions > 0 ? Math.min(100, Math.round((currentStreak / 7) * 100)) : null, suffix: '%' },
   ]
 
   return (
-    <div style={{ background: 'rgba(37,99,255,0.012)', border: '1px solid rgba(37,99,255,0.06)', borderRadius: 17, padding: 3 }}>
-    <div style={{
-      background: '#FFFFFF',
-      borderRadius: 14, padding: 20,
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(15,23,42,0.04)',
-    }}>
-      <div style={{ ...sectionLabelStyle, marginBottom: 14 }}>QUICK STATS</div>
-      {STATS.map(({ Icon, color, label, value }, i) => (
-        <div key={label} style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '8px 0',
-          borderBottom: i < STATS.length - 1 ? '1px solid #F1F5F9' : 'none',
-        }}>
-          <Icon size={18} style={{ color, flexShrink: 0 }} />
-          <span style={{ flex: 1, fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, color: '#475569' }}>{label}</span>
-          <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 13, color: '#0B1224' }}>{value}</span>
-        </div>
-      ))}
-    </div>
+    <div className="tc-card">
+      <div className="tc-card-label" style={{ marginBottom: 14 }}>Quick Stats</div>
+      <div className="tc-stat-grid">
+        {STATS.map(({ Icon, color, tint, label, num, text, suffix }, i) => (
+          <motion.div
+            key={label}
+            className="tc-stat-tile"
+            style={{ background: tint }}
+            initial={{ opacity: 0, y: reduce ? 0 : 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.04, ease: EASE }}
+          >
+            <Icon size={15} style={{ color, flexShrink: 0 }} />
+            <div style={{ minWidth: 0 }}>
+              <div className="tc-stat-tile-val">
+                {text !== undefined
+                  ? <span style={{ fontVariantNumeric: 'tabular-nums' }}>{text}</span>
+                  : <CountStat value={num} suffix={suffix || ''} />}
+              </div>
+              <div className="tc-stat-tile-label">{label}</div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
     </div>
   )
 }
 
-function MotivationalCard() {
+/* "This Week" — practice minutes per weekday, derived from the same
+   sessions array QuickStats uses (timestamp + durationSeconds). */
+function ThisWeekChart({ sessions }) {
+  const reduce = useReducedMotion()
+  const DOW = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+
+  const week = useMemo(() => {
+    /* Monday-start week keys for the current week. */
+    const now = new Date()
+    const mondayOffset = (now.getDay() + 6) % 7
+    const monday = new Date(now)
+    monday.setHours(0, 0, 0, 0)
+    monday.setDate(now.getDate() - mondayOffset)
+
+    const keys = []
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday)
+      d.setDate(monday.getDate() + i)
+      keys.push(dateKey(d))
+    }
+
+    const totals = keys.map(() => 0)
+    ;(Array.isArray(sessions) ? sessions : []).forEach(s => {
+      if (!s?.timestamp) return
+      const k = dateKey(s.timestamp)
+      const idx = keys.indexOf(k)
+      if (idx >= 0) totals[idx] += (Number(s.durationSeconds) || 0) / 60
+    })
+
+    return keys.map((k, i) => ({ key: k, minutes: Math.round(totals[i]) }))
+  }, [sessions])
+
+  const max = Math.max(...week.map(d => d.minutes), 0)
+  const hasData = max > 0
+  const todayK = todayKey()
+
   return (
-    <div style={{
-      background: 'linear-gradient(135deg, #EEF4FF, #FFF0F3)',
-      border: '1px solid #DCE5FA', borderRadius: 14, padding: 16,
-    }}>
-      <Target size={22} style={{ color: '#2563FF', marginBottom: 10 }} />
-      <div style={{
-        fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 15,
-        color: '#0B1224', marginBottom: 6, lineHeight: 1.4,
-      }}>
-        Stay consistent, get better every day.
+    <div className="tc-card">
+      <div className="tc-card-head" style={{ marginBottom: 14 }}>
+        <span className="tc-card-label">This Week</span>
+        <span className="tc-card-meta">
+          {hasData ? `${week.reduce((s, d) => s + d.minutes, 0)} min total` : 'No data yet'}
+        </span>
       </div>
-      <div style={{
-        fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#64748B', lineHeight: 1.6,
-      }}>
-        Consistency is the key to becoming unstoppable.
-      </div>
+
+      {hasData ? (
+        <div className="tc-bars">
+          {week.map((d, i) => {
+            const h = max > 0 ? Math.max(4, Math.round((d.minutes / max) * 100)) : 4
+            const isToday = d.key === todayK
+            return (
+              <div key={d.key} className="tc-bar-col" title={`${d.minutes} min`}>
+                <div className="tc-bar-track">
+                  <motion.div
+                    className={`tc-bar-fill ${isToday ? 'is-today' : ''}`}
+                    initial={{ height: reduce ? `${h}%` : '0%' }}
+                    animate={{ height: `${h}%` }}
+                    transition={{ duration: 0.6, delay: 0.1 + i * 0.05, ease: EASE }}
+                  />
+                </div>
+                <span className={`tc-bar-label ${isToday ? 'is-today' : ''}`}>{DOW[i]}</span>
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="tc-bars-empty">
+          <BarChart3 size={22} style={{ color: '#94A3B8', opacity: 0.5 }} />
+          <span>Log a drill to start charting your week.</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -795,6 +945,7 @@ function MotivationalCard() {
    RIGHT SIDEBAR — MATCH LOGGER TAB
    ================================================================ */
 function PerformanceScoreCard({ matches }) {
+  const reduce = useReducedMotion()
   const score = useMemo(() => {
     if (!Array.isArray(matches) || matches.length === 0) return null
     const recent = [...matches].sort((a, b) => (Number(b.timestamp) || 0) - (Number(a.timestamp) || 0)).slice(0, 5)
@@ -808,20 +959,18 @@ function PerformanceScoreCard({ matches }) {
   const dashOffset = circumference - Math.min(1, (score || 0) / 100) * circumference
 
   return (
-    <div style={{ background: 'rgba(37,99,255,0.012)', border: '1px solid rgba(37,99,255,0.06)', borderRadius: 17, padding: 3 }}>
-    <div style={{
-      background: '#FFFFFF',
-      borderRadius: 14, padding: 20,
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(15,23,42,0.04)',
-    }}>
-      <div style={{ ...sectionLabelStyle, marginBottom: 16 }}>PERFORMANCE SCORE</div>
+    <div className="tc-card">
+      <div className="tc-card-label" style={{ marginBottom: 16 }}>Performance Score</div>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: score === null ? 10 : 0 }}>
         <svg width="120" height="120" viewBox="0 0 120 120">
           <circle cx="60" cy="60" r={radius} fill="none" stroke="#E5EAF3" strokeWidth="10" />
           {score !== null && (
-            <circle
+            <motion.circle
               cx="60" cy="60" r={radius} fill="none" stroke="#2563FF" strokeWidth="10"
-              strokeDasharray={circumference} strokeDashoffset={dashOffset}
+              strokeDasharray={circumference}
+              initial={{ strokeDashoffset: reduce ? dashOffset : circumference }}
+              animate={{ strokeDashoffset: dashOffset }}
+              transition={{ duration: 1, delay: 0.2, ease: EASE }}
               strokeLinecap="round" transform="rotate(-90 60 60)"
             />
           )}
@@ -836,223 +985,563 @@ function PerformanceScoreCard({ matches }) {
         </svg>
       </div>
       {score === null && (
-        <div style={{
-          textAlign: 'center', fontSize: 13,
-          color: '#64748B', fontFamily: 'Inter, sans-serif', lineHeight: 1.5,
-        }}>
-          Complete matches to unlock your score
-        </div>
+        <div className="tc-card-empty-text">Complete matches to unlock your score</div>
       )}
-    </div>
     </div>
   )
 }
 
 function XPRewardCard({ xp }) {
+  const reduce = useReducedMotion()
   const XP_NEXT    = 250
   const xpProgress = Math.max(0, (xp || 0) % XP_NEXT)
+  const pct = Math.min(100, (xpProgress / XP_NEXT) * 100)
+
   return (
-    <div style={{
-      background: 'linear-gradient(135deg, #EEF4FF, #F0EEFF)',
-      border: '1px solid #DCE5FA', borderRadius: 14, padding: 20,
-    }}>
-      <div style={{ ...sectionLabelStyle, color: '#5B3DF5', marginBottom: 14 }}>XP REWARD</div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-        <div style={{
-          width: 32, height: 32, background: '#EAF2FF', borderRadius: 8,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-        }}>
-          <Zap size={17} color="#2563FF" />
-        </div>
-        <div>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 18, color: '#0B1224' }}>+25 XP</div>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#64748B' }}>Per match logged</div>
+    <div className="tc-card tc-card--xp">
+      <div className="tc-card-label" style={{ color: '#5B3DF5', marginBottom: 14 }}>XP Reward</div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <div className="tc-xp-icon"><Zap size={17} color="#2563FF" /></div>
+        <div style={{ minWidth: 0 }}>
+          <div className="tc-xp-amount">+25 XP</div>
+          <div className="tc-xp-sub">Per match logged</div>
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-        <span style={{ fontSize: 11, color: '#64748B', fontFamily: 'Inter, sans-serif' }}>{xpProgress} / {XP_NEXT} XP</span>
-        <span style={{ fontSize: 11, color: '#94A3B8', fontFamily: 'Inter, sans-serif' }}>Next Reward: {XP_NEXT} XP</span>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, gap: 8 }}>
+        <span className="tc-xp-meta" style={{ fontVariantNumeric: 'tabular-nums' }}>{xpProgress} / {XP_NEXT} XP</span>
+        <span className="tc-xp-meta tc-xp-meta--faint">Next: {XP_NEXT} XP</span>
       </div>
-      <div style={{ height: 4, background: '#E5EAF3', borderRadius: 999, overflow: 'hidden' }}>
-        <div style={{
-          height: '100%',
-          width: `${Math.min(100, (xpProgress / XP_NEXT) * 100)}%`,
-          background: 'linear-gradient(90deg, #2563FF, #5B3DF5)',
-          borderRadius: 999,
-          transition: 'width 0.4s ease',
-        }} />
+      <div className="tc-xp-track">
+        <motion.div
+          className="tc-xp-fill"
+          initial={{ width: reduce ? `${pct}%` : '0%' }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
+        />
       </div>
     </div>
   )
 }
 
 function RecentMatchesCard({ matches }) {
+  const reduce = useReducedMotion()
   const recent = useMemo(() =>
     [...(Array.isArray(matches) ? matches : [])].sort((a, b) => (Number(b.timestamp) || 0) - (Number(a.timestamp) || 0)).slice(0, 3),
     [matches]
   )
+
   return (
-    <div style={{ background: 'rgba(37,99,255,0.012)', border: '1px solid rgba(37,99,255,0.06)', borderRadius: 17, padding: 3 }}>
-    <div style={{
-      background: '#FFFFFF',
-      borderRadius: 14, padding: 20,
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(15,23,42,0.04)',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <span style={sectionLabelStyle}>RECENT MATCHES</span>
-        <button style={{ background: 'none', border: 'none', color: '#2563FF', fontSize: 12, cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>View All →</button>
+    <div className="tc-card">
+      <div className="tc-card-head" style={{ marginBottom: 14 }}>
+        <span className="tc-card-label">Recent Matches</span>
+        {recent.length > 0 && <span className="tc-card-meta">Last {recent.length}</span>}
       </div>
+
       {recent.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '16px 0' }}>
-          <Clipboard size={36} style={{ color: '#94A3B8', opacity: 0.3, display: 'block', margin: '0 auto 10px' }} />
-          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: '#0B1224', marginBottom: 6 }}>No matches logged yet</div>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>Start logging matches to see your history.</div>
+        <div style={{ textAlign: 'center', padding: '8px 0 4px' }}>
+          <LayeredIcon Icon={Clipboard} tint="#2563FF" />
+          <div className="tc-empty-title" style={{ fontSize: 14 }}>No matches logged yet</div>
+          <div className="tc-empty-desc">Log your first match to start building history.</div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {recent.map((m, i) => (
-            <div key={i} style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '8px 10px', background: '#F8FAFD',
-              border: '1px solid #E5EAF3', borderRadius: 8,
-            }}>
-              <Swords size={14} style={{ color: '#2563FF', flexShrink: 0 }} />
+            <motion.div
+              key={i}
+              className="tc-recent-row"
+              initial={{ opacity: 0, y: reduce ? 0 : 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.05, ease: EASE }}
+            >
+              <span className="tc-recent-icon"><Swords size={13} /></span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontFamily: 'Inter, sans-serif', color: '#0B1224', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.mapName || 'Unknown Map'}</div>
-                <div style={{ fontSize: 11, color: '#64748B', fontFamily: 'Inter, sans-serif' }}>#{m.teamPosition || '—'} · {m.kills || 0} kills</div>
+                <div className="tc-recent-map">{m.mapName || 'Unknown Map'}</div>
+                <div className="tc-recent-meta">#{m.teamPosition || '—'} · {m.kills || 0} kills</div>
               </div>
-              <span style={{ fontSize: 10, color: '#94A3B8', flexShrink: 0, whiteSpace: 'nowrap' }}>{timeAgo(m.timestamp)}</span>
-            </div>
+              <span className="tc-recent-time">{timeAgo(m.timestamp)}</span>
+            </motion.div>
           ))}
         </div>
       )}
-    </div>
     </div>
   )
 }
 
 function TipCard() {
   return (
-    <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: 17, padding: 3 }}>
-    <div style={{
-      background: '#FFFBEB',
-      borderRadius: 14, padding: 16,
-      display: 'flex', gap: 10, alignItems: 'flex-start',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9)',
-    }}>
-      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+    <div className="tc-tip-card">
+      <div className="tc-tip-icon">
         <Lightbulb size={16} style={{ color: '#F59E0B' }} />
       </div>
-      <div>
-        <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 11, fontWeight: 600, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>TIP</div>
-        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>The more matches you log, the better your insights!</div>
+      <div style={{ minWidth: 0 }}>
+        <div className="tc-tip-label">Tip</div>
+        <div className="tc-tip-text">The more matches you log, the better your insights.</div>
       </div>
     </div>
+  )
+}
+
+/* Empty-state icon with layered circles behind it for depth. */
+function LayeredIcon({ Icon, tint = '#2563FF' }) {
+  return (
+    <div className="tc-layered-icon" aria-hidden>
+      <span className="tc-layered-ring tc-layered-ring--outer" style={{ background: `${tint}0D` }} />
+      <span className="tc-layered-ring tc-layered-ring--mid" style={{ background: `${tint}14` }} />
+      <span className="tc-layered-ring tc-layered-ring--inner" style={{ background: `${tint}1F` }}>
+        <Icon size={20} style={{ color: tint }} />
+      </span>
     </div>
   )
 }
 
 /* ================================================================
-   SHARED STYLE CONSTANTS
-   ================================================================ */
-const sectionLabelStyle = {
-  fontFamily: 'Rajdhani, sans-serif',
-  fontSize: 11, fontWeight: 600,
-  textTransform: 'uppercase', letterSpacing: '0.14em',
-  color: '#64748B',
-}
-
-/* ================================================================
-   RESPONSIVE STYLES
+   STYLES
    ================================================================ */
 function TrainingStyles() {
   return (
     <style>{`
-      /* ── Keyframes ── */
-      @keyframes tc-fadeup {
-        from { opacity: 0; transform: translateY(12px); }
-        to   { opacity: 1; transform: translateY(0); }
+      /* ─────────────── HERO ─────────────── */
+      .tc-hero {
+        position: relative; overflow: hidden;
+        background: linear-gradient(135deg, #F7F9FD 0%, #EEF4FF 60%, #FFF0F2 100%);
+        border: 1px solid #E5EAF3;
+        border-radius: 18px;
+        padding: clamp(24px, 4vw, 36px);
+        margin: 4px 0 20px;
+        box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 16px 48px rgba(15,23,42,0.05);
       }
-      @keyframes tc-fadein {
-        from { opacity: 0; }
-        to   { opacity: 1; }
+      .tc-hero-dots {
+        position: absolute; inset: 0; pointer-events: none; z-index: 0;
+        background-image: radial-gradient(circle, rgba(37,99,255,0.06) 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+      .tc-hero-glow-blue {
+        position: absolute; top: -80px; left: -80px; width: 320px; height: 320px;
+        border-radius: 50%; pointer-events: none; z-index: 0;
+        background: radial-gradient(circle, rgba(37,99,255,0.10) 0%, transparent 65%);
+      }
+      .tc-hero-glow-red {
+        position: absolute; bottom: -60px; right: -60px; width: 280px; height: 280px;
+        border-radius: 50%; pointer-events: none; z-index: 0;
+        background: radial-gradient(circle, rgba(239,51,64,0.07) 0%, transparent 65%);
+      }
+      .tc-hero-inner {
+        position: relative; z-index: 1;
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 24px; flex-wrap: wrap;
+      }
+      .tc-hero-kicker {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 11px;
+        text-transform: uppercase; letter-spacing: 0.15em; color: #2563FF;
+      }
+      .tc-hero-title {
+        font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+        font-size: clamp(32px, 6vw, 48px); line-height: 1;
+        text-transform: uppercase; letter-spacing: 0.02em;
+        color: #0B1224; margin: 6px 0 0;
+      }
+      .tc-hero-accent {
+        width: 64px; height: 3px; transform-origin: left;
+        background: linear-gradient(90deg, #2563FF 0%, #5B3DF5 50%, #EF3340 100%);
+        border-radius: 2px; margin: 12px 0;
+      }
+      .tc-hero-sub {
+        font-family: 'Inter', sans-serif; font-size: 15px; color: #64748B; margin: 0;
       }
 
-      /* ── Entrance animations ── */
-      /* tc-page-header handled by motion.div — no CSS animation needed */
+      /* Completion ring */
+      .tc-hero-ring { position: relative; flex-shrink: 0; display: none; }
+      @media (min-width: 720px) { .tc-hero-ring { display: block; } }
+      .tc-hero-ring-center {
+        position: absolute; top: 0; left: 0; width: 92px; height: 92px;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 1px; pointer-events: none;
+      }
+      .tc-hero-ring-label {
+        font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 9px;
+        text-transform: uppercase; letter-spacing: 0.14em; color: #94A3B8;
+      }
+      .tc-hero-ring-meta {
+        margin-top: 8px; text-align: center; white-space: nowrap;
+        font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; color: #64748B;
+      }
+
+      /* ─────────── TAB SWITCHER ─────────── */
       .tc-tab-switcher {
-        animation: tc-fadeup 0.4s cubic-bezier(0.23,1,0.32,1) 0.07s both;
+        display: inline-flex; align-self: flex-start;
+        background: #FFFFFF; border: 1px solid #E5EAF3;
+        border-radius: 12px; padding: 4px; gap: 4px;
+        margin-bottom: 24px; position: relative;
+        box-shadow: 0 2px 8px rgba(15,23,42,0.04);
       }
+      .tc-tab-btn {
+        position: relative; border: none; background: transparent;
+        border-radius: 8px; padding: 10px 22px; cursor: pointer;
+        font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
+        color: #64748B; white-space: nowrap;
+        transition: color 0.18s ease, background 0.18s ease;
+      }
+      .tc-tab-btn.is-active { color: #FFFFFF; font-weight: 600; }
+      @media (hover: hover) and (pointer: fine) {
+        .tc-tab-btn:not(.is-active):hover { background: #F8FAFF; color: #0B1224; }
+      }
+      .tc-tab-pill {
+        position: absolute; inset: 0; border-radius: 8px; z-index: 0;
+        background: linear-gradient(135deg, #2563FF, #5B3DF5);
+        box-shadow: 0 4px 12px rgba(37,99,255,0.28);
+      }
+      .tc-tab-label {
+        position: relative; z-index: 1;
+        display: inline-flex; align-items: center; gap: 8px;
+      }
+
       /* Tab content: opacity-only, near-imperceptible — switched tens/day */
-      .tc-tab-content {
-        animation: tc-fadein 0.15s ease both;
+      .tc-tab-content { animation: tc-fadein 0.15s ease both; }
+      @keyframes tc-fadein { from { opacity: 0; } to { opacity: 1; } }
+
+      /* ───────────── CARDS ───────────── */
+      .tc-card {
+        background: #FFFFFF; border: 1px solid #E5EAF3;
+        border-radius: 16px; padding: 20px;
+        box-shadow: 0 4px 20px rgba(15,23,42,0.04);
+        transition: box-shadow 0.2s ease;
       }
-      /* Module cards: stagger delay set inline per-card */
-      .tc-module-wrap {
-        animation: tc-fadeup 0.35s cubic-bezier(0.23,1,0.32,1) both;
+      .tc-card--xp {
+        background: linear-gradient(135deg, #EEF4FF, #F0EEFF);
+        border-color: #DCE5FA;
       }
-      /* Stat cards: nth-child stagger (5 cards) */
-      .tc-stat-card {
-        animation: tc-fadeup 0.35s cubic-bezier(0.23,1,0.32,1) both;
+      .tc-card-head {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 10px; flex-wrap: wrap; margin-bottom: 16px;
       }
-      .tc-stat-card:nth-child(1) { animation-delay: 0s; }
-      .tc-stat-card:nth-child(2) { animation-delay: 0.055s; }
-      .tc-stat-card:nth-child(3) { animation-delay: 0.11s; }
-      .tc-stat-card:nth-child(4) { animation-delay: 0.165s; }
-      .tc-stat-card:nth-child(5) { animation-delay: 0.22s; }
-      /* Drill rows: stagger delay set inline per-row */
+      .tc-card-label {
+        font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 11px;
+        text-transform: uppercase; letter-spacing: 0.14em; color: #64748B;
+      }
+      .tc-card-meta {
+        font-family: 'Inter', sans-serif; font-size: 11.5px; color: #94A3B8;
+        font-variant-numeric: tabular-nums;
+      }
+      .tc-card-empty-text {
+        text-align: center; font-family: 'Inter', sans-serif;
+        font-size: 13px; color: #64748B; line-height: 1.5;
+      }
+      .tc-plan-chip {
+        background: #EAF2FF; border: 1px solid rgba(37,99,255,0.2);
+        color: #2563FF; border-radius: 6px; padding: 2px 9px;
+        font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
+      }
+      .tc-link-btn {
+        background: transparent; border: none; cursor: pointer; padding: 0;
+        color: #2563FF; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+        display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+      }
+      .tc-inline-link {
+        background: none; border: none; padding: 0; cursor: pointer;
+        color: #2563FF; font-family: inherit; font-size: inherit; font-weight: 600;
+      }
+      .tc-inline-link--green { color: #16A34A; }
+
+      .tc-note-card {
+        background: #FFFFFF; border: 1px solid #E5EAF3; border-radius: 12px;
+        padding: 14px 20px; display: flex; align-items: center; gap: 10px;
+        box-shadow: 0 4px 20px rgba(15,23,42,0.04);
+      }
+      .tc-note-text { font-family: 'Inter', sans-serif; font-size: 13px; color: #64748B; }
+
+      .tc-all-done {
+        margin-top: 12px; padding: 9px 13px;
+        background: rgba(22,163,74,0.06); border: 1px solid rgba(22,163,74,0.2);
+        border-radius: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        color: #16A34A; font-size: 12.5px; font-family: 'Inter', sans-serif;
+      }
+
+      /* ───────── SECTION HEADER ───────── */
+      .tc-section-head {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; flex-wrap: wrap;
+      }
+      .tc-section-title {
+        display: flex; align-items: center; gap: 9px;
+        font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 20px;
+        text-transform: uppercase; letter-spacing: 0.03em; color: #0B1224;
+      }
+      .tc-section-icon {
+        width: 28px; height: 28px; border-radius: 8px; background: #EAF2FF;
+        display: inline-flex; align-items: center; justify-content: center;
+        color: #2563FF; flex-shrink: 0;
+      }
+      .tc-section-meta {
+        font-family: 'Inter', sans-serif; font-size: 12.5px; color: #64748B;
+        margin-top: 3px; padding-left: 37px;
+      }
+
+      /* ───────────── BUTTONS ───────────── */
+      .tc-pill-btn {
+        background: linear-gradient(135deg, #2563FF, #5B3DF5); border: none;
+        border-radius: 999px; color: #fff; padding: 8px 10px 8px 20px;
+        font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+        cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+        box-shadow: 0 4px 14px rgba(37,99,255,0.25), inset 0 1px 0 rgba(255,255,255,0.14);
+        flex-shrink: 0;
+      }
+      .tc-pill-btn-icon {
+        width: 28px; height: 28px; border-radius: 50%;
+        background: rgba(255,255,255,0.18); flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .tc-btn-primary {
+        background: linear-gradient(135deg, #2563FF, #5B3DF5); border: none;
+        border-radius: 10px; color: #fff; padding: 9px 18px;
+        font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+        cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+        box-shadow: 0 4px 12px rgba(37,99,255,0.25);
+      }
+      .tc-btn-ghost {
+        background: #FFFFFF; border: 1px solid #E5EAF3;
+        border-radius: 10px; color: #475569; padding: 9px 18px;
+        font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+        cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .tc-btn-ghost:hover { border-color: #2563FF; color: #2563FF; }
+      }
+
+      /* ─────────── EMPTY STATES ─────────── */
+      .tc-empty-card {
+        background: #FFFFFF; border: 1px solid #E5EAF3; border-radius: 16px;
+        padding: 32px 24px; text-align: center;
+        box-shadow: 0 4px 20px rgba(15,23,42,0.04);
+      }
+      .tc-empty-title {
+        font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px;
+        color: #0B1224; margin-bottom: 6px;
+      }
+      .tc-empty-desc {
+        font-family: 'Inter', sans-serif; font-size: 13px; color: #64748B; line-height: 1.55;
+      }
+      .tc-layered-icon {
+        position: relative; width: 72px; height: 72px; margin: 0 auto 14px;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .tc-layered-ring {
+        position: absolute; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .tc-layered-ring--outer { width: 72px; height: 72px; }
+      .tc-layered-ring--mid   { width: 54px; height: 54px; }
+      .tc-layered-ring--inner { width: 38px; height: 38px; position: relative; }
+
+      /* ─────────── DRILL ROWS ─────────── */
       .tc-drill-row {
-        animation: tc-fadeup 0.3s cubic-bezier(0.23,1,0.32,1) both;
+        display: flex; align-items: flex-start; gap: 11px;
+        padding: 11px 13px; background: #F8FAFD;
+        border: 1px solid rgba(37,99,255,0.08);
+        border-left: 3px solid rgba(37,99,255,0.25);
+        border-radius: 10px;
         transition: background 0.18s cubic-bezier(0.23,1,0.32,1),
                     border-color 0.18s cubic-bezier(0.23,1,0.32,1),
                     box-shadow 0.18s cubic-bezier(0.23,1,0.32,1);
       }
+      .tc-drill-row.is-done {
+        border-color: rgba(22,163,74,0.2);
+        border-left-color: rgba(22,163,74,0.5);
+      }
       @media (hover: hover) and (pointer: fine) {
-        .tc-drill-row:hover {
-          background: #EEF4FF !important;
-          border-color: rgba(37,99,255,0.12) !important;
-          border-left-color: #2563FF !important;
+        .tc-drill-row:not(.is-done):hover {
+          background: #EEF4FF;
+          border-left-color: #2563FF;
           box-shadow: 0 2px 10px rgba(37,99,255,0.08);
         }
       }
+      .tc-check {
+        width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0; margin-top: 1px;
+        background: transparent; border: 1.5px solid #D0DAE8; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; color: #fff;
+        transition: background 0.18s ease, border-color 0.18s ease;
+      }
+      .tc-check.is-done { background: #16A34A; border-color: #16A34A; }
+      .tc-drill-name {
+        font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: #0B1224;
+      }
+      .tc-drill-name.is-done { color: #94A3B8; text-decoration: line-through; }
+      .tc-dur-chip {
+        background: #F1F5F9; border: 1px solid #E5EAF3; color: #64748B;
+        border-radius: 5px; padding: 1px 7px;
+        font-family: 'Inter', sans-serif; font-size: 11px; font-variant-numeric: tabular-nums;
+      }
+      .tc-drill-desc {
+        font-family: 'Inter', sans-serif; font-size: 12px; color: #94A3B8; line-height: 1.4;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .tc-done-badge {
+        border: 1px solid rgba(22,163,74,0.4); color: #16A34A;
+        border-radius: 8px; padding: 5px 12px;
+        font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+        flex-shrink: 0; white-space: nowrap;
+      }
+      .tc-start-btn {
+        background: linear-gradient(135deg, #2563FF, #5B3DF5); color: #fff; border: none;
+        border-radius: 999px; padding: 6px 8px 6px 14px;
+        font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+        cursor: pointer; flex-shrink: 0; white-space: nowrap;
+        display: inline-flex; align-items: center; gap: 6px;
+        box-shadow: 0 2px 8px rgba(37,99,255,0.22), inset 0 1px 0 rgba(255,255,255,0.12);
+      }
+      .tc-start-btn-icon {
+        width: 22px; height: 22px; border-radius: 50%;
+        background: rgba(255,255,255,0.18);
+        display: flex; align-items: center; justify-content: center;
+      }
 
-      /* Stat cards: elevated ambient + kinetic hover */
+      /* ─────────── STAT CARDS ─────────── */
       .tc-stat-card {
-        animation: tc-fadeup 0.35s cubic-bezier(0.23,1,0.32,1) both;
-        border: 1px solid rgba(37,99,255,0.07) !important;
+        background: #FFFFFF; border: 1px solid rgba(37,99,255,0.07);
+        border-radius: 14px; padding: 16px;
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.9),
                     0 1px 3px rgba(15,23,42,0.04),
-                    0 8px 24px rgba(15,23,42,0.05) !important;
-        transition: box-shadow 0.2s cubic-bezier(0.23,1,0.32,1),
-                    transform 0.2s cubic-bezier(0.23,1,0.32,1);
+                    0 8px 24px rgba(15,23,42,0.05);
+        transition: box-shadow 0.2s cubic-bezier(0.23,1,0.32,1);
       }
       @media (hover: hover) and (pointer: fine) {
         .tc-stat-card:hover {
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.9),
                       0 4px 14px rgba(37,99,255,0.1),
-                      0 16px 40px rgba(37,99,255,0.07) !important;
-          transform: translateY(-2px);
+                      0 16px 40px rgba(37,99,255,0.07);
         }
       }
-      .tc-stat-card:nth-child(1) { animation-delay: 0s; }
-      .tc-stat-card:nth-child(2) { animation-delay: 0.055s; }
-      .tc-stat-card:nth-child(3) { animation-delay: 0.11s; }
-      .tc-stat-card:nth-child(4) { animation-delay: 0.165s; }
-      .tc-stat-card:nth-child(5) { animation-delay: 0.22s; }
+      .tc-stat-icon {
+        width: 38px; height: 38px; border-radius: 11px; margin-bottom: 12px;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .tc-stat-label {
+        font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
+        color: #64748B; margin-bottom: 6px; line-height: 1.3;
+      }
+      .tc-stat-foot {
+        font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 9.5px;
+        text-transform: uppercase; letter-spacing: 0.12em; color: #94A3B8; margin-top: 6px;
+      }
 
-      /* ── Reduced motion: keep opacity, drop translateY ── */
+      /* Quick-stats 2-col tile grid */
+      .tc-stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .tc-stat-tile {
+        display: flex; align-items: center; gap: 9px;
+        padding: 11px 12px; border-radius: 11px; min-width: 0;
+      }
+      .tc-stat-tile-val {
+        font-family: 'Inter', sans-serif; font-weight: 800; font-size: 15px;
+        color: #0B1224; line-height: 1.1; font-variant-numeric: tabular-nums;
+      }
+      .tc-stat-tile-label {
+        font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 500;
+        color: #64748B; margin-top: 2px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+
+      /* ───────── THIS WEEK BARS ───────── */
+      .tc-bars {
+        display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 6px; align-items: end;
+      }
+      .tc-bar-col { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+      .tc-bar-track {
+        width: 100%; height: 88px; border-radius: 7px;
+        background: #F1F5F9; display: flex; align-items: flex-end; overflow: hidden;
+      }
+      .tc-bar-fill {
+        width: 100%; border-radius: 7px;
+        background: linear-gradient(180deg, #5B3DF5, #2563FF);
+      }
+      .tc-bar-fill.is-today { background: linear-gradient(180deg, #EF3340, #F59E0B); }
+      .tc-bar-label {
+        font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 10.5px;
+        text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8;
+      }
+      .tc-bar-label.is-today { color: #EF3340; }
+      .tc-bars-empty {
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+        padding: 18px 8px; text-align: center;
+        font-family: 'Inter', sans-serif; font-size: 12.5px; color: #94A3B8; line-height: 1.5;
+      }
+
+      /* ───────────── XP CARD ───────────── */
+      .tc-xp-icon {
+        width: 34px; height: 34px; background: #EAF2FF; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      }
+      .tc-xp-amount {
+        font-family: 'Inter', sans-serif; font-weight: 800; font-size: 19px; color: #0B1224;
+        font-variant-numeric: tabular-nums;
+      }
+      .tc-xp-sub { font-family: 'Inter', sans-serif; font-size: 12.5px; color: #64748B; }
+      .tc-xp-meta { font-family: 'Inter', sans-serif; font-size: 11px; color: #64748B; }
+      .tc-xp-meta--faint { color: #94A3B8; }
+      .tc-xp-track { height: 6px; background: #E5EAF3; border-radius: 999px; overflow: hidden; }
+      .tc-xp-fill {
+        height: 100%; border-radius: 999px;
+        background: linear-gradient(90deg, #2563FF, #5B3DF5);
+      }
+
+      /* ────────── RECENT MATCHES ────────── */
+      .tc-recent-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 9px 11px; background: #F8FAFD;
+        border: 1px solid #E5EAF3; border-radius: 10px;
+      }
+      .tc-recent-icon {
+        width: 28px; height: 28px; border-radius: 8px; background: #EAF2FF;
+        display: flex; align-items: center; justify-content: center;
+        color: #2563FF; flex-shrink: 0;
+      }
+      .tc-recent-map {
+        font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600; color: #0B1224;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .tc-recent-meta {
+        font-family: 'Inter', sans-serif; font-size: 11px; color: #64748B;
+        font-variant-numeric: tabular-nums;
+      }
+      .tc-recent-time {
+        font-family: 'Inter', sans-serif; font-size: 10.5px; color: #94A3B8;
+        flex-shrink: 0; white-space: nowrap;
+      }
+
+      /* ───────────── TIP CARD ───────────── */
+      .tc-tip-card {
+        background: #FFFBEB; border: 1px solid rgba(245,158,11,0.22);
+        border-radius: 16px; padding: 16px;
+        display: flex; gap: 11px; align-items: flex-start;
+        box-shadow: 0 4px 20px rgba(245,158,11,0.06);
+      }
+      .tc-tip-icon {
+        width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+        background: rgba(245,158,11,0.14);
+        display: flex; align-items: center; justify-content: center;
+        animation: tc-pulse 2.6s cubic-bezier(0.23,1,0.32,1) infinite;
+      }
+      @keyframes tc-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.22); }
+        50%      { box-shadow: 0 0 0 7px rgba(245,158,11,0); }
+      }
+      .tc-tip-label {
+        font-family: 'Rajdhani', sans-serif; font-size: 10.5px; font-weight: 600;
+        color: #F59E0B; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 4px;
+      }
+      .tc-tip-text {
+        font-family: 'Inter', sans-serif; font-size: 13px; color: #64748B; line-height: 1.6;
+      }
+
+      /* ───────── REDUCED MOTION ───────── */
       @media (prefers-reduced-motion: reduce) {
-        .tc-page-header,
-        .tc-tab-switcher,
-        .tc-module-wrap,
-        .tc-stat-card,
-        .tc-drill-row {
-          animation: tc-fadein 0.2s ease both;
-        }
         .tc-tab-content { animation: none; }
+        .tc-tip-icon { animation: none; }
       }
 
-      /* ── Layout ── */
+      /* ───────────── LAYOUT ───────────── */
       .tc-two-col { display: flex; gap: 20px; align-items: flex-start; }
       .tc-left { flex: 2; min-width: 0; }
       .tc-right { width: 340px; flex-shrink: 0; }
@@ -1081,6 +1570,9 @@ function TrainingStyles() {
       }
       @media (min-width: 768px) {
         .match-logger-stats-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      }
+      @media (max-width: 420px) {
+        .tc-section-meta { padding-left: 0; }
       }
     `}</style>
   )

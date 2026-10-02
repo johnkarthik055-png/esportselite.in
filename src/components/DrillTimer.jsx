@@ -13,6 +13,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import {
   Play,
   Pause,
@@ -259,88 +260,89 @@ export default function DrillTimer({
   const isLocked  = !!lockedSession && !editing
   const isEditing = !!lockedSession && editing
 
-  const containerClass = isLocked
-    ? 'rounded-md p-3 transition-all bg-[rgba(0,230,118,0.04)] border border-[rgba(0,230,118,0.25)] border-l-[3px] border-l-[#00E676] hover:bg-[rgba(0,230,118,0.07)]'
+  /* Ring progress is only meaningful once a manual target is entered —
+     otherwise the button shows a plain running state instead of a
+     progress arc that would imply a target the user never set. */
+  const targetSec = Math.max(0, Math.round((Number(targetMinutes) || 0) * 60))
+  const ringPct = targetSec > 0 ? Math.min(100, (seconds / targetSec) * 100) : 0
+
+  const stateClass = isLocked
+    ? 'is-locked'
     : isEditing
-    ? 'rounded-md p-3 bg-bg-elevated/40 border border-[rgba(232,0,28,0.4)] shadow-red-glow'
-    : running
-    ? 'rounded-md p-3 bg-bg-elevated/40 border drill-active-pulse'
-    : 'rounded-md p-3 bg-bg-elevated/40 border border-border hover:border-[rgba(232,0,28,0.4)] transition-all'
+      ? 'is-editing'
+      : running
+        ? 'is-running'
+        : ''
 
   return (
     <div
       ref={setNodeRef}
       style={sortableStyle}
-      className={`relative ${containerClass} ${isDragging ? 'scale-[1.02] shadow-red-glow-lg z-10' : ''}`}
+      className={`dt-row ${stateClass} ${isDragging ? 'is-dragging' : ''}`}
     >
       {/* HEADER ROW */}
-      <div className="flex items-start justify-between gap-3">
+      <div className="dt-head">
         <button
           {...attributes} {...listeners}
-          className="mt-0.5 p-1 rounded text-text-muted hover:text-accent-secondary hover:bg-white/5 transition-all cursor-grab active:cursor-grabbing touch-none flex-shrink-0"
+          className="dt-grip"
           title="Drag to reorder drill" aria-label="Drag to reorder drill"
         >
           <GripVertical size={14} />
         </button>
 
-        <div className="flex-1 min-w-0">
-          <div className="heading text-white text-sm tracking-wide flex items-center gap-2 flex-wrap">
-            {isLocked  && <Lock   size={14} className="text-success flex-shrink-0" />}
-            {isEditing && <Unlock size={14} className="text-accent-secondary flex-shrink-0" />}
-            <span>{drill.name}</span>
-            {isLocked  && <span className="pill text-[10px] tracking-widest bg-success/15 border-success/40 text-success">COMPLETED</span>}
-            {isEditing && <span className="pill pill-red text-[10px] tracking-widest">EDITING</span>}
+        <div className="dt-head-text">
+          <div className="dt-name-row">
+            {isLocked  && <Lock   size={13} style={{ color: '#16A34A', flexShrink: 0 }} />}
+            {isEditing && <Unlock size={13} style={{ color: '#2563FF', flexShrink: 0 }} />}
+            <span className="dt-name">{drill.name}</span>
+            {isLocked  && <span className="dt-pill dt-pill--green">Completed</span>}
+            {isEditing && <span className="dt-pill dt-pill--blue">Editing</span>}
             {running && !isLocked && !isEditing && (
-              <span aria-label="Timer running" style={{
-                display: 'inline-flex', alignItems: 'center', gap: 4,
-                fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
-                color: '#22D3EE', textTransform: 'uppercase', flexShrink: 0,
-              }}>
-                <span style={{
-                  width: 6, height: 6, borderRadius: '50%', background: '#22D3EE',
-                  animation: 'drillLivePulse 1.2s ease-in-out infinite',
-                  display: 'inline-block',
-                }} />
-                LIVE
-                <style>{`@keyframes drillLivePulse { 0%,100%{opacity:0.4;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }`}</style>
+              <span className="dt-live" aria-label="Timer running">
+                <span className="dt-live-dot" />
+                Live
               </span>
             )}
           </div>
 
           {isLocked ? (
-            <div className="mt-1 text-xs text-text-secondary flex items-center gap-2 flex-wrap">
+            <div className="dt-meta">
               {lockedSession.gunsSelected?.length > 0 && (
                 <>
-                  <span className="mono text-accent-secondary">{lockedSession.gunsSelected.join(' + ')}</span>
-                  <span className="text-text-muted">•</span>
+                  <span className="dt-meta-strong">{lockedSession.gunsSelected.join(' + ')}</span>
+                  <span className="dt-meta-sep">•</span>
                 </>
               )}
-              <span className="mono">{formatMS(lockedSession.durationSeconds)}</span>
-              <span className="text-text-muted">•</span>
-              <span className="mono">{formatHHMM(lockedSession.timestamp)}</span>
+              <span className="dt-meta-num">{formatMS(lockedSession.durationSeconds)}</span>
+              <span className="dt-meta-sep">•</span>
+              <span className="dt-meta-num">{formatHHMM(lockedSession.timestamp)}</span>
             </div>
           ) : isEditing ? (
-            <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] uppercase tracking-widest text-text-muted heading">Loadout:</span>
+            <div className="dt-loadout">
+              <span className="dt-loadout-label">Loadout</span>
               {editGuns.length === 0 ? (
-                <span className="text-[11px] text-text-muted italic">none</span>
+                <span className="dt-loadout-none">none</span>
               ) : (
                 editGuns.map(g => (
-                  <button key={g} onClick={() => setEditGuns(prev => prev.filter(x => x !== g))}
-                    className="pill pill-red mono text-[11px] flex items-center gap-1 hover:bg-[rgba(232,0,28,0.2)] transition-all">
+                  <button
+                    key={g}
+                    onClick={() => setEditGuns(prev => prev.filter(x => x !== g))}
+                    className="dt-gun-chip"
+                    aria-label={`Remove ${g}`}
+                  >
                     {g} <X size={10} />
                   </button>
                 ))
               )}
             </div>
           ) : (
-            drill.description && <div className="text-xs text-text-secondary mt-0.5">{drill.description}</div>
+            drill.description && <div className="dt-desc">{drill.description}</div>
           )}
 
           {!isLocked && !isEditing && gunsSelected.length > 0 && (
-            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-              <span className="text-[10px] uppercase tracking-widest text-text-muted heading">Loadout:</span>
-              {gunsSelected.map(g => <span key={g} className="text-[11px] mono text-accent-secondary">{g}</span>)}
+            <div className="dt-loadout">
+              <span className="dt-loadout-label">Loadout</span>
+              {gunsSelected.map(g => <span key={g} className="dt-gun-tag">{g}</span>)}
             </div>
           )}
         </div>
@@ -353,78 +355,78 @@ export default function DrillTimer({
       </div>
 
       {/* DIVIDER */}
-      <div className="h-px bg-border my-3" />
+      <div className="dt-divider" />
 
       {/* TIMER / ACTION ROW */}
       {isLocked ? (
-        <div className="flex items-center justify-end">
-          <button onClick={requestEdit}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-md border border-border bg-bg-elevated/60 text-text-secondary hover:text-white hover:border-accent-primary heading text-xs uppercase tracking-widest transition-all">
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <motion.button
+            onClick={requestEdit}
+            className="dt-btn dt-btn--ghost"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+          >
             <Unlock size={12} /> Edit
-          </button>
+          </motion.button>
         </div>
       ) : isEditing ? (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[10px] uppercase tracking-widest text-text-muted heading">Duration</span>
-          <input type="number" min="1" value={targetMinutes}
+        <div className="dt-edit-row">
+          <span className="dt-field-label">Duration</span>
+          <input
+            type="number" min="1" value={targetMinutes}
             onChange={e => setTargetMinutes(e.target.value)}
-            className="input-field w-24 text-sm py-2 text-center" placeholder="min" />
-          <span className="text-xs text-text-secondary">min</span>
-          <div className="ml-auto flex items-center gap-2">
-            <button onClick={saveEdit} disabled={!targetMinutes || Number(targetMinutes) <= 0}
-              className="btn-red px-3.5 py-2 rounded-md text-xs uppercase tracking-widest flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+            className="dt-input" placeholder="min"
+          />
+          <span className="dt-unit">min</span>
+          <div className="dt-edit-actions">
+            <motion.button
+              onClick={saveEdit}
+              disabled={!targetMinutes || Number(targetMinutes) <= 0}
+              className="dt-btn dt-btn--primary"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+            >
               <Save size={13} /> Save Changes
-            </button>
-            <button onClick={cancelEdit}
-              className="px-3.5 py-2 rounded-md text-xs uppercase tracking-widest text-text-secondary hover:text-white border border-border hover:border-text-secondary transition-all heading font-semibold flex items-center gap-1.5">
+            </motion.button>
+            <motion.button
+              onClick={cancelEdit}
+              className="dt-btn dt-btn--ghost"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+            >
               <X size={13} /> Cancel
-            </button>
+            </motion.button>
           </div>
         </div>
       ) : (
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Live timer display */}
-          <div
-            className={`mono text-xl px-3.5 py-1.5 rounded-md border ${
-              running
-                ? 'border-accent-primary text-accent-secondary bg-[rgba(232,0,28,0.08)] animate-pulse-red'
-                : 'border-border text-text-primary bg-bg-primary/60'
-            }`}
-            style={{ minWidth: 100, textAlign: 'center' }}
-          >
+        <div className="dt-timer-row">
+          {/* Circular start / pause with progress ring */}
+          <TimerButton
+            running={running}
+            pct={ringPct}
+            hasTarget={targetSec > 0}
+            onClick={running ? pause : start}
+          />
+
+          {/* Live timer readout */}
+          <div className={`dt-time ${running ? 'is-running' : ''}`}>
             {formatTime(seconds)}
           </div>
 
-          {!running ? (
-            <button onClick={start} className="btn-red px-3.5 py-2 rounded-md text-xs uppercase tracking-widest flex items-center gap-1.5">
-              <Play size={14} fill="currentColor" /> Start
-            </button>
-          ) : (
-            <button onClick={pause} className="px-3.5 py-2 rounded-md text-xs uppercase tracking-widest flex items-center gap-1.5 bg-warning/20 border border-warning/50 text-warning heading font-semibold hover:bg-warning/30 transition-all">
-              <Pause size={14} fill="currentColor" /> Pause
-            </button>
-          )}
-
           {/* Manual minutes override */}
-          <div className="flex items-center gap-1">
+          <div className="dt-min-wrap">
             <input
               type="number" min="0" placeholder="min" value={targetMinutes}
               onChange={e => { setTargetMinutes(e.target.value); setDurationError('') }}
-              className={`input-field w-20 text-sm py-2 text-center ${durationError ? 'border-accent-secondary' : ''}`}
+              className={`dt-input dt-input--sm ${durationError ? 'has-error' : ''}`}
               title="Manual duration in minutes (overrides timer)"
             />
-            <span className="text-[10px] text-text-muted">min</span>
+            <span className="dt-unit">min</span>
           </div>
 
           {/* Complete */}
-          <span className="ml-auto relative inline-flex">
-            <button
-              onClick={complete}
-              title="Complete drill (use timer or enter minutes above)"
-              className="px-3.5 py-2 rounded-md text-xs uppercase tracking-widest flex items-center gap-1.5 bg-success/15 border border-success/40 text-success heading font-semibold hover:bg-success/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <CheckCircle2 size={14} /> Complete
-            </button>
+          <span className="dt-complete-wrap">
+            <CompleteButton onClick={complete} />
             {confetti.map(p => (
               <span key={p.id} className="confetti-particle" style={{
                 top: '50%', left: '50%', background: p.color,
@@ -434,27 +436,43 @@ export default function DrillTimer({
           </span>
 
           {seconds > 0 && (
-            <button onClick={reset} className="px-2.5 py-2 rounded-md text-text-secondary hover:text-white hover:bg-white/5 transition-all" title="Reset timer">
+            <button onClick={reset} className="dt-reset" title="Reset timer" aria-label="Reset timer">
               <RotateCcw size={14} />
             </button>
           )}
         </div>
       )}
 
-      {durationError && (
-        <div className="mt-2 flex items-center gap-2 text-xs text-accent-secondary animate-fade-in">
-          <AlertCircle size={13} />
-          <span>{durationError}</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {durationError && (
+          <motion.div
+            className="dt-error"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: DT_EASE }}
+          >
+            <AlertCircle size={13} />
+            <span>{durationError}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {lastLogged && (
-        <div className="mt-3 toast-success rounded-md px-3 py-2 text-xs flex items-center gap-2 animate-fade-in">
-          <CheckCircle2 size={14} />
-          <span className="mono">Logged {lastLogged}</span>
-          <span className="text-text-secondary">— locking drill.</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {lastLogged && (
+          <motion.div
+            className="dt-logged"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22, ease: DT_EASE }}
+          >
+            <CheckCircle2 size={14} />
+            <span className="dt-logged-num">Logged {lastLogged}</span>
+            <span className="dt-logged-sub">— locking drill.</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <DrillEditWarningModal
         open={warningOpen}
@@ -463,9 +481,297 @@ export default function DrillTimer({
         onClose={() => setWarningOpen(false)}
         onConfirm={confirmUnlock}
       />
+
+      <style>{drillStyles}</style>
     </div>
   )
 }
+
+/* ─── 36px circular start/pause with a progress ring ─────────── */
+function TimerButton({ running, pct, hasTarget, onClick }) {
+  const size = 38
+  const stroke = 3
+  const r = (size - stroke) / 2
+  const circumference = 2 * Math.PI * r
+  const offset = circumference - (Math.max(0, Math.min(100, pct)) / 100) * circumference
+
+  return (
+    <motion.button
+      onClick={onClick}
+      className={`dt-circle ${running ? 'is-running' : ''}`}
+      title={running ? 'Pause timer' : 'Start timer'}
+      aria-label={running ? 'Pause timer' : 'Start timer'}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.94 }}
+      transition={{ duration: 0.15, ease: DT_EASE }}
+    >
+      {/* Progress ring — only drawn when a target exists */}
+      {running && hasTarget && (
+        <svg className="dt-circle-ring" width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
+          <circle
+            cx={size / 2} cy={size / 2} r={r}
+            fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth={stroke}
+          />
+          <circle
+            cx={size / 2} cy={size / 2} r={r}
+            fill="none" stroke="#FFFFFF" strokeWidth={stroke} strokeLinecap="round"
+            strokeDasharray={circumference} strokeDashoffset={offset}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
+        </svg>
+      )}
+      <span className="dt-circle-icon">
+        {running ? <Pause size={15} fill="currentColor" /> : <Play size={15} fill="currentColor" />}
+      </span>
+    </motion.button>
+  )
+}
+
+/* ─── Completion toggle — scale pop + colour flash on press ──── */
+function CompleteButton({ onClick }) {
+  const reduce = useReducedMotion()
+  const [popped, setPopped] = useState(false)
+
+  function handle() {
+    if (!reduce) {
+      setPopped(true)
+      setTimeout(() => setPopped(false), 420)
+    }
+    onClick?.()
+  }
+
+  return (
+    <motion.button
+      onClick={handle}
+      className="dt-check"
+      title="Complete drill (use timer or enter minutes above)"
+      aria-label="Complete drill"
+      animate={popped && !reduce ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+      transition={{ duration: 0.38, ease: DT_EASE }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.94 }}
+    >
+      <CheckCircle2 size={16} strokeWidth={2.4} />
+    </motion.button>
+  )
+}
+
+const DT_EASE = [0.22, 1, 0.36, 1]
+
+const drillStyles = `
+  .dt-row {
+    position: relative;
+    background: #F8FAFD; border: 1px solid #E5EAF3;
+    border-left: 3px solid #E5EAF3; border-radius: 12px; padding: 14px;
+    transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .dt-row:not(.is-locked):hover { border-left-color: #2563FF; background: #F2F7FF; }
+  }
+  .dt-row.is-locked {
+    background: rgba(22,163,74,0.04); border-color: rgba(22,163,74,0.2);
+    border-left-color: #16A34A;
+  }
+  .dt-row.is-editing {
+    background: #FFFFFF; border-color: rgba(37,99,255,0.35);
+    border-left-color: #2563FF; box-shadow: 0 0 0 3px rgba(37,99,255,0.07);
+  }
+  .dt-row.is-running {
+    background: #FFFFFF; border-color: rgba(37,99,255,0.3);
+    border-left-color: #2563FF; box-shadow: 0 4px 18px rgba(37,99,255,0.1);
+  }
+  .dt-row.is-dragging { box-shadow: 0 14px 40px rgba(15,23,42,0.14); z-index: 10; }
+
+  /* ── Header ── */
+  .dt-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 11px; }
+  .dt-grip {
+    margin-top: 2px; padding: 4px; border-radius: 7px; flex-shrink: 0;
+    background: transparent; border: none; color: #94A3B8;
+    cursor: grab; touch-action: none; display: flex;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .dt-grip:active { cursor: grabbing; }
+  @media (hover: hover) and (pointer: fine) {
+    .dt-grip:hover { color: #475569; background: #EEF4FF; }
+  }
+  .dt-head-text { flex: 1; min-width: 0; }
+  .dt-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .dt-name {
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 14px; color: #0B1224;
+  }
+  .dt-pill {
+    border-radius: 999px; padding: 2px 9px; flex-shrink: 0;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 9.5px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .dt-pill--green { background: rgba(22,163,74,0.1); border: 1px solid rgba(22,163,74,0.3); color: #16A34A; }
+  .dt-pill--blue  { background: #EAF2FF; border: 1px solid rgba(37,99,255,0.25); color: #2563FF; }
+
+  .dt-live {
+    display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 9.5px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: #2563FF;
+  }
+  .dt-live-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #2563FF; display: inline-block;
+    animation: dtLivePulse 1.4s cubic-bezier(0.22,1,0.36,1) infinite;
+  }
+  @keyframes dtLivePulse {
+    0%, 100% { opacity: 0.35; transform: scale(0.8); }
+    50%      { opacity: 1;    transform: scale(1.15); }
+  }
+
+  .dt-meta {
+    margin-top: 5px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+    font-family: 'Inter', sans-serif; font-size: 12px; color: #64748B;
+  }
+  .dt-meta-strong { font-weight: 600; color: #2563FF; }
+  .dt-meta-num { font-variant-numeric: tabular-nums; }
+  .dt-meta-sep { color: #CBD5E1; }
+  .dt-desc {
+    margin-top: 3px; font-family: 'Inter', sans-serif; font-size: 12.5px;
+    color: #64748B; line-height: 1.45;
+  }
+
+  .dt-loadout { margin-top: 7px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .dt-loadout-label {
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 9.5px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: #94A3B8;
+  }
+  .dt-loadout-none { font-family: 'Inter', sans-serif; font-size: 11.5px; color: #94A3B8; font-style: italic; }
+  .dt-gun-chip {
+    background: #EAF2FF; border: 1px solid rgba(37,99,255,0.25); color: #2563FF;
+    border-radius: 999px; padding: 2px 8px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 4px;
+    transition: background 0.15s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .dt-gun-chip:hover { background: #FFF0F2; border-color: rgba(239,51,64,0.3); color: #EF3340; }
+  }
+  .dt-gun-tag {
+    background: #FFFFFF; border: 1px solid #E5EAF3; color: #475569;
+    border-radius: 999px; padding: 2px 9px;
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
+  }
+
+  .dt-divider { height: 1px; background: #E5EAF3; margin: 13px 0; }
+
+  /* ── Timer row ── */
+  .dt-timer-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .dt-circle {
+    position: relative; width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    border: none; cursor: pointer; padding: 0;
+    background: linear-gradient(135deg, #2563FF, #5B3DF5); color: #FFFFFF;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 12px rgba(37,99,255,0.3);
+  }
+  .dt-circle.is-running {
+    background: linear-gradient(135deg, #F59E0B, #EF3340);
+    box-shadow: 0 3px 12px rgba(239,51,64,0.28);
+    animation: dtRingPulse 2s cubic-bezier(0.22,1,0.36,1) infinite;
+  }
+  @keyframes dtRingPulse {
+    0%, 100% { box-shadow: 0 3px 12px rgba(239,51,64,0.28), 0 0 0 0 rgba(239,51,64,0.25); }
+    50%      { box-shadow: 0 3px 12px rgba(239,51,64,0.28), 0 0 0 8px rgba(239,51,64,0); }
+  }
+  .dt-circle-ring { position: absolute; inset: 0; pointer-events: none; }
+  .dt-circle-icon { position: relative; display: flex; }
+
+  .dt-time {
+    min-width: 92px; text-align: center;
+    background: #FFFFFF; border: 1px solid #E5EAF3; border-radius: 10px;
+    padding: 7px 12px;
+    font-family: 'Inter', sans-serif; font-weight: 800; font-size: 18px;
+    font-variant-numeric: tabular-nums; color: #0B1224;
+    transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+  }
+  .dt-time.is-running { border-color: rgba(239,51,64,0.3); color: #EF3340; background: #FFF7ED; }
+
+  .dt-min-wrap { display: flex; align-items: center; gap: 6px; }
+  .dt-input {
+    width: 92px; box-sizing: border-box; text-align: center;
+    background: #FFFFFF; border: 1px solid #E5EAF3; border-radius: 10px;
+    padding: 8px 10px;
+    font-family: 'Inter', sans-serif; font-size: 13px; font-variant-numeric: tabular-nums;
+    color: #0B1224; outline: none; transition: border-color 0.15s ease;
+  }
+  .dt-input--sm { width: 74px; }
+  .dt-input:focus { border-color: #2563FF; }
+  .dt-input::placeholder { color: #94A3B8; }
+  .dt-input.has-error { border-color: #EF3340; }
+  .dt-unit { font-family: 'Inter', sans-serif; font-size: 11px; color: #94A3B8; }
+  .dt-field-label {
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: #64748B;
+  }
+
+  .dt-complete-wrap { margin-left: auto; position: relative; display: inline-flex; }
+  .dt-check {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; padding: 0;
+    background: rgba(22,163,74,0.1); border: 1.5px solid rgba(22,163,74,0.4);
+    color: #16A34A; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .dt-check:hover { background: #16A34A; border-color: #16A34A; color: #FFFFFF; }
+  }
+
+  .dt-reset {
+    width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+    background: transparent; border: 1px solid #E5EAF3; color: #64748B; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .dt-reset:hover { color: #0B1224; border-color: #C7D7FB; background: #F8FAFF; }
+  }
+
+  /* ── Edit row ── */
+  .dt-edit-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .dt-edit-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+  .dt-btn {
+    border-radius: 10px; padding: 8px 14px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 12px;
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .dt-btn--primary {
+    background: linear-gradient(135deg, #2563FF, #5B3DF5); border: none; color: #FFFFFF;
+    box-shadow: 0 3px 10px rgba(37,99,255,0.25);
+  }
+  .dt-btn--primary:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+  .dt-btn--ghost { background: #FFFFFF; border: 1px solid #E5EAF3; color: #475569; }
+  @media (hover: hover) and (pointer: fine) {
+    .dt-btn--ghost:hover { border-color: #2563FF; color: #2563FF; }
+  }
+
+  /* ── Feedback ── */
+  .dt-error {
+    margin-top: 9px; display: flex; align-items: center; gap: 7px;
+    font-family: 'Inter', sans-serif; font-size: 12px; color: #EF3340;
+  }
+  .dt-logged {
+    margin-top: 11px; padding: 8px 12px; border-radius: 10px;
+    background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.25);
+    display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+    font-family: 'Inter', sans-serif; font-size: 12px; color: #16A34A;
+  }
+  .dt-logged-num { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .dt-logged-sub { color: #64748B; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dt-live-dot, .dt-circle.is-running { animation: none; }
+  }
+
+  @media (max-width: 520px) {
+    .dt-time { min-width: 80px; font-size: 16px; }
+    .dt-complete-wrap { margin-left: 0; }
+    .dt-timer-row { gap: 8px; }
+  }
+`
 
 /* ─── Kebab menu ─────────────────────────────────────────────── */
 function DrillKebab({ onEdit, onDelete, onDuplicate }) {
@@ -484,35 +790,68 @@ function DrillKebab({ onEdit, onDelete, onDuplicate }) {
   function wrap(fn) { return (e) => { e.stopPropagation(); setOpen(false); fn?.() } }
 
   return (
-    <div className="relative flex-shrink-0" ref={ref}>
+    <div className="dt-kebab-wrap" ref={ref}>
       <button
         onClick={e => { e.stopPropagation(); setOpen(v => !v) }}
-        className={`p-1.5 rounded-md transition-all ${open ? 'bg-[rgba(232,0,28,0.12)] text-accent-secondary' : 'text-text-secondary hover:text-white hover:bg-white/5'}`}
+        className={`dt-kebab ${open ? 'is-open' : ''}`}
         title="Drill options"
+        aria-label="Drill options"
+        aria-expanded={open}
       >
         <MoreVertical size={15} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-48 glass-strong rounded-md overflow-hidden shadow-2xl z-30 dropdown-in">
+        <div className="dt-kebab-menu">
           <KebabItem icon={Pencil} label="Edit drill name"  onClick={wrap(onEdit)} />
           <KebabItem icon={Copy}   label="Duplicate drill"  onClick={wrap(onDuplicate)} />
-          <div className="h-px bg-border" />
+          <div className="dt-kebab-sep" />
           <KebabItem icon={Trash2} label="Delete drill"     onClick={wrap(onDelete)} destructive />
         </div>
       )}
+
+      <style>{`
+        .dt-kebab-wrap { position: relative; flex-shrink: 0; }
+        .dt-kebab {
+          padding: 6px; border-radius: 8px; background: transparent; border: none;
+          color: #94A3B8; cursor: pointer; display: flex;
+          transition: color 0.15s ease, background 0.15s ease;
+        }
+        .dt-kebab.is-open { background: #EAF2FF; color: #2563FF; }
+        @media (hover: hover) and (pointer: fine) {
+          .dt-kebab:hover { color: #475569; background: #F1F5F9; }
+        }
+        .dt-kebab-menu {
+          position: absolute; right: 0; top: 100%; margin-top: 6px; width: 192px;
+          background: #FFFFFF; border: 1px solid #E5EAF3; border-radius: 12px;
+          overflow: hidden; z-index: 30;
+          box-shadow: 0 12px 32px rgba(15,23,42,0.12);
+        }
+        .dt-kebab-sep { height: 1px; background: #E5EAF3; }
+        .dt-kebab-item {
+          width: 100%; display: flex; align-items: center; gap: 11px;
+          padding: 10px 14px; background: transparent; border: none; cursor: pointer;
+          font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+          color: #0B1224; text-align: left;
+          transition: background 0.15s ease, color 0.15s ease;
+        }
+        .dt-kebab-item--danger { color: #EF3340; }
+        @media (hover: hover) and (pointer: fine) {
+          .dt-kebab-item:hover { background: #F8FAFF; }
+          .dt-kebab-item--danger:hover { background: #FFF0F2; }
+        }
+      `}</style>
     </div>
   )
 }
 
 function KebabItem({ icon: Icon, label, onClick, destructive }) {
   return (
-    <button onClick={onClick}
-      className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-sm transition-all ${
-        destructive ? 'text-accent-secondary hover:bg-[rgba(232,0,28,0.08)]' : 'text-text-primary hover:bg-white/5'
-      }`}
+    <button
+      onClick={onClick}
+      className={`dt-kebab-item ${destructive ? 'dt-kebab-item--danger' : ''}`}
     >
       <Icon size={14} />
-      <span className="heading text-xs tracking-wider uppercase">{label}</span>
+      <span>{label}</span>
     </button>
   )
 }

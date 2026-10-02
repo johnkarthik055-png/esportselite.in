@@ -177,43 +177,94 @@ export default function ScreenshotImport({
 
   if (!open) {
     return (
-      <div style={{
-        background: 'linear-gradient(135deg,#EEF4FF,#F0EEFF)',
-        border: '1px solid #DCE5FA', borderRadius: 12,
-        padding: '16px 18px', marginBottom: 16,
-        display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap',
-      }}>
-        <div style={{
-          width: 44, height: 44, borderRadius: 10, flexShrink: 0,
-          background: 'rgba(37,99,255,0.1)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <ImageIcon size={20} style={{ color: '#2563FF' }} />
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setOpen(true)}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(true) }
+        }}
+        className="si-dropzone"
+        aria-label="Open AI screenshot import"
+      >
+        <div className="si-dz-icon">
+          <ImageIcon size={22} />
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: 15, color: '#0B1224' }}>
-            AI Screenshot Import
-          </div>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#64748B', marginTop: 2 }}>
-            {matchType}{matchType === 'Classic' && subMode ? ` · ${SUBMODE_LABEL[subMode] || subMode}` : ''} — reads only the fields this mode needs. You review before saving.
-          </div>
+        <div className="si-dz-title">AI Screenshot Import</div>
+        <div className="si-dz-sub">
+          Drop in your end-of-match screenshot and the AI fills the form for you.
+          <br />
+          <span className="si-dz-mode">
+            {matchType}{matchType === 'Classic' && subMode ? ` · ${SUBMODE_LABEL[subMode] || subMode}` : ''} — you review every value before saving.
+          </span>
         </div>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          style={{
-            background: '#2563FF', color: '#FFFFFF', border: 'none',
-            borderRadius: 8, padding: '8px 16px', flexShrink: 0,
-            fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
-            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-            boxShadow: '0 2px 8px rgba(37,99,255,0.2)',
-            transition: 'opacity 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.opacity = '0.85' }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
-        >
-          <ImageIcon size={14} /> Import
-        </button>
+        <span className="si-dz-btn">
+          <ImageIcon size={14} /> Choose screenshot
+        </span>
+
+        <style>{`
+          .si-dropzone {
+            background: #F8FAFF;
+            border: 2px dashed #C7D7FB;
+            border-radius: 14px;
+            padding: 28px 22px;
+            margin-bottom: 16px;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            cursor: pointer; outline: none;
+            transition: border-color 0.2s cubic-bezier(0.22,1,0.36,1),
+                        background 0.2s cubic-bezier(0.22,1,0.36,1),
+                        box-shadow 0.2s cubic-bezier(0.22,1,0.36,1);
+          }
+          .si-dropzone:focus-visible {
+            border-color: #2563FF;
+            box-shadow: 0 0 0 4px rgba(37,99,255,0.14);
+          }
+          @media (hover: hover) and (pointer: fine) {
+            .si-dropzone:hover {
+              border-color: #2563FF;
+              border-style: solid;
+              background: #EEF4FF;
+              box-shadow: 0 8px 30px rgba(37,99,255,0.08);
+            }
+            .si-dropzone:hover .si-dz-icon {
+              background: #2563FF; color: #FFFFFF;
+              transform: translateY(-2px);
+            }
+            .si-dropzone:hover .si-dz-btn { opacity: 0.9; }
+          }
+          .si-dz-icon {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: #EAF2FF; color: #2563FF;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 14px;
+            transition: background 0.2s cubic-bezier(0.22,1,0.36,1),
+                        color 0.2s cubic-bezier(0.22,1,0.36,1),
+                        transform 0.2s cubic-bezier(0.22,1,0.36,1);
+          }
+          .si-dz-title {
+            font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 20px;
+            text-transform: uppercase; letter-spacing: 0.03em; color: #0B1224;
+          }
+          .si-dz-sub {
+            font-family: 'Inter', sans-serif; font-size: 13px; color: #64748B;
+            line-height: 1.6; margin-top: 6px; max-width: 420px;
+          }
+          .si-dz-mode {
+            font-family: 'Inter', sans-serif; font-size: 12px; color: #94A3B8;
+          }
+          .si-dz-btn {
+            margin-top: 16px;
+            background: linear-gradient(135deg, #2563FF, #5B3DF5); color: #FFFFFF;
+            border-radius: 10px; padding: 9px 20px;
+            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px;
+            display: inline-flex; align-items: center; gap: 7px;
+            box-shadow: 0 4px 12px rgba(37,99,255,0.25);
+            transition: opacity 0.18s ease;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .si-dropzone:hover .si-dz-icon { transform: none; }
+          }
+        `}</style>
       </div>
     )
   }
