@@ -41,9 +41,9 @@ const MODULES = [
 ]
 
 const INTENSITIES = [
-  { key: 'light',   label: 'Light',   tasksPerDay: [1, 2], minPerTask: [20, 30], desc: '1–2 tasks · 20–30 min' },
-  { key: 'medium',  label: 'Medium',  tasksPerDay: [2, 3], minPerTask: [30, 45], desc: '2–3 tasks · 30–45 min' },
-  { key: 'intense', label: 'Intense', tasksPerDay: [3, 4], minPerTask: [45, 60], desc: '3–4 tasks · 45–60 min' },
+  { key: 'light',   label: 'Light',   tasksPerDay: [1, 2], minPerTask: [20, 30], desc: '1â€“2 tasks Â· 20â€“30 min' },
+  { key: 'medium',  label: 'Medium',  tasksPerDay: [2, 3], minPerTask: [30, 45], desc: '2â€“3 tasks Â· 30â€“45 min' },
+  { key: 'intense', label: 'Intense', tasksPerDay: [3, 4], minPerTask: [45, 60], desc: '3â€“4 tasks Â· 45â€“60 min' },
 ]
 
 const DURATION_PRESETS = [7, 14, 21, 30]
@@ -62,11 +62,11 @@ const GOAL_TYPES = [
 
 const XP_PER_INTENSITY = { light: 50, medium: 75, intense: 100 }
 const AI_LOADING_MESSAGES = [
-  'Analysing your match history…',
-  'Identifying your weak points…',
-  'Building your daily plan…',
-  'Personalising tasks for you…',
-  'Almost ready…',
+  'Analysing your match historyâ€¦',
+  'Identifying your weak pointsâ€¦',
+  'Building your daily planâ€¦',
+  'Personalising tasks for youâ€¦',
+  'Almost readyâ€¦',
 ]
 
 /* ============================================================
@@ -228,7 +228,7 @@ function ScheduleDashboard({ schedule, uid }) {
     return unsub
   }, [uid, schedule.id])
 
-  /* Missed-day sweep — runs whenever days change so it self-heals
+  /* Missed-day sweep â€” runs whenever days change so it self-heals
      even if the user leaves the tab open across midnight. Any
      'upcoming'/'active' day whose date is strictly before today
      without being 'done' gets marked 'missed'. */
@@ -253,7 +253,7 @@ function ScheduleDashboard({ schedule, uid }) {
           currentStreak: 0,
         })
         await batch.commit()
-      } catch { /* non-fatal — day sweep can retry next tick */ }
+      } catch { /* non-fatal â€” day sweep can retry next tick */ }
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [days.length])
@@ -343,7 +343,7 @@ function ScheduleHeader({ schedule, onTogglePause, onAbandon }) {
           </div>
           <h2 style={cardTitleStyle}>{schedule.title || 'Training schedule'}</h2>
           <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'var(--text-muted)', marginTop: 2 }}>
-            {schedule.goal || '—'}
+            {schedule.goal || 'â€”'}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
@@ -358,17 +358,10 @@ function ScheduleHeader({ schedule, onTogglePause, onAbandon }) {
 
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-<<<<<<< HEAD
           <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569' }}>
             Day {completed} of {total}
           </span>
           <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 20, letterSpacing: '0.04em', color: '#0B1224' }}>
-=======
-          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)' }}>
-            Day {completed} of {total}
-          </span>
-          <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             {percent}%
           </span>
         </div>
@@ -398,10 +391,7 @@ function MiniStat({ label, value, accent }) {
     }}>
       <div style={{
         fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
         fontWeight: 900,
-=======
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         fontSize: 22,
         letterSpacing: '0.04em',
         color: accent || '#0B1224',
@@ -410,12 +400,8 @@ function MiniStat({ label, value, accent }) {
         {value}
       </div>
       <div style={{
-<<<<<<< HEAD
         fontFamily: 'Rajdhani, sans-serif',
         fontWeight: 600,
-=======
-        fontFamily: 'Inter, sans-serif',
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         fontSize: 10,
         color: '#64748B',
         marginTop: 4,
@@ -471,7 +457,7 @@ function TodayTasksCard({ uid, schedule, day }) {
             Rest day
           </div>
           <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-            Recovery is part of training — see you tomorrow.
+            Recovery is part of training â€” see you tomorrow.
           </div>
         </div>
       </div>
@@ -536,7 +522,7 @@ function TodayTasksCard({ uid, schedule, day }) {
             fontSize: 20,
             letterSpacing: '0.04em',
           }}>
-            Today — Day {day.dayNumber}
+            Today â€” Day {day.dayNumber}
           </span>
         </div>
         <span className="badge">{prettyDate(day.date)}</span>
@@ -582,7 +568,7 @@ function TodayTasksCard({ uid, schedule, day }) {
           color: 'var(--green)',
           fontSize: 13,
         }}>
-          <Check size={14} /> Day completed — earned {day.xpReward || 0} XP.
+          <Check size={14} /> Day completed â€” earned {day.xpReward || 0} XP.
         </div>
       )}
     </div>
@@ -623,7 +609,7 @@ function TaskRow({ task, disabled, onToggle }) {
             color: task.done ? 'var(--text-muted)' : 'var(--text-primary)',
             textDecoration: task.done ? 'line-through' : 'none',
           }}>
-            {task.title || '—'}
+            {task.title || 'â€”'}
           </span>
           <span className={typeClass}>{typeLabel}</span>
           {task.duration ? (
@@ -666,7 +652,7 @@ function TaskCheckbox({ checked, disabled, onChange }) {
 }
 
 /* ============================================================
-   CALENDAR GRID — full month calendar with navigation
+   CALENDAR GRID â€” full month calendar with navigation
    ============================================================ */
 function CalendarGrid({ days, todayId, selectedDayId, onSelect }) {
   /* Default to the month that contains today or the first schedule day */
@@ -693,7 +679,7 @@ function CalendarGrid({ days, todayId, selectedDayId, onSelect }) {
   const firstOfMonth = new Date(year, month, 1)
   const startDow     = firstOfMonth.getDay()              /* 0=Sun */
 
-  /* Build cells — 35 or 42 depending on whether the month needs 6 rows */
+  /* Build cells â€” 35 or 42 depending on whether the month needs 6 rows */
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const totalCells  = startDow + daysInMonth > 35 ? 42 : 35
   const cells = Array.from({ length: totalCells }, (_, i) => {
@@ -725,11 +711,7 @@ function CalendarGrid({ days, todayId, selectedDayId, onSelect }) {
         <button onClick={prevMonth} style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 8, color: '#0B1224', padding: '4px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
           <ChevronLeft size={14} />
         </button>
-<<<<<<< HEAD
         <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, letterSpacing: '0.04em', color: '#0B1224', textTransform: 'uppercase' }}>
-=======
-        <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           {monthLabel}
         </span>
         <button onClick={nextMonth} style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 8, color: '#0B1224', padding: '4px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
@@ -742,11 +724,7 @@ function CalendarGrid({ days, todayId, selectedDayId, onSelect }) {
         {['Su','Mo','Tu','We','Th','Fr','Sa'].map(l => (
           <div key={l} style={{
             textAlign: 'center', fontSize: 10, fontWeight: 600,
-<<<<<<< HEAD
             fontFamily: 'Rajdhani, sans-serif', color: '#64748B',
-=======
-            fontFamily: 'Inter, sans-serif', color: 'var(--text-subtle)',
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             textTransform: 'uppercase', letterSpacing: '0.06em', padding: '2px 0',
           }}>{l}</div>
         ))}
@@ -908,7 +886,7 @@ function DayDetailPanel({ uid, schedule, day, isToday, onClose }) {
                   {t.done ? <Check size={9} strokeWidth={3} /> : null}
                 </span>
                 <span style={{ fontSize: 12, color: 'var(--text-primary)', flex: 1 }}>{t.title}</span>
-                <span style={{ fontSize: 11, color: 'var(--text-subtle)' }}>{t.duration || '—'}m</span>
+                <span style={{ fontSize: 11, color: 'var(--text-subtle)' }}>{t.duration || 'â€”'}m</span>
               </li>
             ))}
       </ul>
@@ -922,7 +900,7 @@ function DayDetailPanel({ uid, schedule, day, isToday, onClose }) {
           onChange={(e) => setNotes(e.target.value)}
           readOnly={!isToday}
           rows={3}
-          placeholder={isToday ? 'Optional notes for today…' : 'Notes are read-only for past days.'}
+          placeholder={isToday ? 'Optional notes for todayâ€¦' : 'Notes are read-only for past days.'}
           className="input"
           style={{ resize: 'vertical' }}
         />
@@ -991,15 +969,15 @@ function PastSchedules({ items, open, onToggle }) {
             }}>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {s.title || '—'}
+                  {s.title || 'â€”'}
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-subtle)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {s.goal || '—'}
+                  {s.goal || 'â€”'}
                 </div>
               </div>
               <StatusBadge status={s.status} />
               <span className="mono" style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                {Number(s.completedDays) || 0}/{Number(s.totalDays) || 0} · {Number(s.xpEarned) || 0} XP
+                {Number(s.completedDays) || 0}/{Number(s.totalDays) || 0} Â· {Number(s.xpEarned) || 0} XP
               </span>
               <span style={{ fontSize: 11, color: 'var(--text-subtle)' }}>
                 {prettyDate(s.endDate)}
@@ -1207,7 +1185,7 @@ function isStepValid(step, { goal, totalDays }) {
 }
 
 /* ============================================================
-   STEP 1 — Goal
+   STEP 1 â€” Goal
    ============================================================ */
 function Step1({
   goalType, onGoalType, weaknesses,
@@ -1301,7 +1279,7 @@ function Step1({
 }
 
 /* ============================================================
-   STEP 2 — Duration + intensity + cadence
+   STEP 2 â€” Duration + intensity + cadence
    ============================================================ */
 function Step2({
   durationPreset, onDurationPreset,
@@ -1392,7 +1370,7 @@ function Step2({
 }
 
 /* ============================================================
-   STEP 3 — Generate
+   STEP 3 â€” Generate
    ============================================================ */
 function Step3({ saving, loadingMsg, error, onAI, onRule, onCancel }) {
   return (
@@ -1526,7 +1504,7 @@ function generateRulePlan(config) {
         dayNumber, isRestDay: true, focus: 'Recovery',
         xpReward: Math.round(xpReward / 5),
         tasks: [
-          { type: 'rest', title: 'Rest & recover', description: 'No drills today — focus on rest, hydration, and sleep.', duration: 0 },
+          { type: 'rest', title: 'Rest & recover', description: 'No drills today â€” focus on rest, hydration, and sleep.', duration: 0 },
         ],
       })
       continue
@@ -1746,13 +1724,13 @@ export function daysBetween(a, b) {
   return Math.max(0, Math.round(ms / 86400000) + 1)
 }
 export function prettyDate(iso) {
-  if (!iso) return '—'
+  if (!iso) return 'â€”'
   const d = new Date(iso + 'T00:00')
   if (isNaN(d.getTime())) return iso
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 export function shortDate(iso) {
-  if (!iso) return '—'
+  if (!iso) return 'â€”'
   const d = new Date(iso + 'T00:00')
   if (isNaN(d.getTime())) return iso
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
@@ -1865,7 +1843,7 @@ function LoadingBlock() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '40vh', gap: 10, color: 'var(--text-muted)' }}>
       <Loader2 size={18} className="animate-spin" />
-      <span style={{ fontSize: 13 }}>Loading scheduler…</span>
+      <span style={{ fontSize: 13 }}>Loading schedulerâ€¦</span>
       <SchedulerStyles />
     </div>
   )

@@ -174,41 +174,6 @@ export default function Tournaments() {
 /* ============================================================
    SEG GROUP
    ============================================================ */
-<<<<<<< HEAD
-=======
-function Header({ typeFilter, onTypeFilter, statusFilter, onStatusFilter }) {
-  return (
-    <div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12 }}>
-        <div>
-          <h1
-            style={{
-              fontFamily: 'Barlow Condensed, sans-serif',
-              fontWeight: 400,
-              fontSize: 28,
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
-              color: 'var(--text-primary)',
-              margin: 0,
-            }}
-          >
-            Tournaments
-          </h1>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-            Live standings and results
-          </div>
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14 }}>
-        <SegGroup filters={TYPE_FILTERS}   active={typeFilter}   onChange={onTypeFilter} />
-        <SegGroup filters={STATUS_FILTERS} active={statusFilter} onChange={onStatusFilter} />
-      </div>
-    </div>
-  )
-}
-
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
 function SegGroup({ filters, active, onChange }) {
   return (
     <div style={{
@@ -268,11 +233,7 @@ function FeaturedCard({ tournament, onOpen }) {
       <h2
         style={{
           fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
           fontWeight: 900,
-=======
-          fontWeight: 400,
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           fontSize: 26,
           letterSpacing: '0.04em',
           textTransform: 'uppercase',
@@ -282,21 +243,14 @@ function FeaturedCard({ tournament, onOpen }) {
       >
         {tournament.name}
       </h2>
-<<<<<<< HEAD
       <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569' }}>
-=======
-      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)' }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
-        {tournament.organizer || '—'}
+        {tournament.organizer || 'â€”'}
       </div>
 
       <div
         style={{
           fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
           fontWeight: 900,
-=======
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           fontSize: 22,
           letterSpacing: '0.04em',
           color: '#D97706',
@@ -349,11 +303,7 @@ function TournamentCard({ tournament, onOpen }) {
         <div
           style={{
             fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
             fontWeight: 900,
-=======
-            fontWeight: 400,
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             fontSize: 20,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
@@ -363,12 +313,8 @@ function TournamentCard({ tournament, onOpen }) {
         >
           {tournament.name}
         </div>
-<<<<<<< HEAD
         <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 2 }}>
-=======
-        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
-          {tournament.organizer || '—'}
+          {tournament.organizer || 'â€”'}
         </div>
       </div>
 
@@ -456,12 +402,12 @@ function InfoRow({ tournament, compact }) {
       {!compact && (
         <InfoItem icon={<Trophy size={13} />}>
           <span style={{ color: '#D97706', fontWeight: 600 }}>
-            {tournament.prizePool || '—'}
+            {tournament.prizePool || 'â€”'}
           </span>
         </InfoItem>
       )}
       <InfoItem icon={<MapIcon size={13} />}>
-        {maps.length ? maps.join(', ') : '—'}
+        {maps.length ? maps.join(', ') : 'â€”'}
       </InfoItem>
     </div>
   )
@@ -488,7 +434,7 @@ function LoadingState() {
       minHeight: '40vh', gap: 10, color: '#475569',
     }}>
       <Loader2 size={18} className="animate-spin" />
-      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13 }}>Loading tournaments…</span>
+      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13 }}>Loading tournamentsâ€¦</span>
       <PulseKeyframes />
     </div>
   )
@@ -499,17 +445,10 @@ function ErrorState({ message }) {
     <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: 20, boxShadow: '0 4px 20px rgba(15,23,42,0.04)', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
       <AlertTriangle size={18} style={{ color: '#EF3340', flexShrink: 0, marginTop: 2 }} />
       <div>
-<<<<<<< HEAD
         <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: '#0B1224' }}>
           Couldn't load tournaments
         </div>
         <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569', marginTop: 4 }}>
-=======
-        <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: 'var(--text-primary)' }}>
-          Couldn't load tournaments
-        </div>
-        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           {message}
         </div>
       </div>
@@ -550,7 +489,7 @@ export function tsMs(v) {
 export function fmtDateRange(start, end) {
   const s = fmtDate(start)
   const e = fmtDate(end)
-  if (s && e && s !== e) return `${s} → ${e}`
+  if (s && e && s !== e) return `${s} â†’ ${e}`
   return s || e || 'Date TBD'
 }
 
@@ -561,34 +500,6 @@ export function fmtDate(d) {
   return dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-<<<<<<< HEAD
-=======
-const segRowStyle = {
-  background: 'var(--bg-surface)',
-  border: '1px solid var(--border)',
-  borderRadius: 'var(--radius-sm)',
-  padding: 3,
-  display: 'inline-flex',
-  gap: 2,
-  flexWrap: 'wrap',
-}
-
-function segBtnStyle(active) {
-  return {
-    background: active ? 'var(--bg-elevated)' : 'transparent',
-    border: active ? '1px solid var(--border)' : '1px solid transparent',
-    color: active ? 'var(--text-primary)' : 'var(--text-subtle)',
-    padding: '8px 14px',
-    borderRadius: 4,
-    fontFamily: 'Inter, sans-serif',
-    fontSize: 13,
-    fontWeight: 500,
-    cursor: 'pointer',
-    transition: 'all 0.15s cubic-bezier(0.16, 1, 0.3, 1)',
-  }
-}
-
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
 /* One-time keyframes for the "live" pulsing dot + spinner. Rendered
    as a `<style>` node from any component that needs the animation
    so pages that mount without the loader still get the pulse. */

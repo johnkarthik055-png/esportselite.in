@@ -122,19 +122,11 @@ export default function TeamCreate() {
               key={t.id}
               onClick={() => setTab(t.id)}
               style={{
-<<<<<<< HEAD
                 background: active ? 'linear-gradient(135deg,#2563FF,#5B3DF5)' : 'transparent',
                 border: 'none',
                 color: active ? '#fff' : '#475569',
                 padding: '8px 16px',
                 borderRadius: 8,
-=======
-                background: active ? 'var(--bg-elevated)' : 'transparent',
-                border: active ? '1px solid var(--border)' : '1px solid transparent',
-                color: active ? 'var(--text-primary)' : 'var(--text-subtle)',
-                padding: '8px 14px',
-                borderRadius: 4,
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
                 fontFamily: 'Inter, sans-serif',
                 fontSize: 13,
                 fontWeight: 600,
@@ -231,12 +223,12 @@ function CreateTab({ uid, onDone }) {
         </Field>
 
         <Field label="Description">
-          <textarea style={{ ...inputStyle, resize: 'vertical' }} rows={3} maxLength={200} value={description} onChange={e => setDescription(e.target.value)} placeholder="Short bio, playstyle, tournaments…" />
+          <textarea style={{ ...inputStyle, resize: 'vertical' }} rows={3} maxLength={200} value={description} onChange={e => setDescription(e.target.value)} placeholder="Short bio, playstyle, tournamentsâ€¦" />
         </Field>
 
         <Toggle
           label="Public team"
-          desc={isPublic ? 'Anyone with the invite code can join.' : 'Private — only people you share the code with.'}
+          desc={isPublic ? 'Anyone with the invite code can join.' : 'Private â€” only people you share the code with.'}
           value={isPublic}
           onChange={setIsPublic}
         />
@@ -286,7 +278,7 @@ function CreateTab({ uid, onDone }) {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, gridColumn: '1 / -1' }}>
         <button type="submit" disabled={!canSubmit} style={{ ...btnPrimary, opacity: canSubmit ? 1 : 0.5 }}>
-          {busy ? <><Loader2 size={14} className="animate-spin" /> Creating…</> : <><Plus size={14} /> Create Team</>}
+          {busy ? <><Loader2 size={14} className="animate-spin" /> Creatingâ€¦</> : <><Plus size={14} /> Create Team</>}
         </button>
       </div>
 
@@ -357,15 +349,6 @@ function JoinTab({ uid, onDone }) {
             onChange={e => setCode(e.target.value.replace(/\s/g, '').toUpperCase().slice(0, 6))}
             maxLength={6}
             placeholder="XXXXXX"
-<<<<<<< HEAD
-=======
-            style={{
-              fontFamily: 'Barlow Condensed, sans-serif',
-              fontSize: 22,
-              letterSpacing: '0.3em',
-              textAlign: 'center',
-            }}
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           />
         </Field>
 
@@ -418,7 +401,7 @@ function JoinTab({ uid, onDone }) {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button type="submit" disabled={!canSubmit} style={{ ...btnPrimary, opacity: canSubmit ? 1 : 0.5 }}>
-          {busy ? <><Loader2 size={14} className="animate-spin" /> Joining…</> : <><LogIn size={14} /> Join Team</>}
+          {busy ? <><Loader2 size={14} className="animate-spin" /> Joiningâ€¦</> : <><LogIn size={14} /> Join Team</>}
         </button>
       </div>
 

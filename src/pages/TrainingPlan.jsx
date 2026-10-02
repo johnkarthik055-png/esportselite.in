@@ -162,11 +162,7 @@ export default function TrainingPlan() {
                 padding: '8px 16px',
                 fontSize: 13,
                 fontFamily: 'Inter, sans-serif',
-<<<<<<< HEAD
                 fontWeight: 600,
-=======
-                fontWeight: 500,
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -373,7 +369,7 @@ function PlanFormModal({ open, initial, onClose, onSubmit }) {
               type="text"
               value={name}
               onChange={e => { setName(e.target.value); setError('') }}
-              placeholder="e.g. Week 1 — Aim Focus"
+              placeholder="e.g. Week 1 â€” Aim Focus"
               className="input"
               autoFocus
               maxLength={60}

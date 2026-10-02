@@ -22,7 +22,7 @@ const labelStyle = {
 }
 
 /**
- * Team overview tab. Reads the async collections once on mount —
+ * Team overview tab. Reads the async collections once on mount â€”
  * live updates on team + members come from useTeam in the parent.
  */
 export default function TeamDashboard({ team, members, teamId }) {
@@ -112,18 +112,14 @@ export default function TeamDashboard({ team, members, teamId }) {
                       padding: '12px 14px',
                     }}
                   >
-<<<<<<< HEAD
                     <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13, color: '#0B1224' }}>
-=======
-                    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
                       {a.title}
                     </div>
                     <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 4, lineHeight: 1.5 }}>
                       {truncate(a.body, 160)}
                     </div>
                     <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#64748B', marginTop: 6 }}>
-                      {a.createdByName || 'Unknown'} · {formatRelative(a.createdAt)}
+                      {a.createdByName || 'Unknown'} Â· {formatRelative(a.createdAt)}
                     </div>
                   </li>
                 ))}
@@ -194,10 +190,7 @@ export default function TeamDashboard({ team, members, teamId }) {
                 <div
                   style={{
                     fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
                     fontWeight: 900,
-=======
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
                     fontSize: 22,
                     letterSpacing: '0.04em',
                     textTransform: 'uppercase',
@@ -207,10 +200,10 @@ export default function TeamDashboard({ team, members, teamId }) {
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  {team?.name || '—'}
+                  {team?.name || 'â€”'}
                 </div>
                 <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 2 }}>
-                  [{team?.tag || '—'}] · {team?.region || '—'}
+                  [{team?.tag || 'â€”'}] Â· {team?.region || 'â€”'}
                 </div>
               </div>
             </div>
@@ -301,10 +294,7 @@ function TeamAvatar({ team }) {
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
         fontWeight: 900,
-=======
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         fontSize: 20,
         letterSpacing: '0.06em',
         color: '#2563FF',
@@ -319,14 +309,10 @@ function TeamAvatar({ team }) {
 function UpcomingRow({ title, when, sub }) {
   return (
     <div>
-<<<<<<< HEAD
       <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: '#0B1224' }}>
-=======
-      <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         {title}
       </div>
-      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 4 }}>{when || '—'}</div>
+      <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 4 }}>{when || 'â€”'}</div>
       {sub && <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B', marginTop: 6, lineHeight: 1.5 }}>{sub}</div>}
     </div>
   )
@@ -377,9 +363,9 @@ function SkeletonRow() {
 
 /* ------------------------------------------------------------ */
 function ownerName(team, members) {
-  if (!team) return '—'
+  if (!team) return 'â€”'
   const owner = (members || []).find(m => m.uid === team.ownerId)
-  return owner?.ign || '—'
+  return owner?.ign || 'â€”'
 }
 
 function pickUpcoming(list) {
@@ -393,13 +379,13 @@ function pickUpcoming(list) {
 
 function truncate(s, n) {
   if (!s) return ''
-  return s.length > n ? s.slice(0, n - 1) + '…' : s
+  return s.length > n ? s.slice(0, n - 1) + 'â€¦' : s
 }
 
 function formatDate(v) {
-  if (!v) return '—'
+  if (!v) return 'â€”'
   const d = v?.toDate ? v.toDate() : new Date(v)
-  if (isNaN(d.getTime())) return '—'
+  if (isNaN(d.getTime())) return 'â€”'
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 

@@ -16,7 +16,7 @@ import { db } from '../utils/firebase.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { DEFAULT_SUGGESTIONS } from '../utils/constants.js'
 
-/* ── palette ── */
+/* â”€â”€ palette â”€â”€ */
 const C = {
   blue:   '#2563FF',
   cyan:   '#0EA5E9',
@@ -35,13 +35,13 @@ const MODE_COLORS = { Classic: C.blue, Scrims: C.amber, Tournament: C.violet }
 const PIE_COLORS  = [C.blue, C.amber, C.violet]
 
 const MAP_META = {
-  Erangel: { emoji: '🌿', color: C.green  },
-  Miramar: { emoji: '🏜', color: C.amber  },
-  Sanhok:  { emoji: '🌴', color: '#10B981' },
-  Vikendi: { emoji: '❄',  color: '#60A5FA' },
-  Livik:   { emoji: '🏔', color: '#A78BFA' },
-  Rondo:   { emoji: '🌊', color: C.cyan   },
-  Nusa:    { emoji: '🏝', color: '#F97316' },
+  Erangel: { emoji: 'ðŸŒ¿', color: C.green  },
+  Miramar: { emoji: 'ðŸœ', color: C.amber  },
+  Sanhok:  { emoji: 'ðŸŒ´', color: '#10B981' },
+  Vikendi: { emoji: 'â„',  color: '#60A5FA' },
+  Livik:   { emoji: 'ðŸ”', color: '#A78BFA' },
+  Rondo:   { emoji: 'ðŸŒŠ', color: C.cyan   },
+  Nusa:    { emoji: 'ðŸ', color: '#F97316' },
 }
 
 const WEAKNESS_TIPS = {
@@ -50,14 +50,14 @@ const WEAKNESS_TIPS = {
   decision: 'Review every rotation call after the match',
   rotation: 'Study zone movement and ring timing',
   position: 'Focus on early-game drop and end-game setup',
-  aim:      'Daily ADS drills — focus on flick shots',
+  aim:      'Daily ADS drills â€” focus on flick shots',
   recoil:   'Burst control drills in Spray Training module',
   vehicle:  'Car Spray drills improve vehicle combat',
   team:     'Record scrims to review team sync',
   sound:    'Use headphones and practice mini-map audio cues',
 }
 
-/* resolve weakness IDs → display names */
+/* resolve weakness IDs â†’ display names */
 const SUGGESTION_MAP = Object.fromEntries(
   DEFAULT_SUGGESTIONS.map(s => [s.id, s.name])
 )
@@ -88,7 +88,7 @@ export default function Analytics() {
   const [modeFilter, setModeFilter] = useState('All Modes')
   const [mapFilter, setMapFilter]   = useState('All Maps')
 
-  /* ── fetch all matches once (no orderBy — avoids silent exclusion) ── */
+  /* â”€â”€ fetch all matches once (no orderBy â€” avoids silent exclusion) â”€â”€ */
   useEffect(() => {
     let cancelled = false
     async function load() {
@@ -110,7 +110,7 @@ export default function Analytics() {
     return () => { cancelled = true }
   }, [user?.uid])
 
-  /* ── filtered set ── */
+  /* â”€â”€ filtered set â”€â”€ */
   const filtered = useMemo(() => {
     const opt = DATE_OPTIONS.find(o => o.id === dateRange)
     const cutoff = opt?.days ? Date.now() - opt.days * 86400000 : 0
@@ -122,7 +122,7 @@ export default function Analytics() {
     })
   }, [allMatches, dateRange, modeFilter, mapFilter])
 
-  /* ── prior period (equal-length window before current) ── */
+  /* â”€â”€ prior period (equal-length window before current) â”€â”€ */
   const priorPeriod = useMemo(() => {
     const opt = DATE_OPTIONS.find(o => o.id === dateRange)
     if (!opt?.days) return []
@@ -140,7 +140,7 @@ export default function Analytics() {
       totalKills:   filtered.reduce((s, m) => s + killsOf(m), 0),
       avgKills:     filtered.length ? (filtered.reduce((s, m) => s + killsOf(m), 0) / filtered.length).toFixed(2) : 0,
       avgPlacement: filtered.length ? (filtered.reduce((s, m) => s + (placementOf(m) || 0), 0) / filtered.length).toFixed(1) : 0,
-      winRate:      filtered.length ? ((filtered.filter(m => isWin(m)).length / filtered.length) * 100).toFixed(1) + '%' : '—',
+      winRate:      filtered.length ? ((filtered.filter(m => isWin(m)).length / filtered.length) * 100).toFixed(1) + '%' : 'â€”',
       avgDamage:    filtered.length ? Math.round(filtered.reduce((s, m) => s + damageOf(m), 0) / filtered.length) : 0,
     }
     const payload = { exportedAt: new Date().toISOString(), filters: { dateRange, modeFilter, mapFilter }, stats, matchCount: filtered.length }
@@ -162,17 +162,10 @@ export default function Analytics() {
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <AlertTriangle size={18} style={{ color: C.red, flexShrink: 0, marginTop: 2 }} />
           <div>
-<<<<<<< HEAD
             <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: '#0B1224' }}>
               Couldn't load analytics
             </div>
             <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569', marginTop: 4 }}>
-=======
-            <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 600, color: C.text }}>
-              Couldn't load analytics
-            </div>
-            <div style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, color: C.muted, marginTop: 4 }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
               {error}
             </div>
           </div>
@@ -183,30 +176,17 @@ export default function Analytics() {
 
   if (allMatches.length === 0) {
     return (
-<<<<<<< HEAD
       <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: '48px 24px', boxShadow: '0 4px 20px rgba(15,23,42,0.04)', textAlign: 'center' }}>
         <BarChart2 size={48} style={{ color: '#475569', opacity: 0.4, margin: '0 auto 16px' }} />
         <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 22, color: '#0B1224', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
           No match data yet
         </div>
         <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569', marginBottom: 20 }}>
-=======
-      <div style={{ ...cardStyle, textAlign: 'center', padding: '48px 24px' }}>
-        <BarChart2 size={48} style={{ color: C.muted, opacity: 0.4, margin: '0 auto 16px' }} />
-        <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 20, color: C.text, marginBottom: 8 }}>
-          No match data yet
-        </div>
-        <div style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, color: C.muted, marginBottom: 20 }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           Log matches in Training Center to see your performance analytics here.
         </div>
         <button
           onClick={() => navigate('/training')}
-<<<<<<< HEAD
           style={{ background: '#2563FF', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 13, fontFamily: 'Inter, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}
-=======
-          style={{ background: C.blue, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 13, fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         >
           Log a Match <ArrowRight size={13} />
         </button>
@@ -217,7 +197,6 @@ export default function Analytics() {
   return (
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Page header */}
-<<<<<<< HEAD
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -246,15 +225,6 @@ export default function Analytics() {
             <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#64748B', margin: 0 }}>
               Track your progress, identify weaknesses, improve every game.
             </p>
-=======
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-        <div>
-          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 26, color: C.text, margin: 0, marginBottom: 4, letterSpacing: '0.01em' }}>
-            Analytics Overview
-          </h1>
-          <div style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, color: C.muted }}>
-            Track your performance. Identify weaknesses. Improve every day.
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           </div>
           <button
             onClick={exportReport}
@@ -274,21 +244,12 @@ export default function Analytics() {
       />
 
       {filtered.length === 0 ? (
-<<<<<<< HEAD
         <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 16, padding: '36px 24px', boxShadow: '0 4px 20px rgba(15,23,42,0.04)', textAlign: 'center' }}>
           <Filter size={32} style={{ color: '#475569', opacity: 0.3, margin: '0 auto 12px' }} />
           <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, color: '#0B1224', marginBottom: 6, textTransform: 'uppercase' }}>
             No matches in this filter window
           </div>
           <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569' }}>
-=======
-        <div style={{ ...cardStyle, textAlign: 'center', padding: '36px 24px' }}>
-          <Filter size={32} style={{ color: C.muted, opacity: 0.3, margin: '0 auto 12px' }} />
-          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 600, fontSize: 16, color: C.text, marginBottom: 6 }}>
-            No matches in this filter window
-          </div>
-          <div style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, color: C.muted }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             Widen the date range or change the mode/map filter.
           </div>
         </div>
@@ -314,11 +275,7 @@ function FilterRow({ dateRange, onDateRange, modeFilter, onModeFilter, mapFilter
   const selectStyle = {
     background: '#FFFFFF', border: '1px solid #E5EAF3', color: '#0B1224',
     borderRadius: 8, padding: '8px 12px', fontSize: 13,
-<<<<<<< HEAD
     fontFamily: 'Inter, sans-serif', cursor: 'pointer', outline: 'none',
-=======
-    fontFamily: 'Inter, Inter, sans-serif', cursor: 'pointer', outline: 'none',
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
   }
 
   return (
@@ -340,7 +297,7 @@ function FilterRow({ dateRange, onDateRange, modeFilter, onModeFilter, mapFilter
 }
 
 /* ================================================================
-   ROW 1 — 6 SUMMARY CARDS
+   ROW 1 â€” 6 SUMMARY CARDS
    ================================================================ */
 function SummaryRow({ filtered, prior }) {
   const total    = filtered.length
@@ -391,12 +348,12 @@ function SummaryRow({ filtered, prior }) {
       />
       <SummaryCard
         icon={<MapPin size={18} />} iconColor={C.red}
-        label="Avg Placement" value={avgPlace > 0 ? `#${avgPlace.toFixed(1)}` : '—'}
+        label="Avg Placement" value={avgPlace > 0 ? `#${avgPlace.toFixed(1)}` : 'â€”'}
         trend={pAvgPlace > 0 ? { delta: +(pAvgPlace - avgPlace).toFixed(1), higher: true, prefix: '#', reversed: true } : null}
       />
       <SummaryCard
         icon={<Zap size={18} />} iconColor={C.cyan}
-        label="Avg Damage" value={avgDmg > 0 ? avgDmg.toLocaleString() : '—'}
+        label="Avg Damage" value={avgDmg > 0 ? avgDmg.toLocaleString() : 'â€”'}
         trend={pAvgDmg > 0 ? { delta: avgDmg - pAvgDmg, higher: true } : null}
       />
     </div>
@@ -406,7 +363,7 @@ function SummaryRow({ filtered, prior }) {
 function SummaryCard({ icon, iconColor, label, value, trend }) {
   const improving = trend ? (trend.reversed ? trend.delta > 0 : trend.delta > 0) : null
   const trendColor = improving === null ? null : improving ? C.green : C.red
-  const arrow = improving === null ? null : improving ? '↑' : '↓'
+  const arrow = improving === null ? null : improving ? 'â†‘' : 'â†“'
 
   return (
     <div style={{ ...cardStyle, display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
@@ -414,17 +371,10 @@ function SummaryCard({ icon, iconColor, label, value, trend }) {
         {icon}
       </div>
       <div>
-<<<<<<< HEAD
         <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 11, fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
           {label}
         </div>
         <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: 28, color: '#0B1224', lineHeight: 1 }}>
-=======
-        <div style={{ fontFamily: 'Inter, Inter, sans-serif', fontSize: 11, fontWeight: 500, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
-          {label}
-        </div>
-        <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 26, color: C.text, lineHeight: 1 }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           {value}
         </div>
         {trend && arrow && (
@@ -438,7 +388,7 @@ function SummaryCard({ icon, iconColor, label, value, trend }) {
 }
 
 /* ================================================================
-   ROW 2 — PERFORMANCE TREND + MATCHES BY MODE
+   ROW 2 â€” PERFORMANCE TREND + MATCHES BY MODE
    ================================================================ */
 function TrendAndModeRow({ filtered }) {
   const trendData = useMemo(() => {
@@ -465,7 +415,7 @@ function TrendAndModeRow({ filtered }) {
     <div className="analytics-trend-row">
       {/* Performance trend */}
       <div style={cardStyle}>
-        <SectionHeader label="Performance Trend" sub="Last 30 matches · kills and placement" icon={<TrendingUp size={14} />} />
+        <SectionHeader label="Performance Trend" sub="Last 30 matches Â· kills and placement" icon={<TrendingUp size={14} />} />
         {trendData.length < 2 ? (
           <ChartEmpty msg="Log more matches to see trends" />
         ) : (
@@ -477,13 +427,13 @@ function TrendAndModeRow({ filtered }) {
               <Tooltip content={<CustomTooltip />} cursor={{ stroke: C.muted, strokeOpacity: 0.3 }} />
               <Legend formatter={v => <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: C.muted }}>{v}</span>} />
               <Line type="monotone" dataKey="kills" name="Kills" stroke={C.green} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
-              <Line type="monotone" dataKey="placement" name="Placement Score (25–pos)" stroke={C.blue} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
+              <Line type="monotone" dataKey="placement" name="Placement Score (25â€“pos)" stroke={C.blue} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         )}
       </div>
 
-      {/* Matches by mode — donut */}
+      {/* Matches by mode â€” donut */}
       <div style={{ ...cardStyle, display: 'flex', flexDirection: 'column' }}>
         <SectionHeader label="Matches by Mode" icon={<BarChart2 size={14} />} />
         {modeData.length === 0 ? <ChartEmpty msg="No matches logged yet" /> : (
@@ -514,7 +464,7 @@ function TrendAndModeRow({ filtered }) {
                   <span style={{ width: 10, height: 10, borderRadius: 2, background: MODE_COLORS[d.name] || PIE_COLORS[i % PIE_COLORS.length], flexShrink: 0 }} />
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: C.text, flex: 1 }}>{d.name}</span>
                   <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 13, color: C.muted }}>{d.value}</span>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: C.subtle }}>{modeTotal > 0 ? `${Math.round((d.value / modeTotal) * 100)}%` : '—'}</span>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: C.subtle }}>{modeTotal > 0 ? `${Math.round((d.value / modeTotal) * 100)}%` : 'â€”'}</span>
                 </div>
               ))}
             </div>
@@ -526,7 +476,7 @@ function TrendAndModeRow({ filtered }) {
 }
 
 /* ================================================================
-   ROW 3 — MAP PERFORMANCE
+   ROW 3 â€” MAP PERFORMANCE
    ================================================================ */
 function MapPerformanceRow({ filtered }) {
   const mapData = useMemo(() => {
@@ -554,7 +504,7 @@ function MapPerformanceRow({ filtered }) {
       <SectionHeader label="Map Performance" sub="Sorted by match count" icon={<MapPin size={14} />} />
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10, marginTop: 4 }}>
         {mapData.map(d => {
-          const meta = MAP_META[d.map] || { emoji: '🗺', color: C.muted }
+          const meta = MAP_META[d.map] || { emoji: 'ðŸ—º', color: C.muted }
           const winColor = d.winRate >= 50 ? C.green : d.winRate >= 25 ? C.amber : C.red
           return (
             <div key={d.map} style={{ background: '#F8FAFD', border: '1px solid #E5EAF3', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -578,7 +528,7 @@ function MapPerformanceRow({ filtered }) {
 }
 
 /* ================================================================
-   ROW 4 — COMBAT ANALYSIS (RADAR)
+   ROW 4 â€” COMBAT ANALYSIS (RADAR)
    ================================================================ */
 function CombatAnalysisRow({ filtered }) {
   const scores = useMemo(() => {
@@ -616,7 +566,7 @@ function CombatAnalysisRow({ filtered }) {
         <SectionHeader label="Combat Analysis" sub="Estimated from your match data" icon={<Activity size={14} />} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', background: `${C.amber}12`, border: `1px solid ${C.amber}30`, borderRadius: 6 }}>
           <Info size={11} style={{ color: C.amber }} />
-          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: C.amber }}>Derived scores — not directly tracked</span>
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, color: C.amber }}>Derived scores â€” not directly tracked</span>
         </div>
       </div>
 
@@ -673,7 +623,7 @@ function CombatAnalysisRow({ filtered }) {
 }
 
 /* ================================================================
-   ROW 5 — WEAKNESS BREAKDOWN + BEST WEAPONS
+   ROW 5 â€” WEAKNESS BREAKDOWN + BEST WEAPONS
    ================================================================ */
 function WeaknessAndWeaponsRow({ filtered }) {
   const weaknessData = useMemo(() => {
@@ -702,7 +652,7 @@ function WeaknessAndWeaponsRow({ filtered }) {
     return Object.values(byWeapon)
       .sort((a, b) => b.kills - a.kills)
       .slice(0, 5)
-      .map(d => ({ ...d, avgKills: d.matches > 0 ? (d.kills / d.matches).toFixed(1) : '—' }))
+      .map(d => ({ ...d, avgKills: d.matches > 0 ? (d.kills / d.matches).toFixed(1) : 'â€”' }))
   }, [filtered])
 
   return (
@@ -766,7 +716,7 @@ function WeaknessAndWeaponsRow({ filtered }) {
               return (
                 <div key={d.weapon} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: '6px 16px', alignItems: 'center', padding: '8px 0', borderBottom: i < weaponData.length - 1 ? `1px solid ${C.border}30` : 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-                    {isTop && <span style={{ fontSize: 12 }}>🏆</span>}
+                    {isTop && <span style={{ fontSize: 12 }}>ðŸ†</span>}
                     <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: isTop ? C.text : C.muted, fontWeight: isTop ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.weapon}</span>
                   </div>
                   <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 14, fontWeight: 600, color: C.text, textAlign: 'right' }}>{d.kills}</span>
@@ -830,22 +780,14 @@ function EmptyState({ msg, sub }) {
 const axisProps = {
   stroke: '#EDF1F7',
   tickLine: false,
-<<<<<<< HEAD
   tick: { fill: '#64748B', fontSize: 11, fontFamily: 'Inter, sans-serif' },
-=======
-  tick: { fill: C.subtle, fontSize: 11, fontFamily: 'Inter, Inter, sans-serif' },
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
 }
 
 function CustomTooltip({ active, payload, label, suffix }) {
   if (!active || !payload?.length) return null
   const p = payload[0]
   return (
-<<<<<<< HEAD
     <div style={{ background: '#FFFFFF', border: '1px solid #E5EAF3', borderRadius: 8, padding: '10px 14px', fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#0B1224' }}>
-=======
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: 'Inter, Inter, sans-serif', fontSize: 12, color: C.text }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
       {label && <div style={{ color: C.subtle, marginBottom: 4, fontSize: 11 }}>{label}</div>}
       {payload.map((p, i) => (
         <div key={i} style={{ color: p.color || C.text, fontWeight: 600 }}>
@@ -870,7 +812,7 @@ function LoadingSkeleton() {
 }
 
 /* ================================================================
-   HELPERS — normalise fields across different match schemas
+   HELPERS â€” normalise fields across different match schemas
    ================================================================ */
 function tsOf(m) {
   if (!m) return 0
@@ -892,7 +834,7 @@ function tsOf(m) {
 }
 
 function fmtDate(ms) {
-  if (!ms) return '—'
+  if (!ms) return 'â€”'
   return new Date(ms).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
 }
 

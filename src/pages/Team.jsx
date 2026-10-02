@@ -48,7 +48,7 @@ export default function Team() {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 10, color: 'var(--text-muted)' }}>
         <Loader2 size={18} className="animate-spin" />
-        <span style={{ fontSize: 13 }}>Loading team…</span>
+        <span style={{ fontSize: 13 }}>Loading teamâ€¦</span>
         <style>{`.animate-spin { animation: ee-team-spin 0.9s linear infinite; } @keyframes ee-team-spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
@@ -139,10 +139,6 @@ export default function Team() {
                 border: 'none',
                 borderRadius: 8,
                 padding: '8px 14px',
-<<<<<<< HEAD
-=======
-                borderRadius: 4,
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
                 fontFamily: 'Inter, sans-serif',
                 fontSize: 13,
                 fontWeight: 600,
@@ -172,7 +168,7 @@ export default function Team() {
           {!isActive && !subLoading && (
             <UpgradeOverlay
               title="Squad Performance Analysis"
-              description="See exactly where each player underperformed — positioning errors, kill contributions, damage breakdown, and what went wrong in each match."
+              description="See exactly where each player underperformed â€” positioning errors, kill contributions, damage breakdown, and what went wrong in each match."
               feature="squad-analysis"
             />
           )}
@@ -256,16 +252,12 @@ function TeamHeader({ team, members, myRole, onLeave, leaving }) {
                   color: 'var(--text-primary)',
                 }}
               >
-                [{team.tag || '—'}]
+                [{team.tag || 'â€”'}]
               </span>
               <h1
                 style={{
                   fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
                   fontWeight: 900,
-=======
-                  fontWeight: 400,
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
                   fontSize: 32,
                   letterSpacing: '0.04em',
                   textTransform: 'uppercase',
@@ -291,7 +283,7 @@ function TeamHeader({ team, members, myRole, onLeave, leaving }) {
               disabled={leaving}
               className="btn btn-secondary btn-sm"
             >
-              {leaving ? <><Loader2 size={13} className="animate-spin" /> Leaving…</> : <><LogOut size={13} /> Leave</>}
+              {leaving ? <><Loader2 size={13} className="animate-spin" /> Leavingâ€¦</> : <><LogOut size={13} /> Leave</>}
             </button>
           )}
         </div>
@@ -328,10 +320,7 @@ function TeamAvatar({ team }) {
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
         fontWeight: 900,
-=======
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         fontSize: 22,
         letterSpacing: '0.04em',
         color: '#2563FF',
@@ -365,10 +354,7 @@ function NoTeamState({ onCreate }) {
         <div
           style={{
             fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
             fontWeight: 900,
-=======
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             fontSize: 24,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',

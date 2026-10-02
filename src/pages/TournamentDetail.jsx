@@ -63,7 +63,7 @@ export default function TournamentDetail() {
       q,
       (snap) => setMatches(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
       (err) => {
-        /* Some matches might lack matchNumber — fall back to an
+        /* Some matches might lack matchNumber â€” fall back to an
            unordered fetch and sort client-side by createdAt. */
         // eslint-disable-next-line no-console
         console.warn('[TournamentDetail] ordered matches snapshot failed, retrying:', err)
@@ -159,11 +159,7 @@ function TournamentHeader({ tournament }) {
         <h1
           style={{
             fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
             fontWeight: 900,
-=======
-            fontWeight: 400,
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             fontSize: 32,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
@@ -174,12 +170,8 @@ function TournamentHeader({ tournament }) {
         >
           {tournament.name || 'Tournament'}
         </h1>
-<<<<<<< HEAD
         <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#475569', marginTop: 4 }}>
-=======
-        <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: 'var(--text-muted)', marginTop: 4 }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
-          {tournament.organizer || '—'}
+          {tournament.organizer || 'â€”'}
         </div>
       </div>
 
@@ -193,7 +185,7 @@ function TournamentHeader({ tournament }) {
         <StatBlock
           icon={<Trophy size={14} />}
           label="Prize Pool"
-          value={tournament.prizePool || '—'}
+          value={tournament.prizePool || 'â€”'}
           accent="#D97706"
         />
         <StatBlock
@@ -204,12 +196,12 @@ function TournamentHeader({ tournament }) {
         <StatBlock
           icon={<Layers size={14} />}
           label="Format"
-          value={tournament.format || '—'}
+          value={tournament.format || 'â€”'}
         />
         <StatBlock
           icon={<MapIcon size={14} />}
           label="Maps"
-          value={maps.length ? maps.join(', ') : '—'}
+          value={maps.length ? maps.join(', ') : 'â€”'}
         />
       </div>
 
@@ -244,11 +236,7 @@ function StatBlock({ icon, label, value, accent }) {
       }}
     >
       <span style={{
-<<<<<<< HEAD
         fontFamily: 'Rajdhani, sans-serif', fontSize: 11, fontWeight: 600,
-=======
-        fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600,
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         textTransform: 'uppercase', letterSpacing: '0.08em',
         color: '#64748B',
         display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -259,11 +247,7 @@ function StatBlock({ icon, label, value, accent }) {
       <span
         style={{
           fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
           fontWeight: 900,
-=======
-          fontWeight: 400,
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
           fontSize: 20,
           letterSpacing: '0.04em',
           color: accent || '#0B1224',
@@ -290,11 +274,7 @@ function OverallLeaderboard({ overall }) {
           <Trophy size={15} style={{ color: '#64748B' }} />
           <span style={{
             fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
             fontWeight: 900,
-=======
-            fontWeight: 400,
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             fontSize: 20,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
@@ -333,8 +313,8 @@ function OverallLeaderboard({ overall }) {
                   <td style={{ fontFamily: 'Inter, sans-serif', color: '#F59E0B' }}>{row.totalKills}</td>
                   <td style={{ fontFamily: 'Inter, sans-serif' }}>{row.totalPlacementPoints}</td>
                   <td style={{ fontFamily: 'Inter, sans-serif', color: '#0B1224', fontWeight: 700 }}>{row.totalPoints}</td>
-                  <td style={{ fontFamily: 'Inter, sans-serif' }}>{row.totalWWC || '—'}</td>
-                  <td style={{ fontFamily: 'Inter, sans-serif' }}>{row.chickenDinners || '—'}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif' }}>{row.totalWWC || 'â€”'}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif' }}>{row.chickenDinners || 'â€”'}</td>
                 </tr>
               ))}
             </tbody>
@@ -434,19 +414,11 @@ function MatchDetail({ match }) {
   ).map((row, i) => ({ ...row, rank: Number(row.rank) || (i + 1) }))
 
   return (
-<<<<<<< HEAD
     <div style={cardStyle}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
         <div style={{
           fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900,
           fontSize: 20, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#0B1224',
-=======
-    <div className="card">
-      <div className="card-header">
-        <div className="card-title" style={{
-          fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 400,
-          fontSize: 20, letterSpacing: '0.04em',
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         }}>
           {match.round || `Match ${match.matchNumber || ''}`}
         </div>
@@ -483,11 +455,11 @@ function MatchDetail({ match }) {
               {rows.map((row, i) => (
                 <tr key={`${row.teamName}-${i}`} style={{ background: MEDAL_ROW_BG[row.rank] || undefined }}>
                   <td><RankCell rank={row.rank} /></td>
-                  <td style={{ fontWeight: 600, color: '#0B1224' }}>{row.teamName || '—'}</td>
+                  <td style={{ fontWeight: 600, color: '#0B1224' }}>{row.teamName || 'â€”'}</td>
                   <td style={{ fontFamily: 'Inter, sans-serif', color: '#F59E0B' }}>{Number(row.kills) || 0}</td>
                   <td style={{ fontFamily: 'Inter, sans-serif' }}>{Number(row.placementPoints) || 0}</td>
                   <td style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700 }}>{Number(row.totalPoints) || 0}</td>
-                  <td style={{ fontFamily: 'Inter, sans-serif', color: '#475569', fontSize: 12 }}>{row.notes || '—'}</td>
+                  <td style={{ fontFamily: 'Inter, sans-serif', color: '#475569', fontSize: 12 }}>{row.notes || 'â€”'}</td>
                 </tr>
               ))}
             </tbody>
@@ -501,7 +473,7 @@ function MatchDetail({ match }) {
 function MatchStatusBadge({ status }) {
   if (status === 'completed') return <span style={{ background: '#DCFCE7', color: '#16A34A', border: '1px solid rgba(22,163,74,0.2)', borderRadius: 20, padding: '3px 10px', fontSize: 10, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Completed</span>
   if (status === 'upcoming')  return <span style={{ background: '#F1F5F9', color: '#475569', border: '1px solid #E5EAF3', borderRadius: 20, padding: '3px 10px', fontSize: 10, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Upcoming</span>
-  return <span style={{ background: '#F1F5F9', color: '#475569', border: '1px solid #E5EAF3', borderRadius: 20, padding: '3px 10px', fontSize: 10, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{String(status || '').toUpperCase() || '—'}</span>
+  return <span style={{ background: '#F1F5F9', color: '#475569', border: '1px solid #E5EAF3', borderRadius: 20, padding: '3px 10px', fontSize: 10, fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{String(status || '').toUpperCase() || 'â€”'}</span>
 }
 
 /* ============================================================
@@ -515,11 +487,7 @@ function KillBoard({ rows }) {
           <Crosshair size={15} style={{ color: '#F59E0B' }} />
           <span style={{
             fontFamily: 'Barlow Condensed, sans-serif',
-<<<<<<< HEAD
             fontWeight: 900,
-=======
-            fontWeight: 400,
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             fontSize: 20,
             letterSpacing: '0.04em',
             textTransform: 'uppercase',
@@ -628,7 +596,7 @@ function LoadingState() {
       minHeight: '40vh', gap: 10, color: '#475569',
     }}>
       <Loader2 size={18} className="animate-spin" />
-      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13 }}>Loading tournament…</span>
+      <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13 }}>Loading tournamentâ€¦</span>
       <TableStyles />
     </div>
   )
@@ -641,17 +609,10 @@ function ErrorState({ message, onBack }) {
       <div style={{ ...cardStyle, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
         <AlertTriangle size={18} style={{ color: '#EF3340', flexShrink: 0, marginTop: 2 }} />
         <div>
-<<<<<<< HEAD
           <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: '#0B1224' }}>
             Couldn't load this tournament
           </div>
           <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#475569', marginTop: 4 }}>
-=======
-          <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: 'var(--text-primary)' }}>
-            Couldn't load this tournament
-          </div>
-          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
             {message}
           </div>
         </div>

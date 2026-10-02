@@ -33,7 +33,7 @@ const DEFAULT_PROFILE = { username: 'Player', email: '', phone: '', ign: '', igI
 const MAX_IGNS = 3
 
 /* Players use several in-game names across matches. `igns` is the
-   source of truth (1–3 entries); legacy single `ign` is kept in sync
+   source of truth (1â€“3 entries); legacy single `ign` is kept in sync
    as igns[0] so older screens keep working. */
 function normalizeIgns(p) {
   const arr = Array.isArray(p?.igns) ? p.igns : []
@@ -226,7 +226,7 @@ export default function Profile() {
         Object.entries(data).forEach(([k, v]) => {
           if (typeof k === 'string' && k.startsWith('esportselite_')) localStorage.setItem(k, v)
         })
-        showToast('Data imported. Reloading…')
+        showToast('Data imported. Reloadingâ€¦')
         setTimeout(() => window.location.reload(), 800)
       } catch { showToast('Invalid backup file.') }
     }
@@ -241,7 +241,7 @@ export default function Profile() {
         if (k && k.startsWith('esportselite_')) toRemove.push(k)
       }
       toRemove.forEach(k => localStorage.removeItem(k))
-      showToast('Local data cleared. Reloading…')
+      showToast('Local data cleared. Reloadingâ€¦')
       setTimeout(() => window.location.reload(), 800)
     } catch { showToast('Reset failed.') }
   }
@@ -288,11 +288,11 @@ export default function Profile() {
             <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 18, color: '#0B1224', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{displayName}</div>
             {ignList.length > 0 && (
               <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 2 }}>
-                IGN: {ignList.join(' · ')}
+                IGN: {ignList.join(' Â· ')}
               </div>
             )}
             <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#64748B', marginTop: 2 }}>
-              Level {levelNum} — {getLevelName(levelNum)}
+              Level {levelNum} â€” {getLevelName(levelNum)}
             </div>
           </div>
           {!editing && (
@@ -348,11 +348,11 @@ export default function Profile() {
           })}
         </div>
 
-        {/* In-game names (IGNs) — up to 3. Used by AI features to identify
+        {/* In-game names (IGNs) â€” up to 3. Used by AI features to identify
             which player in a screenshot is you. */}
         <div style={{ marginTop: 16 }}>
           <label style={labelStyle}>
-            <Crosshair size={11} /> In-game names (IGNs) — up to {MAX_IGNS}
+            <Crosshair size={11} /> In-game names (IGNs) â€” up to {MAX_IGNS}
           </label>
 
           {editing ? (
@@ -505,7 +505,7 @@ export default function Profile() {
                     textTransform: 'uppercase',
                   }}
                 >
-                  Level {levelNum} — {getLevelName(levelNum)}
+                  Level {levelNum} â€” {getLevelName(levelNum)}
                 </div>
               </div>
             </div>
@@ -595,7 +595,7 @@ export default function Profile() {
 
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 14 }}>
           <button onClick={downloadRankCard} disabled={downloading} style={btnPrimary}>
-            <Camera size={14} /> {downloading ? 'Saving…' : 'Save as image'}
+            <Camera size={14} /> {downloading ? 'Savingâ€¦' : 'Save as image'}
           </button>
         </div>
       </div>
@@ -643,7 +643,7 @@ export default function Profile() {
             <div style={{ minWidth: 0 }}>
               <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#0B1224' }}>AMOLED theme</div>
               <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#475569', marginTop: 2 }}>
-                Pure black backgrounds — better battery on OLED screens.
+                Pure black backgrounds â€” better battery on OLED screens.
               </div>
             </div>
           </div>
@@ -703,7 +703,7 @@ export default function Profile() {
                 fontFamily: 'Inter, Inter, sans-serif', fontSize: 13, fontWeight: 600,
               }}
             >
-              🧪 Seed Test Data (Dev Only)
+              ðŸ§ª Seed Test Data (Dev Only)
             </button>
           )}
         </div>
@@ -735,13 +735,8 @@ function ResetButton({ onClick }) {
         padding: '6px 12px',
         borderRadius: 8,
         background: 'transparent',
-<<<<<<< HEAD
         border: `1px solid ${hover ? '#EF3340' : '#E5EAF3'}`,
         color: hover ? '#EF3340' : '#64748B',
-=======
-        border: `1px solid ${hover ? 'var(--red)' : 'var(--border)'}`,
-        color: hover ? 'var(--red)' : 'var(--text-subtle)',
->>>>>>> 6f9a468 (fix: replace all old fonts with Barlow Condensed, Inter, Rajdhani, Anton)
         fontFamily: 'Inter, sans-serif',
         fontWeight: 600,
         fontSize: 12,
@@ -772,11 +767,11 @@ function Summary({ label, value }) {
 }
 
 function formatSubDate(d) {
-  if (!d) return '—'
+  if (!d) return 'â€”'
   try {
     return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
   } catch {
-    return '—'
+    return 'â€”'
   }
 }
 
