@@ -518,6 +518,7 @@ function TimerButton({ running, pct, hasTarget, onClick }) {
             fill="none" stroke="#FFFFFF" strokeWidth={stroke} strokeLinecap="round"
             strokeDasharray={circumference} strokeDashoffset={offset}
             transform={`rotate(-90 ${size / 2} ${size / 2})`}
+            style={{ transition: 'stroke-dashoffset 0.95s linear' }}
           />
         </svg>
       )}
@@ -547,8 +548,10 @@ function CompleteButton({ onClick }) {
       className="dt-check"
       title="Complete drill (use timer or enter minutes above)"
       aria-label="Complete drill"
-      animate={popped && !reduce ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-      transition={{ duration: 0.38, ease: DT_EASE }}
+      animate={popped && !reduce
+        ? { transform: ['scale(1)', 'scale(1.22)', 'scale(0.93)', 'scale(1)'] }
+        : { transform: 'scale(1)' }}
+      transition={{ duration: 0.42, ease: DT_EASE }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.94 }}
     >
