@@ -17,7 +17,7 @@ import {
 } from '@dnd-kit/core'
 import {
   arrayMove, SortableContext, sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
+  verticalListSortingStrategy, rectSortingStrategy,
 } from '@dnd-kit/sortable'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { useModules } from '../hooks/useModules.js'
@@ -217,6 +217,7 @@ export default function Training() {
         drillCount={drillCount}
         matchCount={matchCount}
         reduce={reduce}
+        combinedStatus={combinedStatus}
       />
 
       <TabSwitcher tab={tab} onChange={setTab} swipe={tabSwipe} />
@@ -227,6 +228,7 @@ export default function Training() {
             focusModuleId={focusModuleId}
             uid={authUser?.uid}
             sessions={Array.isArray(sessions) ? sessions : []}
+            matches={Array.isArray(matches) ? matches : []}
             streak={streak || profile?.streak || null}
             drillCount={drillCount}
             totalDuration={totalDuration}
@@ -259,7 +261,7 @@ export default function Training() {
 /* ================================================================
    HERO HEADER — gradient field, layered depth, live completion ring
    ================================================================ */
-function HeroHeader({ pct, drillCount, matchCount, reduce }) {
+function HeroHeader({ pct, drillCount, matchCount, reduce, combinedStatus }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: reduce ? 0 : 30 }}
@@ -267,15 +269,10 @@ function HeroHeader({ pct, drillCount, matchCount, reduce }) {
       transition={{ duration: 0.6, ease: EASE }}
       className="tc-hero"
     >
-      {/* Decorative layers — pointer-events none, below content */}
-      <div className="tc-hero-dots" aria-hidden />
-      <div className="tc-hero-glow-blue" aria-hidden />
-      <div className="tc-hero-glow-red" aria-hidden />
-
       <div className="tc-hero-inner">
         <div style={{ minWidth: 0 }}>
           <div className="tc-hero-kicker">
-            <Sparkles size={13} /> Your Practice Hub
+            YOUR PRACTICE HUB
           </div>
           <h1 className="tc-hero-title">Training Center</h1>
           <motion.div
@@ -383,7 +380,7 @@ function TabSwitcher({ tab, onChange, swipe }) {
 /* ================================================================
    TRAINING MODULES TAB — 2-column layout
    ================================================================ */
-function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, totalDuration, onWeaponsChange }) {
+function TrainingModulesTab({ focusModuleId, uid, sessions, matches, streak, drillCount, totalDuration, onWeaponsChange }) {
   const {
     modules, addModule, updateModule, deleteModule, duplicateModule,
     restoreDefaults, reorderModules, reorderDrills,
@@ -391,8 +388,19 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
   const reduce = useReducedMotion()
 
   const [createOpen, setCreateOpen] = useState(false)
+  const [filter, setFilter] = useState('all')
+  const [openModules, setOpenModules] = useState(() => new Set(focusModuleId ? [focusModuleId] : []))
   const modulesRef  = useRef(null)
   const focusRowRef = useRef(null)
+
+  function handleOpenChange(id, isOpen) {
+    setOpenModules(prev => {
+      const next = new Set(prev)
+      if (isOpen) next.add(id)
+      else next.delete(id)
+      return next
+    })
+  }
 
   const [plans] = useLocalStorage(PLANS_KEY, [])
   const todayPlanned = useMemo(() => {
@@ -447,6 +455,20 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
   }
 
   const customCount = modules.filter(m => !m.isDefault).length
+
+  const FILTERS = [
+    { id: 'all', label: 'All' },
+    { id: 'aim', label: 'Aim' },
+    { id: 'movement', label: 'Movement' },
+    { id: 'spray', label: 'Spray' },
+    { id: 'custom', label: 'Custom' },
+  ]
+
+  const filteredModules = useMemo(() => {
+    if (filter === 'all') return modules
+    if (filter === 'custom') return modules.filter(m => !m.isDefault)
+    return modules.filter(m => (m.name || '').toLowerCase().includes(filter))
+  }, [modules, filter])
   const totalDrills = modules.reduce((acc, m) => acc + (m.drills?.length || 0), 0)
 
   return (
@@ -460,11 +482,10 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
           <div className="tc-section-head">
             <div style={{ minWidth: 0 }}>
               <div className="tc-section-title">
-                <span className="tc-section-icon"><Target size={14} /></span>
-                Training Blocks
+                DRILLS ({totalDrills})
               </div>
               <div className="tc-section-meta">
-                {totalDrills} drill{totalDrills === 1 ? '' : 's'} across {modules.length} module{modules.length === 1 ? '' : 's'}
+                {modules.length} module{modules.length === 1 ? '' : 's'}
                 {customCount > 0 ? ` · ${customCount} custom` : ''}
               </div>
             </div>
@@ -474,9 +495,22 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
             >
-              Add Drill
+              Add Module
               <span className="tc-pill-btn-icon"><Plus size={13} /></span>
             </motion.button>
+          </div>
+
+          {/* Filter pills */}
+          <div className="tc-filter-pills">
+            {FILTERS.map(f => (
+              <button
+                key={f.id}
+                onClick={() => setFilter(f.id)}
+                className={`tc-filter-pill ${filter === f.id ? 'is-active' : ''}`}
+              >
+                {f.label}
+              </button>
+            ))}
           </div>
 
           {modules.length === 0 ? (
@@ -503,29 +537,44 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
                 </motion.button>
               </div>
             </div>
+          ) : filteredModules.length === 0 ? (
+            <div className="tc-empty-card">
+              <div className="tc-empty-title">No modules match this filter</div>
+              <div className="tc-empty-desc">Try selecting "All" or a different category.</div>
+            </div>
           ) : (
-            <DndContext sensors={moduleSensors} collisionDetection={closestCenter} onDragEnd={handleModuleDragEnd}>
-              <SortableContext items={modules.map(m => m.id)} strategy={verticalListSortingStrategy}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {modules.map((m, i) => {
+            <DndContext
+              sensors={moduleSensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleModuleDragEnd}
+            >
+              <SortableContext
+                items={filteredModules.map(m => m.id)}
+                strategy={filter === 'all' ? rectSortingStrategy : verticalListSortingStrategy}
+              >
+                <div className="tc-module-grid">
+                  {filteredModules.map((m, i) => {
                     const isFocused = focusModuleId === m.id
+                    const isOpen = openModules.has(m.id) || isFocused || (!focusModuleId && i === 0 && openModules.size === 0)
                     return (
                       <motion.div
                         key={m.id}
                         ref={isFocused ? focusRowRef : undefined}
-                        initial={{ opacity: 0, x: reduce ? 0 : -14 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.38, delay: Math.min(i, 6) * 0.05, ease: EASE }}
+                        className={isOpen ? 'tc-module-expanded' : ''}
+                        initial={{ opacity: 0, y: reduce ? 0 : 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.32, delay: Math.min(i, 6) * 0.04, ease: EASE }}
                       >
                         <ModuleCard
                           module={m}
-                          defaultOpen={isFocused || (!focusModuleId && i === 0)}
+                          defaultOpen={isOpen}
                           onUpdate={updateModule}
                           onDelete={() => deleteModule(m.id)}
                           onDuplicate={() => duplicateModule(m.id)}
                           onReorderDrills={reorderDrills}
                           todayPlan={planForModule(m.name)}
                           onWeaponsChange={onWeaponsChange}
+                          onOpenChange={handleOpenChange}
                         />
                       </motion.div>
                     )
@@ -552,7 +601,7 @@ function TrainingModulesTab({ focusModuleId, uid, sessions, streak, drillCount, 
 
       {/* ── Right column — Training Intelligence ── */}
       <div className="tc-right" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <QuickStatsCard sessions={sessions} streak={streak} drillCount={drillCount} totalDuration={totalDuration} />
+        <QuickStatsCard sessions={sessions} matches={matches} streak={streak} drillCount={drillCount} totalDuration={totalDuration} />
         <ThisWeekChart sessions={sessions} />
         <MotivationCarousel />
       </div>
@@ -819,7 +868,7 @@ function TodayMatchStatsRow({ matchCount, avgKills, avgPlacement, winRate, avgDa
 /* ================================================================
    RIGHT SIDEBAR — TRAINING INTELLIGENCE
    ================================================================ */
-function QuickStatsCard({ sessions, streak, drillCount, totalDuration }) {
+function QuickStatsCard({ sessions, matches, streak, drillCount, totalDuration }) {
   const reduce = useReducedMotion()
   const totalSessions = Array.isArray(sessions) ? sessions.length : 0
   const totalMinutes  = Array.isArray(sessions) ? sessions.reduce((s, sess) => s + (Number(sess.durationSeconds || 0) / 60), 0) : 0
@@ -827,39 +876,35 @@ function QuickStatsCard({ sessions, streak, drillCount, totalDuration }) {
   const mins  = Math.round(totalMinutes % 60)
   const currentStreak = streak?.count || 0
   const bestStreak    = streak?.longestStreak || streak?.bestStreak || 0
+  const totalMatches  = Array.isArray(matches) ? matches.length : 0
+  const consistency   = totalSessions > 0 ? Math.min(100, Math.round((currentStreak / 7) * 100)) : null
 
-  const STATS = [
+  const ROWS = [
     { Icon: Clock,         color: '#2563FF', tint: '#EAF2FF', label: 'Practice Time', text: `${hours}h ${mins}m` },
     { Icon: CalendarClock, color: '#5B3DF5', tint: '#F0EEFF', label: 'Sessions',      num: totalSessions },
-    { Icon: Target,        color: '#1677FF', tint: '#EAF2FF', label: 'Drills Done',   num: totalSessions },
-    { Icon: Flame,         color: '#EF3340', tint: '#FFF0F2', label: 'Streak',        num: currentStreak, suffix: 'd' },
-    { Icon: Trophy,        color: '#F59E0B', tint: '#FFFBEB', label: 'Best Streak',   num: bestStreak, suffix: 'd' },
-    { Icon: TrendingUp,    color: '#16A34A', tint: '#F0FDF4', label: 'Consistency',   num: totalSessions > 0 ? Math.min(100, Math.round((currentStreak / 7) * 100)) : null, suffix: '%' },
+    { Icon: Target,        color: '#2563FF', tint: '#EAF2FF', label: 'Drills',        num: drillCount },
+    { Icon: Trophy,        color: '#EF3340', tint: '#FFF0F2', label: 'Matches',       num: totalMatches },
+    { Icon: Flame,         color: '#EF3340', tint: '#FFF0F2', label: 'Current Streak', num: currentStreak, suffix: 'd' },
+    { Icon: Star,          color: '#F59E0B', tint: '#FFFBEB', label: 'Best Streak',   num: bestStreak, suffix: 'd' },
+    { Icon: TrendingUp,    color: '#16A34A', tint: '#F0FDF4', label: 'Consistency',   num: consistency, suffix: '%' },
   ]
 
   return (
     <div className="tc-card">
       <div className="tc-card-label" style={{ marginBottom: 14 }}>Quick Stats</div>
-      <div className="tc-stat-grid">
-        {STATS.map(({ Icon, color, tint, label, num, text, suffix }, i) => (
-          <motion.div
-            key={label}
-            className="tc-stat-tile"
-            style={{ background: tint }}
-            initial={{ opacity: 0, y: reduce ? 0 : 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.04, ease: EASE }}
-          >
-            <Icon size={15} style={{ color, flexShrink: 0 }} />
-            <div style={{ minWidth: 0 }}>
-              <div className="tc-stat-tile-val">
-                {text !== undefined
-                  ? <span style={{ fontVariantNumeric: 'tabular-nums' }}>{text}</span>
-                  : <CountStat value={num} suffix={suffix || ''} />}
-              </div>
-              <div className="tc-stat-tile-label">{label}</div>
-            </div>
-          </motion.div>
+      <div className="qs-rows">
+        {ROWS.map(({ Icon, color, tint, label, num, text, suffix }, i) => (
+          <div key={label} className="qs-row">
+            <span className="qs-icon" style={{ background: tint }}>
+              <Icon size={13} style={{ color }} />
+            </span>
+            <span className="qs-label">{label}</span>
+            <span className="qs-value">
+              {text !== undefined
+                ? <span style={{ fontVariantNumeric: 'tabular-nums' }}>{text}</span>
+                : <CountStat value={num} suffix={suffix || ''} />}
+            </span>
+          </div>
         ))}
       </div>
     </div>
@@ -1105,36 +1150,20 @@ function TrainingStyles() {
       /* ─────────────── HERO ─────────────── */
       .tc-hero {
         position: relative; overflow: hidden;
-        background: linear-gradient(135deg, #F7F9FD 0%, #EEF4FF 60%, #FFF0F2 100%);
-        border: 1px solid #E5EAF3;
-        border-radius: 18px;
+        background: linear-gradient(135deg, #F4F8FF, #FFFFFF, #FFF5F6);
+        border: 1px solid #E4EAF3;
+        border-radius: 20px;
         padding: clamp(24px, 4vw, 36px);
         margin: 4px 0 20px;
-        box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 16px 48px rgba(15,23,42,0.05);
-      }
-      .tc-hero-dots {
-        position: absolute; inset: 0; pointer-events: none; z-index: 0;
-        background-image: radial-gradient(circle, rgba(37,99,255,0.06) 1px, transparent 1px);
-        background-size: 24px 24px;
-      }
-      .tc-hero-glow-blue {
-        position: absolute; top: -80px; left: -80px; width: 320px; height: 320px;
-        border-radius: 50%; pointer-events: none; z-index: 0;
-        background: radial-gradient(circle, rgba(37,99,255,0.10) 0%, transparent 65%);
-      }
-      .tc-hero-glow-red {
-        position: absolute; bottom: -60px; right: -60px; width: 280px; height: 280px;
-        border-radius: 50%; pointer-events: none; z-index: 0;
-        background: radial-gradient(circle, rgba(239,51,64,0.07) 0%, transparent 65%);
+        box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 8px 32px rgba(15,23,42,0.04);
       }
       .tc-hero-inner {
-        position: relative; z-index: 1;
         display: flex; align-items: center; justify-content: space-between;
         gap: 24px; flex-wrap: wrap;
       }
       .tc-hero-kicker {
         display: inline-flex; align-items: center; gap: 6px;
-        font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 11px;
+        font-family: 'Inter', sans-serif; font-weight: 700; font-size: 11px;
         text-transform: uppercase; letter-spacing: 0.15em; color: #2563FF;
       }
       .tc-hero-title {
@@ -1266,17 +1295,63 @@ function TrainingStyles() {
       }
       .tc-section-title {
         display: flex; align-items: center; gap: 9px;
-        font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 20px;
-        text-transform: uppercase; letter-spacing: 0.03em; color: #0B1224;
-      }
-      .tc-section-icon {
-        width: 28px; height: 28px; border-radius: 8px; background: #EAF2FF;
-        display: inline-flex; align-items: center; justify-content: center;
-        color: #2563FF; flex-shrink: 0;
+        font-family: 'Inter', sans-serif; font-weight: 700; font-size: 22px;
+        letter-spacing: -0.01em; color: #111827;
       }
       .tc-section-meta {
         font-family: 'Inter', sans-serif; font-size: 12.5px; color: #64748B;
-        margin-top: 3px; padding-left: 37px;
+        margin-top: 3px;
+      }
+
+      /* ───────── FILTER PILLS ───────── */
+      .tc-filter-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+      .tc-filter-pill {
+        background: #FFFFFF; border: 1px solid #E6EBF2; color: #64748B;
+        border-radius: 999px; padding: 6px 16px;
+        font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+        cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      }
+      .tc-filter-pill.is-active {
+        background: #2563FF; border-color: #2563FF; color: #FFFFFF; font-weight: 600;
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .tc-filter-pill:not(.is-active):hover { border-color: #C7D7FB; color: #2563FF; background: #EEF4FF; }
+      }
+
+      /* ───────── MODULE CARD GRID ───────── */
+      .tc-module-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .tc-module-expanded { grid-column: 1 / -1; }
+      @media (min-width: 1200px) {
+        .tc-module-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      }
+      @media (max-width: 560px) {
+        .tc-module-grid { grid-template-columns: 1fr; }
+      }
+
+      /* ───────── QUICK STATS ROWS ───────── */
+      .qs-rows { display: flex; flex-direction: column; }
+      .qs-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 9px 0; border-bottom: 1px solid #F1F5F9;
+      }
+      .qs-row:last-child { border-bottom: none; padding-bottom: 0; }
+      .qs-row:first-child { padding-top: 0; }
+      .qs-icon {
+        width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .qs-label {
+        flex: 1; min-width: 0;
+        font-family: 'Inter', sans-serif; font-size: 13px; color: #64748B;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .qs-value {
+        font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+        color: #111827; font-variant-numeric: tabular-nums; flex-shrink: 0;
       }
 
       /* ───────────── BUTTONS ───────────── */

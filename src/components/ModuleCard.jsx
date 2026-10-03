@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import {
-  ChevronDown, GripVertical, Crosshair, Flame, Move, Car, Swords, Target,
+  ChevronDown, GripVertical, Crosshair, Flame, Move, Car, Swords, Target, ArrowRight,
 } from 'lucide-react'
 import {
   DndContext,
@@ -65,8 +65,15 @@ export default function ModuleCard({
   onDuplicate,
   onReorderDrills,
   todayPlan,
+  onOpenChange,
 }) {
   const [open, setOpen] = useState(defaultOpen)
+
+  function toggleOpen(next) {
+    const val = next !== undefined ? next : !open
+    setOpen(val)
+    onOpenChange?.(module.id, val)
+  }
   const [guns, setGuns] = useState([])
   const reduce = useReducedMotion()
 
@@ -172,21 +179,61 @@ export default function ModuleCard({
     <>
       <div
         ref={setNodeRef}
-        className={`mdc-card ${isDragging ? 'is-dragging' : ''} ${open ? 'is-open' : ''}`}
+        {...attributes}
+        className={`mdc-card ${isDragging ? 'is-dragging' : ''} ${open ? 'is-open' : 'is-collapsed'}`}
         style={{
           ...moduleStyle,
-          transition: `${moduleStyle.transition || ''} border-color 0.18s ease, box-shadow 0.18s ease`,
+          transition: `${moduleStyle.transition || ''} border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s cubic-bezier(0.23,1,0.32,1)`,
           ...(isDragging ? { zIndex: 10, position: 'relative' } : {}),
         }}
       >
-        {/* Per-type accent strip */}
-        <span className="mdc-accent" style={{ background: accent.color }} aria-hidden />
-
-        {/* ── Header ── */}
-        <div className="mdc-head">
-          {/* Drag handle */}
+        {/* ── Collapsed tile UI (hidden when open) ── */}
+        <div className="mdc-coll-wrap">
           <button
-            {...attributes}
+            onClick={() => toggleOpen(true)}
+            className="mdc-coll-body"
+            aria-expanded={false}
+          >
+            <span className="mdc-coll-icon" style={{ background: accent.tint }}>
+              <AccentIcon size={20} style={{ color: accent.color }} />
+            </span>
+            <span className="mdc-coll-text">
+              <span className="mdc-coll-title">
+                {module.name}
+                {!module.isDefault && <span className="mdc-tag">Custom</span>}
+              </span>
+              {module.description && (
+                <span className="mdc-coll-desc">{module.description}</span>
+              )}
+            </span>
+          </button>
+          <div className="mdc-coll-foot">
+            <button
+              {...listeners}
+              title="Drag to reorder module"
+              aria-label="Drag to reorder module"
+              className="mdc-grip"
+              onClick={e => e.stopPropagation()}
+            >
+              <GripVertical size={15} />
+            </button>
+            <span className="mdc-coll-count">
+              {module.drills.length} drill{module.drills.length === 1 ? '' : 's'}
+            </span>
+            {planned && <span className="mdc-today-chip">Today</span>}
+            <button
+              onClick={() => toggleOpen(true)}
+              className="mdc-coll-arrow"
+              aria-label="Open module"
+            >
+              <ArrowRight size={15} />
+            </button>
+          </div>
+        </div>
+
+        {/* ── Expanded header (hidden when collapsed) ── */}
+        <div className="mdc-head">
+          <button
             {...listeners}
             title="Drag to reorder module"
             aria-label="Drag to reorder module"
@@ -195,12 +242,10 @@ export default function ModuleCard({
             <GripVertical size={16} />
           </button>
 
-          <button onClick={() => setOpen(v => !v)} className="mdc-head-main">
-            {/* Icon box */}
+          <button onClick={() => toggleOpen(false)} className="mdc-head-main">
             <span className="mdc-icon" style={{ background: accent.tint }}>
               <AccentIcon size={17} style={{ color: accent.color }} />
             </span>
-
             <span className="mdc-head-text">
               <span className="mdc-title">
                 {module.name}
@@ -217,26 +262,23 @@ export default function ModuleCard({
 
           <div className="mdc-head-actions">
             {planned && <span className="mdc-today-chip">Today's Plan</span>}
-
             <span className="mdc-count">
               {module.drills.length} drill{module.drills.length === 1 ? '' : 's'}
             </span>
-
             <ModuleManageMenu
               onRename={() => setRenameOpen(true)}
               onAddDrill={() => setAddDrillOpen(true)}
               onDuplicate={() => onDuplicate?.()}
               onDelete={() => setDeleteOpen(true)}
             />
-
             <button
-              onClick={() => setOpen(v => !v)}
-              title={open ? 'Collapse' : 'Expand'}
+              onClick={() => toggleOpen(false)}
+              title="Collapse"
               aria-expanded={open}
               className="mdc-chev"
             >
               <motion.span
-                animate={{ rotate: open ? 180 : 0 }}
+                animate={{ rotate: 180 }}
                 transition={{ duration: reduce ? 0 : 0.25, ease: EASE }}
                 style={{ display: 'flex' }}
               >
@@ -376,22 +418,73 @@ export default function ModuleCard({
 
 const styles = `
   .mdc-card {
-    position: relative; overflow: hidden;
+    position: relative;
     background: #FFFFFF; border: 1px solid #E5EAF3; border-radius: 16px;
     box-shadow: 0 4px 20px rgba(15,23,42,0.04);
+    overflow: hidden;
   }
-  .mdc-card.is-open { box-shadow: 0 8px 30px rgba(37,99,255,0.08); }
+  .mdc-card.is-open { box-shadow: 0 8px 30px rgba(37,99,255,0.08); border-color: #C7D7FB; }
   .mdc-card.is-dragging { box-shadow: 0 14px 40px rgba(15,23,42,0.12); }
   @media (hover: hover) and (pointer: fine) {
-    .mdc-card:hover { border-color: #C7D7FB; }
+    .mdc-card.is-collapsed:hover {
+      border-color: #C7D7FB;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(15,23,42,0.08);
+    }
   }
 
-  .mdc-accent {
-    position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-    pointer-events: none;
+  /* CSS visibility switching — no remounting */
+  .mdc-card.is-open .mdc-coll-wrap { display: none; }
+  .mdc-card.is-collapsed .mdc-head { display: none; }
+
+  /* ── Collapsed tile UI ── */
+  .mdc-coll-wrap {
+    display: flex; flex-direction: column; cursor: default;
+  }
+  .mdc-coll-body {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 18px 20px 12px;
+    background: transparent; border: none; cursor: pointer; text-align: left; width: 100%;
+    transition: background 0.15s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .mdc-coll-body:hover { background: #F8FAFD; }
+  }
+  .mdc-coll-icon {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mdc-coll-text { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .mdc-coll-title {
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px;
+    color: #111827; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; line-height: 1.2;
+  }
+  .mdc-coll-desc {
+    font-family: 'Inter', sans-serif; font-size: 13px; color: #64748B;
+    overflow: hidden; text-overflow: ellipsis;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    line-height: 1.45;
+  }
+  .mdc-coll-foot {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 16px 14px 20px; border-top: 1px solid #F1F5F9; margin-top: 6px;
+    padding-top: 10px;
+  }
+  .mdc-coll-count {
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; color: #64748B;
+    flex: 1;
+  }
+  .mdc-coll-arrow {
+    background: transparent; border: none; cursor: pointer; padding: 4px;
+    color: #94A3B8; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .mdc-coll-arrow:hover { color: #2563FF; background: #EEF4FF; }
   }
 
-  /* ── Header ── */
+  /* ── Expanded header ── */
   .mdc-head {
     width: 100%; display: flex; align-items: center; justify-content: space-between;
     gap: 12px; padding: 16px 20px 16px 22px;
@@ -417,9 +510,9 @@ const styles = `
   }
   .mdc-head-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
   .mdc-title {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 19px;
-    text-transform: uppercase; letter-spacing: 0.03em; color: #0B1224;
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; line-height: 1.15;
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px;
+    color: #111827;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; line-height: 1.2;
   }
   .mdc-tag {
     background: #F0EEFF; border: 1px solid rgba(91,61,245,0.2); color: #5B3DF5;

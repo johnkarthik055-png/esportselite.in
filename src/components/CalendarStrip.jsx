@@ -289,13 +289,13 @@ const styles = `
 
   .cs-day {
     position: relative; flex-shrink: 0; scroll-snap-align: center;
-    width: 56px; height: 66px; padding: 7px 0;
+    width: 66px; height: 72px; padding: 7px 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-    background: #F8FAFD; border: 1px solid #E5EAF3; border-radius: 14px;
+    background: #F8FAFD; border: 1px solid #E5EAF3; border-radius: 13px;
     cursor: pointer;
     transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
   }
-  .cs-day.is-selected { background: #EAF2FF; border-color: #C7D7FB; }
+  .cs-day.is-selected { background: #2563FF; border: 2px solid #2563FF; box-shadow: 0 4px 14px rgba(37,99,255,0.22); }
   .cs-day.is-today {
     background: #FFFFFF; border: 2px solid #2563FF;
     box-shadow: 0 0 0 4px rgba(37,99,255,0.08), 0 6px 18px rgba(37,99,255,0.14);
@@ -309,12 +309,13 @@ const styles = `
     text-transform: uppercase; letter-spacing: 0.1em; color: #94A3B8;
   }
   .cs-day.is-today .cs-day-dow { color: #2563FF; }
+  .cs-day.is-selected .cs-day-dow { color: rgba(255,255,255,0.7); }
   .cs-day-num {
     font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 19px;
     color: #475569; line-height: 1; font-variant-numeric: tabular-nums;
   }
   .cs-day.is-today .cs-day-num { color: #0B1224; }
-  .cs-day.is-selected .cs-day-num { color: #0B1224; }
+  .cs-day.is-selected .cs-day-num { color: #FFFFFF; }
   .cs-day-dot { width: 5px; height: 5px; border-radius: 50%; display: block; }
   .cs-day-glow {
     position: absolute; inset: auto 0 6px 0; height: 2px; margin: 0 auto; width: 18px;
