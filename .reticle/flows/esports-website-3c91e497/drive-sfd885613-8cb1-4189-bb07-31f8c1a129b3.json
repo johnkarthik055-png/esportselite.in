@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "name": "drive-sfd885613-8cb1-4189-bb07-31f8c1a129b3",
+  "projectId": "esports-website-3c91e497",
+  "createdAt": 1790765830283,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "component",
+        "component": "Footer",
+        "source": {
+          "file": "src/components/Footer.jsx",
+          "line": 134,
+          "column": 4
+        }
+      },
+      "args": {},
+      "action": "scrollIntoView",
+      "expect": {
+        "kind": "element",
+        "query": {
+          "role": "contentinfo"
+        }
+      }
+    }
+  ],
+  "startPath": "/"
+}

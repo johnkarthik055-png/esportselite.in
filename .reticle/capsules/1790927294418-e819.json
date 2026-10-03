@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "1790927294418-e819",
+  "createdAt": 1790927294418,
+  "origin": "failed-assert",
+  "expected": "declared consequence",
+  "observed": "element exists but not in state 'visible'",
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "testid",
+        "value": "e819",
+        "source": {
+          "file": "src/components/Sidebar.jsx",
+          "line": 810,
+          "column": 36
+        }
+      },
+      "action": "click"
+    }
+  ]
+}

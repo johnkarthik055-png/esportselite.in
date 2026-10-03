@@ -1,15 +1,15 @@
 {
   "counts": {
-    "calls": 574,
-    "verdicts": 114,
-    "passed": 84,
-    "failed": 16,
-    "unknown": 14,
-    "refusals": 25,
+    "calls": 627,
+    "verdicts": 122,
+    "passed": 88,
+    "failed": 18,
+    "unknown": 16,
+    "refusals": 28,
     "marks": 0,
-    "sessions": 15,
-    "tokensReturned": 219067,
-    "drivingMs": 421115
+    "sessions": 19,
+    "tokensReturned": 249307,
+    "drivingMs": 484697
   },
   "days": [
     {
@@ -146,13 +146,28 @@
         "tokensReturned": 1279,
         "drivingMs": 28830
       }
+    },
+    {
+      "date": "2026-10-02",
+      "counts": {
+        "calls": 53,
+        "verdicts": 8,
+        "passed": 4,
+        "failed": 2,
+        "unknown": 2,
+        "refusals": 3,
+        "marks": 0,
+        "sessions": 4,
+        "tokensReturned": 30240,
+        "drivingMs": 63582
+      }
     }
   ],
   "records": {
-    "longestRunMs": 0,
+    "longestRunMs": 500702,
     "bestVerdictDay": 56,
     "bestDefectDay": 8,
-    "streakDays": 3,
+    "streakDays": 1,
     "bestStreakDays": 4
   },
   "savings": {
@@ -161,12 +176,24 @@
       "basis": "vs an agent reading the app through screenshots"
     },
     "minutes": {
-      "value": 121,
+      "value": 133,
       "basis": "vs checking each consequence by hand, plus one re-prompt cycle per defect caught"
     }
   },
   "since": 1789294396936,
   "defects": [
+    {
+      "at": 1790927226406,
+      "title": "Collapse",
+      "detail": "expected element to be absent but found 2",
+      "source": "src/components/Sidebar.jsx:810"
+    },
+    {
+      "at": 1790927226404,
+      "title": "Collapse",
+      "detail": "expected element to be absent but found 2",
+      "source": "src/components/Sidebar.jsx:810"
+    },
     {
       "at": 1789550685298,
       "title": "Log Match",
@@ -203,16 +230,6 @@
     {
       "at": 1789507338181,
       "title": "the declared consequence did not hold"
-    },
-    {
-      "at": 1789330497673,
-      "title": "the declared consequence did not hold"
-    },
-    {
-      "at": 1789330490108,
-      "title": "Zone 1–8",
-      "detail": "no element matched {\"role\":\"button\",\"component\":\"ZoneSelector.jsx\"} in state 'visible'",
-      "source": "src/components/strategy/FloatingToolbar.jsx:60"
     }
   ]
 }
